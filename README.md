@@ -1,10 +1,13 @@
-# Hexo Theme Icarus
+## Installation
 
-## Demo & Preview
+```shell
+bun add hexo-theme-gnix
+hexo config theme gnix
+```
 
-[vluv's space](https://vluv.space/)
+## Features
 
-### Multiple Theme Support
+### Multiple-Theme Support
 
 Support multiple light and dark themes:
 
@@ -12,57 +15,40 @@ Support multiple light and dark themes:
 - **Light Themes**: `Nord`, `Cattpuccin Latte`
 - **Dark Themes**: `Catppuccin Mocha`, `Catppuccin Macchiato`, `Tokyo Night`
 
-| ![](assets/README/nord.png) | ![](assets/README/mocha.png) |
-| --------------------------- | ---------------------------- |
+<table border="1">
+  <tr>
+    <td><img width="3074" height="2060" alt="image" src="https://github.com/user-attachments/assets/80f772e7-2d91-4bd2-bfbe-bf73753721dc" /></td>
+    <td><img width="3074" height="2060" alt="image" src="https://github.com/user-attachments/assets/0ae6a569-5e88-41a2-92f3-e08b9d3e5531" /></td>
+    <td><img width="1758" height="2060" alt="image" src="https://github.com/user-attachments/assets/673a89fa-0ab0-43bb-a9e8-8dfd8eebaa90" /></td>
+  </tr>
+</table>
 
-### Components
-
-#### Table
-
-| ![1763371106238](assets/README/table_nord.png) | ![1763371131768](assets/README/table_tokyo.png) |
-| ---------------------------------------------- | ----------------------------------------------- |
-
-#### Quote
-
-| ![1763371059037](assets/README/quote_light.png) |
-| ----------------------------------------------- |
-| ![1763371021736](assets/README/quote_dark.png)  |
-
-#### Footer
-
-| ![1763371250167](assets/README/footer_nord.png) |
-| ----------------------------------------------- |
-| ![1763371215054](assets/README/footer_dark.png) |
-
-## Installation
+## Components
 
 ```shell
-$ bun add hexo-theme-gnix
-$ hexo config theme gnix
+bun i hexo-renderer-markdown-exit
 ```
 
-## Setup
+### Table, Math, Quote, Callout & Tabs, Highlight
 
-<details>
-<summary>Math Rendering Setup</summary>
+<table>
+  <tr>
+    <td><img width="1806" height="378" alt="image" src="https://github.com/user-attachments/assets/63712c7c-4c4c-4a9e-89cb-1b558769e438" /></td>
+    <td><img width="1754" height="394" alt="image" src="https://github.com/user-attachments/assets/4055601f-da4f-4643-8eaf-7965afe3836f" /></td>
+  </tr>
+  <tr>
+    <td><img width="1314" height="508" alt="image" src="https://github.com/user-attachments/assets/26c31f7d-55dd-4e3f-994f-99492bb801f0" /></td>
+    <td><img width="1798" height="372" alt="image" src="https://github.com/user-attachments/assets/13251a06-444b-4aaf-aed4-c9f436f10393" /></td>
+  </tr>
+</table>
 
-To enable math rendering with optimized performance, use [markdown-it-mathjax3-pro](https://github.com/NeoNexusX/markdown-it-mathjax3-pro), which supports both SSR and CSR modes
+---
 
-</details>
+<table>
+  <tr>
+    <td><img width="1750" height="330" alt="image" src="https://github.com/user-attachments/assets/976531e7-6988-476f-a24b-d3aa40b53cab" /></td>
+    <td><img width="976" height="330" alt="image" src="https://github.com/user-attachments/assets/8ee76260-8054-41a2-8d89-2b982d4ef2bc" /></td>
+  </tr>
+</table>
 
-<details>
-<summary>Code Highlight Setup</summary>
 
-Use [hexo-shiki-highlight](https://github.com/Efterklang/hexo-shiki-highlight) plugin for code block highlighting, support multiple themes as well;
-
-Set `syntax_highlighter` to `shiki` in your hexo `_config.yml`:
-
-```yaml _config.yml
-# Syntax Highlighter
-syntax_highlighter: shiki
-```
-
-| <img width="1386" height="720" alt="image" src="https://github.com/user-attachments/assets/f0435c12-5140-4ca4-86bb-e5237039cc2d" /> | <img width="1394" height="736" alt="image" src="https://github.com/user-attachments/assets/406a656f-9e99-4fb7-bb34-a2e1078451e4" /> |
-| ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-
-</details>
