@@ -1,0 +1,46 @@
+.article-licensing {
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.is-hidden-mobile {
+  display: none;
+}
+
+table {
+  font-size: 14px;
+}
+
+table th,
+table td {
+  padding: 8px 12px;
+}
+
+.section {
+  padding: 0.3rem;
+}
+
+.card {
+  margin: 0 0 1.5rem 0;
+}
+
+.card .card-content {
+  padding: 1rem;
+}
+
+.pagination {
+  flex-wrap: wrap;
+}
+
+.pagination-previous,
+.pagination-next {
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
+.pagination-list li {
+  flex-grow: 1;
+  flex-shrink: 1;
+}

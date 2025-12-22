@@ -1,0 +1,45 @@
+{
+  "name": "hexo-theme-gnix",
+  "version": "1.1.0",
+  "author": "Efterklang <gaojiaxing0220@gmail.com>",
+  "license": "MIT",
+  "description": "Second generation of Hexo theme Icarus, now with Catppuccin flavor and night mode support.",
+  "keywords": [
+    "hexo",
+    "theme",
+    "catppuccin"
+  ],
+  "homepage": "https://github.com/Efterklang/hexo-theme-icarus",
+  "repository": "https://github.com/Efterklang/hexo-theme-icarus.git",
+  "bugs": {
+    "url": "https://github.com/Efterklang/hexo-theme-icarus/issues"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "lint": "biome check --write .",
+    "format": "biome format .",
+    "check": "biome check",
+    "test": "echo \"No tests configured\" && exit 0"
+  },
+  "files": [
+    "include",
+    "layout",
+    "scripts",
+    "source",
+    "util",
+    "languages",
+    "README.md"
+  ],
+  "dependencies": {
+    "date-fns": "^2.30.0",
+    "hexo-pagination": "^4.0.0",
+    "hexo-renderer-inferno": "^1.0.2",
+    "js-yaml": "^4.1.1"
+  },
+  "peerDependencies": {
+    "hexo": ">=7.0.0",
+    "hexo-util": ">=4.0.0"
+  }
+}

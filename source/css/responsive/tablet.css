@@ -1,0 +1,46 @@
+/* @media screen and (min-width $tablet), print */
+.is-hidden-tablet {
+  display: none;
+}
+
+/* level item */
+.level {
+  display: flex;
+}
+
+.level > .level-item:not(.is-narrow) {
+  flex-grow: 1;
+}
+
+/* pagination */
+.pagination-list {
+  flex-grow: 1;
+  flex-shrink: 1;
+  justify-content: flex-start;
+  order: 1;
+}
+
+.pagination-previous {
+  order: 2;
+}
+
+.pagination-next {
+  order: 3;
+}
+
+.pagination {
+  justify-content: space-between;
+}
+
+.pagination-previous {
+  order: 1;
+}
+
+.pagination-list {
+  justify-content: center;
+  order: 2;
+}
+
+.pagination-next {
+  order: 3;
+}

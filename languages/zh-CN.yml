@@ -1,0 +1,47 @@
+common:
+  archive:
+    one: "ARCHIVE"
+    other: "ARCHIVE"
+  category:
+    one: "CATEGORY"
+    other: "CATEGORY"
+  tag:
+    one: "TAGS"
+    other: "TAGS"
+  post:
+    one: "POST"
+    other: "POST"
+  page:
+    one: "PAGE"
+    other: "PAGE"
+  prev: "Previous"
+  next: "Next"
+article:
+  created_at: "%s"
+  more: "Read"
+  comments: "评论"
+  edited: "编辑于"
+  word_count:
+    one: "约%d字"
+    other: "约%d字"
+  licensing:
+    author: "Author"
+    created_at: "Posted on"
+    updated_at: "Updated on"
+    licensed_under: "License under"
+plugin:
+  visit_count: "%sPV" # post页面显示的page view次数
+  visitor_count: 'PV&nbsp;<span id="busuanzi_site_pv">-</span>&nbsp;UV&nbsp;<span id="busuanzi_site_uv">-</span>&nbsp;'
+  cookie_consent:
+    message: 此网站使用 Cookie，以启用评论系统和分析功能。
+    dismiss: 知道了
+    allow: 允许使用Cookie
+    deny: 拒绝
+    link: 了解更多
+    policy: Cookie政策
+search:
+  search: "搜索"
+  hint: "想要查找什么...(Ctrl/󰘳 + K)"
+  no_result: "未找到搜索结果"
+  untitled: "(无标题)"
+  empty_preview: "(无内容预览)"
