@@ -9,10 +9,10 @@
     "theme",
     "catppuccin"
   ],
-  "homepage": "https://github.com/Efterklang/hexo-theme-icarus",
-  "repository": "https://github.com/Efterklang/hexo-theme-icarus.git",
+  "homepage": "https://github.com/Efterklang/gnix-blog-theme",
+  "repository": "https://github.com/Efterklang/gnix-blog-theme.git",
   "bugs": {
-    "url": "https://github.com/Efterklang/hexo-theme-icarus/issues"
+    "url": "https://github.com/Efterklang/gnix-blog-theme/issues"
   },
   "engines": {
     "node": ">=14"
