@@ -1,35 +1,38 @@
-const { createElement } = require('inferno-create-element');
-const { renderToStaticMarkup } = require('inferno-server');
+const { transformSync } = require("esbuild");
+const { createElement } = require("inferno-create-element");
+const { renderToStaticMarkup } = require("inferno-server");
+const fs = require("node:fs");
+const Module = require("node:module");
 
-const startTag = '<html';
-const babelOptions = {
-  ignore: [],
-  only: [/.*\.jsx/],
-  presets: [
-    '@babel/preset-env'
-  ],
-  plugins: [
-    [
-      'babel-plugin-inferno',
-      {
-        imports: true
-      }
-    ]
-  ]
+const startTag = "<html";
+
+Module._extensions[".jsx"] = (module, filename) => {
+  const content = fs.readFileSync(filename, "utf8");
+  const { code } = transformSync(content, {
+    loader: "jsx",
+    format: "cjs",
+    jsxFactory: "__createElement",
+    jsxFragment: "__Fragment",
+    banner:
+      "const __createElement = require('inferno-create-element').createElement; const __Fragment = require('inferno').Fragment;",
+    sourcefile: filename,
+  });
+  module._compile(code, filename);
 };
-require('@babel/register')(babelOptions);
 
 function compile(data) {
   const Component = require(data.path);
 
-  return function(locals) {
+  return (locals) => {
     const element = createElement(Component, locals);
-
     // test if the layout is root layout file so we can skip costly large string comparison
-    if ('layout' in locals && 'view_dir' in locals && 'filename' in locals) {
-      if (locals.filename.startsWith(locals.view_dir) && locals.layout === false) {
+    if ("layout" in locals && "view_dir" in locals && "filename" in locals) {
+      if (
+        locals.filename.startsWith(locals.view_dir) &&
+        locals.layout === false
+      ) {
         // this is root layout file, add doctype
-        return '<!doctype html>\n' + renderToStaticMarkup(element);
+        return "<!doctype html>\n" + renderToStaticMarkup(element);
       }
       return renderToStaticMarkup(element);
     }
@@ -40,7 +43,7 @@ function compile(data) {
         return markup;
       }
     }
-    return '<!doctype html>\n' + markup;
+    return "<!doctype html>\n" + markup;
   };
 }
 
@@ -51,5 +54,5 @@ function renderer(data, locals) {
 renderer.compile = compile;
 
 module.exports = (hexo) => {
-  hexo.extend.renderer.register('jsx', 'html', renderer, true);
-}
+  hexo.extend.renderer.register("jsx", "html", renderer, true);
+};

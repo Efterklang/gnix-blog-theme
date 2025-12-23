@@ -34,15 +34,12 @@
   ],
   "dependencies": {
     "date-fns": "^2.30.0",
+    "esbuild": "^0.27.2",
     "hexo-pagination": "^4.0.0",
-    "js-yaml": "^4.1.1",
-    "@babel/core": "^7.23.9",
-    "@babel/preset-env": "^7.23.9",
-    "@babel/register": "^7.23.7",
-    "babel-plugin-inferno": "^6.7.1",
     "inferno": "^8.2.3",
     "inferno-create-element": "^8.2.3",
-    "inferno-server": "^8.2.3"
+    "inferno-server": "^8.2.3",
+    "js-yaml": "^4.1.1"
   },
   "peerDependencies": {
     "hexo": ">=7.0.0",
