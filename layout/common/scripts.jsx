@@ -19,6 +19,11 @@ module.exports = class extends Component {
         />
         <script defer data-pjax src="/js/main.js"></script>
         <script
+          async
+          src="/js/host/iconify-icon/3.0.2/iconify-icon.min.js"
+        ></script>
+        <script async src="/js/theme-selector.js"></script>
+        <script
           defer
           src="/js/host/medium-zoom/dist/medium-zoom.min.js"
         ></script>
