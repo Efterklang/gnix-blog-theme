@@ -8,4 +8,5 @@ module.exports = (hexo) => {
   require("./hexo/helper/cdn")(hexo);
   require("./hexo/helper/page")(hexo);
   require("./hexo/view").init(hexo);
+  require("./hexo/renderer")(hexo);
 };
