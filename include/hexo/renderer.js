@@ -4,8 +4,6 @@ const { renderToStaticMarkup } = require("inferno-server");
 const fs = require("node:fs");
 const Module = require("node:module");
 
-const startTag = "<html";
-
 Module._extensions[".jsx"] = (module, filename) => {
   const content = fs.readFileSync(filename, "utf8");
   const { code } = transformSync(content, {
@@ -22,9 +20,12 @@ Module._extensions[".jsx"] = (module, filename) => {
 
 function compile(data) {
   const Component = require(data.path);
+  const DOCTYPE = "<!doctype html>\n";
+  const startTag = "<html";
 
   return (locals) => {
     const element = createElement(Component, locals);
+    const markup = renderToStaticMarkup(element);
     // test if the layout is root layout file so we can skip costly large string comparison
     if ("layout" in locals && "view_dir" in locals && "filename" in locals) {
       if (
@@ -32,18 +33,17 @@ function compile(data) {
         locals.layout === false
       ) {
         // this is root layout file, add doctype
-        return "<!doctype html>\n" + renderToStaticMarkup(element);
+        return DOCTYPE + markup;
       }
-      return renderToStaticMarkup(element);
+      return markup;
     }
-    const markup = renderToStaticMarkup(element);
     // do not use substr, substring, slice to prevent string copy
     for (let i = 0; i < 5; i++) {
       if (markup.charAt(i).toLowerCase() !== startTag.charAt(i)) {
         return markup;
       }
     }
-    return "<!doctype html>\n" + markup;
+    return DOCTYPE + markup;
   };
 }
 
