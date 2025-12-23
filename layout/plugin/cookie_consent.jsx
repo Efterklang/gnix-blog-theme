@@ -1,27 +1,5 @@
 const { Component, cacheComponent } = require("../../include/util/common");
-/**
- * A JSX component for alerting users about the use of cookies.
- *
- * @see https://www.osano.com/cookieconsent/
- * @example
- * <CookieConsent
- *     head={true}
- *     type="info"
- *     theme="classic"
- *     static={false}
- *     position="bottom-left"
- *     policyLink="/path/to/cookie/policy"
- *     text={{
- *         message: 'This website uses cookies to improve your experience.',
- *         dismiss: 'Got it!',
- *         allow: 'Allow cookies',
- *         deny: 'Decline',
- *         link: 'Learn more',
- *         policy: 'Cookie Policy',
- *     }}
- *     cssUrl="/path/to/cookieconsent.css"
- *     jsUrl="/path/to/cookieconsent.js" />
- */
+
 class CookieConsent extends Component {
   render() {
     const { head, text, jsUrl, cssUrl } = this.props;
@@ -74,28 +52,6 @@ class CookieConsent extends Component {
   }
 }
 
-/**
- * Cacheable JSX component for alerting users about the use of cookies.
- * <p>
- * This class is supposed to be used in combination with the <code>locals</code> hexo filter
- * ({@link module:hexo/filter/locals}).
- *
- * @see module:util/cache.cacheComponent
- * @example
- * <CookieConsent.Cacheable
- *     head={true}
- *     plugin={{
- *         info: "info",
- *         theme: "classic",
- *         static: false,
- *         position: "bottom-left",
- *         policyLink: "/path/to/cookie/policy"
- *     }}
- *     helper={{
- *         __: function() {...},
- *         cdn: function() {...}
- *     }} />
- */
 CookieConsent.Cacheable = cacheComponent(
   CookieConsent,
   "plugin.cookieconsent",
