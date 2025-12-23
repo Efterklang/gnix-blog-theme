@@ -202,7 +202,6 @@ module.exports = class extends Component {
           href={url_for("/css/responsive/desktop.css")}
           media="screen and (min-width:1024px)"
         />
-        <script type="text/javascript" src="/js/theme-selector.js"></script>
         <link
           rel="preload"
           as="style"
@@ -210,11 +209,6 @@ module.exports = class extends Component {
           onload="this.onload=null;this.rel='stylesheet'"
         />
         <link rel="stylesheet" href="/css/shiki/shiki.css" />
-        {/* Iconify Icons */}
-        <script
-          async
-          src="/js/host/iconify-icon/3.0.2/iconify-icon.min.js"
-        ></script>
         {/* Maple Mono CN */}
         <link
           rel="preload"
