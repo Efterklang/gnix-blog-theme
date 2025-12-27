@@ -1,6 +1,5 @@
 ((window, document, localStorage) => {
   const STORAGE_KEY = "themePreference";
-  const THEME_SELECTOR_ID = "theme-selector";
   const DEFAULT_THEME = "system";
   const colorSchemeMediaQuery = window.matchMedia(
     "(prefers-color-scheme: dark)",
@@ -152,51 +151,42 @@
   }
 
   // 监听系统主题改变
-  colorSchemeMediaQuery.addEventListener("change", () => {
-    if (getThemePreference() === "system") {
-      applyTheme("system");
-    }
+  colorSchemeMediaQuery.addEventListener("change", (event) => {
+    applyTheme(event.target.value, true);
   });
 
-  // 监听主题选择框变化 (legacy support)
-  document.addEventListener("change", (event) => {
-    if (event.target.id === THEME_SELECTOR_ID) {
-      applyTheme(event.target.value, true);
-    }
-  });
-
-  // 监听点击事件
-  document.addEventListener("click", (event) => {
-    // Open modal when theme selector is clicked
-    if (event.target.closest(".theme-selector-trigger")) {
-      event.preventDefault();
-      openModal();
-      return;
-    }
-
-    // Close modal when backdrop is clicked
-    if (event.target.classList.contains("theme-selector-backdrop")) {
+  // 处理 modal 点击事件（关闭背景）
+  window.handleThemeModalClick = (event) => {
+    if (event.target.classList.contains("theme-selector-modal")) {
       event.preventDefault();
       closeModal(false);
-      return;
     }
+  };
 
-    // Handle theme option click in modal
-    const themeOption = event.target.closest(".theme-option");
-    if (themeOption && isModalOpen) {
-      event.preventDefault();
-      const modal = document.getElementById("theme-selector-modal");
-      const themeOptions = modal.querySelectorAll(".theme-option");
-      currentIndex = parseInt(themeOption.getAttribute("data-index"), 10);
-      updateFocus(themeOptions);
-      // Small delay before closing to show selection
-      setTimeout(() => closeModal(true), 150);
-      return;
-    }
-  });
+  // 处理主题选项点击
+  window.selectThemeOption = (event, index) => {
+    if (!isModalOpen) return;
+    event.preventDefault();
+    event.stopPropagation();
+
+    const modal = document.getElementById("theme-selector-modal");
+    const themeOptions = modal.querySelectorAll(".theme-option");
+    currentIndex = index;
+    updateFocus(themeOptions);
+    // Small delay before closing to show selection
+    setTimeout(() => closeModal(true), 150);
+  };
+
+  // 暴露打开 modal 的函数
+  window.openThemeModal = () => {
+    openModal();
+  };
 
   // 监听键盘事件
-  document.addEventListener("keydown", handleKeyboard);
+  document.addEventListener("keydown", handleKeyboard, {
+    capture: true,
+    passive: false,
+  });
 
   // Export for navbar to get current theme
   window.getThemePreference = getThemePreference;

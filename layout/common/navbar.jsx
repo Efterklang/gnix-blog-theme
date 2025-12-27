@@ -82,6 +82,7 @@ class Navbar extends Component {
                 type="button"
                 class="navbar-item theme-selector-trigger"
                 title="Choose Theme"
+                onclick="window.openThemeModal?.()"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
