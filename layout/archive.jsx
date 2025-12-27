@@ -8,7 +8,26 @@ module.exports = class extends Component {
     const { config, page, helper } = this.props;
     const { url_for, __, date_xml, date } = helper;
 
-    const timelineCss = `
+    const inlineCSS = `
+            .article-meta {
+              font-family: var(--font-monospace);
+              font-size: 0.8rem;
+              overflow-x: auto;
+              margin-bottom: 0.1rem;
+            }
+
+            .article-meta a {
+              color: var(--text);
+
+              &:hover {
+                color: var(--peach);
+              }
+            }
+
+            .article-meta span {
+              padding-right: 0.5rem;
+            }
+
             span.year {
                 position: absolute;
                 top: 1.5rem;
@@ -97,7 +116,7 @@ module.exports = class extends Component {
 
     return (
       <Fragment>
-        <style dangerouslySetInnerHTML={{ __html: timelineCss }}></style>
+        <style dangerouslySetInnerHTML={{ __html: inlineCSS }}></style>
         {articleList}
         {page.total > 1 ? (
           <Paginator

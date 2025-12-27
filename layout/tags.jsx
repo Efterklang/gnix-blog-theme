@@ -4,8 +4,53 @@ class Tags extends Component {
   render() {
     const { tags, showCount } = this.props;
 
+    const inlineCSS = `
+    .tags {
+      font-family: monospace;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      padding: 0.5rem 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+    }
+
+    .tag {
+      padding: 0 0.75em;
+      transition: all 0.3s ease;
+      border-style: solid;
+      align-items: center;
+      border-radius: 5px;
+      display: inline-flex;
+      font-size: 0.75rem;
+      height: 2em;
+      white-space: nowrap;
+    }
+
+    .tag:first-child {
+      border-width: 1px 0 1px 1px;
+      border-radius: 5px 0 0 5px;
+    }
+
+    .tag:first-child::before {
+      content: "#";
+      opacity: 0.7;
+      margin-right: 0.25em;
+    }
+
+    .tag:last-child {
+      border-width: 1px 1px 1px 0;
+      border-radius: 0 5px 5px 0;
+    }
+`;
+
     return (
       <div class="card widget" data-type="tags">
+        <style>{inlineCSS}</style>
         <div class="card-content">
           <div class="menu">
             {tags.map((tag) => (
