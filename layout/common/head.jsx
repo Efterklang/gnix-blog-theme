@@ -107,8 +107,30 @@ module.exports = class extends Component {
       structuredImages = page.photos;
     }
 
+    const themeInitScript = `
+(function() {
+  var THEME_MAP = {
+    mocha: "night",
+    macchiato: "night",
+    nord: "light",
+    nord_night: "night",
+    tokyo_night: "night",
+    latte: "light"
+  };
+  var stored = localStorage.getItem("themePreference");
+  var theme = stored ? stored : "system";
+  var html = document.documentElement;
+  var resolvedTheme = theme === "system"
+    ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "mocha" : "nord"
+    : theme;
+  html.setAttribute("data-theme", resolvedTheme);
+  html.classList.add(THEME_MAP[resolvedTheme]);
+})();
+`;
+
     return (
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }}></script>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {noIndex ? <meta name="robots" content="noindex" /> : null}

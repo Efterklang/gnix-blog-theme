@@ -151,9 +151,6 @@
     }
   }
 
-  // 初始化主题
-  applyTheme(getThemePreference());
-
   // 监听系统主题改变
   colorSchemeMediaQuery.addEventListener("change", () => {
     if (getThemePreference() === "system") {
