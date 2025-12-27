@@ -100,19 +100,24 @@ function initKeyboardShortcuts() {
 
 // 抽离键盘事件处理函数
 function handleKeyDown(e) {
-  if (e.ctrlKey || e.metaKey) {
-    if (e.code === "KeyK") {
-      // ctrl/cmd + k for search
-      const searchBtn = document.querySelector(".navbar-main .search");
-      if (searchBtn) searchBtn.click();
-    } else if ((e.shiftKey && e.code === "KeyP") || e.code === "KeyP") {
-      // ctrl/cmd + shift + p for theme selector
-      e.preventDefault();
-      const themeBtn = document.querySelector(
-        "button.navbar-item.theme-selector-trigger",
-      );
-      if (themeBtn) themeBtn.click();
-    }
+  const isModifier = e.metaKey || e.ctrlKey;
+  if (!isModifier) return;
+
+  // 性能优化 2: 如果用户在输入框内输入，不触发快捷键
+  const tag = e.target.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || e.target.isContentEditable) {
+    return;
+  }
+
+  if (e.code === "KeyK") {
+    const searchBtn = document.querySelector(".navbar-main .search");
+    if (searchBtn) searchBtn.click();
+  } else if ((e.shiftKey && e.code === "KeyP") || e.code === "KeyP") {
+    e.preventDefault();
+    const themeBtn = document.querySelector(
+      "button.navbar-item.theme-selector-trigger",
+    );
+    if (themeBtn) themeBtn.click();
   }
 }
 

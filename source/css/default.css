@@ -1,5 +1,12 @@
 @charset "UTF-8";
 
+:root {
+  --font-serif: Georgia, "Times New Roman", Times, "Songti SC", "STSong", serif;
+  --font-sans-serif: Futura, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  --font-monospace: "Maple Mono NF CN", SF Pro, monospace;
+  --font-article: system-ui, "Segoe UI", Roboto, Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans CN", sans-serif;
+}
+
 /* #region Color */
 :where([data-theme="latte"]) {
   color-scheme: light;
@@ -193,13 +200,6 @@ a:hover {
   color: var(--lavender);
 }
 
-.article .title a:hover {
-  background: linear-gradient(to right, var(--blue), var(--mauve), var(--pink));
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
 h2 {
   color: var(--peach);
 }
@@ -232,18 +232,8 @@ mark {
   accent-color: var(--mauve);
 }
 
-strong {
-  color: var(--red);
-}
-
 blockquote::before {
   color: var(--red);
-}
-
-code {
-  background-color: var(--base);
-  color: var(--subtext1);
-  border: 1px solid var(--surface0);
 }
 
 .article-licensing {
@@ -427,8 +417,6 @@ html {
 body {
   min-height: 100%;
   font-weight: 400;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 1em;
   line-height: 1.5;
   display: flex;
@@ -453,9 +441,7 @@ video {
   user-select: none;
 }
 
-.content p:not(:last-child),
 .breadcrumb:not(:last-child),
-.content:not(:last-child),
 .level:not(:last-child),
 .pagination:not(:last-child) {
   margin-bottom: 0.5rem;
@@ -501,8 +487,7 @@ video {
 
 .footer,
 .widget {
-  font-family:
-    Futura, Paris2024, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family: var(--font-sans-serif);
 }
 
 .card {
@@ -589,8 +574,7 @@ video {
   right: 0;
   transition: transform 0.3s ease-in-out;
   z-index: 100;
-  font-family:
-    Futura, Paris2024, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family: var(--font-sans-serif);
 }
 
 .navbar-container {
@@ -705,7 +689,7 @@ video {
 .theme-selector-hint {
   font-size: 0.875rem;
   color: var(--subtext0);
-  font-family: "Maple Mono NF CN", monospace;
+  font-family: var(--font-monospace);
 }
 
 .theme-selector-list {
@@ -896,7 +880,7 @@ video {
   flex-grow: 1;
   margin: 0 auto;
   position: relative;
-  max-width: 900px;
+  max-width: 980px;
 }
 
 /* #region Footer */
@@ -971,47 +955,67 @@ video {
 .content {
   overflow: auto;
   word-wrap: break-word;
-  font-size: 1.15rem;
+  font-family: var(--font-article);
+  font-size: 1.25rem;
+  line-height: 1.68;
+  letter-spacing: -0.003em;
 
   h2 {
-    text-align: center;
-    font-size: 1.75em;
-    margin-bottom: 0.5714em;
+    font-size: 2em;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5em;
   }
 
   h2:not(:first-child) {
-    margin-top: 1.1428em;
+    margin-top: 1.5em;
   }
 
   h3 {
-    font-size: 1.5em;
-    margin-bottom: 0.6666em;
+    font-size: 1.625em;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    margin-bottom: 0.5em;
   }
 
   h4 {
-    font-size: 1.25em;
-    margin-bottom: 0.8em;
+    font-size: 1.375em;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.5em;
   }
 
   h5 {
-    font-size: 1.125em;
-    margin-bottom: 0.8888em;
+    font-size: 1.25em;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.005em;
+    margin-bottom: 0.5em;
   }
 
   h6 {
-    font-size: 1em;
-    margin-bottom: 1em;
+    font-size: 1.125em;
+    font-weight: 600;
+    line-height: 1.45;
+    margin-bottom: 0.5em;
+  }
+
+  p:not(:last-child) {
+    margin-bottom: 1.5em;
   }
 
   li + li {
-    margin-top: 0.25em;
+    margin-top: 0.5em;
   }
 
   img,
   video {
     display: block;
     margin: 0 auto;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
     border-radius: 2px;
   }
 
@@ -1020,25 +1024,18 @@ video {
     cursor: pointer;
   }
 
-  code {
-    font-family:
-      Maple Mono NF CN,
-      SF Pro,
-      monospace;
-    border-radius: 6px;
-    padding: 1px 6px;
-  }
-
   ol {
     list-style-position: outside;
     margin-left: 2em;
-    margin-top: 1em;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
   }
 
   ul {
     list-style: disc outside;
     margin-left: 2em;
-    margin-top: 1em;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
   }
 
   ul ul {
@@ -1100,7 +1097,7 @@ video {
   a[href*="github"]::before,
   a[href*="wikipedia"]::before,
   a[href*="youtube"]::before {
-    font-family: "Maple Mono NF CN", monospace;
+    font-family: var(--font-monospace);
     font-size: 1em;
     padding-left: 0.5em;
     color: var(--lavender);
@@ -1124,7 +1121,7 @@ video {
 }
 
 .footnotes {
-  font-family: serif;
+  font-family: var(--font-serif);
   font-size: 0.9em;
 }
 
@@ -1170,8 +1167,7 @@ blockquote {
   margin: 1.5rem 0;
   border-left: 4px solid var(--red);
   border-radius: 0 8px 8px 0;
-  font-weight: bolder;
-  font-family: serif;
+  font-family: var(--font-serif);
   font-style: italic;
   font-size: 1.05rem;
   line-height: 1.6;
@@ -1211,7 +1207,7 @@ input.task-list-item-checkbox {
 
 input.task-list-item-checkbox:checked::before {
   content: "";
-  font-family: "Maple Mono NF CN", monospace;
+  font-family: var(--font-monospace);
   color: var(--base);
   position: absolute;
   top: 50%;
@@ -1247,7 +1243,7 @@ input.task-list-item-checkbox:checked::before {
   position: relative;
   display: inline-block;
   transition: color 0.3s ease-out;
-  font-size: 2.3em;
+  font-size: 3em;
   font-weight: 800;
   line-height: 1.2;
 }
@@ -1259,11 +1255,19 @@ input.task-list-item-checkbox:checked::before {
 code {
   font-size: 0.875em;
   font-weight: 400;
-  padding: 0.25em 0.5em 0.25em;
+  font-family: var(--font-monospace);
+  padding: 0 .15em;
+  margin: 0 .1em;
+  background-color: var(--base);
+  color: var(--subtext1);
+  border: 1px solid var(--surface0);
+  border-radius: 6px;
 }
 
 strong {
   font-weight: 700;
+  padding: 0 .1em;
+  color: var(--lavender);
 }
 
 hr {
@@ -1345,24 +1349,64 @@ section {
   padding-bottom: 0 !important;
 }
 
-.article-meta {
-  font-family: "Maple Mono NF CN", monospace;
-  font-size: 0.8rem;
-  overflow-x: auto;
-  margin-bottom: 0.1rem;
-}
+/* #region Article Meta*/
 
-.article-meta a {
+.article-title {
+  font-family: var(--font-article);
+  font-size: 3em;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.4em;
   color: var(--text);
+  word-break: break-word;
+}
 
-  &:hover {
-    color: var(--peach);
+.article-title a {
+  color: inherit;
+}
+
+.article-header-meta {
+  font-family: var(--font-monospace);
+  margin-bottom: 1rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px dashed var(--surface0);
+  color: var(--subtext0);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+
+  a {
+    color: var(--subtext0);
+
+    &:hover {
+      color: var(--blue);
+    }
   }
+
 }
 
-.article-meta span {
-  padding-right: 0.5rem;
+.article-meta-info,
+.article-taxonomy {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
 }
+
+.article-taxonomy {
+  /* Push to the right */
+  margin-left: auto;
+}
+
+.meta-separator {
+  color: var(--overlay0);
+  padding: 0 0.1em;
+}
+
+/* #endregion Article Meta */
 
 /* #region Licensing */
 

@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+
 const { Component, Fragment } = require("../../include/util/common");
 const Comment = require("./comment");
 const ArticleLicensing = require("../misc/article_licensing");
@@ -23,14 +25,16 @@ module.exports = class extends Component {
     const { config, helper, page, index } = this.props;
 
     const { article } = config;
-    const { url_for, date, _p } = helper;
+    const { url_for } = helper;
 
     const cover = page.cover ? url_for(page.cover) : null;
+    const wordCount = getWordCount(page._content);
+    const readTime = Math.ceil(wordCount / 200); // 假设每分钟阅读200字
 
     return (
       <Fragment>
         {/* Main content */}
-        <div class="card">
+        <div class="card article-wrapper">
           {/* Cover image */}
           {cover ? (
             <ArticleCover
@@ -43,51 +47,86 @@ module.exports = class extends Component {
           <article
             class={`card-content article${"direction" in page ? ` ${page.direction}` : ""}`}
           >
-            {/* Metadata */}
-            {page.layout !== "page" ? (
-              <div class="article-meta">
-                <p>
-                  {page.date && <span>{date(page.date)}</span>}
-                  {page.categories?.length ? (
-                    <span>
-                      {page.categories.map((category) => (
-                        <a href={url_for(category.path)}>/{category.name}</a>
-                      ))}
-                    </span>
-                  ) : null}
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: _p(
-                        "article.word_count",
-                        getWordCount(page._content),
-                      ),
-                    }}
-                  ></span>
-                  {/* Visitor counter */}
-                  {!index ? (
-                    <span
-                      id={url_for(page.link || page.path)}
-                      data-flag-title={page.title}
-                      dangerouslySetInnerHTML={{
-                        __html: _p(
-                          "plugin.visit_count",
-                          '<span id="busuanzi_page_pv" style="padding-right: 0"></span>',
-                        ),
-                      }}
-                    ></span>
-                  ) : null}
-                </p>
-              </div>
-            ) : null}
             {/* Title */}
             {page.title !== "" && index ? (
-              <p class="title">
+              <h2 class="article-title">
                 <a href={url_for(page.link || page.path)}>{page.title}</a>
-              </p>
+              </h2>
             ) : null}
             {page.title !== "" && !index ? (
-              <h1 class="title">{page.title}</h1>
+              <h1 class="article-title">{page.title}</h1>
             ) : null}
+
+            {/* Metadata - Medium style */}
+            {page.layout !== "page" ? (
+              <div class="article-header-meta">
+                <div class="article-meta-info">
+                  {page.date && (
+                    <time
+                      class="article-date"
+                      datetime={page.date.toISOString()}
+                    >
+                      {format(page.date, "LLL dd")}
+                    </time>
+                  )}
+                  {page.date && (wordCount > 0 || !index) && (
+                    <span class="meta-separator">·</span>
+                  )}
+                  {wordCount > 0 && (
+                    <span class="article-reading-time">{readTime} min</span>
+                  )}
+                  {!index && (
+                    <Fragment>
+                      <span class="meta-separator">·</span>
+                      <span
+                        class="article-visit-count"
+                        data-flag-title={page.title}
+                        dangerouslySetInnerHTML={{
+                          __html: '<span id="busuanzi_page_pv"></span> PV',
+                        }}
+                      ></span>
+                    </Fragment>
+                  )}
+                </div>
+                <div class="article-taxonomy">
+                  {page.categories?.length ? (
+                    <div class="article-categories">
+                      {page.categories.map((category, idx) => (
+                        <Fragment>
+                          {idx > 0 && <span class="meta-separator">/</span>}
+                          <a
+                            class="article-category"
+                            href={url_for(category.path)}
+                          >
+                            {category.name}
+                          </a>
+                        </Fragment>
+                      ))}
+                    </div>
+                  ) : null}
+                  {page.categories?.length && page.tags?.length ? (
+                    <span class="meta-separator">·</span>
+                  ) : null}
+                  {page.tags?.length ? (
+                    <div class="article-tags-inline">
+                      {page.tags.map((tag, idx) => (
+                        <Fragment>
+                          {idx > 0 && <span class="meta-separator">,</span>}
+                          <a
+                            class="article-tag"
+                            rel="tag"
+                            href={url_for(tag.path)}
+                          >
+                            {tag.name}
+                          </a>
+                        </Fragment>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
+
             {/* Content/Excerpt */}
             <div
               class="content"
@@ -95,19 +134,6 @@ module.exports = class extends Component {
                 __html: index && page.excerpt ? page.excerpt : page.content,
               }}
             ></div>
-            {/* Tags */}
-            {!index && page.tags && page.tags.length ? (
-              <div class="article-tags">
-                {page.tags.map((tag) => {
-                  return (
-                    <a class="tags" rel="tag" href={url_for(tag.path)}>
-                      <span class="tag">{tag.name}</span>
-                      <span class="tag">{tag.length}</span>
-                    </a>
-                  );
-                })}
-              </div>
-            ) : null}
             {/* Licensing block */}
             {!index &&
             article &&

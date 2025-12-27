@@ -49,7 +49,7 @@ class Navbar extends Component {
               version="1.0"
               xmlns="http://www.w3.org/2000/svg"
               fill="var(--flamingo)"
-              viewBox="0 0 1182.000000 930.000000"
+              viewBox="0 0 1182.000000 750.000000"
               width="5em"
               role="img"
               aria-label="Blog Logo"
