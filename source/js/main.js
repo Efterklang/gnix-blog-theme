@@ -95,7 +95,10 @@ function syncRelatedTabs(syncId) {
 function initKeyboardShortcuts() {
   // 移除旧事件（防止PJAX重复绑定）
   document.removeEventListener("keydown", handleKeyDown);
-  document.addEventListener("keydown", handleKeyDown);
+  document.addEventListener("keydown", handleKeyDown, {
+    capture: true, // 捕获阶段监听，优先于浏览器默认处理
+    passive: false, // 允许调用 preventDefault
+  });
 }
 
 // 抽离键盘事件处理函数
@@ -110,6 +113,7 @@ function handleKeyDown(e) {
   }
 
   if (e.code === "KeyK") {
+    e.preventDefault();
     const searchBtn = document.querySelector(".navbar-main .search");
     if (searchBtn) searchBtn.click();
   } else if ((e.shiftKey && e.code === "KeyP") || e.code === "KeyP") {
