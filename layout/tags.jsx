@@ -6,17 +6,17 @@ class Tags extends Component {
 
     const inlineCSS = `
     .tags {
-      font-family: monospace;
+      font-family: var(--font-monospace);
       flex-wrap: wrap;
       justify-content: flex-start;
       padding: 0.5rem 0.5rem;
       display: inline-flex;
       align-items: center;
       transition: all 0.3s ease;
+    }
 
-      &:hover {
-        transform: translateY(-2px);
-      }
+    .tags:hover {
+      transform: translateY(-2px);
     }
 
     .tag {
@@ -46,7 +46,7 @@ class Tags extends Component {
       border-width: 1px 1px 1px 0;
       border-radius: 0 5px 5px 0;
     }
-`;
+    `;
 
     return (
       <div class="card widget" data-type="tags">
