@@ -26,9 +26,9 @@ article:
     other: "约%d字"
   licensing:
     author: "Author"
-    created_at: "Posted on"
-    updated_at: "Updated on"
-    licensed_under: "License under"
+    created_at: "Posted"
+    updated_at: "Updated"
+    licensed_under: "License"
 plugin:
   visit_count: "%sPV" # post页面显示的page view次数
   visitor_count: 'PV&nbsp;<span id="busuanzi_site_pv">-</span>&nbsp;UV&nbsp;<span id="busuanzi_site_uv">-</span>&nbsp;'
