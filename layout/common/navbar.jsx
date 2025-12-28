@@ -144,7 +144,7 @@ class Navbar extends Component {
                   >
                     <g fill="none" fill-rule="evenodd" clip-rule="evenodd">
                       <path
-                        fill="var(--lavender)"
+                        fill="var(--text)"
                         d="M.5.125a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h4.756A4.5 4.5 0 0 1 5 9.625c0-1.271.527-2.42 1.375-3.238v-4.96A2 2 0 0 0 4.5.126zm7.125 1.303v4.105a4.5 4.5 0 0 1 6.347 3.584H14V.625a.5.5 0 0 0-.5-.5h-4a2 2 0 0 0-1.875 1.303"
                       />
                       <path
