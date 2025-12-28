@@ -2,9 +2,16 @@
 
 :root {
   --font-serif: Georgia, "Times New Roman", Times, "Songti SC", "STSong", serif;
-  --font-sans-serif: Futura, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  --font-monospace: "Maple Mono NF CN", "Maple Mono NF", "SF Mono", "SF Pro", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --font-article: system-ui, "Segoe UI", Roboto, Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans CN", sans-serif;
+  --font-sans-serif:
+    Futura, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  --font-monospace:
+    "Maple Mono NF CN", "Maple Mono NF", "SF Mono", "SF Pro", Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-article:
+    system-ui, "Segoe UI", Roboto, Helvetica, Arial, "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
+    "Source Han Sans CN", sans-serif;
 }
 
 /* #region Color */
@@ -600,16 +607,13 @@ video {
 .theme-selector-modal {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition:
-    opacity 0.2s ease,
-    visibility 0.2s ease;
 }
 
 .theme-selector-content {
@@ -1026,7 +1030,7 @@ video {
 
   math {
     overflow: auto;
-    margin-bottom: .5em;
+    margin-bottom: 0.5em;
   }
 
   figure {
@@ -1082,7 +1086,7 @@ video {
   }
 
   a[href*="github"]::before {
-    content: "󰊤 ";
+    content: " ";
   }
 
   a[href*="wikipedia"]::before {
@@ -1109,7 +1113,7 @@ table {
   border-spacing: 0;
   border-radius: 8px;
   overflow: hidden;
-  margin: .875em 0;
+  margin: 0.875em 0;
   font-size: 0.875em;
   border: 1px solid var(--surface0);
 }
@@ -1234,8 +1238,8 @@ code {
   font-size: 0.875em;
   font-weight: 400;
   font-family: var(--font-monospace);
-  padding: 0 .15em;
-  margin: 0 .1em;
+  padding: 0 0.15em;
+  margin: 0 0.1em;
   background-color: var(--base);
   color: var(--subtext1);
   border: 1px solid var(--surface0);
@@ -1244,7 +1248,7 @@ code {
 
 strong {
   font-weight: bolder;
-  padding: 0 .1em;
+  padding: 0 0.1em;
 }
 
 hr {
@@ -1348,7 +1352,7 @@ section {
   font-style: italic;
   overflow: auto;
   margin-bottom: 1rem;
-  padding-bottom: .5rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px dashed var(--surface0);
   color: var(--subtext0);
   display: flex;
@@ -1364,7 +1368,6 @@ section {
       color: var(--blue);
     }
   }
-
 }
 
 .article-meta-info,
@@ -1572,8 +1575,12 @@ input.searchbox-input {
   border-radius: 24px;
 }
 
-.searchbox .searchbox-pagination .searchbox-pagination-item.disabled .searchbox-pagination-link {
+.searchbox
+  .searchbox-pagination
+  .searchbox-pagination-item.disabled
+  .searchbox-pagination-link {
   cursor: not-allowed;
 }
 
 /* #endregion Search */
+

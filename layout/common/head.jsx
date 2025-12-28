@@ -221,6 +221,13 @@ module.exports = class extends Component {
           href={url_for("/css/callout_blocks.css")}
           onload="this.onload=null;this.rel='stylesheet'"
         />
+        {/* Maple Mono CN */}
+        <link
+          rel="preload"
+          as="style"
+          href="https://fontsapi.zeoseven.com/442/main/result.css"
+          onload="this.onload=null;this.rel='stylesheet'"
+        />
         <link rel="stylesheet" href="/css/shiki/shiki.css" />
         <Plugins
           site={site}
