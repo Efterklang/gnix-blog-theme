@@ -38,6 +38,7 @@ figure.shiki {
 
 .shiki-tools {
   display: flex;
+  min-height: 1.5em;
   justify-content: space-between;
   font-family: var(--font-monospace);
   padding: 0 15px;
@@ -114,22 +115,22 @@ figure.shiki {
 }
 
 .traffic-light {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   margin-left: 8px;
   position: relative;
 
   &.red {
-    background-color: var(--red, #f38ba8);
+    background-color: var(--red);
   }
 
   &.yellow {
-    background-color: var(--yellow, #fab387);
+    background-color: var(--yellow);
   }
 
   &.green {
-    background-color: var(--green, #a6e3a1);
+    background-color: var(--green);
   }
 }
 
@@ -287,10 +288,6 @@ pre.shiki.has-focused > code {
 }
 
 ._sk_vf0qg7 {
-  background-color: #eff1f5;
-  --shiki-dark-bg: #1e1e2e;
-  --shiki-nord-bg: #2e3440ff;
-  --shiki-tokyo-bg: #1a1b26;
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9ff;
