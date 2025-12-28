@@ -2,50 +2,67 @@ const { Component, cacheComponent } = require("../include/util/common");
 
 class Categories extends Component {
   renderList(categories, showCount) {
-    const categoriesCSS = `align-items: center; justify-content: space-between;`;
     return categories.map((category) => (
-      <li>
-        <a
-          class={`${category.isCurrent ? " is-active" : ""}`}
-          href={category.url}
-          style={categoriesCSS}
-        >
-          <span class="level-start">
-            <span class="level-item">{category.name}</span>
-          </span>
-          {showCount ? (
-            <span class="level-end">
-              <span class="level-item" style="font-family: monospace">
-                {category.count}
-              </span>
-            </span>
-          ) : null}
+      <li class="category-list-item">
+        <a class={`category-link`} href={category.url}>
+          <span>{category.name}</span>
+          {showCount ? <span class="category-count">{category.count}</span> : null}
         </a>
-        {category.children.length ? <ul>{this.renderList(category.children, false)}</ul> : null}
+        {category.children.length ? (
+          <ul class="category-sublist">{this.renderList(category.children, false)}</ul>
+        ) : null}
       </li>
     ));
   }
 
   render() {
     const { showCount, categories } = this.props;
-    const categoriesListCSS = `
-    .card-content a {
-      padding: 0.5em 0.75em;
-      color: var(--text);
-    }
-    .card-content a.level:hover {
-      background-color: var(--base);
-    }
-    .card-content li ul {
-      border-left: 1px solid var(--surface0);
-      margin: 0.75em;
-      padding-left: 0.75em;
-    }`;
+    const categoriesCSS = `
+      .category-list-item {
+        list-style: none;
+        margin-bottom: 0.4em;
+      }
+      .category-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.6em 0.8em;
+        border-radius: 8px;
+        color: var(--text);
+        background-color: transparent;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        font-weight: 400;
+      }
+      .category-link:hover {
+        background-color: var(--base) !important;
+        transform: translateX(4px);
+      }
+      .category-link span:first-child {
+        flex: 1;
+      }
+      .category-count {
+        padding: 0.15em 0.6em;
+        border-radius: 10px;
+        min-width: 1.5em;
+        text-align: center;
+      }
+      .category-sublist {
+        margin-left: 0.8em;
+        padding-left: 0.8em;
+        border-left: 2px solid var(--surface0);
+        margin-top: 0.4em;
+        list-style: none;
+      }
+    `;
+
     return (
       <div class="card widget" data-type="categories">
-        <style>{categoriesListCSS}</style>
-        <div class="card-content">
-          <ul>{this.renderList(categories, showCount)}</ul>
+        <style>{categoriesCSS}</style>
+        <div class="card-content" style="padding: 1.2em;">
+          <ul style="list-style: none; padding: 0; margin: 0;">
+            {this.renderList(categories, showCount)}
+          </ul>
         </div>
       </div>
     );
