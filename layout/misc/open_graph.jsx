@@ -44,16 +44,13 @@ module.exports = class extends Component {
         stripHTML(description).substring(0, 200).trim(),
       ).replace(/\n/g, " ");
       htmlTags.push(<meta name="description" content={description} />);
+      htmlTags.push(<meta property="og:description" content={description} />);
     }
 
     htmlTags.push(<meta property="og:type" content={type || "website"} />);
     htmlTags.push(<meta property="og:title" content={title} />);
     htmlTags.push(<meta property="og:url" content={encodeURL(url)} />);
     htmlTags.push(<meta property="og:site_name" content={siteName} />);
-
-    if (description) {
-      htmlTags.push(<meta property="og:description" content={description} />);
-    }
 
     if (language) {
       if (language.length === 2) {
@@ -99,9 +96,8 @@ module.exports = class extends Component {
       }
     }
 
-    if (author) {
+    if (author)
       htmlTags.push(<meta property="article:author" content={author} />);
-    }
 
     if (keywords) {
       if (typeof keywords === "string") {
@@ -122,25 +118,19 @@ module.exports = class extends Component {
       <meta property="twitter:card" content={twitterCard || "summary"} />,
     );
 
-    if (twitterId) {
+    if (twitterId)
       htmlTags.push(<meta property="twitter:creator" content={twitterId} />);
-    }
 
-    if (twitterSite) {
+    if (twitterSite)
       htmlTags.push(<meta property="twitter:site" content={twitterSite} />);
-    }
 
-    if (googlePlus) {
-      htmlTags.push(<link rel="publisher" href={googlePlus} />);
-    }
+    if (googlePlus) htmlTags.push(<link rel="publisher" href={googlePlus} />);
 
-    if (facebookAdmins) {
+    if (facebookAdmins)
       htmlTags.push(<meta property="fb:admins" content={facebookAdmins} />);
-    }
 
-    if (facebookAppId) {
+    if (facebookAppId)
       htmlTags.push(<meta property="fb:app_id" content={facebookAppId} />);
-    }
 
     return <>{htmlTags}</>;
   }

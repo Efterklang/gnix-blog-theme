@@ -28,7 +28,7 @@ class GoogleAnalytics extends Component {
     return (
       <Fragment>
         <script
-          async={true}
+          async
           src={`https://www.googletagmanager.com/gtag/js?id=${trackingId}`}
         ></script>
         <script dangerouslySetInnerHTML={{ __html: js }}></script>
