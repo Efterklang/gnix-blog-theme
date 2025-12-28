@@ -1051,6 +1051,11 @@ video {
     margin-left: 2em;
   }
 
+  math {
+    overflow: auto;
+    margin-bottom: .5em;
+  }
+
   figure {
     margin-left: 2em;
     margin-right: 2em;
@@ -1369,6 +1374,7 @@ section {
 .article-header-meta {
   font-family: var(--font-monospace);
   font-style: italic;
+  overflow: auto;
   margin-bottom: 1rem;
   padding-bottom: .5rem;
   border-bottom: 1px dashed var(--surface0);
