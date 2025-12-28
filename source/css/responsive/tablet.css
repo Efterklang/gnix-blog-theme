@@ -6,9 +6,6 @@
 /* level item */
 .level {
   display: flex;
-}
-
-.level > .level-item:not(.is-narrow) {
   flex-grow: 1;
 }
 

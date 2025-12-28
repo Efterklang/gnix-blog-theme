@@ -196,10 +196,6 @@ a:hover {
   color: var(--blue);
 }
 
-.title {
-  color: var(--lavender);
-}
-
 h2 {
   color: var(--peach);
 }
@@ -238,11 +234,12 @@ blockquote::before {
 
 .article-licensing {
   color: var(--subtext1);
-  background-color: var(--base);
+  border-top: 0.1px dashed var(--surface0);
 }
 
 .navbar-main,
 .navbar-menu {
+  user-select: none;
   background: hsl(from var(--mantle) h s l / 0.95);
 }
 
@@ -442,7 +439,6 @@ video {
 }
 
 .breadcrumb:not(:last-child),
-.level:not(:last-child),
 .pagination:not(:last-child) {
   margin-bottom: 0.5rem;
 }
@@ -502,6 +498,7 @@ video {
 }
 
 .card-image {
+  user-select: none;
   display: block;
   position: relative;
   border-radius: 24px;
@@ -530,38 +527,6 @@ video {
 .card-content {
   padding: 1.25rem;
   border-radius: 0;
-}
-
-.level {
-  align-items: center;
-  justify-content: space-between;
-}
-
-.level img {
-  display: inline-block;
-  vertical-align: top;
-}
-
-.level.is-mobile {
-  display: flex;
-}
-
-.level.is-mobile .level-item:not(:last-child) {
-  margin-bottom: 0;
-  margin-right: 0.4rem;
-}
-
-.level.is-mobile .level-item:not(.is-narrow) {
-  flex-grow: 1;
-}
-
-.level-item {
-  align-items: center;
-  display: flex;
-  flex-basis: auto;
-  flex-grow: 0;
-  flex-shrink: 0;
-  justify-content: center;
 }
 
 /* #region Navbar */
@@ -886,6 +851,7 @@ video {
 /* #region Footer */
 
 .footer {
+  user-select: none;
   padding: 3rem 1.5rem 6rem;
   position: relative;
 
@@ -1003,8 +969,15 @@ video {
     margin-bottom: 0.5em;
   }
 
-  p:not(:last-child) {
-    margin-bottom: 1.5em;
+  .p:not(:last-child) {
+    margin-bottom: 0.5em;
+  }
+
+  p:last-child,
+  ul:last-child,
+  ol:last-child,
+  .tabs-tabs-wrapper:last-child {
+    margin-bottom: 0;
   }
 
   li + li {
@@ -1136,7 +1109,7 @@ table {
   border-spacing: 0;
   border-radius: 8px;
   overflow: hidden;
-  margin: 2em 0;
+  margin: .875em 0;
   font-size: 0.875em;
   border: 1px solid var(--surface0);
 }
@@ -1270,9 +1243,8 @@ code {
 }
 
 strong {
-  font-weight: 700;
+  font-weight: bolder;
   padding: 0 .1em;
-  color: var(--lavender);
 }
 
 hr {
@@ -1420,13 +1392,13 @@ section {
 .article-licensing {
   display: block;
   position: relative;
-  margin-left: -1.25rem;
-  margin-right: -1.25rem;
+  margin: 2rem -1.25rem 0 -1.25rem;
   padding: 1.25rem;
   z-index: 0;
   border-radius: 0 0 24px 24px;
   box-shadow: none;
   overflow: hidden;
+  justify-content: space-between;
 }
 
 .article-licensing-bg-icon {
@@ -1446,10 +1418,6 @@ section {
 
 .licensing-title p:not(:last-child) {
   margin-bottom: 0.25rem;
-}
-
-.licensing-title a {
-  font-size: 0.75rem;
 }
 
 .licensing-meta .level-item {
