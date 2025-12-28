@@ -153,22 +153,19 @@
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 1000;
+  z-index: 101;
 }
 
 #icarus-toc-container .toc-body {
   position: fixed;
   inset: 0;
-  background: hsl(from var(--mantle) h s l / 0.1);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
+  background: hsl(from var(--mantle) h s l / 0.8);
+  backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding: 2rem;
-  opacity: 0;
   visibility: hidden;
-  transition: all 0.3s ease;
   pointer-events: none;
   font-weight: 800;
 }
@@ -187,38 +184,36 @@
 }
 
 #icarus-toc-container .toc-item {
-  list-style: none;
-  margin-bottom: 1rem;
+  margin-bottom: .5rem;
 }
 
-#icarus-toc-container .toc-link {
-  font-size: 1.2rem;
-  font-family: "Futura", sans-serif;
-  font-weight: 800;
-  text-decoration: none;
-  display: block;
-  padding: 3px 0;
+#icarus-toc-container .toc-text {
+  font-family: var(--font-article);
 }
 
 .toc-level-2 span {
   color: var(--peach);
-  font-size: 1.5rem;
+  font-size: 1.875rem;
 }
 
 .toc-level-3 span {
   color: var(--yellow);
+  font-size: 1.5rem;
 }
 
 .toc-level-4 span {
   color: var(--green);
+  font-size: 1.25rem;
 }
 
 .toc-level-5 span {
   color: var(--blue);
+  font-size: 1rem;
 }
 
 .toc-level-6 span {
   color: var(--mauve);
+  font-size: 0.875rem;
 }
 
 #icarus-toc-container .toc-item.is-active > .toc-link {
