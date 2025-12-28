@@ -2,6 +2,7 @@ code span {
   font-style: var(--shiki-light-font-style);
   font-weight: var(--shiki-light-font-weight);
 }
+
 :is([data-theme="tokyo_night"]) {
   code span {
     font-style: var(--shiki-tokyo-font-style) !important;
@@ -9,6 +10,7 @@ code span {
     color: var(--shiki-tokyo) !important;
   }
 }
+
 :is([data-theme="nord_night"]) {
   code span {
     font-style: var(--shiki-nord-font-style) !important;
@@ -16,6 +18,7 @@ code span {
     color: var(--shiki-nord) !important;
   }
 }
+
 :is([data-theme="mocha"], [data-theme="macchiato"]) {
   code span {
     font-style: var(--shiki-dark-font-style) !important;
@@ -23,6 +26,7 @@ code span {
     color: var(--shiki-dark) !important;
   }
 }
+
 figure.shiki {
   margin: 0 0 24px;
   border-radius: 8px;
@@ -31,24 +35,22 @@ figure.shiki {
   background: var(--mantle);
   color: var(--text);
 }
+
 .shiki-tools {
   display: flex;
   justify-content: space-between;
-  min-height: 30px;
+  font-family: var(--font-monospace);
   padding: 0 15px;
-  font-family:
-    Maple Mono NF CN,
-    Maple Mono CN,
-    monospace;
-  font-weight: bolder;
   user-select: none;
   overflow: hidden;
   position: relative;
+
   > .left {
     gap: 5px;
     display: flex;
     align-items: center;
   }
+
   > .center {
     display: flex;
     align-items: center;
@@ -57,28 +59,35 @@ figure.shiki {
     overflow: hidden;
     min-width: 0;
   }
+
+  iconify-icon {
+    cursor: pointer;
+    transition:
+      color 0.3s,
+      transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.1);
+      color: var(--blue);
+    }
+  }
+
   > .right {
     gap: 10px;
     display: flex;
     align-items: center;
-    > iconify-icon {
-      cursor: pointer;
-      transition:
-        color 0.3s,
-        transform 0.3s ease;
-    }
-    > iconify-icon:hover {
-      color: var(--blue);
-    }
   }
 }
+
 .shiki-tools .expand {
   font-size: 1.2em;
   margin-left: -2px;
 }
+
 .shiki-tools .expand.closed {
   transform: rotate(90deg);
 }
+
 .shiki-tools > .right > .copy-notice {
   position: absolute;
   white-space: nowrap;
@@ -90,42 +99,52 @@ figure.shiki {
   transition:
     opacity 0.2s ease,
     visibility 0.2s ease;
+
   &[style*="opacity: 1"] {
     opacity: 1;
     visibility: visible;
   }
 }
+
 .traffic-lights {
   display: flex;
   align-items: center;
   padding-right: 8px;
   margin-left: -7px;
 }
+
 .traffic-light {
   width: 12px;
   height: 12px;
   border-radius: 50%;
   margin-left: 8px;
   position: relative;
+
   &.red {
     background-color: var(--red, #f38ba8);
   }
+
   &.yellow {
     background-color: var(--yellow, #fab387);
   }
+
   &.green {
     background-color: var(--green, #a6e3a1);
   }
 }
+
 @keyframes code-expand-pulse {
+
   0%,
   to {
     opacity: 0.6;
   }
+
   50% {
     opacity: 0.1;
   }
 }
+
 .code-expand-btn {
   position: absolute;
   bottom: 1rem;
@@ -136,46 +155,23 @@ figure.shiki {
   align-items: center;
   font-size: 1em;
   cursor: pointer;
+
   > iconify-icon {
     padding: 6px 0;
     animation: code-expand-pulse 1.2s infinite;
     transition: transform 0.3s ease;
   }
+
   &.expand-done > iconify-icon {
     transform: rotate(180deg);
   }
 }
-figure.shiki[data-collapsible="true"] {
-  position: relative;
-}
-figure.shiki[data-collapsible="true"] > pre.shiki {
-  position: relative;
-  overflow: hidden;
-  transition: max-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-figure.shiki[data-collapsible="true"]:not(.expanded) > pre.shiki:after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 80px;
-  pointer-events: none;
-  z-index: 1;
-  background: linear-gradient(
-    transparent 0%,
-    hsl(from var(--mantle) h s l / 0.8),
-    30%,
-    var(--mantle) 100%
-  );
-  opacity: 1;
-}
-figure.shiki[data-collapsible="true"].expanded > .code-expand-btn {
-  transform: translateY(0);
-}
+
+
 pre.shiki {
   background: var(--mantle);
   padding: 0.6em;
+
   > code {
     text-align: left;
     counter-reset: step;
@@ -184,18 +180,14 @@ pre.shiki {
     background: none !important;
     border: none !important;
     width: 100%;
-    font-family:
-      Maple Mono NF CN,
-      SF Pro,
-      Fira Code,
-      JetbrainsMono Nerd Font,
-      Menlo,
-      DejaVu Sans Mono,
-      monospace;
+    margin: 0;
+    font-family: var(--font-monospace);
+
     > span.line {
       display: block;
       width: fit-content;
       min-width: 100%;
+
       &:before {
         content: counter(step);
         counter-increment: step;
@@ -208,37 +200,76 @@ pre.shiki {
     }
   }
 }
+
+figure.shiki[data-collapsible="true"] {
+  position: relative;
+}
+
+figure.shiki[data-collapsible="true"] > pre.shiki {
+  position: relative;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+figure.shiki[data-collapsible="true"]:not(.expanded) > pre.shiki:after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(transparent 0%,
+      hsl(from var(--mantle) h s l / 0.8),
+      30%,
+      var(--mantle) 100%);
+  opacity: 1;
+}
+
+figure.shiki[data-collapsible="true"].expanded > .code-expand-btn {
+  transform: translateY(0);
+}
+
 span.line.diff {
   &.remove {
     background-color: hsl(from var(--red) h s l / 0.2);
+
     &:before {
       content: "-";
       color: var(--red);
     }
   }
+
   &.add {
     background-color: hsl(from var(--green) h s l / 0.2);
+
     &:before {
       content: "+";
       color: var(--green);
     }
   }
 }
+
 span.line.highlighted {
   background-color: hsl(from var(--blue) h s l / 0.2);
+
   &.error {
     background-color: hsl(from var(--red) h s l / 0.2);
   }
+
   &.warning {
     background-color: hsl(from var(--yellow) h s l / 0.2);
   }
 }
+
 span.highlighted-word {
   background-color: hsl(from var(--yellow) h s l / 0.3);
   border-radius: 4px;
   margin: -1px -2px;
   padding: 1px 2px;
 }
+
 pre.shiki.has-focused > code {
   > .line {
     filter: blur(3px);
@@ -247,12 +278,14 @@ pre.shiki.has-focused > code {
       filter 0.35s,
       opacity 0.35s;
   }
+
   > .line.focused,
   &:hover .line {
     filter: blur(0);
     opacity: 1;
   }
 }
+
 ._sk_vf0qg7 {
   background-color: #eff1f5;
   --shiki-dark-bg: #1e1e2e;
@@ -263,36 +296,42 @@ pre.shiki.has-focused > code {
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #a9b1d6;
 }
+
 ._sk_1ydffy {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #a9b1d6;
 }
+
 ._sk_zih0e6 {
   color: #179299;
   --shiki-dark: #94e2d5;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_13oiky {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #f7768e;
 }
+
 ._sk_ollodp {
   color: #fe640b;
   --shiki-dark: #fab387;
   --shiki-nord: #b48ead;
   --shiki-tokyo: #ff9e64;
 }
+
 ._sk_oe6gfm {
   color: #7c7f93;
   --shiki-dark: #9399b2;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_7indfn {
   color: #7c7f93;
   --shiki-light-font-style: italic;
@@ -303,30 +342,35 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #51597d;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_ftmff3 {
   color: #7c7f93;
   --shiki-dark: #9399b2;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #9abdf5;
 }
+
 ._sk_nesjbf {
   color: #d20f39;
   --shiki-dark: #f38ba8;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #698cd6;
 }
+
 ._sk_2bt5sv {
   color: #e64553;
   --shiki-dark: #eba0ac;
   --shiki-nord: #bf616a;
   --shiki-tokyo: #db4b4b;
 }
+
 ._sk_1m2qvf {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #bb9af7;
 }
+
 ._sk_25auue {
   color: #1e66f5;
   --shiki-light-font-style: italic;
@@ -337,6 +381,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #7aa2f7;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_yo6jj6 {
   color: #e64553;
   --shiki-light-font-style: italic;
@@ -347,12 +392,14 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #e0af68;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_1qx3pm {
   color: #7c7f93;
   --shiki-dark: #9399b2;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_17w743 {
   color: #8839ef;
   --shiki-light-font-style: inherit;
@@ -363,42 +410,49 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #646e9c;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_177dur {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #9abdf5;
 }
+
 ._sk_1mqm3p {
   color: #fe640b;
   --shiki-dark: #fab387;
   --shiki-nord: #88c0d0;
   --shiki-tokyo: #68b3de;
 }
+
 ._sk_loxlvo {
   color: #179299;
   --shiki-dark: #94e2d5;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #bb9af7;
 }
+
 ._sk_18c40b {
   color: #df8e1d;
   --shiki-dark: #f9e2af;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #9a7ecc;
 }
+
 ._sk_li3nr5 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #c0caf5;
 }
+
 ._sk_gar51z {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #5e81ac;
   --shiki-tokyo: #25aac2;
 }
+
 ._sk_27tddl {
   color: #df8e1d;
   --shiki-light-font-weight: inherit;
@@ -409,60 +463,70 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #89ddff;
   --shiki-tokyo-font-weight: inherit;
 }
+
 ._sk_cy16k3 {
   color: #df8e1d;
   --shiki-dark: #f9e2af;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #bb9af7;
 }
+
 ._sk_1wvgtl {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_26l23m {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #9ece6a;
 }
+
 ._sk_bmlani {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #a3be8c;
   --shiki-tokyo: #9ece6a;
 }
+
 ._sk_hrgjor {
   color: #ea76cb;
   --shiki-dark: #f5c2e7;
   --shiki-nord: #ebcb8b;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_2aenq9 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #7aa2f7;
 }
+
 ._sk_15r19f {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #a3be8c;
   --shiki-tokyo: #c0caf5;
 }
+
 ._sk_bockxi {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_27jobx {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9;
   --shiki-tokyo: #c0caf5;
 }
+
 ._sk_to9i9o {
   color: #8839ef;
   --shiki-light-font-style: inherit;
@@ -473,36 +537,42 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #9d7cd8;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_xl3leg {
   color: #d20f39;
   --shiki-dark: #f38ba8;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #ff9e64;
 }
+
 ._sk_1vgzs3 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #5e81ac;
   --shiki-tokyo: #73daca;
 }
+
 ._sk_cn7ocs {
   color: #209fb5;
   --shiki-dark: #74c7ec;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #80a856;
 }
+
 ._sk_2bf42b {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #88c0d0;
   --shiki-tokyo: #c49a5a;
 }
+
 ._sk_25dt3c {
   color: #179299;
   --shiki-dark: #94e2d5;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_16zqds {
   color: #1e66f5;
   --shiki-light-font-style: italic;
@@ -513,54 +583,63 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_2bt421 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #c0caf5;
 }
+
 ._sk_2fgsdk {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #7aa2f7;
 }
+
 ._sk_2er7jf {
   color: #fe640b;
   --shiki-dark: #fab387;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #ff9e64;
 }
+
 ._sk_221q5y {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #0db9d7;
 }
+
 ._sk_18pw7u {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9;
   --shiki-tokyo: #ff5370;
 }
+
 ._sk_75row8 {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #7dcfff;
 }
+
 ._sk_11d3ov {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #bb9af7;
 }
+
 ._sk_1sc0hm {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #e0af68;
 }
+
 ._sk_204v45 {
   color: #1e66f5;
   --shiki-light-font-style: italic;
@@ -571,12 +650,14 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #c0caf5;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_132862 {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #a3be8c;
   --shiki-tokyo: #e0af68;
 }
+
 ._sk_2fy47c {
   color: #ea76cb;
   --shiki-light-font-style: italic;
@@ -587,12 +668,14 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #51597d;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_8clih5 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #f7768e;
 }
+
 ._sk_1r930g {
   color: #d20f39;
   --shiki-light-font-style: italic;
@@ -603,12 +686,14 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_15rh2c {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_23n2kk {
   color: #8839ef;
   --shiki-light-font-style: inherit;
@@ -619,6 +704,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #bb9af7;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_ch45x6 {
   color: #d20f39;
   --shiki-light-font-style: italic;
@@ -629,120 +715,140 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #698cd6;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_26jl5x {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #ebcb8b;
   --shiki-tokyo: #b4f9f8;
 }
+
 ._sk_bqmlsv {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #a3be8c;
   --shiki-tokyo: #449dab;
 }
+
 ._sk_24h0fx {
   color: #d20f39;
   --shiki-dark: #f38ba8;
   --shiki-nord: #bf616a;
   --shiki-tokyo: #914c54;
 }
+
 ._sk_29y8ya {
   color: #7c7f93;
   --shiki-dark: #9399b2;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #e0af68;
 }
+
 ._sk_288sc4 {
   color: #179299;
   --shiki-dark: #94e2d5;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #bb9af7;
 }
+
 ._sk_mjxr28 {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #c0caf5;
 }
+
 ._sk_6s5q3s {
   color: #7c7f93;
   --shiki-dark: #9399b2;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #9aa5ce;
 }
+
 ._sk_2av2pa {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #b48ead;
   --shiki-tokyo: #9aa5ce;
 }
+
 ._sk_u4rgfq {
   color: #df8e1d;
   --shiki-dark: #f9e2af;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #9ece6a;
 }
+
 ._sk_1x5m8b {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #d8dee9;
   --shiki-tokyo: #7aa2f7;
 }
+
 ._sk_1i9nil {
   color: #fe640b;
   --shiki-dark: #fab387;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #f7768e;
 }
+
 ._sk_2dn114 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #ff9e64;
 }
+
 ._sk_ex35yc {
   color: #e64553;
   --shiki-dark: #eba0ac;
   --shiki-nord: #88c0d0;
   --shiki-tokyo: #c0caf5;
 }
+
 ._sk_czdon2 {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #0db9d7;
 }
+
 ._sk_1w20it {
   color: #df8e1d;
   --shiki-dark: #f9e2af;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #bb9af7;
 }
+
 ._sk_myohtf {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #9ece6a;
 }
+
 ._sk_1vj1cp {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #f7768e;
 }
+
 ._sk_1zkrs7 {
   color: #df8e1d;
   --shiki-dark: #f9e2af;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #fc7b7b;
 }
+
 ._sk_h10j51 {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #9d7cd8;
 }
+
 ._sk_sr2mmu {
   color: #04a5e5;
   --shiki-light-font-style: italic;
@@ -753,42 +859,49 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #7aa2f7;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_jvxq44 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #88c0d0;
   --shiki-tokyo: #bb9af7;
 }
+
 ._sk_gzzuxr {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #d8dee9;
   --shiki-tokyo: #e0af68;
 }
+
 ._sk_1tgkjh {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #d08770;
   --shiki-tokyo: #9d7cd8;
 }
+
 ._sk_74t9zi {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #f7768e;
 }
+
 ._sk_23t5yp {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #7aa2f7;
 }
+
 ._sk_28hk39 {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #ebcb8b;
   --shiki-tokyo: #9ece6a;
 }
+
 ._sk_kj482k {
   color: #df8e1d;
   --shiki-light-font-style: italic;
@@ -799,24 +912,28 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #c0caf5;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_2cq09c {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #bb9af7;
 }
+
 ._sk_1o1po6 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9;
   --shiki-tokyo: #7dcfff;
 }
+
 ._sk_j3iz8c {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #7dcfff;
 }
+
 ._sk_g6idpt {
   color: #4c4f69;
   --shiki-light-font-style: inherit;
@@ -827,6 +944,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #9d7cd8;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_26q3xl {
   color: #7c7f93;
   --shiki-light-font-style: inherit;
@@ -837,6 +955,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #89ddff;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_2e6xb5 {
   color: #df8e1d;
   --shiki-light-font-style: italic;
@@ -851,24 +970,28 @@ pre.shiki.has-focused > code {
   --shiki-tokyo-font-style: inherit;
   --shiki-tokyo-font-weight: inherit;
 }
+
 ._sk_hq8ipq {
   color: #d20f39;
   --shiki-dark: #f38ba8;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #f7768e;
 }
+
 ._sk_1kzqli {
   color: #fe640b;
   --shiki-dark: #fab387;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_kkymk0 {
   color: #fe640b;
   --shiki-dark: #fab387;
   --shiki-nord: #d08770;
   --shiki-tokyo: #bb9af7;
 }
+
 ._sk_1l25sa {
   color: #8839ef;
   --shiki-light-font-style: inherit;
@@ -879,6 +1002,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #89ddff;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_1m2bdy {
   color: #e64553;
   --shiki-light-font-style: italic;
@@ -889,6 +1013,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #e0af68;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_1i8qdf {
   color: #df8e1d;
   --shiki-light-font-style: italic;
@@ -899,6 +1024,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #c0caf5;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_7lln95 {
   color: #4c4f69;
   --shiki-light-font-style: inherit;
@@ -909,12 +1035,14 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #f7768e;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_2feycw {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9;
   --shiki-tokyo: #9ece6a;
 }
+
 ._sk_1scjk5 {
   color: #8839ef;
   --shiki-light-font-style: inherit;
@@ -925,12 +1053,14 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #9d7cd8;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_16ztuh {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #88c0d0;
   --shiki-tokyo: #7aa2f7;
 }
+
 ._sk_1mhvnp {
   color: #e64553;
   --shiki-light-font-style: italic;
@@ -941,6 +1071,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #a9b1d6;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_22ea89 {
   color: #40a02b;
   --shiki-light-font-style: italic;
@@ -951,6 +1082,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #9ece6a;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_hvr4xy {
   color: #40a02b;
   --shiki-light-font-style: italic;
@@ -961,6 +1093,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #bb9af7;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_203s28 {
   color: #04a5e5;
   --shiki-light-font-style: italic;
@@ -971,6 +1104,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_1qxhm4 {
   color: #d20f39;
   --shiki-light-font-style: italic;
@@ -981,6 +1115,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #e0af68;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_uc9t23 {
   color: #d20f39;
   --shiki-light-font-style: italic;
@@ -991,6 +1126,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #f7768e;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_1rpq94 {
   color: #8839ef;
   --shiki-light-font-style: italic;
@@ -1001,6 +1137,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_2e7pom {
   color: #fe640b;
   --shiki-light-font-style: italic;
@@ -1011,6 +1148,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_dkzv2h {
   color: #fe640b;
   --shiki-light-font-style: italic;
@@ -1021,12 +1159,14 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_228tis {
   color: #e64553;
   --shiki-dark: #eba0ac;
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #a9b1d6;
 }
+
 ._sk_16wu5w {
   color: #40a02b;
   --shiki-light-font-style: inherit;
@@ -1037,6 +1177,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #51597d;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_20z2zd {
   color: #40a02b;
   --shiki-light-font-style: inherit;
@@ -1047,12 +1188,14 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #51597d;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_15l438 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #ff9e64;
 }
+
 ._sk_v8i75d {
   color: #fe640b;
   --shiki-light-font-style: italic;
@@ -1063,6 +1206,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #89ddff;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_1wu28j {
   color: #fe640b;
   --shiki-light-font-style: italic;
@@ -1073,6 +1217,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #7aa2f7;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_227fse {
   color: #8839ef;
   --shiki-light-font-style: italic;
@@ -1083,6 +1228,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_g6l96i {
   color: #fe640b;
   --shiki-light-font-style: italic;
@@ -1093,18 +1239,21 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #ff9e64;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_19zv4q {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #e0af68;
 }
+
 ._sk_w8luni {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #9d7cd8;
 }
+
 ._sk_2alf8k {
   color: #7c7f93;
   --shiki-light-font-weight: inherit;
@@ -1115,6 +1264,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #c0caf5;
   --shiki-tokyo-font-weight: bold;
 }
+
 ._sk_47xbph {
   color: #d20f39;
   --shiki-light-font-weight: bold;
@@ -1125,30 +1275,35 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #c0caf5;
   --shiki-tokyo-font-weight: bold;
 }
+
 ._sk_13h2v6 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #9aa5ce;
 }
+
 ._sk_2d5alg {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_sftfd5 {
   color: #7287fd;
   --shiki-dark: #b4befe;
   --shiki-nord: #88c0d0;
   --shiki-tokyo: #73daca;
 }
+
 ._sk_zjo9zo {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9;
   --shiki-tokyo: #bb9af7;
 }
+
 ._sk_o7cw64 {
   color: #8839ef;
   --shiki-light-font-style: italic;
@@ -1159,6 +1314,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_it4y4b {
   color: #8839ef;
   --shiki-light-font-weight: bold;
@@ -1169,12 +1325,14 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #89ddff;
   --shiki-tokyo-font-weight: inherit;
 }
+
 ._sk_16uhwk {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #88c0d0;
   --shiki-tokyo: #73daca;
 }
+
 ._sk_nbpi26 {
   color: #df8e1d;
   --shiki-light-font-style: italic;
@@ -1185,12 +1343,14 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_gupwpm {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #7dcfff;
 }
+
 ._sk_tks0pk {
   color: #179299;
   --shiki-light-font-weight: inherit;
@@ -1201,96 +1361,112 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #f7768e;
   --shiki-tokyo-font-weight: bold;
 }
+
 ._sk_19fw5d {
   color: #ea76cb;
   --shiki-dark: #f5c2e7;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_j6m1ds {
   color: #ea76cb;
   --shiki-dark: #f5c2e7;
   --shiki-nord: #ebcb8b;
   --shiki-tokyo: #c0caf5;
 }
+
 ._sk_t8zlhw {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #f7768e;
 }
+
 ._sk_23kcit {
   color: #ea76cb;
   --shiki-dark: #f5c2e7;
   --shiki-nord: #ebcb8b;
   --shiki-tokyo: #bb9af7;
 }
+
 ._sk_13rez6 {
   color: #7c7f93;
   --shiki-dark: #9399b2;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #7dcfff;
 }
+
 ._sk_ex8akj {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #d8dee9;
   --shiki-tokyo: #7dcfff;
 }
+
 ._sk_v8j5st {
   color: #fe640b;
   --shiki-dark: #fab387;
   --shiki-nord: #d8dee9;
   --shiki-tokyo: #ff9e64;
 }
+
 ._sk_cs8fvu {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #88c0d0;
   --shiki-tokyo: #41a6b5;
 }
+
 ._sk_235kp5 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9;
   --shiki-tokyo: #ff9e64;
 }
+
 ._sk_2c7g3m {
   color: #179299;
   --shiki-dark: #94e2d5;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #ba3c97;
 }
+
 ._sk_1rdefz {
   color: #df8e1d;
   --shiki-dark: #f9e2af;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #e0af68;
 }
+
 ._sk_8q2fwb {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9;
   --shiki-tokyo: #0db9d7;
 }
+
 ._sk_10u0mb {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #0db9d7;
 }
+
 ._sk_2dq6o3 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9;
   --shiki-tokyo: #73daca;
 }
+
 ._sk_1hpmgi {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #ff9e64;
 }
+
 ._sk_7i84cj {
   color: #df8e1d;
   --shiki-light-font-style: italic;
@@ -1301,6 +1477,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #c0caf5;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_87bubo {
   color: #e64553;
   --shiki-light-font-style: italic;
@@ -1311,66 +1488,77 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #9abdf5;
   --shiki-tokyo-font-style: inherit;
 }
+
 ._sk_1ibxmr {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #a3be8c;
   --shiki-tokyo: #9abdf5;
 }
+
 ._sk_1nor8y {
   color: #df8e1d;
   --shiki-dark: #f9e2af;
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #c0caf5;
 }
+
 ._sk_2eq1an {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_ot4ncs {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #ba3c97;
 }
+
 ._sk_10nd3g {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #a3be8c;
   --shiki-tokyo: #9ece6a;
 }
+
 ._sk_xl7hdp {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_19tr4n {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #5e81ac;
   --shiki-tokyo: #f7768e;
 }
+
 ._sk_sgw5xr {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #de5971;
 }
+
 ._sk_1yhtph {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #ba3c97;
 }
+
 ._sk_t3gfox {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #5e81ac;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_2b34ud {
   color: #df8e1d;
   --shiki-light-font-style: italic;
@@ -1381,6 +1569,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_b2m26z {
   color: #4c4f69;
   --shiki-light-font-style: italic;
@@ -1391,6 +1580,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #c0caf5;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_19kq3h {
   color: #179299;
   --shiki-light-font-style: inherit;
@@ -1401,42 +1591,49 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #89ddff;
   --shiki-tokyo-font-style: italic;
 }
+
 ._sk_1l7b8r {
   color: #7c7f93;
   --shiki-dark: #9399b2;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_1hyunr {
   color: #04a5e5;
   --shiki-dark: #89dceb;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_61b1s6 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #c0caf5;
 }
+
 ._sk_1kuxmi {
   color: #7c7f93;
   --shiki-dark: #9399b2;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #e0af68;
 }
+
 ._sk_kr7bdp {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #89ddff;
 }
+
 ._sk_14wbpx {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #9abdf5;
 }
+
 ._sk_1swkum {
   color: #d20f39;
   --shiki-light-font-weight: inherit;
@@ -1447,6 +1644,7 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #89ddff;
   --shiki-tokyo-font-weight: bold;
 }
+
 ._sk_1ij3e7 {
   color: #d20f39;
   --shiki-light-font-weight: inherit;

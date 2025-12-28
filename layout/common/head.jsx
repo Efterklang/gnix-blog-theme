@@ -222,13 +222,6 @@ module.exports = class extends Component {
           onload="this.onload=null;this.rel='stylesheet'"
         />
         <link rel="stylesheet" href="/css/shiki/shiki.css" />
-        {/* Maple Mono CN */}
-        <link
-          rel="preload"
-          as="style"
-          href="https://fontsapi.zeoseven.com/442/main/result.css"
-          onload="this.onload=null;this.rel='stylesheet'"
-        />
         <Plugins
           site={site}
           config={config}
