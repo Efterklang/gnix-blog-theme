@@ -248,7 +248,10 @@
   color: var(--text);
   border: 2px solid var(--surface0);
 }
+
 .searchbox-container {
+  top: 15px;
   width: 90%;
 }
+
 /* #endregion TOC  */
