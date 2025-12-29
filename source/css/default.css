@@ -411,7 +411,6 @@ html {
   box-sizing: border-box;
   height: 100%;
   font-size: 16px;
-  scroll-behavior: smooth;
   min-width: 300px;
   overflow-x: hidden;
   overflow-y: scroll;
@@ -910,8 +909,8 @@ video {
   overflow: auto;
   word-wrap: break-word;
   font-family: var(--font-article);
-  font-size: 1.25rem;
-  line-height: 1.68;
+  font-size: 1rem;
+  line-height: 1.5;
   letter-spacing: -0.003em;
 
   ::selection {
@@ -925,46 +924,54 @@ video {
     font-weight: 700;
     line-height: 1.25;
     letter-spacing: -0.02em;
-    margin-bottom: 0.5em;
-  }
-
-  h2:not(:first-child) {
-    margin-top: 1.5em;
+    margin: 1.2rem 0 1rem;
   }
 
   h3 {
-    font-size: 1.625em;
+    font-size: 1.875em;
     font-weight: 700;
-    line-height: 1.3;
+    line-height: 1.25;
     letter-spacing: -0.015em;
-    margin-bottom: 0.5em;
+    margin: 1.2rem 0 1rem;
   }
 
   h4 {
-    font-size: 1.375em;
+    font-size: 1.5em;
     font-weight: 600;
-    line-height: 1.35;
+    line-height: 1.25;
     letter-spacing: -0.01em;
-    margin-bottom: 0.5em;
+    margin: 1.2rem 0 1rem;
   }
 
   h5 {
     font-size: 1.25em;
     font-weight: 600;
-    line-height: 1.4;
+    line-height: 1.25;
     letter-spacing: -0.005em;
-    margin-bottom: 0.5em;
+    margin: 1.2rem 0 1rem;
   }
 
   h6 {
-    font-size: 1.125em;
+    font-size: 1.2em;
     font-weight: 600;
-    line-height: 1.45;
-    margin-bottom: 0.5em;
+    line-height: 1.25;
+    margin: 1.2rem 0 1rem;
   }
 
   .p:not(:last-child) {
-    margin-bottom: 0.5em;
+    margin-bottom: 1rem;
+  }
+
+  p,
+  blockquote,
+  ul,
+  ol,
+  dl,
+  table,
+  pre,
+  details {
+    margin-top: 0;
+    margin-bottom: 1rem;
   }
 
   p:last-child,
@@ -975,14 +982,13 @@ video {
   }
 
   li + li {
-    margin-top: 0.5em;
+    margin-top: 0.25em;
   }
 
   img,
   video {
     display: block;
-    margin: 0 auto;
-    margin-bottom: 2rem;
+    margin: 0 0 1rem 0;
     border-radius: 2px;
   }
 
@@ -993,16 +999,16 @@ video {
 
   ol {
     list-style-position: outside;
-    margin-left: 2em;
-    margin-top: 1.5em;
-    margin-bottom: 1.5em;
+    padding-left: 2em;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
   ul {
     list-style: disc outside;
-    margin-left: 2em;
-    margin-top: 1.5em;
-    margin-bottom: 1.5em;
+    padding-left: 2em;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
   ul ul {
@@ -1020,7 +1026,7 @@ video {
 
   math {
     overflow: auto;
-    margin-bottom: 0.5em;
+    margin-bottom: 1rem;
   }
 
   iframe {
@@ -1028,17 +1034,16 @@ video {
   }
 
   figure {
-    margin-left: 2em;
-    margin-right: 2em;
+    margin: 1em 2.5rem;
     text-align: center;
   }
 
   figure:not(:first-child) {
-    margin-top: 2em;
+    margin-top: 1.5rem;
   }
 
   figure:not(:last-child) {
-    margin-bottom: 2em;
+    margin-bottom: 1rem;
   }
 
   figure img {
@@ -1053,9 +1058,11 @@ video {
     -webkit-overflow-scrolling: touch;
     overflow-x: auto;
     font-size: 0.85em;
-    padding: 1.25em 1.5em;
+    padding: 1rem;
+    margin: 0 0 1rem 0;
     white-space: pre;
     word-wrap: normal;
+    line-height: 1.45;
   }
 
   sub,
@@ -1107,8 +1114,8 @@ table {
   border-spacing: 0;
   border-radius: 8px;
   overflow: hidden;
-  margin: 0.875em 0;
-  font-size: 0.875em;
+  margin: 1rem 0;
+  font-size: 1rem;
   border: 1px solid var(--surface0);
 }
 
@@ -1141,16 +1148,16 @@ blockquote {
   position: relative;
   padding: 1.5rem 2rem 1.5rem 3rem;
   margin: 1.5rem 0;
-  border-left: 4px solid var(--red);
+  border-left: 2px solid var(--red);
   border-radius: 0 8px 8px 0;
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 1.05rem;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 blockquote:before {
-  content: '"';
+  content: '”';
   position: absolute;
   left: 0.5rem;
   top: 0.2rem;
@@ -1213,23 +1220,8 @@ input.task-list-item-checkbox:checked::before {
   color: var(--base);
 }
 
-.title {
-  word-break: break-word;
-  margin-bottom: 0.4em;
-  position: relative;
-  display: inline-block;
-  transition: color 0.3s ease-out;
-  font-size: 3em;
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-.title .tag {
-  vertical-align: middle;
-}
-
 code {
-  font-size: 0.875em;
+  font-size: 0.85em;
   font-weight: 400;
   font-family: var(--font-monospace);
   padding: 0 0.15em;
@@ -1248,7 +1240,7 @@ strong {
 hr {
   border: none;
   display: block;
-  height: 2px;
+  height: 0.25em;
   margin: 1.5rem 0;
 }
 
