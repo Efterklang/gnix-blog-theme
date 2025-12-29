@@ -14,12 +14,8 @@ function getPageTitle(page, siteTitle, helper) {
     } else if (helper.is_year()) {
       title += `: ${page.year}`;
     }
-  } else if (helper.is_category()) {
-    title = `${helper._p("common.category", 1)}: ${page.category}`;
   } else if (helper.is_tag()) {
     title = `${helper._p("common.tag", 1)}: ${page.tag}`;
-  } else if (helper.is_categories()) {
-    title = helper._p("common.category", Infinity);
   } else if (helper.is_tags()) {
     title = helper._p("common.tag", Infinity);
   }
@@ -43,8 +39,7 @@ module.exports = class extends Component {
       favicon,
     } = head;
 
-    const noIndex =
-      helper.is_archive() || helper.is_category() || helper.is_tag();
+    const noIndex = helper.is_archive() || helper.is_tag();
 
     const language = page.lang || page.language || config.language;
 
@@ -95,8 +90,7 @@ module.exports = class extends Component {
     if (
       typeof structured_data === "object" &&
       structured_data !== null &&
-      ((Array.isArray(structured_data.image) &&
-        structured_data.image.length > 0) ||
+      ((Array.isArray(structured_data.image) && structured_data.image.length > 0) ||
         typeof structured_data.image === "string")
     ) {
       structuredImages = structured_data.image;
@@ -150,9 +144,7 @@ module.exports = class extends Component {
               page.content ||
               config.description
             }
-            keywords={
-              (page.tags?.length ? page.tags : undefined) || config.keywords
-            }
+            keywords={(page.tags?.length ? page.tags : undefined) || config.keywords}
             url={open_graph.url || page.permalink || url}
             images={openGraphImages}
             siteName={open_graph.site_name || config.title}
@@ -229,13 +221,7 @@ module.exports = class extends Component {
           onload="this.onload=null;this.rel='stylesheet'"
         />
         <link rel="stylesheet" href="/css/shiki/shiki.css" />
-        <Plugins
-          site={site}
-          config={config}
-          helper={helper}
-          page={page}
-          head={true}
-        />
+        <Plugins site={site} config={config} helper={helper} page={page} head={true} />
         {adsenseClientId ? (
           <script
             data-ad-client={adsenseClientId}

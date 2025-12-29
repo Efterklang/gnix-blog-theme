@@ -33,7 +33,6 @@ module.exports = (hexo) => {
     const site = {
       posts: locals.posts.map(mapPost),
       tags: locals.tags.map(mapTag),
-      categories: locals.categories.map(mapTag),
     };
     const index_pages = this.theme.config?.search?.index_pages;
     if (index_pages === false) {

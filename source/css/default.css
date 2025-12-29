@@ -929,6 +929,12 @@ video {
   line-height: 1.68;
   letter-spacing: -0.003em;
 
+  ::selection {
+    color: inherit;
+    text-decoration: underline wavy;
+    text-decoration-color: var(--mauve);
+  }
+
   h2 {
     font-size: 2em;
     font-weight: 700;
@@ -1030,6 +1036,10 @@ video {
   math {
     overflow: auto;
     margin-bottom: 0.5em;
+  }
+
+  iframe {
+    overflow: auto;
   }
 
   figure {
@@ -1370,14 +1380,14 @@ section {
 }
 
 .article-meta-info,
-.article-taxonomy {
+.article-tags-inline {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 0.3rem;
 }
 
-.article-taxonomy {
+.article-tags-inline {
   /* Push to the right */
   margin-left: auto;
 }

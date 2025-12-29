@@ -42,7 +42,6 @@ Insight.Cacheable = cacheComponent(Insight, "search.insight", (props) => {
       untitled: helper.__("search.untitled"),
       posts: helper._p("common.post", Infinity),
       pages: helper._p("common.page", Infinity),
-      categories: helper._p("common.category", Infinity),
       tags: helper._p("common.tag", Infinity),
     },
     contentUrl: helper.url_for("/content.json"),

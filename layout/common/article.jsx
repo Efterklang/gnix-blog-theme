@@ -14,9 +14,7 @@ function getWordCount(content) {
   }
   content = content.replace(/<\/?[a-z][^>]*>/gi, "");
   content = content.trim();
-  return content
-    ? (content.match(/[\u00ff-\uffff]|[a-zA-Z]+/g) || []).length
-    : 0;
+  return content ? (content.match(/[\u00ff-\uffff]|[a-zA-Z]+/g) || []).length : 0;
 }
 
 module.exports = class extends Component {
@@ -36,45 +34,27 @@ module.exports = class extends Component {
         {/* Main content */}
         <div class="card article-wrapper">
           {/* Cover image */}
-          {cover ? (
-            <ArticleCover
-              page={page}
-              cover={cover}
-              index={index}
-              helper={helper}
-            />
-          ) : null}
-          <article
-            class={`card-content article${"direction" in page ? ` ${page.direction}` : ""}`}
-          >
+          {cover ? <ArticleCover page={page} cover={cover} index={index} helper={helper} /> : null}
+          <article class={`card-content article${"direction" in page ? ` ${page.direction}` : ""}`}>
             {/* Title */}
             {page.title !== "" && index ? (
               <h2 class="article-title">
                 <a href={url_for(page.link || page.path)}>{page.title}</a>
               </h2>
             ) : null}
-            {page.title !== "" && !index ? (
-              <h1 class="article-title">{page.title}</h1>
-            ) : null}
+            {page.title !== "" && !index ? <h1 class="article-title">{page.title}</h1> : null}
 
             {/* Metadata - Medium style */}
             {page.layout !== "page" ? (
               <div class="article-header-meta">
                 <div class="article-meta-info">
                   {page.date && (
-                    <time
-                      class="article-date"
-                      datetime={page.date.toISOString()}
-                    >
+                    <time class="article-date" datetime={page.date.toISOString()}>
                       {format(page.date, "LLL dd")}
                     </time>
                   )}
-                  {page.date && (wordCount > 0 || !index) && (
-                    <span class="meta-separator">·</span>
-                  )}
-                  {wordCount > 0 && (
-                    <span class="article-reading-time">{readTime} min</span>
-                  )}
+                  {page.date && (wordCount > 0 || !index) && <span class="meta-separator">·</span>}
+                  {wordCount > 0 && <span class="article-reading-time">{readTime} min</span>}
                   {!index && (
                     <Fragment>
                       <span class="meta-separator">·</span>
@@ -88,42 +68,18 @@ module.exports = class extends Component {
                     </Fragment>
                   )}
                 </div>
-                <div class="article-taxonomy">
-                  {page.categories?.length ? (
-                    <div class="article-categories">
-                      {page.categories.map((category, idx) => (
-                        <Fragment>
-                          {idx > 0 && <span class="meta-separator">/</span>}
-                          <a
-                            class="article-category"
-                            href={url_for(category.path)}
-                          >
-                            {category.name}
-                          </a>
-                        </Fragment>
-                      ))}
-                    </div>
-                  ) : null}
-                  {page.categories?.length && page.tags?.length ? (
-                    <span class="meta-separator">·</span>
-                  ) : null}
-                  {page.tags?.length ? (
-                    <div class="article-tags-inline">
-                      {page.tags.map((tag, idx) => (
-                        <Fragment>
-                          {idx > 0 && <span class="meta-separator">,</span>}
-                          <a
-                            class="article-tag"
-                            rel="tag"
-                            href={url_for(tag.path)}
-                          >
-                            {tag.name}
-                          </a>
-                        </Fragment>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
+                {page.tags?.length ? (
+                  <div class="article-tags-inline">
+                    {page.tags.map((tag, idx) => (
+                      <Fragment>
+                        {idx > 0 && <span class="meta-separator">,</span>}
+                        <a class="article-tag" rel="tag" href={url_for(tag.path)}>
+                          {tag.name}
+                        </a>
+                      </Fragment>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             ) : null}
 
@@ -135,22 +91,13 @@ module.exports = class extends Component {
               }}
             ></div>
             {/* Licensing block */}
-            {!index &&
-            article &&
-            article.licenses &&
-            Object.keys(article.licenses) ? (
-              <ArticleLicensing.Cacheable
-                page={page}
-                config={config}
-                helper={helper}
-              />
+            {!index && article && article.licenses && Object.keys(article.licenses) ? (
+              <ArticleLicensing.Cacheable page={page} config={config} helper={helper} />
             ) : null}
           </article>
         </div>
         {/* Comment */}
-        {!index ? (
-          <Comment config={config} page={page} helper={helper} />
-        ) : null}
+        {!index ? <Comment config={config} page={page} helper={helper} /> : null}
       </Fragment>
     );
   }

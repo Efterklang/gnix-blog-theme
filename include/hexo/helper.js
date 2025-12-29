@@ -18,4 +18,7 @@ module.exports = (hexo) => {
     cdn = this.config.providers?.cdn ? this.config.providers.cdn : "jsdelivr";
     return getCDN(cdn, _package, version, filename);
   });
+  hexo.extend.helper.register("is_tags", function (page = null) {
+    return (page === null ? this.page : page).__tags === true;
+  });
 };

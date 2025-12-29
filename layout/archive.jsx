@@ -10,22 +10,17 @@ module.exports = class extends Component {
 
     const inlineCSS = `
             .article-meta {
-              font-family: var(--font-monospace);
               font-size: 0.8rem;
-              overflow-x: auto;
+              color: var(--subtext1);
               margin-bottom: 0.1rem;
             }
 
-            .article-meta a {
+            a.archive-title {
               color: var(--text);
 
               &:hover {
                 color: var(--peach);
               }
-            }
-
-            .article-meta span {
-              padding-right: 0.5rem;
             }
 
             span.year {
@@ -36,7 +31,7 @@ module.exports = class extends Component {
                 font-size: 7.5rem;
                 font-weight: bolder;
                 font-family: Paris2024;
-                color: hsl(from var(--mauve) h s l / 0.15);
+                color: hsl(from var(--lavender) h s l / 0.15);
                 line-height: 1;
                 user-select: none;
             }
@@ -55,7 +50,7 @@ module.exports = class extends Component {
             .archive-item + .archive-item {
                 border: none;
                 margin-top: 0;
-                padding-top: 1rem;
+                padding-top: .5rem;
             }
         `;
     function renderArticleList(posts, year, month = null) {
@@ -68,25 +63,16 @@ module.exports = class extends Component {
         <div class="card">
           <div class="card-content">
             <span class="year">
-              {month === null
-                ? year
-                : isValid(time)
-                  ? format(time, "LLLL yyyy")
-                  : year}
+              {month === null ? year : isValid(time) ? format(time, "LLLL yyyy") : year}
             </span>
             <div class="timeline">
               {posts.map((post) => {
-                const categories = post.categories.map((category) => ({
-                  url: url_for(category.path),
-                  name: category.name,
-                }));
                 return (
                   <ArticleMedia
                     url={url_for(post.link || post.path)}
                     title={post.title}
                     date={date(post.date)}
                     dateXml={date_xml(post.date)}
-                    categories={categories}
                   />
                 );
               })}
@@ -105,9 +91,7 @@ module.exports = class extends Component {
       articleList = Object.keys(years)
         .sort((a, b) => b - a)
         .map((year) => {
-          const posts = page.posts.filter(
-            (p) => p.date.year() === parseInt(year, 10),
-          );
+          const posts = page.posts.filter((p) => p.date.year() === parseInt(year, 10));
           return renderArticleList(posts, year, null);
         });
     } else {

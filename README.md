@@ -51,4 +51,6 @@ bun i hexo-renderer-markdown-exit
   </tr>
 </table>
 
+## Credit
 
+[ppoffice/hexo-theme-icarus: A simple, delicate, and modern theme for the static site generator Hexo.](https://github.com/ppoffice/hexo-theme-icarus)

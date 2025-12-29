@@ -118,7 +118,7 @@ function loadInsight(config, translation) {
           const text = findAndHighlight(item.text, keywords, 100);
           return searchItem(title, text, item.link);
         } else {
-          // Categories / Tags
+          // Tags
           const name = findAndHighlight(item.name, keywords);
           return searchItem(name, null, item.link);
         }
@@ -197,7 +197,6 @@ function loadInsight(config, translation) {
     return {
       posts: executeSearch(json.posts, ["title", "text"], [3, 1]),
       pages: executeSearch(json.pages, ["title", "text"], [3, 1]),
-      categories: executeSearch(json.categories, ["name", "slug"], [1, 1]),
       tags: executeSearch(json.tags, ["name", "slug"], [1, 1]),
     };
   }
