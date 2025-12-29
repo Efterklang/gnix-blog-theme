@@ -740,8 +740,10 @@ video {
 .pagination-next,
 .pagination-previous {
   height: 2.5em;
-  border-radius: 4px;
+  border-radius: 10px;
   font-size: 1.1em;
+  font-weight: bolder;
+  color: var(--text);
   margin: 0.25rem;
   padding: 0 0.5em;
   justify-content: center;
@@ -757,13 +759,6 @@ video {
 .pagination-next,
 .pagination-previous {
   min-width: 1.5em;
-}
-
-.pagination-next,
-.pagination-previous {
-  padding-left: 0.75em;
-  padding-right: 0.75em;
-  white-space: nowrap;
 }
 
 .pagination-ellipsis {
