@@ -73,7 +73,6 @@ const FeatureHandlers = {
 
       // 首先设置当前完整高度作为起点
       pre.style.maxHeight = `${beforeCollapseHeight}px`;
-      pre.offsetHeight; // 强制重排
 
       // 应用折叠状态
       requestAnimationFrame(() => {
@@ -92,7 +91,6 @@ const FeatureHandlers = {
 
       // 先设置当前高度作为起点
       pre.style.maxHeight = `${currentHeight}px`;
-      pre.offsetHeight; // 强制重排
 
       // 应用展开状态
       figure.classList.add("expanded");
