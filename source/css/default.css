@@ -1064,6 +1064,18 @@ video {
     line-height: 1.45;
   }
 
+  code {
+    font-size: 0.85em;
+    font-weight: 400;
+    font-family: var(--font-monospace);
+    padding: 0 0.15em;
+    margin: 0 0.1em;
+    background-color: var(--base);
+    color: var(--subtext1);
+    border: 1px solid var(--surface0);
+    border-radius: 6px;
+  }
+
   sub,
   sup {
     font-size: 75%;
@@ -1217,18 +1229,6 @@ input.task-list-item-checkbox:checked::before {
 
 .heimu:hover {
   color: var(--base);
-}
-
-code {
-  font-size: 0.85em;
-  font-weight: 400;
-  font-family: var(--font-monospace);
-  padding: 0 0.15em;
-  margin: 0 0.1em;
-  background-color: var(--base);
-  color: var(--subtext1);
-  border: 1px solid var(--surface0);
-  border-radius: 6px;
 }
 
 strong {
