@@ -90,7 +90,8 @@ module.exports = class extends Component {
     if (
       typeof structured_data === "object" &&
       structured_data !== null &&
-      ((Array.isArray(structured_data.image) && structured_data.image.length > 0) ||
+      ((Array.isArray(structured_data.image) &&
+        structured_data.image.length > 0) ||
         typeof structured_data.image === "string")
     ) {
       structuredImages = structured_data.image;
@@ -144,7 +145,9 @@ module.exports = class extends Component {
               page.content ||
               config.description
             }
-            keywords={(page.tags?.length ? page.tags : undefined) || config.keywords}
+            keywords={
+              (page.tags?.length ? page.tags : undefined) || config.keywords
+            }
             url={open_graph.url || page.permalink || url}
             images={openGraphImages}
             siteName={open_graph.site_name || config.title}
@@ -221,7 +224,13 @@ module.exports = class extends Component {
           onload="this.onload=null;this.rel='stylesheet'"
         />
         <link rel="stylesheet" href="/css/shiki/shiki.css" />
-        <Plugins site={site} config={config} helper={helper} page={page} head={true} />
+        <Plugins
+          site={site}
+          config={config}
+          helper={helper}
+          page={page}
+          head={true}
+        />
         {adsenseClientId ? (
           <script
             data-ad-client={adsenseClientId}

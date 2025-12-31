@@ -63,7 +63,11 @@ module.exports = class extends Component {
         <div class="card">
           <div class="card-content">
             <span class="year">
-              {month === null ? year : isValid(time) ? format(time, "LLLL yyyy") : year}
+              {month === null
+                ? year
+                : isValid(time)
+                  ? format(time, "LLLL yyyy")
+                  : year}
             </span>
             <div class="timeline">
               {posts.map((post) => {
@@ -91,7 +95,9 @@ module.exports = class extends Component {
       articleList = Object.keys(years)
         .sort((a, b) => b - a)
         .map((year) => {
-          const posts = page.posts.filter((p) => p.date.year() === parseInt(year, 10));
+          const posts = page.posts.filter(
+            (p) => p.date.year() === parseInt(year, 10),
+          );
           return renderArticleList(posts, year, null);
         });
     } else {

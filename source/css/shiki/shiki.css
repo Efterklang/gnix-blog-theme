@@ -135,7 +135,6 @@ figure.shiki {
 }
 
 @keyframes code-expand-pulse {
-
   0%,
   to {
     opacity: 0.6;
@@ -167,7 +166,6 @@ figure.shiki {
     transform: rotate(180deg);
   }
 }
-
 
 pre.shiki {
   background: var(--mantle);
@@ -221,10 +219,12 @@ figure.shiki[data-collapsible="true"]:not(.expanded) > pre.shiki:after {
   height: 80px;
   pointer-events: none;
   z-index: 1;
-  background: linear-gradient(transparent 0%,
-      hsl(from var(--mantle) h s l / 0.8),
-      30%,
-      var(--mantle) 100%);
+  background: linear-gradient(
+    transparent 0%,
+    hsl(from var(--mantle) h s l / 0.8),
+    30%,
+    var(--mantle) 100%
+  );
   opacity: 1;
 }
 

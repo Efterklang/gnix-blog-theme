@@ -67,7 +67,12 @@ class ArticleLicensing extends Component {
                   <p>{licensedTitle}</p>
                   <p>
                     {Object.keys(licenses).map((name) => (
-                      <a rel="noopener" target="_blank" title={name} href={licenses[name].url}>
+                      <a
+                        rel="noopener"
+                        target="_blank"
+                        title={name}
+                        href={licenses[name].url}
+                      >
                         <iconify-icon icon={licenses[name].icon} />
                       </a>
                     ))}
@@ -82,33 +87,39 @@ class ArticleLicensing extends Component {
   }
 }
 
-ArticleLicensing.Cacheable = cacheComponent(ArticleLicensing, "misc.articlelicensing", (props) => {
-  const { config, page, helper } = props;
-  const { licenses } = config.article || {};
+ArticleLicensing.Cacheable = cacheComponent(
+  ArticleLicensing,
+  "misc.articlelicensing",
+  (props) => {
+    const { config, page, helper } = props;
+    const { licenses } = config.article || {};
 
-  const links = {};
-  if (licenses) {
-    Object.keys(licenses).forEach((name) => {
-      const license = licenses[name];
-      links[name] = {
-        url: helper.url_for(typeof license === "string" ? license : license.url),
-        icon: license.icon,
-      };
-    });
-  }
+    const links = {};
+    if (licenses) {
+      Object.keys(licenses).forEach((name) => {
+        const license = licenses[name];
+        links[name] = {
+          url: helper.url_for(
+            typeof license === "string" ? license : license.url,
+          ),
+          icon: license.icon,
+        };
+      });
+    }
 
-  return {
-    title: page.title,
-    link: decodeURI(page.permalink),
-    author: page.author || config.author,
-    authorTitle: helper.__("article.licensing.author"),
-    createdAt: page.date ? helper.date(page.date) : null,
-    createdTitle: helper.__("article.licensing.created_at"),
-    updatedAt: page.updated ? helper.date(page.updated) : null,
-    updatedTitle: helper.__("article.licensing.updated_at"),
-    licenses: links,
-    licensedTitle: helper.__("article.licensing.licensed_under"),
-  };
-});
+    return {
+      title: page.title,
+      link: decodeURI(page.permalink),
+      author: page.author || config.author,
+      authorTitle: helper.__("article.licensing.author"),
+      createdAt: page.date ? helper.date(page.date) : null,
+      createdTitle: helper.__("article.licensing.created_at"),
+      updatedAt: page.updated ? helper.date(page.updated) : null,
+      updatedTitle: helper.__("article.licensing.updated_at"),
+      licenses: links,
+      licensedTitle: helper.__("article.licensing.licensed_under"),
+    };
+  },
+);
 
 module.exports = ArticleLicensing;
