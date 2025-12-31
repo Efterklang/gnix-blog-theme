@@ -547,7 +547,7 @@
   height: 32px;
   width: 50px;
   margin: 0 0.5em;
-  padding-left: .5em;
+  padding-left: 0.5em;
   font-size: 1em;
   color: var(--text);
   background: var(--surface0);
@@ -676,9 +676,7 @@
   height: 100%;
   overflow-y: auto;
   pointer-events: all;
-  color: var(--text);
   background-color: var(--mantle);
-  transition: all 0.5s ease;
   visibility: hidden;
 }
 
@@ -723,7 +721,6 @@
 }
 
 .tk-login-title {
-  color: var(--base);
   font-size: 1.25rem;
   text-align: center;
   margin-top: 10rem;
@@ -731,7 +728,6 @@
 
 .tk-password,
 .tk-login-msg {
-  color: var(--base);
   width: 80%;
   text-align: center;
   margin-top: 1rem;
@@ -752,7 +748,6 @@
 }
 
 .tk-panel {
-  /* color: var(--text); */
   padding: 2rem;
 }
 

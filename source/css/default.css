@@ -1,15 +1,15 @@
 @charset "UTF-8";
 
 :root {
-  --font-serif: Georgia, "Times New Roman", Times, "Songti SC", "STSong", serif;
+  --font-serif: "PT Serif", Georgia, "Times New Roman", Times, "Songti SC", "STSong", serif;
   --font-sans-serif:
     Avenir, Futura, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   --font-monospace:
-    "Maple Mono NF CN", "Maple Mono NF", "SF Mono", "SF Pro", Menlo, Monaco,
+    "Maple Mono NF CN Local", "Maple Mono NF CN", "SF Mono", "SF Pro", Monaco,
     Consolas, "Liberation Mono", "Courier New", monospace;
   --font-article:
-    system-ui, "Segoe UI", Roboto, Helvetica, Arial, "PingFang SC",
+    "SF Pro", system-ui, "Segoe UI", Roboto, Helvetica, Arial, "PingFang SC",
     "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
     "Source Han Sans CN", sans-serif;
 }
@@ -203,24 +203,53 @@ a:hover {
   color: var(--blue);
 }
 
-h2 {
+a.header-anchor {
+  font-family: var(--font-sans-serif);
+}
+
+a.header-anchor:hover::after {
+  margin-left: 0.2em;
+  color: var(--surface0);
+}
+
+h2 a.header-anchor {
   color: var(--peach);
+
+  &:hover::after {
+    content: "##";
+  }
 }
 
-h3 {
+h3 a.header-anchor {
   color: var(--yellow);
+
+  &:hover::after {
+    content: "###";
+  }
 }
 
-h4 {
+h4 a.header-anchor {
   color: var(--green);
+
+  &:hover::after {
+    content: "####";
+  }
 }
 
-h5 {
+h5 a.header-anchor {
   color: var(--blue);
+
+  &:hover::after {
+    content: "#####";
+  }
 }
 
-h6 {
+h6 a.header-anchor {
   color: var(--mauve);
+
+  &:hover::after {
+    content: "######";
+  }
 }
 
 mark {
@@ -342,6 +371,14 @@ input:-webkit-autofill {
 /* #endregion Color */
 
 /* #region Font */
+
+@font-face {
+  font-family: "Maple Mono NF CN Local";
+  font-weight: 100 900;
+  src:
+    local("MapleMono-NF-CN-Regular"),
+}
+
 @font-face {
   font-family: doto;
   font-style: normal;
@@ -920,7 +957,7 @@ video {
   }
 
   h2 {
-    font-size: 2em;
+    font-size: 2.25em;
     font-weight: 700;
     line-height: 1.25;
     letter-spacing: -0.02em;
@@ -928,7 +965,7 @@ video {
   }
 
   h3 {
-    font-size: 1.875em;
+    font-size: 2em;
     font-weight: 700;
     line-height: 1.25;
     letter-spacing: -0.015em;
@@ -936,7 +973,7 @@ video {
   }
 
   h4 {
-    font-size: 1.5em;
+    font-size: 1.75em;
     font-weight: 600;
     line-height: 1.25;
     letter-spacing: -0.01em;
@@ -944,7 +981,7 @@ video {
   }
 
   h5 {
-    font-size: 1.25em;
+    font-size: 1.5em;
     font-weight: 600;
     line-height: 1.25;
     letter-spacing: -0.005em;
@@ -952,7 +989,7 @@ video {
   }
 
   h6 {
-    font-size: 1.2em;
+    font-size: 1.25em;
     font-weight: 600;
     line-height: 1.25;
     margin: 1.2rem 0 1rem;
@@ -967,7 +1004,6 @@ video {
   ul,
   ol,
   dl,
-  table,
   pre,
   details {
     margin-top: 0;
@@ -1168,7 +1204,7 @@ blockquote {
 }
 
 blockquote:before {
-  content: '”';
+  content: "”";
   position: absolute;
   left: 0.5rem;
   top: 0.2rem;
@@ -1320,7 +1356,7 @@ section {
 .article-title {
   font-family: var(--font-article);
   font-size: 3em;
-  font-weight: 800;
+  font-weight: bold;
   line-height: 1.2;
   letter-spacing: -0.02em;
   margin-bottom: 0.4em;
@@ -1333,7 +1369,7 @@ section {
 }
 
 .article-header-meta {
-  font-family: var(--font-monospace);
+  font-family: Menlo, var(--font-monospace);
   font-style: italic;
   overflow: auto;
   margin-bottom: 1rem;
