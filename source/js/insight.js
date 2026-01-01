@@ -28,6 +28,18 @@ function loadInsight(config, translation) {
 
   // --- 核心逻辑优化区 ---
 
+  // HTML 转义函数，防止 XSS 攻击和标签渲染异常
+  function escapeHTML(str) {
+    const map = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;",
+    };
+    return str.replace(/[&<>"']/g, (m) => map[m]);
+  }
+
   // 优化点：合并 ranges 的逻辑保持不变，这是高亮的核心算法
   function merge(ranges) {
     let last;
@@ -44,7 +56,7 @@ function loadInsight(config, translation) {
 
   function findAndHighlight(text, matches, maxlen) {
     if (!Array.isArray(matches) || !matches.length || !text) {
-      return maxlen ? text.slice(0, maxlen) : text;
+      return maxlen ? escapeHTML(text.slice(0, maxlen)) : escapeHTML(text);
     }
     const testText = text.toLowerCase();
 
@@ -60,7 +72,8 @@ function loadInsight(config, translation) {
     // 排序
     indices.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 
-    if (!indices.length) return maxlen ? text.slice(0, maxlen) : text;
+    if (!indices.length)
+      return maxlen ? escapeHTML(text.slice(0, maxlen)) : escapeHTML(text);
 
     let result = "";
     let last = 0;
@@ -73,20 +86,24 @@ function loadInsight(config, translation) {
 
     for (let i = 0; i < ranges.length; i++) {
       const range = ranges[i];
-      result += text.slice(last, Math.min(range[0], sumRange[0] + maxlen));
+      result += escapeHTML(
+        text.slice(last, Math.min(range[0], sumRange[0] + maxlen)),
+      );
       if (maxlen && range[0] >= sumRange[0] + maxlen) break;
 
-      result += `<em>${text.slice(range[0], range[1])}</em>`;
+      result += `<em>${escapeHTML(text.slice(range[0], range[1]))}</em>`;
       last = range[1];
 
       if (i === ranges.length - 1) {
         if (maxlen) {
-          result += text.slice(
-            range[1],
-            Math.min(text.length, sumRange[0] + maxlen + 1),
+          result += escapeHTML(
+            text.slice(
+              range[1],
+              Math.min(text.length, sumRange[0] + maxlen + 1),
+            ),
           );
         } else {
-          result += text.slice(range[1]);
+          result += escapeHTML(text.slice(range[1]));
         }
       }
     }
@@ -137,6 +154,12 @@ function loadInsight(config, translation) {
       .map((k) => k.toLowerCase());
   }
 
+  /**
+   *
+   * @param {{posts: Array, tags: Array}} json: dataset generatored from content.json
+   * @param {string} keywordsStr: user input keywords string
+   * @returns
+   */
   function search(json, keywordsStr) {
     const keywords = parseKeywords(keywordsStr);
     if (keywords.length === 0) return {};
@@ -196,7 +219,6 @@ function loadInsight(config, translation) {
 
     return {
       posts: executeSearch(json.posts, ["title", "text"], [3, 1]),
-      pages: executeSearch(json.pages, ["title", "text"], [3, 1]),
       tags: executeSearch(json.tags, ["name", "slug"], [1, 1]),
     };
   }
