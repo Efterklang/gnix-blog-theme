@@ -20,6 +20,8 @@ class Tags extends Component {
     }
 
     .tag {
+      color: var(--text);
+      border-color: var(--surface0);
       padding: 0 0.75em;
       transition: all 0.3s ease;
       border-style: solid;
@@ -34,6 +36,7 @@ class Tags extends Component {
     .tag:first-child {
       border-width: 1px 0 1px 1px;
       border-radius: 5px 0 0 5px;
+      background: var(--base);
     }
 
     .tag:first-child::before {
@@ -43,6 +46,7 @@ class Tags extends Component {
     }
 
     .tag:last-child {
+      background: var(--mantle);
       border-width: 1px 1px 1px 0;
       border-radius: 0 5px 5px 0;
     }

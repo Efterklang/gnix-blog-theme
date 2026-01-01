@@ -289,19 +289,6 @@ blockquote::before {
   color: var(--lavender);
 }
 
-.tag {
-  color: var(--text);
-  border-color: var(--surface0);
-}
-
-.tag:first-child {
-  background: var(--base);
-}
-
-.tag:last-child {
-  background: var(--mantle);
-}
-
 body {
   background: var(--mantle);
   color: var(--text);
