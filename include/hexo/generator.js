@@ -19,7 +19,7 @@ module.exports = (hexo) => {
     function mapPost(post) {
       return {
         title: util.escapeHTML(post.title).trim(),
-        text: minify(post.content),
+        text: post.password ? "该文章需要密码" : minify(post.content),
         link: url_for(post.path),
       };
     }
@@ -44,6 +44,16 @@ module.exports = (hexo) => {
     return {
       path: "/content.json",
       data: JSON.stringify(site),
+    };
+  });
+  // Generate "<root>/tags/" page
+  hexo.extend.generator.register("tags", (locals) => {
+    return {
+      path: "tags/",
+      layout: ["tags"],
+      data: Object.assign({}, locals, {
+        __tags: true,
+      }),
     };
   });
 };
