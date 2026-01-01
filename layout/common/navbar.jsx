@@ -1,5 +1,4 @@
-const { Component, Fragment } = require("../../include/util/common");
-const { cacheComponent } = require("../../util/cache");
+const { Component, Fragment, cacheComponent } = require("../../include/util/common");
 
 function isSameLink(a, b) {
   function santize(url) {
