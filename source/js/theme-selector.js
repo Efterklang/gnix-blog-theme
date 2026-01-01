@@ -65,9 +65,7 @@
 
     // Set initial focus
     updateFocus(themeOptions);
-
     modal.classList.add("is-active");
-    document.body.style.overflow = "hidden";
   }
 
   function closeModal(apply = false) {
@@ -85,7 +83,6 @@
     }
 
     modal.classList.remove("is-active");
-    document.body.style.overflow = "";
     previewTheme = null;
     originalTheme = null;
 
