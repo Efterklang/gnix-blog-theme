@@ -34,12 +34,6 @@ module.exports = (hexo) => {
       posts: locals.posts.map(mapPost),
       tags: locals.tags.map(mapTag),
     };
-    const index_pages = this.theme.config?.search?.index_pages;
-    if (index_pages === false) {
-      site.pages = [];
-    } else {
-      site.pages = locals.pages.map(mapPost);
-    }
 
     return {
       path: "/content.json",
