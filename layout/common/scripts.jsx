@@ -29,25 +29,6 @@ module.exports = class extends Component {
         ></script>
         <script async src="/js/shiki/shiki.js"></script>
         <script async src="/js/instant-page.min.js" type="module"></script>
-        {config?.plugins?.live2d_Asoul && (
-          <>
-            <script defer src="/js/live2d_Asoul/TweenLite.min.js"></script>
-            <script
-              defer
-              src="/js/live2d_Asoul/live2dcubismcore.min.js"
-            ></script>
-            <script defer src="/js/live2d_Asoul/pixi.min.js"></script>
-            <script defer src="/js/live2d_Asoul/cubism4.min.js"></script>
-            <script defer src="/js/live2d_Asoul/pio.js"></script>
-            <script defer src="/js/live2d_Asoul/pio_sdk4.js"></script>
-            <script defer src="/js/live2d_Asoul/load.js"></script>
-            <link
-              href="/js/live2d_Asoul/pio.css"
-              rel="stylesheet"
-              type="text/css"
-            />
-          </>
-        )}
       </Fragment>
     );
   }
