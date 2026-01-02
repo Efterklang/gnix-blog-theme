@@ -205,10 +205,6 @@ a:hover {
   color: var(--blue);
 }
 
-a.header-anchor {
-  font-family: var(--font-sans-serif);
-}
-
 a.header-anchor:hover::after {
   margin-left: 0.2em;
   color: var(--surface0);
@@ -974,7 +970,7 @@ body {
   img,
   video {
     display: block;
-    margin: 1em 0;
+    margin: 1em auto;
     max-width: 100%;
 
     &:hover {
