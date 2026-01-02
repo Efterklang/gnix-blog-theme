@@ -13,7 +13,7 @@
     Avenir, system-ui, "Segoe UI", Roboto, Helvetica, Arial, "PingFang SC",
     "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
     "Source Han Sans CN", sans-serif;
-  --font-handwriting: "Bradley Hand", "Segoe Script", "Dancing Script", cursive;
+  --font-handwriting: "Bradley Hand", cursive;
 }
 
 /* #region Color */
