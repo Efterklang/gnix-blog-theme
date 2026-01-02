@@ -113,7 +113,7 @@ module.exports = class extends Component {
     latte: "light"
   };
   var stored = localStorage.getItem("themePreference");
-  var theme = stored ? stored : "system";
+  var theme = stored && stored in THEME_MAP ? stored : "system";
   var html = document.documentElement;
   var resolvedTheme = theme === "system"
     ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "mocha" : "nord"
