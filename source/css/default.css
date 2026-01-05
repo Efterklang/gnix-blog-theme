@@ -93,7 +93,7 @@
   --sapphire: #5e81ac;
   --blue: #81a1c1;
   --lavender: #5e81ac;
-  --text: #2e3440;
+  --text: #4c566a;
   --subtext1: #3b4252;
   --subtext0: #434c5e;
   --overlay2: #4c566a;
@@ -292,7 +292,7 @@ body {
 }
 
 .card {
-  border: .5px dashed var(--surface0);
+  border: 0.5px dashed var(--surface0);
 }
 
 input.task-list-item-checkbox:checked {
@@ -762,24 +762,21 @@ body {
 
 .tabs-tab-button {
   flex: 1;
-  padding: 16px 5px;
+  padding: 0.5em 0;
   border: none;
   background: 0 0;
-  font-size: 15px;
+  font-size: 1em;
   font-weight: bold;
   cursor: pointer;
   position: relative;
   transition: color 0.3s ease;
   outline: 0;
-
-  &:hover {
+  font-family: var(--font-sans-serif);
+  color: var(--text);
+  &:hover,
+  &.active {
     color: var(--lavender);
   }
-}
-
-.tabs-tab-button.active,
-.tabs-tab-button[data-active] {
-  color: var(--lavender);
 }
 
 .tabs-tab-button.active::after {
@@ -790,12 +787,11 @@ body {
   width: 100%;
   height: 2px;
   background-color: var(--lavender);
-  border-radius: 2px 2px 0 0;
   animation: slideIn 0.3s ease;
 }
 
 .tabs-tabs-container {
-  padding: 18px 0 10px 0;
+  padding: 0.8em 0 10px 0;
 }
 
 .tabs-tab-content {
