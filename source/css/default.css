@@ -557,16 +557,6 @@ body {
   flex-shrink: 0;
 }
 
-.navbar-start {
-  justify-content: flex-start;
-  margin-right: auto;
-}
-
-.navbar-end {
-  justify-content: flex-end;
-  margin-left: auto;
-}
-
 /* #endregion Navbar */
 
 /* #region Theme Selector */
