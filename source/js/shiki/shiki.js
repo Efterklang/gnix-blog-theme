@@ -56,58 +56,29 @@ const FeatureHandlers = {
   expandCode(figure) {
     const expandBtn = figure.querySelector(SELECTORS.expandBtn);
     const pre = figure.querySelector(SELECTORS.preShiki);
-
     const isExpanded = figure.classList.contains("expanded");
     const showLines = parseInt(figure.dataset.showLines || "10", 10);
 
     if (isExpanded) {
-      // 记录折叠前的状态
-      const beforeCollapseHeight = pre.scrollHeight;
-
-      // 计算折叠后的目标高度
       const computedStyle = getComputedStyle(pre);
       const lineHeight = parseFloat(computedStyle.lineHeight) || 20;
       const paddingTop = parseFloat(computedStyle.paddingTop) || 0;
       const paddingBottom = parseFloat(computedStyle.paddingBottom) || 0;
       const targetHeight = showLines * lineHeight + paddingTop + paddingBottom;
 
-      // 首先设置当前完整高度作为起点
-      pre.style.maxHeight = `${beforeCollapseHeight}px`;
-
-      // 应用折叠状态
-      requestAnimationFrame(() => {
-        figure.classList.remove("expanded");
-        pre.style.maxHeight = `${targetHeight}px`;
-
-        // 延迟箭头旋转，等待折叠动画完成
-        setTimeout(() => {
-          expandBtn.classList.remove(CLASSES.expandDone);
-        }, 300); // 与CSS transition时间同步
-      });
+      figure.classList.remove("expanded");
+      pre.style.maxHeight = `${targetHeight}px`;
+      expandBtn.classList.remove(CLASSES.expandDone);
     } else {
-      // 展开代码
-      const currentHeight = pre.offsetHeight;
       const fullHeight = pre.scrollHeight;
 
-      // 先设置当前高度作为起点
-      pre.style.maxHeight = `${currentHeight}px`;
-
-      // 应用展开状态
       figure.classList.add("expanded");
+      pre.style.maxHeight = `${fullHeight}px`;
+      expandBtn.classList.add(CLASSES.expandDone);
 
-      requestAnimationFrame(() => {
-        pre.style.maxHeight = `${fullHeight}px`;
-
-        // 立即开始箭头旋转动画
-        expandBtn.classList.add(CLASSES.expandDone);
-
-        // 动画结束后清除max-height限制，允许内容自然增长
-        setTimeout(() => {
-          if (figure.classList.contains("expanded")) {
-            pre.style.maxHeight = "none";
-          }
-        }, 300);
-      });
+      setTimeout(() => {
+        pre.style.maxHeight = "none";
+      }, 300);
     }
   },
 };
@@ -117,7 +88,7 @@ function handleToolbarClick(event) {
   const classList = target.classList;
 
   const handlers = {
-    expand: () => FeatureHandlers.shrink(this),
+    "expand": () => FeatureHandlers.expandCode(this),
     "copy-button": () => FeatureHandlers.copy(this, target),
     "toggle-wrap": () => FeatureHandlers.toggleWrap(this),
   };
