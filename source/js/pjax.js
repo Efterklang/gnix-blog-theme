@@ -1,5 +1,4 @@
 (() => {
-  // biome-ignore lint/correctness/noUnusedVariables: will be used
   let pjax;
 
   function initPjax() {
@@ -11,7 +10,7 @@
       });
 
       window.addEventListener("popstate", () => {
-        if (pjax && pjax.loadUrl) {
+        if (pjax?.loadUrl) {
           pjax.loadUrl(window.location.href);
         }
       });
