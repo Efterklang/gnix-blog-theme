@@ -21,6 +21,7 @@ module.exports = class extends Component {
           <section class="section">
             <div
               class="main-content"
+              data-pjax
               dangerouslySetInnerHTML={{ __html: body }}
             ></div>
           </section>

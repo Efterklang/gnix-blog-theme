@@ -277,15 +277,6 @@ blockquote::before {
   background: hsl(from var(--mantle) h s l / 0.95);
 }
 
-.navbar-item.is-active {
-  color: var(--flamingo);
-}
-
-.navbar-item:focus,
-.navbar-item:hover {
-  color: var(--lavender);
-}
-
 body {
   background: var(--mantle);
   color: var(--text);

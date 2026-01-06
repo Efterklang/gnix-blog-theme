@@ -6,19 +6,14 @@
     try {
       const Pjax = window.Pjax || (() => {});
       pjax = new Pjax({
-        selectors: [
-          "[data-pjax]",
-          ".pjax-reload",
-          "head title",
-          ".main-content",
-          ".navbar-start",
-          ".navbar-end",
-          ".searchbox link",
-          ".searchbox script",
-          "#comments link",
-          "#comments script",
-        ],
+        selectors: ["[data-pjax]", ".pjax-reload", "head title"],
         cacheBust: false,
+      });
+
+      window.addEventListener("popstate", () => {
+        if (pjax && pjax.loadUrl) {
+          pjax.loadUrl(window.location.href);
+        }
       });
     } catch (e) {
       console.warn(`PJAX error: ${e}`);
