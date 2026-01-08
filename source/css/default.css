@@ -13,7 +13,7 @@
     Avenir, system-ui, "Segoe UI", Roboto, Helvetica, Arial, "PingFang SC",
     "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
     "Source Han Sans CN", sans-serif;
-  --font-handwriting: "Bradley Hand", cursive;
+  --font-handwriting: "Bradley Hand","homemade-apple", cursive;
 }
 
 /* #region Color */
@@ -84,7 +84,7 @@
   --pink: #b48ead;
   --mauve: #b48ead;
   --red: #bf616a;
-  --maroon: #a3be8c;
+  --maroon: #bf616a;
   --peach: #d08770;
   --yellow: #ebcb8b;
   --green: #a3be8c;
@@ -361,6 +361,14 @@ input:-webkit-autofill {
   src:
     local("paris2024"),
     url(/css/font/woff2/Paris2024-Variable.woff2) format("woff2");
+}
+
+@font-face {
+    font-family: homemade-apple;
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(/css/font/woff2/HomemadeApple.woff2) format("woff2");
 }
 
 /* #endregion */
@@ -894,7 +902,7 @@ body {
   }
 
   h3 {
-    font-size: 2em;
+    font-size: 1.875em;
     font-weight: 700;
     line-height: 1.25;
     letter-spacing: -0.015em;
@@ -1196,6 +1204,7 @@ input.task-list-item-checkbox:checked::before {
 strong {
   font-weight: bolder;
   padding: 0 0.1em;
+  color: var(--maroon);
 }
 
 hr {

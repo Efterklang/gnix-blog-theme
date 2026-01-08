@@ -217,6 +217,7 @@ module.exports = class extends Component {
           onload="this.onload=null;this.rel='stylesheet'"
         />
         {/* Maple Mono CN */}
+        <link rel="preconnect" href="https://fontsapi.zeoseven.com"/>
         <link
           rel="preload"
           as="style"
