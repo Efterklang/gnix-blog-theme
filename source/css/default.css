@@ -1237,7 +1237,6 @@ small {
 
 article :target {
   scroll-margin-top: 5rem;
-  scroll-behavior: smooth;
 }
 
 article,
@@ -1497,3 +1496,4 @@ input.searchbox-input {
 }
 
 /* #endregion Article Cover */
+
