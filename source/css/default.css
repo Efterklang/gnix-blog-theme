@@ -504,7 +504,7 @@ body {
 .navbar {
   min-height: 4rem;
   position: sticky;
-  top: 0;
+  top: env(safe-area-inset-top);
   left: 0;
   right: 0;
   transition: transform 0.3s ease-in-out;
@@ -1234,8 +1234,9 @@ small {
 
 /* #endregion Content */
 
-:target {
-  scroll-margin-top: 20vh;
+article :target {
+  scroll-margin-top: 5rem;
+  scroll-behavior: smooth;
 }
 
 article,
