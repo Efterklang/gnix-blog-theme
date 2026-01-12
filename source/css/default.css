@@ -956,7 +956,8 @@ body {
 
   img,
   video {
-    /* set left,right margin to auto */
+    display: block;
+    max-width: 100%;
     margin: 0 auto 0 auto;
 
     &:hover {
