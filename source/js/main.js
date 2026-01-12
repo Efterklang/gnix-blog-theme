@@ -202,8 +202,24 @@ function initLogic() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => initLogic());
-document.addEventListener("pjax:complete", () => initLogic());
+document.addEventListener("DOMContentLoaded", () => {
+  initLogic();
+});
+
+// Re-initialize on page changes when using swup
+if (typeof swup !== "undefined") {
+  swup.hooks.on("page:view", () => {
+    initLogic();
+
+    // Re-initialize Twikoo if available
+    if (typeof twikoo !== "undefined" && window.twikooConfig) {
+      const twikooContainer = document.getElementById("twikoo");
+      if (twikooContainer) {
+        twikoo.init(window.twikooConfig);
+      }
+    }
+  });
+}
 
 // Global functions
 // biome-ignore lint/correctness/noUnusedVariables: used in <nav click="handleNavbarClick(event)">

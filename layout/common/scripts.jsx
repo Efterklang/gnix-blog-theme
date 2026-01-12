@@ -17,7 +17,7 @@ module.exports = class extends Component {
           helper={helper}
           head={false}
         />
-        <script defer data-pjax src="/js/main.js"></script>
+        <script defer src="/js/main.js"></script>
         <script
           async
           src="/js/host/iconify-icon/3.0.2/iconify-icon.min.js"

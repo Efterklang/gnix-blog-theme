@@ -19,7 +19,10 @@ const {
 class Twikoo extends Component {
   render() {
     const { envId, region, lang, jsUrl } = this.props;
-    const js = `twikoo.init({ envId: '${envId}', ${region ? `region: ${JSON.stringify(region)},` : ""} ${lang ? `lang: ${JSON.stringify(lang)},` : ""} });`;
+    const js = `
+window.twikooConfig = { envId: '${envId}', ${region ? `region: ${JSON.stringify(region)},` : ""} ${lang ? `lang: ${JSON.stringify(lang)},` : ""} };
+twikoo.init(window.twikooConfig);
+    `;
     const lazy_load_css_script = lazy_load_css("/css/twikoo.css");
     return (
       <Fragment>
@@ -27,7 +30,7 @@ class Twikoo extends Component {
         <script
           dangerouslySetInnerHTML={{ __html: lazy_load_css_script }}
         ></script>
-        <script async data-pjax src={jsUrl} onload={`${js};`}></script>
+        <script async src={jsUrl} onload={`${js}`}></script>
       </Fragment>
     );
   }
