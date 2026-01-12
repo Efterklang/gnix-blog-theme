@@ -478,6 +478,7 @@ body {
   justify-content: flex-start;
 }
 
+.toc-text,
 .footer,
 .widget {
   font-family: var(--font-sans-serif);
