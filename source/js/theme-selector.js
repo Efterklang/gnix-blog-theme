@@ -120,6 +120,7 @@
     const maxIndex = themeOptions.length - 1;
 
     switch (event.key) {
+      case "j":
       case "ArrowDown":
       case "Down":
         event.preventDefault();
@@ -127,6 +128,7 @@
         updateFocus(themeOptions);
         break;
 
+      case "k":
       case "ArrowUp":
       case "Up":
         event.preventDefault();
