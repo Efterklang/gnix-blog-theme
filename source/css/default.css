@@ -4,9 +4,9 @@
   --font-serif:
     "PT Serif", Georgia, "Times New Roman", Times, "Songti SC", "STSong", serif;
   --font-sans-serif:
-    Avenir, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  --font-monospace:
+    Avenir, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
+    "Open Sans", "Helvetica Neue", sans-serif;
+  --font-mono:
     "Maple Mono NF CN Local", "Maple Mono NF CN", "SF Mono", "SF Pro", Monaco,
     Consolas, "Liberation Mono", "Courier New", monospace;
   --font-article:
@@ -205,39 +205,6 @@ a:hover {
   color: var(--blue);
 }
 
-a.header-anchor:hover::after {
-  margin-left: 0.2em;
-  color: var(--surface0);
-}
-
-a.header-anchor {
-  color: var(--text);
-}
-
-h3 a.header-anchor {
-  &:hover::after {
-    content: "###";
-  }
-}
-
-h4 a.header-anchor {
-  &:hover::after {
-    content: "####";
-  }
-}
-
-h5 a.header-anchor {
-  &:hover::after {
-    content: "#####";
-  }
-}
-
-h6 a.header-anchor {
-  &:hover::after {
-    content: "######";
-  }
-}
-
 mark {
   background-color: var(--yellow);
 }
@@ -248,10 +215,6 @@ mark {
 
 .task-list-item-checkbox:checked {
   accent-color: var(--mauve);
-}
-
-blockquote::before {
-  color: var(--red);
 }
 
 .article-licensing {
@@ -369,7 +332,6 @@ input:-webkit-autofill {
 
 /* #endregion */
 
-blockquote,
 body,
 dd,
 dl,
@@ -442,7 +404,7 @@ body {
 
 .breadcrumb {
   white-space: nowrap;
-  font-family: "Monaspace Radon", var(--font-monospace);
+  font-family: "Monaspace Radon", var(--font-mono);
 }
 
 .breadcrumb a {
@@ -612,7 +574,7 @@ body {
 .theme-selector-hint {
   font-size: 0.875rem;
   color: var(--subtext0);
-  font-family: var(--font-monospace);
+  font-family: var(--font-mono);
 }
 
 .theme-selector-list {
@@ -882,6 +844,14 @@ body {
     text-decoration-color: var(--mauve);
   }
 
+  a.header-anchor {
+    color: var(--text);
+    &:hover::after {
+      margin-left: 0.2em;
+      color: var(--surface0);
+    }
+  }
+
   h2 {
     font-size: 2.25em;
     font-weight: 700;
@@ -890,9 +860,7 @@ body {
     margin: 1rem 0 1rem;
     border-bottom: 0.8px solid var(--surface0);
 
-    a.header-anchor {
-      color: var(--text);
-
+    > a.header-anchor {
       &:hover::after {
         content: "##";
       }
@@ -905,6 +873,11 @@ body {
     line-height: 1.25;
     letter-spacing: -0.015em;
     margin: 1.2rem 0 1rem;
+    > a.header-anchor {
+      &:hover::after {
+        content: "###";
+      }
+    }
   }
 
   h4 {
@@ -913,6 +886,11 @@ body {
     line-height: 1.25;
     letter-spacing: -0.01em;
     margin: 1.2rem 0 1rem;
+    > a.header-anchor {
+      &:hover::after {
+        content: "####";
+      }
+    }
   }
 
   h5 {
@@ -921,6 +899,11 @@ body {
     line-height: 1.25;
     letter-spacing: -0.005em;
     margin: 1.2rem 0 1rem;
+    > a.header-anchor {
+      &:hover::after {
+        content: "#####";
+      }
+    }
   }
 
   h6 {
@@ -928,6 +911,11 @@ body {
     font-weight: 600;
     line-height: 1.25;
     margin: 1.2rem 0 1rem;
+    > a.header-anchor {
+      &:hover::after {
+        content: "######";
+      }
+    }
   }
 
   .p:not(:last-child) {
@@ -935,31 +923,23 @@ body {
   }
 
   p,
-  blockquote,
   ol,
   dl,
   pre,
   details {
-    margin-top: 0;
     margin-bottom: 1rem;
   }
 
   p:last-child,
-  ul:last-child,
-  ol:last-child,
   .tabs-tabs-wrapper:last-child {
     margin-bottom: 0;
-  }
-
-  li + li {
-    margin-top: 0.25em;
   }
 
   img,
   video {
     display: block;
     max-width: 100%;
-    margin: 0 auto 0 auto;
+    margin: 1em auto;
 
     &:hover {
       cursor: pointer;
@@ -1035,14 +1015,12 @@ body {
 
   code {
     font-size: 0.85em;
-    font-weight: 400;
-    font-family: var(--font-monospace);
-    padding: 0 0.15em;
-    margin: 0 0.1em;
+    font-family: var(--font-mono);
+    padding: 0 0.25em;
     background-color: var(--base);
     color: var(--subtext1);
     border: 1px solid var(--surface0);
-    border-radius: 6px;
+    border-radius: 4px;
   }
 
   sub,
@@ -1060,7 +1038,7 @@ body {
   a[href*="github"]::before,
   a[href*="wikipedia"]::before,
   a[href*="youtube"]::before {
-    font-family: var(--font-monospace);
+    font-family: var(--font-mono);
     font-size: 1em;
     padding-left: 0.5em;
     color: var(--lavender);
@@ -1131,20 +1109,17 @@ blockquote {
   border-left: 2px solid var(--red);
   border-radius: 0 8px 8px 0;
   font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-blockquote:before {
-  content: "”";
-  position: absolute;
-  left: 0.5rem;
-  top: 0.2rem;
-  font-size: 3rem;
-  font-weight: 700;
-  opacity: 0.3;
-  line-height: 1;
+  &:before {
+    content: "”";
+    color: var(--red);
+    position: absolute;
+    left: 0.5rem;
+    top: 0.2rem;
+    font-size: 3rem;
+    font-weight: 700;
+    opacity: 0.3;
+    line-height: 1;
+  }
 }
 
 ul.contains-task-list {
@@ -1172,7 +1147,7 @@ input.task-list-item-checkbox {
 
 input.task-list-item-checkbox:checked::before {
   content: "";
-  font-family: var(--font-monospace);
+  font-family: var(--font-mono);
   color: var(--base);
   position: absolute;
   top: 50%;
@@ -1264,14 +1239,13 @@ section {
   margin-bottom: 0.3em;
   color: var(--text);
   word-break: break-word;
-}
-
-.article-title a {
-  color: inherit;
+  > a {
+    color: inherit;
+  }
 }
 
 .article-header-meta {
-  font-family: var(--font-monospace);
+  font-family: var(--font-mono);
   overflow: auto;
   padding-bottom: 0.5em;
   margin-bottom: 1rem;
@@ -1370,7 +1344,7 @@ section {
   width: 100%;
   height: 100%;
   z-index: 100;
-  font-family: monospace, var(--font-monospace);
+  font-family: monospace, var(--font-mono);
   line-height: 0;
   opacity: 0;
   visibility: hidden;
@@ -1496,4 +1470,3 @@ input.searchbox-input {
 }
 
 /* #endregion Article Cover */
-
