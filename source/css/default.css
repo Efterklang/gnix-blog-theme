@@ -1067,6 +1067,8 @@ body {
 }
 
 table {
+  table-layout: fixed;
+  word-wrap: break-word;
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
