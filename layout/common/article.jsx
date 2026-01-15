@@ -34,7 +34,7 @@ module.exports = class extends Component {
     return (
       <Fragment>
         {/* Main content */}
-        <div class="card article-wrapper">
+        <div class="card">
           {/* Cover image */}
           {cover ? (
             <ArticleCover

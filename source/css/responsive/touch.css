@@ -1,7 +1,8 @@
 /* This is used for mobile and tablet devices */
 /* #region Navbar */
 /* Navbar Burger */
-.navbar-main .navbar-menu {
+.navbar-menu {
+  display: none;
   padding: 0.5rem 0;
 }
 

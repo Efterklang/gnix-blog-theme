@@ -14,6 +14,8 @@
     "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
     "Source Han Sans CN", sans-serif;
   --font-handwriting: "Bradley Hand", "homemade-apple", cursive;
+  --radius: 12px;
+  --spaceing: 0.25rem;
 }
 
 /* #region Color */
@@ -225,7 +227,7 @@ mark {
 .navbar-main,
 .navbar-menu {
   user-select: none;
-  background: hsl(from var(--mantle) h s l / 0.95);
+  background: var(--mantle);
 }
 
 body {
@@ -233,17 +235,9 @@ body {
   color: var(--text);
 }
 
-.card {
-  border: 0.5px dashed var(--surface0);
-}
-
 input.task-list-item-checkbox:checked {
   background-color: var(--green);
   border-color: var(--green);
-}
-
-.navbar-item {
-  color: var(--text);
 }
 
 hr {
@@ -324,10 +318,10 @@ input:-webkit-autofill {
 
 @font-face {
   font-family: homemade-apple;
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url(/css/font/woff2/HomemadeApple.woff2) format("woff2");
+  src:
+    local("Homemade Apple"),
+    local("HomemadeApple-Regular"),
+    url(/css/font/woff2/HomemadeApple.woff2) format("woff2");
 }
 
 /* #endregion */
@@ -409,8 +403,9 @@ body {
 .card {
   max-width: 100%;
   position: relative;
-  border-radius: 24px;
   overflow: visible;
+  border-radius: var(--radius);
+  border: 0.5px dashed var(--surface0);
 }
 
 .card + .card {
@@ -433,6 +428,7 @@ body {
   transition: transform 0.3s ease-in-out;
   z-index: 100;
   font-family: var(--font-sans-serif);
+  border-bottom: 0.5px solid var(--surface0);
 }
 
 .navbar-container {
@@ -453,27 +449,18 @@ body {
   transform: translateY(-100%);
 }
 
-.navbar-menu {
-  display: none;
-}
-
 .navbar-item {
+  color: var(--subtext1);
   align-items: center;
   display: flex;
   font-size: 1.1rem;
-  padding: 0 0.4rem;
+  padding: 0 0.5rem;
   position: relative;
   flex-grow: 0;
   flex-shrink: 0;
-}
-
-.navbar-item svg {
-  width: 15px;
-}
-
-.navbar-menu {
-  flex-grow: 1;
-  flex-shrink: 0;
+  svg {
+    width: 15px;
+  }
 }
 
 /* #endregion Navbar */
@@ -717,7 +704,7 @@ body {
   flex-grow: 1;
   margin: 0 auto;
   position: relative;
-  max-width: 980px;
+  max-width: 1080px;
 }
 
 /* #region Footer */
@@ -806,6 +793,7 @@ body {
 
   a.header-anchor {
     color: var(--text);
+
     &:hover::after {
       margin-left: 0.2em;
       color: var(--surface0);
@@ -833,6 +821,7 @@ body {
     line-height: 1.25;
     letter-spacing: -0.015em;
     margin: 1.2rem 0 1rem;
+
     > a.header-anchor {
       &:hover::after {
         content: "###";
@@ -846,6 +835,7 @@ body {
     line-height: 1.25;
     letter-spacing: -0.01em;
     margin: 1.2rem 0 1rem;
+
     > a.header-anchor {
       &:hover::after {
         content: "####";
@@ -859,6 +849,7 @@ body {
     line-height: 1.25;
     letter-spacing: -0.005em;
     margin: 1.2rem 0 1rem;
+
     > a.header-anchor {
       &:hover::after {
         content: "#####";
@@ -871,6 +862,7 @@ body {
     font-weight: 600;
     line-height: 1.25;
     margin: 1.2rem 0 1rem;
+
     > a.header-anchor {
       &:hover::after {
         content: "######";
@@ -899,11 +891,16 @@ body {
   video {
     display: block;
     max-width: 100%;
-    margin: 1em auto;
+    margin: 0 auto;
 
     &:hover {
       cursor: pointer;
     }
+  }
+
+  video,
+  .pic {
+    margin: 1em auto;
   }
 
   ol {
@@ -1071,6 +1068,7 @@ blockquote {
   border-left: 2px solid var(--red);
   border-radius: 0 8px 8px 0;
   font-family: var(--font-serif);
+
   &:before {
     content: "”";
     color: var(--red);
@@ -1200,7 +1198,7 @@ section {
   letter-spacing: -0.02em;
   margin-bottom: 0.3em;
   color: var(--text);
-  word-break: break-word;
+
   > a {
     color: inherit;
   }
@@ -1407,7 +1405,7 @@ input.searchbox-input {
   position: relative;
   display: block;
   overflow: hidden;
-  border-radius: 24px 24px 0 0;
+  border-radius: var(--radius) var(--radius) 0 0;
   height: 380px;
 
   .cover-image-placeholder {
