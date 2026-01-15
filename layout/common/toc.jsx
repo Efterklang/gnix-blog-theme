@@ -29,7 +29,6 @@ class FloatingToc extends Component {
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            aria-label="Table of Contents"
           >
             <title>Table of Contents</title>
             <line x1="8" y1="6" x2="21" y2="6"></line>

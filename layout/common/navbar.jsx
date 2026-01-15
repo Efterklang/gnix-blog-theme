@@ -1,4 +1,8 @@
-const { Component, Fragment, cacheComponent } = require("../../include/util/common");
+const {
+  Component,
+  Fragment,
+  cacheComponent,
+} = require("../../include/util/common");
 
 function isSameLink(a, b) {
   function santize(url) {
@@ -20,11 +24,11 @@ const renderLinkIcon = (link) => {
   // start with '<' means svg icon
   if (link.icon === "travellings") {
     return (
-      <svg viewBox="0 0 448 512" role="img" aria-label="Travellings Icon">
-        <path
-          fill="var(--text)"
-          d="M96 0C43 0 0 43 0 96v256c0 48 35.2 87.7 81.1 94.9l-46 46c-7 7-2 19.1 7.9 19.1h39.7c8.5 0 16.6-3.4 22.6-9.4L160 448h128l54.6 54.6c6 6 14.1 9.4 22.6 9.4h39.7c10 0 15-12.1 7.9-19.1l-46-46c46-7.1 81.1-46.9 81.1-94.9V96c0-53-43-96-96-96zM64 128c0-17.7 14.3-32 32-32h80c17.7 0 32 14.3 32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32zm208-32h80c17.7 0 32 14.3 32 32v96c0 17.7-14.3 32-32 32h-80c-17.7 0-32-14.3-32-32v-96c0-17.7 14.3-32 32-32M64 352a32 32 0 1 1 64 0a32 32 0 1 1-64 0m288-32a32 32 0 1 1 0 64a32 32 0 1 1 0-64"
-        ></path>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <title>train_4_line</title>
+        <g id="train_4_line" fill="currentColor">
+          <path d="M14.72 2a5 5 0 0 1 4.855 3.802l.049.217 1.4 7c.496 2.482-.929 4.83-3.14 5.663l-.21.073L19.6 20.2a1 1 0 0 1-1.095 1.669L18.4 21.8 14.667 19H9.333L5.6 21.8a1 1 0 0 1-1.296-1.518L4.4 20.2l1.926-1.445c-2.26-.735-3.768-3.031-3.39-5.503l.04-.233 1.4-7a5 5 0 0 1 4.68-4.014L9.28 2h5.442Zm0 2H9.28a3 3 0 0 0-2.943 2.412l-1.4 7A3 3 0 0 0 7.88 17h8.242a3 3 0 0 0 2.942-3.588l-1.4-7A3 3 0 0 0 14.72 4m-6.47 9.25a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5m7.5 0a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5M14.61 6a1.5 1.5 0 0 1 1.416 1.005l.039.131.75 3a1.5 1.5 0 0 1-1.324 1.858L15.36 12H8.64a1.5 1.5 0 0 1-1.481-1.735l.026-.129.75-3a1.5 1.5 0 0 1 1.319-1.13L9.39 6zm-.39 2H9.78l-.5 2h5.44z"></path>
+        </g>
       </svg>
     );
   }
@@ -38,8 +42,13 @@ class Navbar extends Component {
     return (
       <nav class="navbar navbar-main" onclick="handleNavbarClick(event);">
         <div class="navbar-container">
-          <a href={siteUrl} style={"font-family: homemade-apple; color: var(--text); display: flex; align-items: center; padding: 0 1em;"}>
-              GnixAij
+          <a
+            href={siteUrl}
+            style={
+              "font-family: homemade-apple; color: var(--text); display: flex; align-items: center; padding: 0 1em;"
+            }
+          >
+            GnixAij
           </a>
           <div class="navbar-menu">
             {Object.keys(menu).length ? (
@@ -58,30 +67,14 @@ class Navbar extends Component {
             <div class="navbar-end">
               <button
                 type="button"
-                class="navbar-item theme-selector-trigger"
+                class="navbar-item"
                 title="Choose Theme"
                 onclick="window.openThemeModal?.()"
               >
-                <svg viewBox="0 0 14 14" role="img" aria-label="Theme Selector">
-                  <g fill="none">
-                    <path
-                      fill="var(--red)"
-                      d="M14 12.5v-3A1.5 1.5 0 0 0 12.5 8H3a3 3 0 1 0 0 6h9.5a1.5 1.5 0 0 0 1.5-1.5"
-                    ></path>
-                    <path
-                      fill="var(--blue)"
-                      d="M12.339 3.783L10.218 1.66a1.5 1.5 0 0 0-2.122 0L.88 8.88a3 3 0 0 0 4.24 4.24l7.218-7.217a1.5 1.5 0 0 0 0-2.121"
-                    ></path>
-                    <path
-                      fill="var(--green)"
-                      d="M4.5 0h-3A1.5 1.5 0 0 0 0 1.5V11a3 3 0 0 0 6 0V1.5A1.5 1.5 0 0 0 4.5 0"
-                    ></path>
-                    <path
-                      fill="var(--base)"
-                      fill-rule="evenodd"
-                      d="M1.395 3.375a.625.625 0 1 0 0 1.25h3.21a.625.625 0 1 0 0-1.25zm0 4.5a.625.625 0 1 0 0 1.25h3.21a.625.625 0 1 0 0-1.25z"
-                      clip-rule="evenodd"
-                    ></path>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <title>brightness_fill</title>
+                  <g id="brightness_fill" fill="currentColor">
+                    <path d="M12 18.5a1.5 1.5 0 0 1 1.493 1.356L13.5 20v1a1.5 1.5 0 0 1-2.993.144L10.5 21v-1a1.5 1.5 0 0 1 1.5-1.5m4.596-1.904a1.5 1.5 0 0 1 2.008-.103l.114.103.707.707a1.5 1.5 0 0 1-2.008 2.225l-.114-.103-.707-.707a1.5 1.5 0 0 1 0-2.122m-11.314 0a1.5 1.5 0 0 1 2.225 2.008l-.103.114-.707.707a1.5 1.5 0 0 1-2.225-2.008l.103-.114zM12 6a6 6 0 1 1 0 12 6 6 0 0 1 0-12m0 3a3 3 0 0 0-.176 5.995L12 15zm-8 1.5a1.5 1.5 0 0 1 .144 2.993L4 13.5H3a1.5 1.5 0 0 1-.144-2.993L3 10.5zm17 0a1.5 1.5 0 0 1 .144 2.993L21 13.5h-1a1.5 1.5 0 0 1-.144-2.993L20 10.5zM4.575 4.575a1.5 1.5 0 0 1 2.008-.103l.114.103.707.707a1.5 1.5 0 0 1-2.008 2.225l-.114-.103-.707-.707a1.5 1.5 0 0 1 0-2.122m12.728 0a1.5 1.5 0 0 1 2.225 2.008l-.103.114-.707.707a1.5 1.5 0 0 1-2.225-2.008l.103-.114zM12 1.5a1.5 1.5 0 0 1 1.493 1.356L13.5 3v1a1.5 1.5 0 0 1-2.993.144L10.5 4V3A1.5 1.5 0 0 1 12 1.5"></path>
                   </g>
                 </svg>
               </button>
@@ -109,16 +102,10 @@ class Navbar extends Component {
                   class="navbar-item search"
                   title={searchTitle}
                 >
-                  <svg viewBox="0 0 14 14" role="img" aria-label="Search Icon">
-                    <g fill="none" fill-rule="evenodd" clip-rule="evenodd">
-                      <path
-                        fill="var(--text)"
-                        d="M.5.125a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h4.756A4.5 4.5 0 0 1 5 9.625c0-1.271.527-2.42 1.375-3.238v-4.96A2 2 0 0 0 4.5.126zm7.125 1.303v4.105a4.5 4.5 0 0 1 6.347 3.584H14V.625a.5.5 0 0 0-.5-.5h-4a2 2 0 0 0-1.875 1.303"
-                      />
-                      <path
-                        fill="var(--blue)"
-                        d="M7.75 9.625a1.75 1.75 0 1 1 3.5 0a1.75 1.75 0 0 1-3.5 0m1.75-3.25a3.25 3.25 0 1 0 1.706 6.017l1.263 1.263a.75.75 0 0 0 1.06-1.06l-1.262-1.264A3.25 3.25 0 0 0 9.5 6.375"
-                      />
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>search_line</title>
+                    <g id="search_line" fill="currentColor">
+                      <path d="M10.5 2a8.5 8.5 0 1 0 5.262 15.176l3.652 3.652a1 1 0 0 0 1.414-1.414l-3.652-3.652A8.5 8.5 0 0 0 10.5 2M4 10.5a6.5 6.5 0 1 1 13 0 6.5 6.5 0 0 1-13 0"></path>
                     </g>
                   </svg>
                 </button>
