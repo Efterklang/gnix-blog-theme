@@ -143,6 +143,7 @@ function loadInsight(config, translation) {
       .join("");
 
     const sectionEl = section(sectionTitle);
+    sectionEl.classList.add(`searchbox-result-section--${type.toLowerCase()}`);
     sectionEl.insertAdjacentHTML("beforeend", itemsHTML);
     return sectionEl;
   }
@@ -210,11 +211,8 @@ function loadInsight(config, translation) {
           results.push({ item, weight: w });
         }
       }
-      // 排序并取 Top 5
-      return results
-        .sort((a, b) => b.weight - a.weight)
-        .map((r) => r.item)
-        .slice(0, 5);
+      // 排序返回全部结果（由 CSS 控制显示高度和滚动）
+      return results.sort((a, b) => b.weight - a.weight).map((r) => r.item);
     };
 
     return {
@@ -242,15 +240,20 @@ function loadInsight(config, translation) {
 
   function scrollTo(item) {
     if (!item) return;
-    const wrapperHeight = container.clientHeight;
-    const itemTop = item.offsetTop;
+    // 找到item所在的可滚动section
+    const section = item.closest(".searchbox-result-section");
+    if (!section) return;
+
+    const sectionHeight = section.clientHeight;
+    const itemTop = item.offsetTop - section.offsetTop;
     const itemHeight = item.clientHeight;
-    const scrollTop = container.scrollTop;
-    if (itemTop + itemHeight > scrollTop + wrapperHeight) {
-      container.scrollTop = itemTop + itemHeight - wrapperHeight;
+    const scrollTop = section.scrollTop;
+
+    if (itemTop + itemHeight > scrollTop + sectionHeight) {
+      section.scrollTop = itemTop + itemHeight - sectionHeight;
     }
     if (itemTop < scrollTop) {
-      container.scrollTop = itemTop;
+      section.scrollTop = itemTop;
     }
   }
 
