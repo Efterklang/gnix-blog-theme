@@ -13,6 +13,7 @@ span.year {
 
 table {
   font-size: 14px;
+  word-wrap: break-word;
 }
 
 table th,
