@@ -385,7 +385,6 @@ body {
   flex-direction: column;
 }
 
-.breadcrumb,
 .pagination-ellipsis,
 .pagination-link,
 .pagination-next,
@@ -397,47 +396,8 @@ body {
   user-select: none;
 }
 
-.breadcrumb:not(:last-child),
 .pagination:not(:last-child) {
   margin-bottom: 0.5rem;
-}
-
-.breadcrumb {
-  white-space: nowrap;
-  font-family: "Monaspace Radon", var(--font-mono);
-}
-
-.breadcrumb a {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  padding: 0 0.1em;
-}
-
-.breadcrumb li {
-  align-items: center;
-  display: flex;
-}
-
-.breadcrumb li:first-child a {
-  padding-left: 0;
-}
-
-.breadcrumb li.is-active a {
-  cursor: default;
-  pointer-events: none;
-}
-
-.breadcrumb li + li::before {
-  content: "\0002f";
-}
-
-.breadcrumb ol,
-.breadcrumb ul {
-  align-items: flex-start;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
 }
 
 .toc-text,
