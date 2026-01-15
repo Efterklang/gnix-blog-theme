@@ -39,6 +39,25 @@ figure.shiki {
   overflow: auto;
   background: var(--mantle);
   color: var(--text);
+
+  iconify-icon {
+    color: transparent;
+    cursor: pointer;
+    transition:
+      color 0.3s,
+      transform 0.3s ease;
+  }
+
+  &:hover {
+    iconify-icon {
+      color: var(--text);
+
+      &:hover {
+        color: var(--blue);
+        transform: scale(1.2);
+      }
+    }
+  }
 }
 
 .shiki-tools {
@@ -46,7 +65,7 @@ figure.shiki {
   min-height: 1.5em;
   justify-content: space-between;
   font-family: var(--font-mono);
-  padding: 0 15px;
+  padding: 0.3em 1em;
   user-select: none;
   overflow: hidden;
   position: relative;
@@ -66,32 +85,11 @@ figure.shiki {
     min-width: 0;
   }
 
-  iconify-icon {
-    cursor: pointer;
-    transition:
-      color 0.3s,
-      transform 0.3s ease;
-
-    &:hover {
-      transform: scale(1.1);
-      color: var(--blue);
-    }
-  }
-
   > .right {
     gap: 10px;
     display: flex;
     align-items: center;
   }
-}
-
-.shiki-tools .expand {
-  font-size: 1.2em;
-  margin-left: -2px;
-}
-
-.shiki-tools .expand.closed {
-  transform: rotate(90deg);
 }
 
 .shiki-tools > .right > .copy-notice {
@@ -115,15 +113,14 @@ figure.shiki {
 .traffic-lights {
   display: flex;
   align-items: center;
-  padding-right: 8px;
-  margin-left: -7px;
+  margin-left: -0.5em;
 }
 
 .traffic-light {
-  width: 14px;
-  height: 14px;
+  width: 0.8em;
+  height: 0.8em;
   border-radius: 50%;
-  margin-left: 8px;
+  margin-left: 0.5em;
   position: relative;
 
   &.red {
@@ -186,22 +183,6 @@ pre.shiki {
     width: 100%;
     margin: 0;
     font-family: var(--font-mono);
-
-    > span.line {
-      display: block;
-      width: fit-content;
-      min-width: 100%;
-
-      &:before {
-        content: counter(step);
-        counter-increment: step;
-        width: 1.2rem;
-        margin-right: 1.2rem;
-        display: inline-block;
-        text-align: right;
-        color: #738a9466;
-      }
-    }
   }
 }
 
@@ -235,6 +216,22 @@ figure.shiki[data-collapsible="true"]:not(.expanded) > pre.shiki:after {
 
 figure.shiki[data-collapsible="true"].expanded > .code-expand-btn {
   transform: translateY(0);
+}
+
+span.line {
+  display: block;
+  width: fit-content;
+  min-width: 100%;
+
+  &:before {
+    content: counter(step);
+    counter-increment: step;
+    width: 1.2rem;
+    margin-right: 1.2rem;
+    display: inline-block;
+    text-align: right;
+    color: var(--subtext0);
+  }
 }
 
 span.line.diff {
@@ -1657,4 +1654,3 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #89ddff;
   --shiki-tokyo-font-weight: bold;
 }
-
