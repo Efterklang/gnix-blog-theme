@@ -3,7 +3,6 @@ class ThemeSelector extends Component {
   render() {
     return (
       <div
-        class="theme-selector-modal"
         id="theme-selector-modal"
         onclick="window.handleThemeModalClick?.(event)"
       >

@@ -476,7 +476,7 @@ body {
 
 /* #region Theme Selector */
 
-.theme-selector-modal {
+#theme-selector-modal {
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -504,7 +504,7 @@ body {
     opacity 0.2s ease;
 }
 
-.theme-selector-modal.is-active {
+#theme-selector-modal.is-active {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;

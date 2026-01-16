@@ -118,10 +118,7 @@ function handleKeyDown(e) {
     if (searchBtn) searchBtn.click();
   } else if ((e.shiftKey && e.code === "KeyP") || e.code === "KeyP") {
     e.preventDefault();
-    const themeBtn = document.querySelector(
-      "button.navbar-item.theme-selector-trigger",
-    );
-    if (themeBtn) themeBtn.click();
+    window.openThemeModal?.();
   }
 }
 
