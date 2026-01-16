@@ -1023,40 +1023,36 @@ body {
 }
 
 table {
-  table-layout: fixed;
-  word-wrap: break-word;
   width: 100%;
-  border-collapse: separate;
+  border-collapse: collapse;
   border-spacing: 0;
-  border-radius: 8px;
-  overflow: hidden;
+  overflow: auto;
   margin: 1rem 0;
   font-size: 1rem;
-  border: 1px solid var(--surface0);
 }
 
-table td,
-table th {
+td,
+th {
   vertical-align: middle;
   padding: 0.75em 1em;
 }
 
-table thead th {
+thead th {
   font-weight: 700;
   border-bottom: 1px solid var(--surface0);
   padding: 1em;
 }
 
-table td:not([align]),
-table th:not([align]) {
+td:not([align]),
+th:not([align]) {
   text-align: left;
 }
 
-table tbody tr td {
+tbody tr td {
   border-bottom: 1px solid var(--surface0);
 }
 
-table tbody tr:last-child td {
+tbody tr:last-child td {
   border-bottom: none;
 }
 

@@ -245,3 +245,18 @@ function handleNavbarClick(e) {
     }
   }
 }
+
+function tableWrapFix() {
+  document.querySelectorAll(".content table").forEach((table) => {
+    // if width exceeds container, wrap it
+    const wrapper = document.createElement("div");
+    Object.assign(wrapper.style, {
+      width: "100%",
+      overflowX: "auto",
+    });
+    table.parentNode.insertBefore(wrapper, table);
+    wrapper.appendChild(table);
+  });
+}
+
+tableWrapFix();
