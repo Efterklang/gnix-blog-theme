@@ -21,7 +21,6 @@ function isSameLink(a, b) {
 
 const renderLinkIcon = (link) => {
   if (!link.icon) return null;
-  // start with '<' means svg icon
   if (link.icon === "travellings") {
     return (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -37,7 +36,7 @@ const renderLinkIcon = (link) => {
 
 class Navbar extends Component {
   render() {
-    const { siteUrl, menu, links, showSearch, searchTitle } = this.props;
+    const { siteUrl, menu, links, searchTitle } = this.props;
 
     return (
       <nav class="navbar navbar-main" onclick="handleNavbarClick(event);">
@@ -65,19 +64,6 @@ class Navbar extends Component {
               </div>
             ) : null}
             <div class="navbar-end">
-              <button
-                type="button"
-                class="navbar-item"
-                title="Choose Theme"
-                onclick="window.openThemeModal?.()"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <title>brightness_fill</title>
-                  <g id="brightness_fill" fill="currentColor">
-                    <path d="M12 18.5a1.5 1.5 0 0 1 1.493 1.356L13.5 20v1a1.5 1.5 0 0 1-2.993.144L10.5 21v-1a1.5 1.5 0 0 1 1.5-1.5m4.596-1.904a1.5 1.5 0 0 1 2.008-.103l.114.103.707.707a1.5 1.5 0 0 1-2.008 2.225l-.114-.103-.707-.707a1.5 1.5 0 0 1 0-2.122m-11.314 0a1.5 1.5 0 0 1 2.225 2.008l-.103.114-.707.707a1.5 1.5 0 0 1-2.225-2.008l.103-.114zM12 6a6 6 0 1 1 0 12 6 6 0 0 1 0-12m0 3a3 3 0 0 0-.176 5.995L12 15zm-8 1.5a1.5 1.5 0 0 1 .144 2.993L4 13.5H3a1.5 1.5 0 0 1-.144-2.993L3 10.5zm17 0a1.5 1.5 0 0 1 .144 2.993L21 13.5h-1a1.5 1.5 0 0 1-.144-2.993L20 10.5zM4.575 4.575a1.5 1.5 0 0 1 2.008-.103l.114.103.707.707a1.5 1.5 0 0 1-2.008 2.225l-.114-.103-.707-.707a1.5 1.5 0 0 1 0-2.122m12.728 0a1.5 1.5 0 0 1 2.225 2.008l-.103.114-.707.707a1.5 1.5 0 0 1-2.225-2.008l.103-.114zM12 1.5a1.5 1.5 0 0 1 1.493 1.356L13.5 3v1a1.5 1.5 0 0 1-2.993.144L10.5 4V3A1.5 1.5 0 0 1 12 1.5"></path>
-                  </g>
-                </svg>
-              </button>
               {Object.keys(links).length ? (
                 <Fragment>
                   {Object.keys(links).map((name) => {
@@ -96,20 +82,32 @@ class Navbar extends Component {
                   })}
                 </Fragment>
               ) : null}
-              {showSearch ? (
-                <button
-                  type="button"
-                  class="navbar-item search"
-                  title={searchTitle}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>search_line</title>
-                    <g id="search_line" fill="currentColor">
-                      <path d="M10.5 2a8.5 8.5 0 1 0 5.262 15.176l3.652 3.652a1 1 0 0 0 1.414-1.414l-3.652-3.652A8.5 8.5 0 0 0 10.5 2M4 10.5a6.5 6.5 0 1 1 13 0 6.5 6.5 0 0 1-13 0"></path>
-                    </g>
-                  </svg>
-                </button>
-              ) : null}
+              <button
+                type="button"
+                class="navbar-item"
+                id="theme-selector-trigger"
+                title="Choose Theme"
+                onclick="window.openThemeModal?.()"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <title>brightness_fill</title>
+                  <g id="brightness_fill" fill="currentColor">
+                    <path d="M12 18.5a1.5 1.5 0 0 1 1.493 1.356L13.5 20v1a1.5 1.5 0 0 1-2.993.144L10.5 21v-1a1.5 1.5 0 0 1 1.5-1.5m4.596-1.904a1.5 1.5 0 0 1 2.008-.103l.114.103.707.707a1.5 1.5 0 0 1-2.008 2.225l-.114-.103-.707-.707a1.5 1.5 0 0 1 0-2.122m-11.314 0a1.5 1.5 0 0 1 2.225 2.008l-.103.114-.707.707a1.5 1.5 0 0 1-2.225-2.008l.103-.114zM12 6a6 6 0 1 1 0 12 6 6 0 0 1 0-12m0 3a3 3 0 0 0-.176 5.995L12 15zm-8 1.5a1.5 1.5 0 0 1 .144 2.993L4 13.5H3a1.5 1.5 0 0 1-.144-2.993L3 10.5zm17 0a1.5 1.5 0 0 1 .144 2.993L21 13.5h-1a1.5 1.5 0 0 1-.144-2.993L20 10.5zM4.575 4.575a1.5 1.5 0 0 1 2.008-.103l.114.103.707.707a1.5 1.5 0 0 1-2.008 2.225l-.114-.103-.707-.707a1.5 1.5 0 0 1 0-2.122m12.728 0a1.5 1.5 0 0 1 2.225 2.008l-.103.114-.707.707a1.5 1.5 0 0 1-2.225-2.008l.103-.114zM12 1.5a1.5 1.5 0 0 1 1.493 1.356L13.5 3v1a1.5 1.5 0 0 1-2.993.144L10.5 4V3A1.5 1.5 0 0 1 12 1.5"></path>
+                  </g>
+                </svg>
+              </button>
+              <button
+                type="button"
+                class="navbar-item search"
+                title={searchTitle}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <title>search_line</title>
+                  <g id="search_line" fill="currentColor">
+                    <path d="M10.5 2a8.5 8.5 0 1 0 5.262 15.176l3.652 3.652a1 1 0 0 0 1.414-1.414l-3.652-3.652A8.5 8.5 0 0 0 10.5 2M4 10.5a6.5 6.5 0 1 1 13 0 6.5 6.5 0 0 1-13 0"></path>
+                  </g>
+                </svg>
+              </button>
             </div>
           </div>
           <button
@@ -131,7 +129,7 @@ class Navbar extends Component {
 module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
   const { config, helper, page } = props;
   const { url_for, _p, __ } = helper;
-  const { logo, title, navbar, widgets, search } = config;
+  const { logo, title, navbar, widgets } = config;
 
   const hasTocWidget =
     Array.isArray(widgets) && widgets.find((widget) => widget.type === "toc");
@@ -169,7 +167,6 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
     links,
     showToc,
     tocTitle: _p("widget.catalogue", Infinity),
-    showSearch: search?.type,
     searchTitle: __("search.search"),
   };
 });

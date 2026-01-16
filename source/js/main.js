@@ -92,21 +92,10 @@ function syncRelatedTabs(syncId) {
 
 // #region Keyboard Shortcuts
 
-function initKeyboardShortcuts() {
-  // 移除旧事件（防止PJAX重复绑定）
-  document.removeEventListener("keydown", handleKeyDown);
-  document.addEventListener("keydown", handleKeyDown, {
-    capture: true, // 捕获阶段监听，优先于浏览器默认处理
-    passive: false, // 允许调用 preventDefault
-  });
-}
-
-// 抽离键盘事件处理函数
 function handleKeyDown(e) {
   const isModifier = e.metaKey || e.ctrlKey;
   if (!isModifier) return;
 
-  // 性能优化 2: 如果用户在输入框内输入，不触发快捷键
   const tag = e.target.tagName;
   if (tag === "INPUT" || tag === "TEXTAREA" || e.target.isContentEditable) {
     return;
@@ -147,7 +136,7 @@ function initializeTableOfContents() {
   });
 
   if (headers.length > 0) {
-    // 先移除旧的滚动事件（防止PJAX重复绑定）
+    // 先移除旧的滚动事件
     window.removeEventListener("scroll", handleTocScroll, { passive: true });
 
     function handleTocScroll() {
@@ -189,13 +178,10 @@ function initializeTableOfContents() {
 // #endregion
 
 function initLogic() {
-  initKeyboardShortcuts();
   initializeTableOfContents();
   initializeTabs();
-  if (typeof mediumZoom === "function") {
-    mediumZoom(".article img", {
-      background: "hsla(from var(--mantle) / 0.9)",
-    });
+  if (document.getElementById("twikoo")) {
+    twikoo?.init(window.twikooConfig);
   }
 }
 
@@ -207,14 +193,6 @@ document.addEventListener("DOMContentLoaded", () => {
 if (typeof swup !== "undefined") {
   swup.hooks.on("page:view", () => {
     initLogic();
-
-    // Re-initialize Twikoo if available
-    if (typeof twikoo !== "undefined" && window.twikooConfig) {
-      const twikooContainer = document.getElementById("twikoo");
-      if (twikooContainer) {
-        twikoo.init(window.twikooConfig);
-      }
-    }
   });
 }
 
@@ -257,3 +235,7 @@ function tableWrapFix() {
 }
 
 tableWrapFix();
+document.addEventListener("keydown", handleKeyDown, {
+  capture: true, // 捕获阶段监听，优先于浏览器默认处理
+  passive: false, // 允许调用 preventDefault
+});

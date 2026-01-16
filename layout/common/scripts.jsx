@@ -26,6 +26,7 @@ module.exports = class extends Component {
         <script
           defer
           src="/js/host/medium-zoom/dist/medium-zoom.min.js"
+          onLoad={`const zoom = mediumZoom(".article img", { background: "hsla(from var(--mantle) / 0.9)" })`}
         ></script>
         <script async src="/js/shiki/shiki.js"></script>
         <script async src="/js/instant-page.min.js" type="module"></script>
