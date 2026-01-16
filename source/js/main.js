@@ -223,6 +223,9 @@ function handleNavbarClick(e) {
 
 function tableWrapFix() {
   document.querySelectorAll(".content table").forEach((table) => {
+    if (table.hasAttribute("data-nowrap") || table.parentElement.classList.contains('table-wrapper')) {
+      return;
+    }
     // if width exceeds container, wrap it
     const wrapper = document.createElement("div");
     Object.assign(wrapper.style, {
