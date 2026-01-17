@@ -199,18 +199,6 @@
   --crust: #242933;
 }
 
-a {
-  color: var(--lavender);
-}
-
-a:hover {
-  color: var(--blue);
-}
-
-mark {
-  background-color: var(--yellow);
-}
-
 .task-list-item-checkbox {
   accent-color: var(--lavender);
 }
@@ -240,6 +228,19 @@ input.task-list-item-checkbox:checked {
   border-color: var(--green);
 }
 
+a {
+  color: var(--lavender);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--blue);
+  }
+}
+
+mark {
+  background-color: var(--yellow);
+}
+
 hr {
   background-color: var(--surface0);
 }
@@ -249,30 +250,12 @@ input:-webkit-autofill {
   box-shadow: 0 0 0 1000px var(--surface0) inset;
 }
 
-.breadcrumb {
-  color: var(--blue);
-}
-
-.breadcrumb li a {
-  color: var(--yellow);
-}
-
-.breadcrumb li.is-active a {
-  color: var(--mauve);
-}
-
 .pagination-link.is-current,
 .pagination-link:hover,
 .pagination-next:hover,
 .pagination-previous:hover {
   background-color: var(--lavender);
   color: var(--base);
-}
-
-.searchbox-container {
-  background-color: var(--mantle);
-  border: 2px solid var(--surface0);
-  color: var(--text);
 }
 
 .searchbox-input {
@@ -377,21 +360,6 @@ body {
   line-height: 1.5;
   display: flex;
   flex-direction: column;
-}
-
-.pagination-ellipsis,
-.pagination-link,
-.pagination-next,
-.pagination-previous {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-.pagination:not(:last-child) {
-  margin-bottom: 0.5rem;
 }
 
 .toc-text,
@@ -590,6 +558,10 @@ body {
   margin: -0.25rem;
 }
 
+.pagination:not(:last-child) {
+  margin-bottom: 0.5rem;
+}
+
 .pagination,
 .pagination-list {
   align-items: center;
@@ -602,10 +574,10 @@ body {
 .pagination-link,
 .pagination-next,
 .pagination-previous {
+  user-select: none;
   height: 2.5em;
   border-radius: 10px;
-  font-size: 1.1em;
-  font-weight: bolder;
+  font-weight: bold;
   color: var(--text);
   margin: 0.25rem;
   padding: 0 0.5em;
@@ -613,14 +585,8 @@ body {
   text-align: center;
   align-items: center;
   display: inline-flex;
-  line-height: 1.5;
   position: relative;
   vertical-align: top;
-}
-
-.pagination-link,
-.pagination-next,
-.pagination-previous {
   min-width: 1.5em;
 }
 
@@ -1135,8 +1101,8 @@ input.task-list-item-checkbox:checked::before {
 
 strong {
   font-weight: bolder;
-  padding: 0 0.1em;
-  color: var(--maroon);
+  padding: 0 0.15em;
+  /* color: var(--maroon); */
 }
 
 hr {
@@ -1144,11 +1110,6 @@ hr {
   display: block;
   height: 0.1em;
   margin: 1.5rem 0;
-}
-
-a {
-  cursor: pointer;
-  text-decoration: none;
 }
 
 a strong {
@@ -1333,6 +1294,9 @@ input.searchbox-input {
 }
 
 .searchbox-container {
+  background-color: var(--mantle);
+  border: 2px solid var(--surface0);
+  color: var(--text);
   position: fixed;
   z-index: 101;
   display: flex;
