@@ -199,12 +199,9 @@
   --crust: #242933;
 }
 
-.task-list-item-checkbox {
-  accent-color: var(--lavender);
-}
-
-.task-list-item-checkbox:checked {
-  accent-color: var(--mauve);
+body {
+  background: var(--mantle);
+  color: var(--text);
 }
 
 .article-licensing {
@@ -218,9 +215,12 @@
   background: var(--mantle);
 }
 
-body {
-  background: var(--mantle);
-  color: var(--text);
+.task-list-item-checkbox {
+  accent-color: var(--lavender);
+}
+
+.task-list-item-checkbox:checked {
+  accent-color: var(--mauve);
 }
 
 input.task-list-item-checkbox:checked {

@@ -19,7 +19,7 @@ twikoo.init(window.twikooConfig);
         <script
           dangerouslySetInnerHTML={{ __html: lazy_load_css_script }}
         ></script>
-        <script async src={jsUrl} onload={`${js}`}></script>
+        <script defer src={jsUrl} onload={`${js}`}></script>
       </Fragment>
     );
   }

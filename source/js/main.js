@@ -180,10 +180,13 @@ function initializeTableOfContents() {
 function initLogic() {
   initializeTableOfContents();
   initializeTabs();
+  mediumZoom(".article img", {
+    background: "hsla(from var(--mantle) / 0.9)",
+  });
   if (document.getElementById("twikoo")) {
     setTimeout(() => {
       twikoo?.init(window.twikooConfig);
-    }, 1000);
+    }, 1500);
   }
 }
 

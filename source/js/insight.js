@@ -91,7 +91,7 @@ function loadInsight(config, translation) {
       );
       if (maxlen && range[0] >= sumRange[0] + maxlen) break;
 
-      result += `<em>${escapeHTML(text.slice(range[0], range[1]))}</em>`;
+      result += `<em style="color: var(--green)">${escapeHTML(text.slice(range[0], range[1]))}</em>`;
       last = range[1];
 
       if (i === ranges.length - 1) {
@@ -131,9 +131,8 @@ function loadInsight(config, translation) {
     const itemsHTML = array
       .map((item) => {
         if (isPostOrPage) {
-          const title = findAndHighlight(item.title, keywords);
           const text = findAndHighlight(item.text, keywords, 100);
-          return searchItem(title, text, item.link);
+          return searchItem(item.title, text, item.link);
         } else {
           // Tags
           const name = findAndHighlight(item.name, keywords);
@@ -324,18 +323,23 @@ function loadInsight(config, translation) {
     if (main.contains(e.relatedTarget)) {
       return;
     }
-    // 当焦点移出 searchbox 时，关闭搜索框
     main.classList.remove("show");
   });
 
-  // 监听打开搜索框的点击事件
+  main.addEventListener("click", (e) => {
+    const resultItem = e.target.closest(".searchbox-result-item");
+    if (resultItem) {
+      main.classList.remove("show");
+    }
+  });
+
   document.addEventListener("click", (e) => {
     if (e.target.closest(".navbar-main .search")) {
       main.classList.add("show");
       const inp = main.querySelector(".searchbox-input");
-      if (inp) inp.focus();
+      inp.focus();
 
-      // 优化点：Lazy Load - 打开时再请求数据
+      // Lazy Load - 打开时再请求数据
       fetchData();
     }
   });
