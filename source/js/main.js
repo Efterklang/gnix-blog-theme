@@ -181,7 +181,9 @@ function initLogic() {
   initializeTableOfContents();
   initializeTabs();
   if (document.getElementById("twikoo")) {
-    twikoo?.init(window.twikooConfig);
+    setTimeout(() => {
+      twikoo?.init(window.twikooConfig);
+    }, 1000);
   }
 }
 
@@ -223,7 +225,10 @@ function handleNavbarClick(e) {
 
 function tableWrapFix() {
   document.querySelectorAll(".content table").forEach((table) => {
-    if (table.hasAttribute("data-nowrap") || table.parentElement.classList.contains('table-wrapper')) {
+    if (
+      table.hasAttribute("data-nowrap") ||
+      table.parentElement.classList.contains("table-wrapper")
+    ) {
       return;
     }
     // if width exceeds container, wrap it
