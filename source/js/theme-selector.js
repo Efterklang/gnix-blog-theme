@@ -18,20 +18,25 @@
   let previewTheme = null;
   let originalTheme = null;
   let isModalOpen = false;
+  let modal = null;
+  let themeOptions = [];
 
   function getThemePreference() {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored && stored in THEME_MAP ? stored : DEFAULT_THEME;
   }
 
+  function resolveTheme(theme) {
+    return theme === "system"
+      ? colorSchemeMediaQuery.matches
+        ? "mocha"
+        : "nord"
+      : theme;
+  }
+
   function applyTheme(theme, persist = false) {
     const html = document.documentElement;
-    const resolvedTheme =
-      theme === "system"
-        ? colorSchemeMediaQuery.matches
-          ? "mocha"
-          : "nord"
-        : theme;
+    const resolvedTheme = resolveTheme(theme);
     html.setAttribute("data-theme", resolvedTheme);
     html.classList.remove("night", "light");
     html.classList.add(THEME_MAP[resolvedTheme]);
@@ -41,82 +46,73 @@
     }
   }
 
+  function previewThemeOnOption(option, index) {
+    if (index === currentIndex) {
+      option.classList.add("is-focused");
+      option.scrollIntoView({ block: "nearest", behavior: "smooth" });
+
+      const theme = option.getAttribute("data-theme-option");
+      if (theme !== previewTheme) {
+        previewTheme = theme;
+        applyTheme(theme);
+      }
+    } else {
+      option.classList.remove("is-focused");
+    }
+  }
+
+  function updateFocus() {
+    themeOptions.forEach(previewThemeOnOption);
+  }
+
   function openModal() {
-    const modal = document.getElementById("theme-selector-modal");
+    modal = document.getElementById("theme-selector-modal");
     if (!modal || isModalOpen) return;
 
     isModalOpen = true;
     originalTheme = getThemePreference();
+    themeOptions = modal.querySelectorAll(".theme-option");
 
-    // Find current theme index
-    const themeOptions = modal.querySelectorAll(".theme-option");
     themeOptions.forEach((option, index) => {
       const theme = option.getAttribute("data-theme-option");
       if (theme === originalTheme) {
         currentIndex = index;
-      }
-      // Update active state
-      if (theme === originalTheme) {
         option.classList.add("is-active");
       } else {
         option.classList.remove("is-active");
       }
     });
 
-    // Set initial focus
-    updateFocus(themeOptions);
+    updateFocus();
     modal.classList.add("is-active");
   }
 
   function closeModal(apply = false) {
-    const modal = document.getElementById("theme-selector-modal");
     if (!modal || !isModalOpen) return;
 
     isModalOpen = false;
 
     if (apply && previewTheme) {
-      // Apply the selected theme
       applyTheme(previewTheme, true);
     } else if (previewTheme && previewTheme !== originalTheme) {
-      // Restore original theme if cancelled
       applyTheme(originalTheme);
     }
 
     modal.classList.remove("is-active");
+    themeOptions.forEach((option) => {
+      option.classList.remove("is-active");
+      option.classList.remove("is-focused");
+    });
+
     previewTheme = null;
     originalTheme = null;
-
-    // Clear all focus states
-    const themeOptions = modal.querySelectorAll(".theme-option");
-    for (const t of themeOptions) {
-      t.classList.remove("is-active");
-      t.classList.remove("is-focused");
-    }
-  }
-
-  function updateFocus(themeOptions) {
-    themeOptions.forEach((option, index) => {
-      if (index === currentIndex) {
-        option.classList.add("is-focused");
-        option.scrollIntoView({ block: "nearest", behavior: "smooth" });
-
-        // Preview theme on focus
-        const theme = option.getAttribute("data-theme-option");
-        if (theme !== previewTheme) {
-          previewTheme = theme;
-          applyTheme(theme);
-        }
-      } else {
-        option.classList.remove("is-focused");
-      }
-    });
+    modal = null;
+    themeOptions = [];
   }
 
   function handleKeyboard(event) {
     if (!isModalOpen) return;
 
-    const modal = document.getElementById("theme-selector-modal");
-    const themeOptions = modal.querySelectorAll(".theme-option");
     const maxIndex = themeOptions.length - 1;
 
     switch (event.key) {
@@ -125,7 +121,7 @@
       case "Down":
         event.preventDefault();
         currentIndex = currentIndex < maxIndex ? currentIndex + 1 : 0;
-        updateFocus(themeOptions);
+        updateFocus();
         break;
 
       case "k":
@@ -133,7 +129,7 @@
       case "Up":
         event.preventDefault();
         currentIndex = currentIndex > 0 ? currentIndex - 1 : maxIndex;
-        updateFocus(themeOptions);
+        updateFocus();
         break;
 
       case "Enter":
@@ -150,8 +146,10 @@
   }
 
   // 监听系统主题改变
-  colorSchemeMediaQuery.addEventListener("change", (event) => {
-    applyTheme(event.target.value, true);
+  colorSchemeMediaQuery.addEventListener("change", () => {
+    if (getThemePreference() === "system") {
+      applyTheme("system", true);
+    }
   });
 
   // 处理 modal 点击事件（关闭背景）
@@ -168,11 +166,8 @@
     event.preventDefault();
     event.stopPropagation();
 
-    const modal = document.getElementById("theme-selector-modal");
-    const themeOptions = modal.querySelectorAll(".theme-option");
     currentIndex = index;
-    updateFocus(themeOptions);
-    // Small delay before closing to show selection
+    updateFocus();
     setTimeout(() => closeModal(true), 150);
   };
 
