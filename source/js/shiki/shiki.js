@@ -57,7 +57,7 @@ const FeatureHandlers = {
     const expandBtn = figure.querySelector(SELECTORS.expandBtn);
     const pre = figure.querySelector(SELECTORS.preShiki);
     const isExpanded = figure.classList.contains("expanded");
-    const showLines = parseInt(figure.dataset.showLines || "10", 10);
+    const showLines = parseInt(figure.dataset.maxLines || "10", 10);
 
     if (isExpanded) {
       const computedStyle = getComputedStyle(pre);
@@ -88,7 +88,7 @@ function handleToolbarClick(event) {
   const classList = target.classList;
 
   const handlers = {
-    "expand": () => FeatureHandlers.expandCode(this),
+    expand: () => FeatureHandlers.expandCode(this),
     "copy-button": () => FeatureHandlers.copy(this, target),
     "toggle-wrap": () => FeatureHandlers.toggleWrap(this),
   };
@@ -138,7 +138,7 @@ function addHighlightTool() {
     // Initialize collapsed state for collapsible code blocks
     if (figure.dataset.collapsible === "true") {
       const pre = figure.querySelector(SELECTORS.preShiki);
-      const showLines = parseInt(figure.dataset.showLines || "10", 10);
+      const showLines = parseInt(figure.dataset.maxLines || "10", 10);
 
       if (pre) {
         // 确保元素已经渲染完成后再设置高度
