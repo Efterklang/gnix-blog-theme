@@ -1,6 +1,13 @@
 const { Component, Fragment } = require("../include/util/common");
 const Index = require("./index");
+
 const breadcrumb_css = `
+  /* 定义闪烁动画 */
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
   .breadcrumb {
     color: var(--blue);
     white-space: nowrap;
@@ -14,6 +21,7 @@ const breadcrumb_css = `
     }
 
     ul {
+      padding-inline-start: 1em;
       align-items: flex-start;
       display: flex;
       flex-wrap: wrap;
@@ -26,6 +34,14 @@ const breadcrumb_css = `
       a {
         color: var(--yellow);
       }
+    }
+
+    .cursor {
+      display: inline-block;
+      color: var(--mauve);
+      font-weight: bold;
+      margin-left: 2px;
+      animation: blink 1s step-end infinite;
     }
   }`;
 
@@ -47,6 +63,7 @@ module.exports = class extends Component {
               <a href="#" aria-current="page" style="cursor: default; pointer-events: none; color: var(--mauve);">
                 {page.tag}
               </a>
+              <span class="cursor">_</span>
             </li>
           </ul>
         </nav>
