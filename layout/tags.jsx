@@ -6,7 +6,7 @@ class Tags extends Component {
 
     const inlineCSS = `
     .tags {
-      font-family: var(--font-monospace);
+      font-family: var(--font-mono);
       flex-wrap: wrap;
       justify-content: flex-start;
       padding: 0.5rem 0.5rem;
