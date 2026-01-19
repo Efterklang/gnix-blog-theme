@@ -40,6 +40,7 @@ module.exports = class extends Component {
               <li>
                 <span
                   class="pagination-ellipsis"
+                  style="pointer-events: none;"
                   dangerouslySetInnerHTML={{ __html: "&hellip;" }}
                 ></span>
               </li>,

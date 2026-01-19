@@ -590,10 +590,6 @@ body {
   min-width: 1.5em;
 }
 
-.pagination-ellipsis {
-  pointer-events: none;
-}
-
 .pagination-list {
   flex-wrap: wrap;
 }
