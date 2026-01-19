@@ -868,11 +868,33 @@ body {
     margin: 1em auto;
   }
 
+  button.physical-btn,
+  kbd {
+    display: inline-block;
+    padding: 0.1em 0.3em;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--subtext0);
+    user-select: none;
+    background: linear-gradient(180deg, var(--base) 0%, var(--mantle) 100%);
+    border: 1px solid var(--surface0);
+    border-bottom-width: 3px;
+    border-bottom-color: var(--surface0);
+    border-radius: 6px;
+    position: relative;
+    top: -3px;
+    transition:
+      top 0.1s ease,
+      border-bottom-width 0.1s ease,
+      box-shadow 0.1s ease;
+
+    &:active {
+      top: 0px;
+    }
+  }
   ol {
     list-style-position: outside;
     padding-left: 2em;
-    margin-top: 0;
-    margin-bottom: 0;
   }
 
   ul {
