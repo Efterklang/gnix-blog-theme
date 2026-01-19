@@ -26,10 +26,6 @@ function _require(filename) {
 
 _require.resolve = _resolve;
 
-/**
- * Initialize module global variables, including the theme directory variable.
- * Must be used before {@link module:core/view.require} or {@link module:core/view.resolve}.
- */
 function init(hexo) {
   themeDir = hexo.theme_dir;
 }
