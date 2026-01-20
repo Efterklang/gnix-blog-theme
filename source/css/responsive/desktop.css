@@ -45,16 +45,16 @@
   transform: translateY(-50%);
 }
 
-#icarus-toc-container .toc-button {
+.toc-button {
   display: none;
 }
 
-#icarus-toc-container .toc-body {
+.toc-body {
   display: block;
   background: transparent;
 }
 
-#icarus-toc-container .toc {
+.toc {
   padding: 0;
   margin: 0;
   list-style: none;
@@ -63,7 +63,7 @@
   align-items: flex-end;
 }
 
-#icarus-toc-container .toc-item {
+.toc-item {
   list-style: none;
   margin-bottom: 8px;
   position: relative;
@@ -73,63 +73,16 @@
   align-items: flex-end;
 }
 
-#icarus-toc-container .toc-link {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  text-decoration: none;
-  height: 20px;
-  position: relative;
-}
-
-/* The Abstract Bar */
-#icarus-toc-container .toc-link::after {
-  content: "";
-  display: block;
-  height: 4px;
-  border-radius: 2px;
-  background-color: var(--text);
-  opacity: 0.3;
-  transition: all 0.3s ease;
-  margin-left: 15px;
-}
-
-/* Level variations - Width */
-#icarus-toc-container .toc-level-1 > .toc-link::after {
-  width: 30px;
-}
-
-#icarus-toc-container .toc-level-2 > .toc-link::after {
-  width: 24px;
-}
-
-#icarus-toc-container .toc-level-3 > .toc-link::after {
-  width: 18px;
-}
-
-#icarus-toc-container .toc-level-4 > .toc-link::after {
-  width: 14px;
-}
-
-#icarus-toc-container .toc-level-5 > .toc-link::after {
-  width: 10px;
-}
-
-#icarus-toc-container .toc-level-6 > .toc-link::after {
-  width: 6px;
-}
-
 /* Text Label */
-#icarus-toc-container .toc-text {
+.toc-text {
   opacity: 0;
   transform: translateX(10px);
   transition: all 0.3s ease;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--text);
   white-space: nowrap;
   position: absolute;
   right: 100%;
-  /* Position to the left of the link/bar */
   margin-right: 10px;
   pointer-events: none;
 }
@@ -140,24 +93,62 @@
   transform: translateX(0);
 }
 
-/* Active State */
-#icarus-toc-container .toc-item.is-active > .toc-link::after {
-  background-color: var(--lavender);
-  opacity: 1;
-  width: 40px;
-  /* Highlighted length */
-  box-shadow: 0 0 8px var(--lavender);
+.toc-link {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  text-decoration: none;
+  height: 23px;
+  position: relative;
+  &:hover {
+    &::after {
+      background-color: var(--rosewater);
+      box-shadow: 0 0 8px var(--lavender);
+    }
+    .toc-text {
+      color: var(--mauve);
+    }
+  }
 }
 
-#icarus-toc-container .toc-item.is-active > .toc-link .toc-text {
-  opacity: 1;
-  transform: translateX(0);
-  font-weight: bold;
-  color: var(--lavender);
+/* The Abstract Bar */
+.toc-link::after {
+  content: "";
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  background-color: var(--surface0);
+  transition: all 0.3s ease;
+  margin-left: 15px;
+}
+
+/* Level variations - Width */
+.toc-level-1 > .toc-link::after {
+  width: 30px;
+}
+
+.toc-level-2 > .toc-link::after {
+  width: 30px;
+}
+
+.toc-level-3 > .toc-link::after {
+  width: 24px;
+}
+
+.toc-level-4 > .toc-link::after {
+  width: 18px;
+}
+
+.toc-level-5 > .toc-link::after {
+  width: 14px;
+}
+
+.toc-level-6 > .toc-link::after {
+  width: 10px;
 }
 
 /* Hide children lists container styling if any */
-#icarus-toc-container .toc-child {
+.toc-child {
   padding: 0;
   margin: 0;
   display: contents;

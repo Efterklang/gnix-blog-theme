@@ -113,72 +113,7 @@ function handleKeyDown(e) {
 
 // #endregion
 
-// #region TOC
-function initializeTableOfContents() {
-  const tocContainer = document.getElementById("icarus-toc-container");
-  if (!tocContainer) return;
-
-  const tocLinks = tocContainer.querySelectorAll(".toc-link");
-
-  // Scroll Spy
-  const headers = [];
-  tocLinks.forEach((link) => {
-    const href = link.getAttribute("href") || "";
-    // 解码并移除 #
-    const id = decodeURIComponent(href.replace(/^#/, ""));
-    // 避免无效 ID 导致报错
-    if (id) {
-      const header = document.getElementById(id);
-      if (header) {
-        headers.push({ header, link });
-      }
-    }
-  });
-
-  if (headers.length > 0) {
-    // 先移除旧的滚动事件
-    window.removeEventListener("scroll", handleTocScroll, { passive: true });
-
-    function handleTocScroll() {
-      const viewportHeight = window.innerHeight;
-      let currentHeader = null;
-
-      // 查找当前视口中最后一个位于屏幕中线上方的标题
-      for (const h of headers) {
-        const rect = h.header.getBoundingClientRect();
-        if (rect.top < viewportHeight / 2) {
-          currentHeader = h;
-        } else {
-          break;
-        }
-      }
-
-      // 如果在页面顶部，高亮第一个
-      if (!currentHeader && window.scrollY < 100) {
-        currentHeader = headers[0];
-      }
-
-      // 清除旧的高亮
-      for (const l of tocLinks) {
-        l.closest(".toc-item").classList.remove("is-active");
-      }
-
-      // 设置新的高亮
-      if (currentHeader) {
-        currentHeader.link.closest(".toc-item").classList.add("is-active");
-      }
-    }
-
-    // 使用 passive: true 提高滚动性能
-    window.addEventListener("scroll", handleTocScroll, { passive: true });
-    handleTocScroll();
-  }
-}
-
-// #endregion
-
 function initLogic() {
-  initializeTableOfContents();
   initializeTabs();
   mediumZoom(".article img", {
     background: "hsla(from var(--mantle) / 0.9)",
@@ -186,7 +121,7 @@ function initLogic() {
   if (document.getElementById("twikoo")) {
     setTimeout(() => {
       twikoo?.init(window.twikooConfig);
-    }, 1500);
+    }, 600);
   }
 }
 

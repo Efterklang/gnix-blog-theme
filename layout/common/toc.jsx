@@ -41,7 +41,7 @@ class FloatingToc extends Component {
         </button>
         <div
           class="toc-body"
-          onclick="if(event.target === this || event.target.closest('.toc-link')) { document.getElementById('icarus-toc-container').classList.remove('is-open'); }"
+          onclick="if(event.target === this || event.target.matches('.toc-link')) { document.getElementById('icarus-toc-container').classList.remove('is-open'); }"
         >
           <div dangerouslySetInnerHTML={{ __html: tocContent }} />
         </div>
