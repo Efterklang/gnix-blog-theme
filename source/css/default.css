@@ -769,10 +769,8 @@ body {
     margin: 1rem 0 1rem;
     border-bottom: 0.8px solid var(--surface0);
 
-    > a.header-anchor {
-      &:hover::after {
-        content: "##";
-      }
+    > a.header-anchor:hover::after {
+      content: "##";
     }
   }
 
@@ -783,10 +781,8 @@ body {
     letter-spacing: -0.015em;
     margin: 1.2rem 0 1rem;
 
-    > a.header-anchor {
-      &:hover::after {
-        content: "###";
-      }
+    > a.header-anchor:hover::after {
+      content: "###";
     }
   }
 
@@ -797,10 +793,8 @@ body {
     letter-spacing: -0.01em;
     margin: 1.2rem 0 1rem;
 
-    > a.header-anchor {
-      &:hover::after {
-        content: "####";
-      }
+    > a.header-anchor:hover::after {
+      content: "####";
     }
   }
 
@@ -811,10 +805,8 @@ body {
     letter-spacing: -0.005em;
     margin: 1.2rem 0 1rem;
 
-    > a.header-anchor {
-      &:hover::after {
-        content: "#####";
-      }
+    > a.header-anchor:hover::after {
+      content: "#####";
     }
   }
 
@@ -824,10 +816,8 @@ body {
     line-height: 1.25;
     margin: 1.2rem 0 1rem;
 
-    > a.header-anchor {
-      &:hover::after {
-        content: "######";
-      }
+    > a.header-anchor:hover::after {
+      content: "######";
     }
   }
 
