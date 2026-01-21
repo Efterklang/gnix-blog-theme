@@ -1,0 +1,123 @@
+.mermaid-container {
+  margin: 1em 0;
+  position: relative;
+}
+.mermaid-wrapper {
+  border: 1px solid var(--surface0);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  background: var(--mantle);
+}
+.mermaid-toolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 20;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.mermaid-wrapper:hover .mermaid-toolbar {
+  opacity: 1;
+}
+.mermaid-view-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  overflow: hidden;
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+}
+.mermaid-view-container:active {
+  cursor: grabbing;
+}
+.mermaid-content {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+  transform-origin: center;
+  transition: transform 0.2s ease;
+}
+.mermaid-viewer-grid-panel {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  gap: 4px;
+}
+.mermaid-wrapper:hover .mermaid-viewer-grid-panel {
+  opacity: 1;
+}
+.mermaid-viewer-grid-panel .grid-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+.mermaid-viewer-grid-panel .empty-cell {
+  width: 32px;
+  height: 32px;
+}
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--base);
+  border: 1px solid var(--surface0);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  color: var(--text);
+  padding: 0;
+}
+.btn:hover {
+  transform: scale(1.05);
+}
+.btn:active {
+  transform: scale(0.95);
+}
+.btn svg {
+  fill: currentColor;
+}
+.mermaid-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: #586069;
+  font-style: italic;
+  background: rgba(255, 255, 255, 0.5);
+  z-index: 5;
+}
+
+@media (max-width: 768px) {
+  .mermaid-wrapper {
+    border-radius: 3px;
+  }
+  .mermaid-toolbar,
+  .mermaid-viewer-grid-panel {
+    opacity: 1;
+  }
+  .btn {
+    width: 28px;
+    height: 28px;
+  }
+}

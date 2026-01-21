@@ -111,10 +111,57 @@ function handleKeyDown(e) {
   }
 }
 
+function handleMermaid() {
+  const containers = document.querySelectorAll(".mermaid-container");
+  if (containers.length === 0) return;
+
+  const cssUrl = "/css/optional/mermaid.css";
+  const adapterUrl = "/js/mdit/mermaid.js";
+
+  if (!document.querySelector(`link[href="${cssUrl}"]`)) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = cssUrl;
+    document.head.appendChild(link);
+  }
+
+  const runInit = () => {
+    const isNight = document.documentElement.classList.contains("night");
+    const theme = isNight ? "dark" : "default";
+    const libUrl = "/js/host/mermaid/mermaid.min.js";
+
+    containers.forEach((container, index) => {
+      if (!container.id) {
+        container.id = `mermaid-${Date.now()}-${index}`;
+      }
+      if (window.initMermaidDiagram) {
+        window.initMermaidDiagram(container.id, libUrl, theme, {});
+      }
+    });
+  };
+
+  if (window.initMermaidDiagram) {
+    runInit();
+  } else {
+    const existingScript = document.querySelector(
+      `script[src="${adapterUrl}"]`,
+    );
+    if (existingScript) {
+      existingScript.addEventListener("load", runInit);
+    } else {
+      const script = document.createElement("script");
+      script.src = adapterUrl;
+      script.onload = runInit;
+      document.head.appendChild(script);
+    }
+  }
+}
+
 // #endregion
 
 function initLogic() {
   initializeTabs();
+  handleMermaid();
   mediumZoom(".article img", {
     background: "hsla(from var(--mantle) / 0.9)",
   });
