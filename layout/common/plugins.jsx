@@ -12,8 +12,8 @@ module.exports = class extends Component {
     return (
       <Fragment>
         {Object.keys(plugins).map((name) => {
-          // plugin is not enabled
-          if (!plugins[name]) {
+          // plugin is not enabled or is 'swup' (which is now built-in)
+          if (!plugins[name] || name === "swup") {
             return null;
           }
           const Plugin = loadComponent(`plugin/${name}`);

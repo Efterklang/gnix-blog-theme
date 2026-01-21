@@ -10,6 +10,7 @@ class Swup extends Component {
 const swup = new Swup({
   containers: ["#swup"],
   cache: true,
+  native: true,
   plugins: [
     new SwupHeadPlugin({
       persistTags: true

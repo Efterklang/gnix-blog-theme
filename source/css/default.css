@@ -1401,3 +1401,24 @@ input.searchbox-input {
     z-index: 2;
   }
 }
+
+/* html.is-changing .transition-fade {
+  view-transition-name: main;
+}
+
+::view-transition-old(main) {
+  animation: fade 0.5s ease-in-out both;
+}
+
+::view-transition-new(main) {
+  animation: fade 0.5s ease-in-out both reverse;
+}
+
+@keyframes fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+} */

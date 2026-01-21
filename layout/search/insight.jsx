@@ -26,7 +26,7 @@ class Insight extends Component {
             <div class="searchbox-body"></div>
           </div>
         </div>
-        <script src={jsUrl} defer={true}></script>
+        <script defer src={jsUrl}></script>
         <script dangerouslySetInnerHTML={{ __html: js }}></script>
       </>
     );

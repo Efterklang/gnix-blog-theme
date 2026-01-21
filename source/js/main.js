@@ -119,9 +119,20 @@ function initLogic() {
     background: "hsla(from var(--mantle) / 0.9)",
   });
   if (document.getElementById("twikoo")) {
-    setTimeout(() => {
-      twikoo?.init(window.twikooConfig);
-    }, 1000);
+    const initTwikoo = () => {
+      if (window.twikoo && window.twikooConfig) {
+        window.twikoo.init(window.twikooConfig);
+      }
+    };
+
+    if (typeof twikoo !== "undefined") {
+      initTwikoo();
+    } else {
+      const script = document.querySelector('script[src*="twikoo.all.min.js"]');
+      if (script) {
+        script.addEventListener("load", initTwikoo);
+      }
+    }
   }
 }
 
@@ -131,7 +142,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Re-initialize on page changes when using swup
 if (typeof swup !== "undefined") {
-  swup.hooks.on("page:view", () => {
+  swup.hooks.on("page:view", (visit) => {
+    console.log("New page loaded:", visit.to.url);
     initLogic();
   });
 }

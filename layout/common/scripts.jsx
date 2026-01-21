@@ -1,5 +1,6 @@
 const { Component, Fragment } = require("../../include/util/common");
 const Plugins = require("./plugins");
+const Swup = require("../plugin/swup");
 
 module.exports = class extends Component {
   render() {
@@ -14,6 +15,7 @@ module.exports = class extends Component {
           helper={helper}
           head={false}
         />
+        <Swup head={false} />
         <script
           defer
           src="/js/host/iconify-icon/3.0.2/iconify-icon.min.js"
