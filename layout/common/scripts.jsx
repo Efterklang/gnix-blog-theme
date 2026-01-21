@@ -25,7 +25,7 @@ module.exports = class extends Component {
           defer
           src="/js/host/medium-zoom/dist/medium-zoom.min.js"
         ></script>
-        <script defer src="/js/shiki/shiki.js"></script>
+        <script defer src="/js/mdit/shiki.js"></script>
         <script defer src="/js/main.js"></script>
         <script async src="/js/instant-page.min.js" type="module"></script>
       </Fragment>
