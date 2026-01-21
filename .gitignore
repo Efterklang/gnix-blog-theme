@@ -2,3 +2,4 @@ robots.txt
 icarus.code-workspace
 !/source/js/host/**
 .rgignore
+.trae/documents
