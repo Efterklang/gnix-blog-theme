@@ -121,7 +121,7 @@ function initLogic() {
   if (document.getElementById("twikoo")) {
     setTimeout(() => {
       twikoo?.init(window.twikooConfig);
-    }, 600);
+    }, 1000);
   }
 }
 
