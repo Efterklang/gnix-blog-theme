@@ -125,7 +125,10 @@ module.exports = class extends Component {
 
     return (
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }}></script>
+        <script
+          data-swup-ignore-script
+          dangerouslySetInnerHTML={{ __html: themeInitScript }}
+        ></script>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {noIndex ? <meta name="robots" content="noindex" /> : null}
@@ -217,7 +220,7 @@ module.exports = class extends Component {
           onload="this.onload=null;this.rel='stylesheet'"
         />
         {/* Maple Mono CN */}
-        <link rel="preconnect" href="https://fontsapi.zeoseven.com"/>
+        <link rel="preconnect" href="https://fontsapi.zeoseven.com" />
         <link
           rel="preload"
           as="style"
@@ -234,6 +237,7 @@ module.exports = class extends Component {
         />
         {adsenseClientId ? (
           <script
+            data-swup-ignore-script
             data-ad-client={adsenseClientId}
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
             async
