@@ -1088,7 +1088,7 @@ input.task-list-item-checkbox:checked::before {
 .medium-zoom-overlay {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  z-index: 150 !important;
+  z-index: 150;
 }
 
 .medium-zoom-image--opened {

@@ -8,28 +8,22 @@ code span {
   font-weight: var(--shiki-light-font-weight);
 }
 
-:is([data-theme="tokyo_night"]) {
-  code span {
-    font-style: var(--shiki-tokyo-font-style) !important;
-    font-weight: var(--shiki-tokyo-font-weight) !important;
-    color: var(--shiki-tokyo) !important;
-  }
+:is([data-theme="tokyo_night"]) code span {
+  font-style: var(--shiki-tokyo-font-style) !important;
+  font-weight: var(--shiki-tokyo-font-weight) !important;
+  color: var(--shiki-tokyo) !important;
 }
 
-:is([data-theme="nord_night"]) {
-  code span {
-    font-style: var(--shiki-nord-font-style) !important;
-    font-weight: var(--shiki-nord-font-weight) !important;
-    color: var(--shiki-nord) !important;
-  }
+:is([data-theme="nord_night"]) code span {
+  font-style: var(--shiki-nord-font-style) !important;
+  font-weight: var(--shiki-nord-font-weight) !important;
+  color: var(--shiki-nord) !important;
 }
 
-:is([data-theme="mocha"], [data-theme="macchiato"]) {
-  code span {
-    font-style: var(--shiki-dark-font-style) !important;
-    font-weight: var(--shiki-dark-font-weight) !important;
-    color: var(--shiki-dark) !important;
-  }
+:is([data-theme="mocha"], [data-theme="macchiato"]) code span {
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+  color: var(--shiki-dark) !important;
 }
 
 figure.shiki {
