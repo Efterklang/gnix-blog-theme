@@ -20,10 +20,16 @@ code span {
   color: var(--shiki-nord) !important;
 }
 
-:is([data-theme="mocha"], [data-theme="macchiato"]) code span {
+:is([data-theme="mocha"]) code span {
   font-style: var(--shiki-dark-font-style) !important;
   font-weight: var(--shiki-dark-font-weight) !important;
   color: var(--shiki-dark) !important;
+}
+
+:is([data-theme="rose_pine"]) code span {
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+  color: var(--shiki-rose) !important;
 }
 
 figure.shiki {
@@ -199,12 +205,7 @@ figure.shiki[data-collapsible="true"]:not(.expanded) > pre.shiki:after {
   height: 80px;
   pointer-events: none;
   z-index: 1;
-  background: linear-gradient(
-    transparent 0%,
-    hsl(from var(--mantle) h s l / 0.8),
-    30%,
-    var(--mantle) 100%
-  );
+  background: linear-gradient(transparent 0%, hsl(from var(--mantle) h s l / 0.8), 30%, var(--mantle) 100%);
   opacity: 1;
 }
 
@@ -283,88 +284,41 @@ pre.shiki.has-focused > code {
   }
 }
 
-._sk_vf0qg7 {
+._sk_19luiq {
+  background-color: #eff1f5;
+  --shiki-dark-bg: #1e1e2e;
+  --shiki-nord-bg: #2e3440ff;
+  --shiki-tokyo-bg: #1a1b26;
+  --shiki-rose-bg: #191724;
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #a9b1d6;
+  --shiki-rose: #e0def4;
 }
 
-._sk_1ydffy {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #d8dee9ff;
-  --shiki-tokyo: #a9b1d6;
-}
-
-._sk_zih0e6 {
-  color: #179299;
-  --shiki-dark: #94e2d5;
-  --shiki-nord: #81a1c1;
+._sk_m4b9ja {
+  color: #df8e1d;
+  --shiki-light-font-weight: inherit;
+  --shiki-dark: #f9e2af;
+  --shiki-dark-font-weight: inherit;
+  --shiki-nord: #5e81ac;
+  --shiki-nord-font-weight: bold;
   --shiki-tokyo: #89ddff;
+  --shiki-tokyo-font-weight: inherit;
+  --shiki-rose: #908caa;
+  --shiki-rose-font-weight: inherit;
 }
 
-._sk_13oiky {
-  color: #8839ef;
-  --shiki-dark: #cba6f7;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #f7768e;
-}
-
-._sk_ollodp {
-  color: #fe640b;
-  --shiki-dark: #fab387;
-  --shiki-nord: #b48ead;
-  --shiki-tokyo: #ff9e64;
-}
-
-._sk_oe6gfm {
-  color: #7c7f93;
-  --shiki-dark: #9399b2;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #89ddff;
-}
-
-._sk_7indfn {
-  color: #7c7f93;
-  --shiki-light-font-style: italic;
-  --shiki-dark: #9399b2;
-  --shiki-dark-font-style: italic;
-  --shiki-nord: #616e88;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #51597d;
-  --shiki-tokyo-font-style: italic;
-}
-
-._sk_ftmff3 {
-  color: #7c7f93;
-  --shiki-dark: #9399b2;
-  --shiki-nord: #eceff4;
-  --shiki-tokyo: #9abdf5;
-}
-
-._sk_nesjbf {
-  color: #d20f39;
-  --shiki-dark: #f38ba8;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #698cd6;
-}
-
-._sk_2bt5sv {
-  color: #e64553;
-  --shiki-dark: #eba0ac;
-  --shiki-nord: #bf616a;
-  --shiki-tokyo: #db4b4b;
-}
-
-._sk_1m2qvf {
-  color: #8839ef;
-  --shiki-dark: #cba6f7;
+._sk_nbu00m {
+  color: #df8e1d;
+  --shiki-dark: #f9e2af;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #bb9af7;
+  --shiki-rose: #31748f;
 }
 
-._sk_25auue {
+._sk_1bfb63 {
   color: #1e66f5;
   --shiki-light-font-style: italic;
   --shiki-dark: #89b4fa;
@@ -373,9 +327,173 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #7aa2f7;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #ebbcba;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_yo6jj6 {
+._sk_13fpi8 {
+  color: #40a02b;
+  --shiki-dark: #a6e3a1;
+  --shiki-nord: #eceff4;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #f6c177;
+}
+
+._sk_1ut6zq {
+  color: #40a02b;
+  --shiki-dark: #a6e3a1;
+  --shiki-nord: #a3be8c;
+  --shiki-tokyo: #9ece6a;
+  --shiki-rose: #f6c177;
+}
+
+._sk_313qq1 {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #5e81ac;
+  --shiki-tokyo: #73daca;
+  --shiki-rose: #e0def4;
+}
+
+._sk_1fvyf2 {
+  color: #d20f39;
+  --shiki-dark: #f38ba8;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #698cd6;
+  --shiki-rose: #eb6f9280;
+}
+
+._sk_18wfda {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #d8dee9ff;
+  --shiki-tokyo: #a9b1d6;
+  --shiki-rose: #e0def4;
+}
+
+._sk_26wtkn {
+  color: #7c7f93;
+  --shiki-dark: #9399b2;
+  --shiki-nord: #eceff4;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #908caa;
+}
+
+._sk_1n460e {
+  color: #8839ef;
+  --shiki-dark: #cba6f7;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #f7768e;
+  --shiki-rose: #31748f;
+}
+
+._sk_26v0vf {
+  color: #fe640b;
+  --shiki-dark: #fab387;
+  --shiki-nord: #b48ead;
+  --shiki-tokyo: #ff9e64;
+  --shiki-rose: #ebbcba;
+}
+
+._sk_22p9sz {
+  color: #7c7f93;
+  --shiki-dark: #9399b2;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #908caa;
+}
+
+._sk_fv0148 {
+  color: #179299;
+  --shiki-dark: #94e2d5;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #31748f;
+}
+
+._sk_l14mvh {
+  color: #7c7f93;
+  --shiki-dark: #9399b2;
+  --shiki-nord: #eceff4;
+  --shiki-tokyo: #9abdf5;
+  --shiki-rose: #908caa;
+}
+
+._sk_6murct {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #d8dee9ff;
+  --shiki-tokyo: #9abdf5;
+  --shiki-rose: #e0def4;
+}
+
+._sk_1tjkxz {
+  color: #8839ef;
+  --shiki-dark: #cba6f7;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #bb9af7;
+  --shiki-rose: #31748f;
+}
+
+._sk_2agfur {
+  color: #fe640b;
+  --shiki-dark: #fab387;
+  --shiki-nord: #88c0d0;
+  --shiki-tokyo: #68b3de;
+  --shiki-rose: #31748f80;
+}
+
+._sk_19n5n2 {
+  color: #179299;
+  --shiki-dark: #94e2d5;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #bb9af7;
+  --shiki-rose: #31748f;
+}
+
+._sk_alcmo4 {
+  color: #40a02b;
+  --shiki-dark: #a6e3a1;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #9ece6a;
+  --shiki-rose: #f6c177;
+}
+
+._sk_20jg43 {
+  color: #7c7f93;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #9399b2;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #616e88;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #51597d;
+  --shiki-tokyo-font-style: italic;
+  --shiki-rose: #908caa;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_91qhgb {
+  color: #7c7f93;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #9399b2;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #616e88;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #51597d;
+  --shiki-tokyo-font-style: italic;
+  --shiki-rose: #6e6a86;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_zgl5lx {
+  color: #8839ef;
+  --shiki-dark: #cba6f7;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #31748f;
+}
+
+._sk_1lmu42 {
   color: #e64553;
   --shiki-light-font-style: italic;
   --shiki-dark: #eba0ac;
@@ -384,16 +502,77 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #e0af68;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #c4a7e7;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_1qx3pm {
-  color: #7c7f93;
-  --shiki-dark: #9399b2;
-  --shiki-nord: #eceff4;
-  --shiki-tokyo: #89ddff;
+._sk_1eimb7 {
+  color: #4c4f69;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #cdd6f4;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #d8dee9;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #c0caf5;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_17w743 {
+._sk_12rw1w {
+  color: #df8e1d;
+  --shiki-dark: #f9e2af;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #9a7ecc;
+  --shiki-rose: #f6c17780;
+}
+
+._sk_dqe7lq {
+  color: #40a02b;
+  --shiki-dark: #a6e3a1;
+  --shiki-nord: #5e81ac;
+  --shiki-tokyo: #25aac2;
+  --shiki-rose: #9ccfd880;
+}
+
+._sk_2a3w4v {
+  color: #8839ef;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #cba6f7;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #81a1c1;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #9d7cd8;
+  --shiki-tokyo-font-style: italic;
+  --shiki-rose: #31748f;
+  --shiki-rose-font-style: inherit;
+}
+
+._sk_1zek3c {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #d8dee9ff;
+  --shiki-tokyo: #7aa2f7;
+  --shiki-rose: #e0def4;
+}
+
+._sk_p8mngk {
+  color: #d20f39;
+  --shiki-dark: #f38ba8;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #ff9e64;
+  --shiki-rose: #ebbcba;
+}
+
+._sk_26mj59 {
+  color: #e64553;
+  --shiki-dark: #eba0ac;
+  --shiki-nord: #bf616a;
+  --shiki-tokyo: #db4b4b;
+  --shiki-rose: rgba(255, 18, 18, 0.8);
+}
+
+._sk_26jsf5 {
   color: #8839ef;
   --shiki-light-font-style: inherit;
   --shiki-dark: #cba6f7;
@@ -402,238 +581,56 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #646e9c;
   --shiki-tokyo-font-style: italic;
+  --shiki-rose: #31748f;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_177dur {
+._sk_7m7yec {
   color: #4c4f69;
+  --shiki-light-font-style: inherit;
   --shiki-dark: #cdd6f4;
+  --shiki-dark-font-style: inherit;
   --shiki-nord: #d8dee9ff;
-  --shiki-tokyo: #9abdf5;
-}
-
-._sk_1mqm3p {
-  color: #fe640b;
-  --shiki-dark: #fab387;
-  --shiki-nord: #88c0d0;
-  --shiki-tokyo: #68b3de;
-}
-
-._sk_loxlvo {
-  color: #179299;
-  --shiki-dark: #94e2d5;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #bb9af7;
-}
-
-._sk_18c40b {
-  color: #df8e1d;
-  --shiki-dark: #f9e2af;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #9a7ecc;
-}
-
-._sk_li3nr5 {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #d8dee9ff;
+  --shiki-nord-font-style: inherit;
   --shiki-tokyo: #c0caf5;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #ebbcba;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_gar51z {
-  color: #40a02b;
-  --shiki-dark: #a6e3a1;
-  --shiki-nord: #5e81ac;
-  --shiki-tokyo: #25aac2;
-}
-
-._sk_27tddl {
-  color: #df8e1d;
-  --shiki-light-font-weight: inherit;
-  --shiki-dark: #f9e2af;
-  --shiki-dark-font-weight: inherit;
-  --shiki-nord: #5e81ac;
-  --shiki-nord-font-weight: bold;
-  --shiki-tokyo: #89ddff;
-  --shiki-tokyo-font-weight: inherit;
-}
-
-._sk_cy16k3 {
-  color: #df8e1d;
-  --shiki-dark: #f9e2af;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #bb9af7;
-}
-
-._sk_1wvgtl {
-  color: #40a02b;
-  --shiki-dark: #a6e3a1;
-  --shiki-nord: #eceff4;
-  --shiki-tokyo: #89ddff;
-}
-
-._sk_26l23m {
-  color: #40a02b;
-  --shiki-dark: #a6e3a1;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #9ece6a;
-}
-
-._sk_bmlani {
-  color: #40a02b;
-  --shiki-dark: #a6e3a1;
-  --shiki-nord: #a3be8c;
-  --shiki-tokyo: #9ece6a;
-}
-
-._sk_hrgjor {
+._sk_1dr387 {
   color: #ea76cb;
   --shiki-dark: #f5c2e7;
   --shiki-nord: #ebcb8b;
   --shiki-tokyo: #89ddff;
+  --shiki-rose: #31748f;
 }
 
-._sk_2aenq9 {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #d8dee9ff;
-  --shiki-tokyo: #7aa2f7;
-}
-
-._sk_15r19f {
+._sk_23pmfm {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #a3be8c;
   --shiki-tokyo: #c0caf5;
+  --shiki-rose: #31748f;
 }
 
-._sk_bockxi {
-  color: #8839ef;
-  --shiki-dark: #cba6f7;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #89ddff;
-}
-
-._sk_27jobx {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #d8dee9;
-  --shiki-tokyo: #c0caf5;
-}
-
-._sk_to9i9o {
-  color: #8839ef;
-  --shiki-light-font-style: inherit;
-  --shiki-dark: #cba6f7;
-  --shiki-dark-font-style: inherit;
-  --shiki-nord: #81a1c1;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #9d7cd8;
-  --shiki-tokyo-font-style: italic;
-}
-
-._sk_xl3leg {
-  color: #d20f39;
-  --shiki-dark: #f38ba8;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #ff9e64;
-}
-
-._sk_1vgzs3 {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #5e81ac;
-  --shiki-tokyo: #73daca;
-}
-
-._sk_cn7ocs {
+._sk_2d2dj4 {
   color: #209fb5;
   --shiki-dark: #74c7ec;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #80a856;
+  --shiki-rose: #ebbcba80;
 }
 
-._sk_2bf42b {
+._sk_24bxi8 {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #88c0d0;
   --shiki-tokyo: #c49a5a;
+  --shiki-rose: #c4a7e780;
 }
 
-._sk_25dt3c {
-  color: #179299;
-  --shiki-dark: #94e2d5;
-  --shiki-nord: #eceff4;
-  --shiki-tokyo: #89ddff;
-}
-
-._sk_16zqds {
-  color: #1e66f5;
-  --shiki-light-font-style: italic;
-  --shiki-dark: #89b4fa;
-  --shiki-dark-font-style: italic;
-  --shiki-nord: #88c0d0;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #0db9d7;
-  --shiki-tokyo-font-style: inherit;
-}
-
-._sk_2bt421 {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #c0caf5;
-}
-
-._sk_2fgsdk {
-  color: #1e66f5;
-  --shiki-dark: #89b4fa;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #7aa2f7;
-}
-
-._sk_2er7jf {
-  color: #fe640b;
-  --shiki-dark: #fab387;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #ff9e64;
-}
-
-._sk_221q5y {
-  color: #1e66f5;
-  --shiki-dark: #89b4fa;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #0db9d7;
-}
-
-._sk_18pw7u {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #d8dee9;
-  --shiki-tokyo: #ff5370;
-}
-
-._sk_75row8 {
-  color: #1e66f5;
-  --shiki-dark: #89b4fa;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #7dcfff;
-}
-
-._sk_11d3ov {
-  color: #1e66f5;
-  --shiki-dark: #89b4fa;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #bb9af7;
-}
-
-._sk_1sc0hm {
-  color: #1e66f5;
-  --shiki-dark: #89b4fa;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #e0af68;
-}
-
-._sk_204v45 {
+._sk_ozwc8j {
   color: #1e66f5;
   --shiki-light-font-style: italic;
   --shiki-dark: #89b4fa;
@@ -642,34 +639,11 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #c0caf5;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #ebbcba;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_132862 {
-  color: #40a02b;
-  --shiki-dark: #a6e3a1;
-  --shiki-nord: #a3be8c;
-  --shiki-tokyo: #e0af68;
-}
-
-._sk_2fy47c {
-  color: #ea76cb;
-  --shiki-light-font-style: italic;
-  --shiki-dark: #f5c2e7;
-  --shiki-dark-font-style: italic;
-  --shiki-nord: #616e88;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #51597d;
-  --shiki-tokyo-font-style: italic;
-}
-
-._sk_8clih5 {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #f7768e;
-}
-
-._sk_1r930g {
+._sk_22t06l {
   color: #d20f39;
   --shiki-light-font-style: italic;
   --shiki-dark: #f38ba8;
@@ -678,27 +652,11 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #eb6f92;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_15rh2c {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #89ddff;
-}
-
-._sk_23n2kk {
-  color: #8839ef;
-  --shiki-light-font-style: inherit;
-  --shiki-dark: #cba6f7;
-  --shiki-dark-font-style: inherit;
-  --shiki-nord: #81a1c1;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #bb9af7;
-  --shiki-tokyo-font-style: italic;
-}
-
-._sk_ch45x6 {
+._sk_1goh1c {
   color: #d20f39;
   --shiki-light-font-style: italic;
   --shiki-dark: #f38ba8;
@@ -707,195 +665,150 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #698cd6;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #eb6f9280;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_26jl5x {
+._sk_2btnoy {
+  color: #40a02b;
+  --shiki-dark: #a6e3a1;
+  --shiki-nord: #a3be8c;
+  --shiki-tokyo: #e0af68;
+  --shiki-rose: #31748f;
+}
+
+._sk_yta1g3 {
+  color: #4c4f69;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #cdd6f4;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #81a1c1;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #f7768e;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_tulnhj {
+  color: #179299;
+  --shiki-dark: #94e2d5;
+  --shiki-nord: #eceff4;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #908caa;
+}
+
+._sk_1dtx54 {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #ebcb8b;
   --shiki-tokyo: #b4f9f8;
+  --shiki-rose: #f6c177;
 }
 
-._sk_bqmlsv {
-  color: #40a02b;
-  --shiki-dark: #a6e3a1;
-  --shiki-nord: #a3be8c;
-  --shiki-tokyo: #449dab;
+._sk_1ehm6l {
+  color: #ea76cb;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #f5c2e7;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #616e88;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #51597d;
+  --shiki-tokyo-font-style: italic;
+  --shiki-rose: #908caa;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_24h0fx {
-  color: #d20f39;
-  --shiki-dark: #f38ba8;
-  --shiki-nord: #bf616a;
-  --shiki-tokyo: #914c54;
+._sk_i21fhc {
+  color: #ea76cb;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #f5c2e7;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #616e88;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #51597d;
+  --shiki-tokyo-font-style: italic;
+  --shiki-rose: #6e6a86;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_29y8ya {
-  color: #7c7f93;
-  --shiki-dark: #9399b2;
-  --shiki-nord: #eceff4;
-  --shiki-tokyo: #e0af68;
+._sk_4au9w2 {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #908caa;
 }
 
-._sk_288sc4 {
-  color: #179299;
-  --shiki-dark: #94e2d5;
-  --shiki-nord: #8fbcbb;
+._sk_1hhn6e {
+  color: #8839ef;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #cba6f7;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #81a1c1;
+  --shiki-nord-font-style: inherit;
   --shiki-tokyo: #bb9af7;
+  --shiki-tokyo-font-style: italic;
+  --shiki-rose: #31748f;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_mjxr28 {
-  color: #1e66f5;
-  --shiki-dark: #89b4fa;
-  --shiki-nord: #d8dee9ff;
-  --shiki-tokyo: #c0caf5;
-}
-
-._sk_6s5q3s {
+._sk_7c9y4w {
   color: #7c7f93;
+  --shiki-light-font-style: inherit;
   --shiki-dark: #9399b2;
+  --shiki-dark-font-style: inherit;
   --shiki-nord: #eceff4;
-  --shiki-tokyo: #9aa5ce;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #89ddff;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #908caa;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_2av2pa {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #b48ead;
-  --shiki-tokyo: #9aa5ce;
-}
-
-._sk_u4rgfq {
+._sk_ireumb {
   color: #df8e1d;
+  --shiki-light-font-style: italic;
   --shiki-dark: #f9e2af;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #9ece6a;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #81a1c1;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #9a7ecc;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #f6c17780;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_1x5m8b {
+._sk_p0tnuc {
+  color: #8839ef;
+  --shiki-dark: #cba6f7;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #7dcfff;
+  --shiki-rose: #31748f;
+}
+
+._sk_jwpvk5 {
   color: #1e66f5;
+  --shiki-light-font-style: italic;
   --shiki-dark: #89b4fa;
-  --shiki-nord: #d8dee9;
-  --shiki-tokyo: #7aa2f7;
-}
-
-._sk_1i9nil {
-  color: #fe640b;
-  --shiki-dark: #fab387;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #f7768e;
-}
-
-._sk_2dn114 {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #ff9e64;
-}
-
-._sk_ex35yc {
-  color: #e64553;
-  --shiki-dark: #eba0ac;
+  --shiki-dark-font-style: italic;
   --shiki-nord: #88c0d0;
-  --shiki-tokyo: #c0caf5;
-}
-
-._sk_czdon2 {
-  color: #1e66f5;
-  --shiki-dark: #89b4fa;
-  --shiki-nord: #81a1c1;
+  --shiki-nord-font-style: inherit;
   --shiki-tokyo: #0db9d7;
-}
-
-._sk_1w20it {
-  color: #df8e1d;
-  --shiki-dark: #f9e2af;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #bb9af7;
-}
-
-._sk_myohtf {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #9ece6a;
-}
-
-._sk_1vj1cp {
-  color: #1e66f5;
-  --shiki-dark: #89b4fa;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #f7768e;
-}
-
-._sk_1zkrs7 {
-  color: #df8e1d;
-  --shiki-dark: #f9e2af;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #fc7b7b;
-}
-
-._sk_h10j51 {
-  color: #8839ef;
-  --shiki-dark: #cba6f7;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #9d7cd8;
-}
-
-._sk_sr2mmu {
-  color: #04a5e5;
-  --shiki-light-font-style: italic;
-  --shiki-dark: #89dceb;
-  --shiki-dark-font-style: italic;
-  --shiki-nord: #8fbcbb;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #7aa2f7;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #eb6f92;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_jvxq44 {
+._sk_1rr5vz {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
-  --shiki-nord: #88c0d0;
-  --shiki-tokyo: #bb9af7;
-}
-
-._sk_gzzuxr {
-  color: #40a02b;
-  --shiki-dark: #a6e3a1;
-  --shiki-nord: #d8dee9;
+  --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #e0af68;
+  --shiki-rose: #31748f;
 }
 
-._sk_1tgkjh {
-  color: #8839ef;
-  --shiki-dark: #cba6f7;
-  --shiki-nord: #d08770;
-  --shiki-tokyo: #9d7cd8;
-}
-
-._sk_74t9zi {
-  color: #1e66f5;
-  --shiki-dark: #89b4fa;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #f7768e;
-}
-
-._sk_23t5yp {
-  color: #8839ef;
-  --shiki-dark: #cba6f7;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #7aa2f7;
-}
-
-._sk_28hk39 {
-  color: #40a02b;
-  --shiki-dark: #a6e3a1;
-  --shiki-nord: #ebcb8b;
-  --shiki-tokyo: #9ece6a;
-}
-
-._sk_kj482k {
+._sk_2z07v1 {
   color: #df8e1d;
   --shiki-light-font-style: italic;
   --shiki-dark: #f9e2af;
@@ -904,30 +817,58 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #c0caf5;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #9ccfd8;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_2cq09c {
+._sk_1m59iu {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #bb9af7;
+  --shiki-rose: #31748f;
 }
 
-._sk_1o1po6 {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #d8dee9;
-  --shiki-tokyo: #7dcfff;
-}
-
-._sk_j3iz8c {
+._sk_1kksn7 {
   color: #8839ef;
+  --shiki-light-font-style: inherit;
   --shiki-dark: #cba6f7;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #7dcfff;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #8fbcbb;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #89ddff;
+  --shiki-tokyo-font-style: italic;
+  --shiki-rose: #31748f;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_g6idpt {
+._sk_1rie33 {
+  color: #e64553;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #eba0ac;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #d8dee9;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #e0af68;
+  --shiki-tokyo-font-style: italic;
+  --shiki-rose: #c4a7e7;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_288sua {
+  color: #df8e1d;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #f9e2af;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #8fbcbb;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #c0caf5;
+  --shiki-tokyo-font-style: italic;
+  --shiki-rose: #9ccfd8;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_23grib {
   color: #4c4f69;
   --shiki-light-font-style: inherit;
   --shiki-dark: #cdd6f4;
@@ -936,9 +877,11 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #9d7cd8;
   --shiki-tokyo-font-style: italic;
+  --shiki-rose: #31748f;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_26q3xl {
+._sk_9ctex7 {
   color: #7c7f93;
   --shiki-light-font-style: inherit;
   --shiki-dark: #9399b2;
@@ -947,9 +890,24 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #89ddff;
   --shiki-tokyo-font-style: italic;
+  --shiki-rose: #908caa;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_2e6xb5 {
+._sk_1lmgf1 {
+  color: #4c4f69;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #cdd6f4;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #81a1c1;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #f7768e;
+  --shiki-tokyo-font-style: italic;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_17ij1r {
   color: #df8e1d;
   --shiki-light-font-style: italic;
   --shiki-light-font-weight: inherit;
@@ -962,81 +920,25 @@ pre.shiki.has-focused > code {
   --shiki-tokyo: #bb9af7;
   --shiki-tokyo-font-style: inherit;
   --shiki-tokyo-font-weight: inherit;
+  --shiki-rose: #c4a7e7;
+  --shiki-rose-font-style: italic;
+  --shiki-rose-font-weight: inherit;
 }
 
-._sk_hq8ipq {
+._sk_u5h52p {
   color: #d20f39;
+  --shiki-light-font-style: inherit;
   --shiki-dark: #f38ba8;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #f7768e;
-}
-
-._sk_1kzqli {
-  color: #fe640b;
-  --shiki-dark: #fab387;
-  --shiki-nord: #eceff4;
-  --shiki-tokyo: #89ddff;
-}
-
-._sk_kkymk0 {
-  color: #fe640b;
-  --shiki-dark: #fab387;
-  --shiki-nord: #d08770;
-  --shiki-tokyo: #bb9af7;
-}
-
-._sk_1l25sa {
-  color: #8839ef;
-  --shiki-light-font-style: inherit;
-  --shiki-dark: #cba6f7;
-  --shiki-dark-font-style: inherit;
-  --shiki-nord: #8fbcbb;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #89ddff;
-  --shiki-tokyo-font-style: italic;
-}
-
-._sk_1m2bdy {
-  color: #e64553;
-  --shiki-light-font-style: italic;
-  --shiki-dark: #eba0ac;
-  --shiki-dark-font-style: italic;
-  --shiki-nord: #d8dee9;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #e0af68;
-  --shiki-tokyo-font-style: italic;
-}
-
-._sk_1i8qdf {
-  color: #df8e1d;
-  --shiki-light-font-style: italic;
-  --shiki-dark: #f9e2af;
-  --shiki-dark-font-style: italic;
-  --shiki-nord: #8fbcbb;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #c0caf5;
-  --shiki-tokyo-font-style: italic;
-}
-
-._sk_7lln95 {
-  color: #4c4f69;
-  --shiki-light-font-style: inherit;
-  --shiki-dark: #cdd6f4;
   --shiki-dark-font-style: inherit;
   --shiki-nord: #81a1c1;
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #f7768e;
-  --shiki-tokyo-font-style: italic;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #31748f;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_2feycw {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #d8dee9;
-  --shiki-tokyo: #9ece6a;
-}
-
-._sk_1scjk5 {
+._sk_10p7k1 {
   color: #8839ef;
   --shiki-light-font-style: inherit;
   --shiki-dark: #cba6f7;
@@ -1045,49 +947,104 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #9d7cd8;
   --shiki-tokyo-font-style: italic;
+  --shiki-rose: #31748f;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_16ztuh {
+._sk_236rzu {
+  color: #fe640b;
+  --shiki-dark: #fab387;
+  --shiki-nord: #eceff4;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #908caa;
+}
+
+._sk_2e4eb4 {
+  color: #fe640b;
+  --shiki-dark: #fab387;
+  --shiki-nord: #d08770;
+  --shiki-tokyo: #bb9af7;
+  --shiki-rose: #31748f;
+}
+
+._sk_qoj6n2 {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #d8dee9;
+  --shiki-tokyo: #9ece6a;
+  --shiki-rose: #31748f;
+}
+
+._sk_258cae {
+  color: #4c4f69;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #cdd6f4;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #d8dee9;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #7dcfff;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_1if3fm {
+  color: #df8e1d;
+  --shiki-dark: #f9e2af;
+  --shiki-nord: #d8dee9ff;
+  --shiki-tokyo: #c0caf5;
+  --shiki-rose: #9ccfd8;
+}
+
+._sk_2ezywq {
+  color: #1e66f5;
+  --shiki-dark: #89b4fa;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #31748f;
+}
+
+._sk_23spfp {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #d8dee9ff;
+  --shiki-tokyo: #c0caf5;
+  --shiki-rose: #9ccfd8;
+}
+
+._sk_1sy4hg {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #88c0d0;
   --shiki-tokyo: #7aa2f7;
+  --shiki-rose: #e0def4;
 }
 
-._sk_1mhvnp {
-  color: #e64553;
-  --shiki-light-font-style: italic;
-  --shiki-dark: #eba0ac;
-  --shiki-dark-font-style: italic;
+._sk_1r1sw4 {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9ff;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #a9b1d6;
-  --shiki-tokyo-font-style: inherit;
+  --shiki-tokyo: #c0caf5;
+  --shiki-rose: #e0def4;
 }
 
-._sk_22ea89 {
-  color: #40a02b;
-  --shiki-light-font-style: italic;
-  --shiki-dark: #a6e3a1;
-  --shiki-dark-font-style: italic;
-  --shiki-nord: #a3be8c;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #9ece6a;
-  --shiki-tokyo-font-style: inherit;
+._sk_2awl2c {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #d8dee9ff;
+  --shiki-tokyo: #ff9e64;
+  --shiki-rose: #31748f;
 }
 
-._sk_hvr4xy {
-  color: #40a02b;
-  --shiki-light-font-style: italic;
-  --shiki-dark: #a6e3a1;
-  --shiki-dark-font-style: italic;
+._sk_maab7z {
+  color: #fe640b;
+  --shiki-dark: #fab387;
   --shiki-nord: #81a1c1;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #bb9af7;
-  --shiki-tokyo-font-style: inherit;
+  --shiki-tokyo: #ff9e64;
+  --shiki-rose: #ebbcba;
 }
 
-._sk_203s28 {
+._sk_2bos32 {
   color: #04a5e5;
   --shiki-light-font-style: italic;
   --shiki-dark: #89dceb;
@@ -1096,9 +1053,11 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #eb6f92;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_1qxhm4 {
+._sk_ub4g5k {
   color: #d20f39;
   --shiki-light-font-style: italic;
   --shiki-dark: #f38ba8;
@@ -1107,9 +1066,11 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #e0af68;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #c4a7e7;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_uc9t23 {
+._sk_13dhyq {
   color: #d20f39;
   --shiki-light-font-style: italic;
   --shiki-dark: #f38ba8;
@@ -1118,9 +1079,11 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #f7768e;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_1rpq94 {
+._sk_28mpkj {
   color: #8839ef;
   --shiki-light-font-style: italic;
   --shiki-dark: #cba6f7;
@@ -1129,9 +1092,11 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #9ccfd8;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_2e7pom {
+._sk_1mm5sv {
   color: #fe640b;
   --shiki-light-font-style: italic;
   --shiki-dark: #fab387;
@@ -1140,9 +1105,11 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #eb6f92;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_dkzv2h {
+._sk_fx6zos {
   color: #fe640b;
   --shiki-light-font-style: italic;
   --shiki-dark: #fab387;
@@ -1151,45 +1118,24 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #9ccfd8;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_228tis {
-  color: #e64553;
-  --shiki-dark: #eba0ac;
-  --shiki-nord: #d8dee9ff;
-  --shiki-tokyo: #a9b1d6;
-}
-
-._sk_16wu5w {
+._sk_2fgyhk {
   color: #40a02b;
-  --shiki-light-font-style: inherit;
+  --shiki-light-font-style: italic;
   --shiki-dark: #a6e3a1;
-  --shiki-dark-font-style: inherit;
-  --shiki-nord: #eceff4;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #81a1c1;
   --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #51597d;
-  --shiki-tokyo-font-style: italic;
+  --shiki-tokyo: #bb9af7;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #31748f;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_20z2zd {
-  color: #40a02b;
-  --shiki-light-font-style: inherit;
-  --shiki-dark: #a6e3a1;
-  --shiki-dark-font-style: inherit;
-  --shiki-nord: #a3be8c;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #51597d;
-  --shiki-tokyo-font-style: italic;
-}
-
-._sk_15l438 {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #d8dee9ff;
-  --shiki-tokyo: #ff9e64;
-}
-
-._sk_v8i75d {
+._sk_1zhgqd {
   color: #fe640b;
   --shiki-light-font-style: italic;
   --shiki-dark: #fab387;
@@ -1198,9 +1144,11 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #89ddff;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #908caa;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_1wu28j {
+._sk_2gf4yt {
   color: #fe640b;
   --shiki-light-font-style: italic;
   --shiki-dark: #fab387;
@@ -1209,20 +1157,24 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #7aa2f7;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #ebbcba;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_227fse {
-  color: #8839ef;
+._sk_wee7k3 {
+  color: #e64553;
   --shiki-light-font-style: italic;
-  --shiki-dark: #cba6f7;
+  --shiki-dark: #eba0ac;
   --shiki-dark-font-style: italic;
-  --shiki-nord: #d08770;
+  --shiki-nord: #d8dee9ff;
   --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #0db9d7;
+  --shiki-tokyo: #a9b1d6;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_g6l96i {
+._sk_1bg9am {
   color: #fe640b;
   --shiki-light-font-style: italic;
   --shiki-dark: #fab387;
@@ -1231,23 +1183,442 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #ff9e64;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #ebbcba;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_19zv4q {
+._sk_139pe4 {
+  color: #40a02b;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #a6e3a1;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #a3be8c;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #9ece6a;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #f6c177;
+  --shiki-rose-font-style: inherit;
+}
+
+._sk_br3pnk {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #d8dee9;
+  --shiki-tokyo: #ff5370;
+  --shiki-rose: #eb6f92;
+}
+
+._sk_249dcv {
+  color: #8839ef;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #cba6f7;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #d08770;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #0db9d7;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #9ccfd8;
+  --shiki-rose-font-style: inherit;
+}
+
+._sk_1tns4n {
+  color: #ea76cb;
+  --shiki-dark: #f5c2e7;
+  --shiki-nord: #ebcb8b;
+  --shiki-tokyo: #9ece6a;
+  --shiki-rose: #31748f;
+}
+
+._sk_2dp3mt {
+  color: #e64553;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #eba0ac;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #d8dee9ff;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #c0caf5;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: inherit;
+}
+
+._sk_1rj7hc {
+  color: #e64553;
+  --shiki-dark: #eba0ac;
+  --shiki-nord: #d8dee9ff;
+  --shiki-tokyo: #a9b1d6;
+  --shiki-rose: #e0def4;
+}
+
+._sk_1i61tb {
+  color: #40a02b;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #a6e3a1;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #eceff4;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #51597d;
+  --shiki-tokyo-font-style: italic;
+  --shiki-rose: #f6c177;
+  --shiki-rose-font-style: inherit;
+}
+
+._sk_1151fj {
+  color: #40a02b;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #a6e3a1;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #a3be8c;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #51597d;
+  --shiki-tokyo-font-style: italic;
+  --shiki-rose: #f6c177;
+  --shiki-rose-font-style: inherit;
+}
+
+._sk_1ivftl {
+  color: #7c7f93;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #9399b2;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #eceff4;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #e0af68;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #908caa;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_f6ff4y {
+  color: #df8e1d;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #f9e2af;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #8fbcbb;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #9ece6a;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #c4a7e7;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_261vp3 {
+  color: #1e66f5;
+  --shiki-dark: #89b4fa;
+  --shiki-nord: #d8dee9;
+  --shiki-tokyo: #7aa2f7;
+  --shiki-rose: #9ccfd8;
+}
+
+._sk_1e0u4w {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #ff9e64;
+  --shiki-rose: #f6c177;
+}
+
+._sk_1frz5z {
+  color: #e64553;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #eba0ac;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #88c0d0;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #c0caf5;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_1rtdi1 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9ff;
-  --shiki-tokyo: #e0af68;
+  --shiki-tokyo: #9abdf5;
+  --shiki-rose: #9ccfd8;
 }
 
-._sk_w8luni {
+._sk_24ne5x {
+  color: #fe640b;
+  --shiki-dark: #fab387;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #f7768e;
+  --shiki-rose: #31748f;
+}
+
+._sk_11cqw1 {
   color: #8839ef;
   --shiki-dark: #cba6f7;
-  --shiki-nord: #eceff4;
+  --shiki-nord: #81a1c1;
   --shiki-tokyo: #9d7cd8;
+  --shiki-rose: #908caa;
 }
 
-._sk_2alf8k {
+._sk_1rj2cz {
+  color: #40a02b;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #a6e3a1;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #d8dee9;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #e0af68;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #c4a7e7;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_b74uyr {
+  color: #1e66f5;
+  --shiki-dark: #89b4fa;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #0db9d7;
+  --shiki-rose: #9ccfd8;
+}
+
+._sk_yxerq9 {
+  color: #179299;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #94e2d5;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #8fbcbb;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #bb9af7;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #c4a7e7;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_2jbhh6 {
+  color: #df8e1d;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #f9e2af;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #8fbcbb;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #bb9af7;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #c4a7e7;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_q1imfg {
+  color: #04a5e5;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #89dceb;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #8fbcbb;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #7aa2f7;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #9ccfd8;
+  --shiki-rose-font-style: inherit;
+}
+
+._sk_21h3p9 {
+  color: #7c7f93;
+  --shiki-dark: #9399b2;
+  --shiki-nord: #eceff4;
+  --shiki-tokyo: #9aa5ce;
+  --shiki-rose: #908caa;
+}
+
+._sk_22nrdv {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #b48ead;
+  --shiki-tokyo: #9aa5ce;
+  --shiki-rose: #31748f;
+}
+
+._sk_x2flgz {
+  color: #1e66f5;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #89b4fa;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #d8dee9ff;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #c0caf5;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #ebbcba;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_oofx2s {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #9ece6a;
+  --shiki-rose: #f6c177;
+}
+
+._sk_1gf2xe {
+  color: #1e66f5;
+  --shiki-dark: #89b4fa;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #f7768e;
+  --shiki-rose: #9ccfd8;
+}
+
+._sk_1nm8wt {
+  color: #df8e1d;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #f9e2af;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #8fbcbb;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #fc7b7b;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #c4a7e7;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_28d6oa {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #88c0d0;
+  --shiki-tokyo: #bb9af7;
+  --shiki-rose: #f6c177;
+}
+
+._sk_vk4o4u {
+  color: #ea76cb;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #f5c2e7;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #ebcb8b;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #89ddff;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #31748f;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_8bx670 {
+  color: #8839ef;
+  --shiki-dark: #cba6f7;
+  --shiki-nord: #d08770;
+  --shiki-tokyo: #9d7cd8;
+  --shiki-rose: #908caa;
+}
+
+._sk_12nijj {
+  color: #8839ef;
+  --shiki-dark: #cba6f7;
+  --shiki-nord: #d08770;
+  --shiki-tokyo: #9d7cd8;
+  --shiki-rose: #31748f;
+}
+
+._sk_1xjbpb {
+  color: #1e66f5;
+  --shiki-dark: #89b4fa;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #f7768e;
+  --shiki-rose: #9ccfd8;
+}
+
+._sk_1mljic {
+  color: #ea76cb;
+  --shiki-dark: #f5c2e7;
+  --shiki-nord: #d8dee9ff;
+  --shiki-tokyo: #a9b1d6;
+  --shiki-rose: #e0def4;
+}
+
+._sk_1xubbg {
+  color: #df8e1d;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #f9e2af;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #d8dee9ff;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #c0caf5;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #9ccfd8;
+  --shiki-rose-font-style: inherit;
+}
+
+._sk_12iqhb {
+  color: #e64553;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #eba0ac;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #d8dee9ff;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #9abdf5;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: inherit;
+}
+
+._sk_mfxr56 {
+  color: #40a02b;
+  --shiki-dark: #a6e3a1;
+  --shiki-nord: #a3be8c;
+  --shiki-tokyo: #9abdf5;
+  --shiki-rose: #e0def4;
+}
+
+._sk_1u6ann {
+  color: #8839ef;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #cba6f7;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #81a1c1;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #bb9af7;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #31748f;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_1ljfw3 {
+  color: #4c4f69;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #cdd6f4;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #81a1c1;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #c0caf5;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #908caa;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_1l7g5r {
+  color: #1e66f5;
+  --shiki-dark: #89b4fa;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #7aa2f7;
+  --shiki-rose: #9ccfd8;
+}
+
+._sk_icjz33 {
+  color: #1e66f5;
+  --shiki-dark: #89b4fa;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #0db9d7;
+  --shiki-rose: #9ccfd8;
+}
+
+._sk_21az1f {
+  color: #1e66f5;
+  --shiki-dark: #89b4fa;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #7dcfff;
+  --shiki-rose: #9ccfd8;
+}
+
+._sk_23rzxy {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #d8dee9ff;
+  --shiki-tokyo: #9aa5ce;
+  --shiki-rose: #e0def4;
+}
+
+._sk_1cviqa {
   color: #7c7f93;
   --shiki-light-font-weight: inherit;
   --shiki-dark: #9399b2;
@@ -1256,9 +1627,11 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-weight: bold;
   --shiki-tokyo: #c0caf5;
   --shiki-tokyo-font-weight: bold;
+  --shiki-rose: #908caa;
+  --shiki-rose-font-weight: bold;
 }
 
-._sk_47xbph {
+._sk_1mj5lq {
   color: #d20f39;
   --shiki-light-font-weight: bold;
   --shiki-dark: #f38ba8;
@@ -1267,37 +1640,80 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-weight: bold;
   --shiki-tokyo: #c0caf5;
   --shiki-tokyo-font-weight: bold;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-weight: bold;
 }
 
-._sk_13h2v6 {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #d8dee9ff;
-  --shiki-tokyo: #9aa5ce;
-}
-
-._sk_2d5alg {
+._sk_n4fr5g {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #89ddff;
+  --shiki-rose: #908caa;
 }
 
-._sk_sftfd5 {
+._sk_1kqxrt {
+  color: #40a02b;
+  --shiki-dark: #a6e3a1;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #e0def4;
+}
+
+._sk_1p9nrk {
   color: #7287fd;
   --shiki-dark: #b4befe;
   --shiki-nord: #88c0d0;
   --shiki-tokyo: #73daca;
+  --shiki-rose: #f6c177;
 }
 
-._sk_zjo9zo {
+._sk_1o5iow {
+  color: #8839ef;
+  --shiki-dark: #cba6f7;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #7aa2f7;
+  --shiki-rose: #31748f;
+}
+
+._sk_1ykg1v {
+  color: #40a02b;
+  --shiki-dark: #a6e3a1;
+  --shiki-nord: #ebcb8b;
+  --shiki-tokyo: #9ece6a;
+  --shiki-rose: #31748f;
+}
+
+._sk_1hwno9 {
+  color: #179299;
+  --shiki-dark: #94e2d5;
+  --shiki-nord: #eceff4;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #31748f;
+}
+
+._sk_uh1x9c {
+  color: #4c4f69;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #cdd6f4;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #d8dee9;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #bb9af7;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_261pw1 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
-  --shiki-nord: #d8dee9;
-  --shiki-tokyo: #bb9af7;
+  --shiki-nord: #88c0d0;
+  --shiki-tokyo: #73daca;
+  --shiki-rose: #e0def4;
 }
 
-._sk_o7cw64 {
+._sk_30ey1a {
   color: #8839ef;
   --shiki-light-font-style: italic;
   --shiki-dark: #cba6f7;
@@ -1306,9 +1722,11 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #9ccfd8;
+  --shiki-rose-font-style: inherit;
 }
 
-._sk_it4y4b {
+._sk_1rhcs7 {
   color: #8839ef;
   --shiki-light-font-weight: bold;
   --shiki-dark: #cba6f7;
@@ -1317,34 +1735,32 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-weight: inherit;
   --shiki-tokyo: #89ddff;
   --shiki-tokyo-font-weight: inherit;
+  --shiki-rose: #31748f;
+  --shiki-rose-font-weight: inherit;
 }
 
-._sk_16uhwk {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #88c0d0;
-  --shiki-tokyo: #73daca;
-}
-
-._sk_nbpi26 {
-  color: #df8e1d;
-  --shiki-light-font-style: italic;
-  --shiki-dark: #f9e2af;
-  --shiki-dark-font-style: italic;
-  --shiki-nord: #8fbcbb;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #0db9d7;
-  --shiki-tokyo-font-style: inherit;
-}
-
-._sk_gupwpm {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #d8dee9ff;
+._sk_g50yhz {
+  color: #7c7f93;
+  --shiki-dark: #9399b2;
+  --shiki-nord: #81a1c1;
   --shiki-tokyo: #7dcfff;
+  --shiki-rose: #908caa;
 }
 
-._sk_tks0pk {
+._sk_xjm9g6 {
+  color: #1e66f5;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #89b4fa;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #88c0d0;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #7aa2f7;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #ebbcba;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_2piw18 {
   color: #179299;
   --shiki-light-font-weight: inherit;
   --shiki-dark: #94e2d5;
@@ -1353,206 +1769,333 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-weight: inherit;
   --shiki-tokyo: #f7768e;
   --shiki-tokyo-font-weight: bold;
+  --shiki-rose: #31748f;
+  --shiki-rose-font-weight: inherit;
 }
 
-._sk_19fw5d {
+._sk_1zenpn {
+  color: #fe640b;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #fab387;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #d8dee9;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #0db9d7;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_23hb1j {
+  color: #df8e1d;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #f9e2af;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #8fbcbb;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #0db9d7;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #9ccfd8;
+  --shiki-rose-font-style: inherit;
+}
+
+._sk_1rtdbj {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #d8dee9ff;
+  --shiki-tokyo: #7dcfff;
+  --shiki-rose: #9ccfd8;
+}
+
+._sk_2c65h0 {
   color: #ea76cb;
   --shiki-dark: #f5c2e7;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #89ddff;
+  --shiki-rose: #f6c177;
 }
 
-._sk_j6m1ds {
+._sk_kbgbf8 {
   color: #ea76cb;
   --shiki-dark: #f5c2e7;
   --shiki-nord: #ebcb8b;
   --shiki-tokyo: #c0caf5;
+  --shiki-rose: #31748f;
 }
 
-._sk_t8zlhw {
+._sk_5ayty4 {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #f7768e;
+  --shiki-rose: #908caa;
 }
 
-._sk_23kcit {
+._sk_1npqn6 {
   color: #ea76cb;
   --shiki-dark: #f5c2e7;
   --shiki-nord: #ebcb8b;
   --shiki-tokyo: #bb9af7;
+  --shiki-rose: #31748f;
 }
 
-._sk_13rez6 {
-  color: #7c7f93;
-  --shiki-dark: #9399b2;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #7dcfff;
-}
-
-._sk_ex8akj {
+._sk_1ay411 {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
   --shiki-nord: #d8dee9;
   --shiki-tokyo: #7dcfff;
+  --shiki-rose: #9ccfd8;
 }
 
-._sk_v8j5st {
+._sk_2acmkm {
   color: #fe640b;
+  --shiki-light-font-style: inherit;
   --shiki-dark: #fab387;
+  --shiki-dark-font-style: inherit;
   --shiki-nord: #d8dee9;
+  --shiki-nord-font-style: inherit;
   --shiki-tokyo: #ff9e64;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_cs8fvu {
+._sk_1nh4d1 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #88c0d0;
   --shiki-tokyo: #41a6b5;
+  --shiki-rose: #e0def4;
 }
 
-._sk_235kp5 {
+._sk_ol1dcb {
   color: #4c4f69;
+  --shiki-light-font-style: inherit;
   --shiki-dark: #cdd6f4;
-  --shiki-nord: #d8dee9;
-  --shiki-tokyo: #ff9e64;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #8fbcbb;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #0db9d7;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_2c7g3m {
+._sk_1sojla {
+  color: #4c4f69;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #cdd6f4;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #d8dee9;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #ff9e64;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_fhp1jp {
   color: #179299;
   --shiki-dark: #94e2d5;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #ba3c97;
+  --shiki-rose: #6e6a86;
 }
 
-._sk_1rdefz {
-  color: #df8e1d;
-  --shiki-dark: #f9e2af;
-  --shiki-nord: #eceff4;
-  --shiki-tokyo: #e0af68;
-}
-
-._sk_8q2fwb {
+._sk_13yry4 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
-  --shiki-nord: #d8dee9;
-  --shiki-tokyo: #0db9d7;
+  --shiki-nord: #88c0d0;
+  --shiki-tokyo: #73daca;
+  --shiki-rose: #31748f;
 }
 
-._sk_10u0mb {
+._sk_15r2xx {
+  color: #e64553;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #eba0ac;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #d8dee9;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #c0caf5;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_1i618j {
+  color: #8839ef;
+  --shiki-dark: #cba6f7;
+  --shiki-nord: #eceff4;
+  --shiki-tokyo: #9d7cd8;
+  --shiki-rose: #908caa;
+}
+
+._sk_1x79ku {
+  color: #40a02b;
+  --shiki-dark: #a6e3a1;
+  --shiki-nord: #a3be8c;
+  --shiki-tokyo: #449dab;
+  --shiki-rose: #9ccfd8;
+}
+
+._sk_mpevu7 {
+  color: #4c4f69;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #cdd6f4;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #d8dee9;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #0db9d7;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_5a2o23 {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #8fbcbb;
   --shiki-tokyo: #0db9d7;
+  --shiki-rose: #9ccfd8;
 }
 
-._sk_2dq6o3 {
+._sk_vdzsny {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9;
   --shiki-tokyo: #73daca;
+  --shiki-rose: #e0def4;
 }
 
-._sk_1hpmgi {
+._sk_r67u5z {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #ff9e64;
+  --shiki-rose: #ebbcba;
 }
 
-._sk_7i84cj {
-  color: #df8e1d;
-  --shiki-light-font-style: italic;
-  --shiki-dark: #f9e2af;
-  --shiki-dark-font-style: italic;
-  --shiki-nord: #d8dee9ff;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #c0caf5;
-  --shiki-tokyo-font-style: inherit;
-}
-
-._sk_87bubo {
-  color: #e64553;
-  --shiki-light-font-style: italic;
-  --shiki-dark: #eba0ac;
-  --shiki-dark-font-style: italic;
-  --shiki-nord: #d8dee9ff;
-  --shiki-nord-font-style: inherit;
-  --shiki-tokyo: #9abdf5;
-  --shiki-tokyo-font-style: inherit;
-}
-
-._sk_1ibxmr {
+._sk_tbm5ci {
   color: #40a02b;
   --shiki-dark: #a6e3a1;
-  --shiki-nord: #a3be8c;
-  --shiki-tokyo: #9abdf5;
-}
-
-._sk_1nor8y {
-  color: #df8e1d;
-  --shiki-dark: #f9e2af;
-  --shiki-nord: #d8dee9ff;
+  --shiki-nord: #ebcb8b;
   --shiki-tokyo: #c0caf5;
+  --shiki-rose: #31748f;
 }
 
-._sk_2eq1an {
-  color: #1e66f5;
-  --shiki-dark: #89b4fa;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #89ddff;
-}
-
-._sk_ot4ncs {
+._sk_1hyz35 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #81a1c1;
   --shiki-tokyo: #ba3c97;
+  --shiki-rose: #6e6a86;
 }
 
-._sk_10nd3g {
+._sk_jafgm4 {
+  color: #8839ef;
+  --shiki-dark: #cba6f7;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #ba3c97;
+  --shiki-rose: #6e6a86;
+}
+
+._sk_15ilh2 {
+  color: #8839ef;
+  --shiki-dark: #cba6f7;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #f7768e;
+  --shiki-rose: #9ccfd8;
+}
+
+._sk_u7q43h {
+  color: #7c7f93;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #9399b2;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #81a1c1;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #e0af68;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #908caa;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_20g5hh {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #a3be8c;
   --shiki-tokyo: #9ece6a;
+  --shiki-rose: #f6c177;
 }
 
-._sk_xl7hdp {
+._sk_1ek82f {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #eceff4;
   --shiki-tokyo: #89ddff;
+  --shiki-rose: #f6c177;
 }
 
-._sk_19tr4n {
+._sk_uwnxsv {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #a3be8c;
+  --shiki-tokyo: #9abdf5;
+  --shiki-rose: #e0def4;
+}
+
+._sk_2e9lcl {
   color: #1e66f5;
   --shiki-dark: #89b4fa;
   --shiki-nord: #5e81ac;
   --shiki-tokyo: #f7768e;
+  --shiki-rose: #9ccfd8;
 }
 
-._sk_sgw5xr {
+._sk_9sdaq2 {
   color: #4c4f69;
   --shiki-dark: #cdd6f4;
   --shiki-nord: #d8dee9ff;
   --shiki-tokyo: #de5971;
+  --shiki-rose: #e0def4;
 }
 
-._sk_1yhtph {
-  color: #8839ef;
-  --shiki-dark: #cba6f7;
-  --shiki-nord: #81a1c1;
-  --shiki-tokyo: #ba3c97;
-}
-
-._sk_t3gfox {
+._sk_186p8o {
   color: #8839ef;
   --shiki-dark: #cba6f7;
   --shiki-nord: #5e81ac;
   --shiki-tokyo: #89ddff;
+  --shiki-rose: #31748f;
 }
 
-._sk_2b34ud {
+._sk_jcmrxi {
+  color: #df8e1d;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #f9e2af;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #8fbcbb;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #c0caf5;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #ebbcba;
+  --shiki-rose-font-style: inherit;
+}
+
+._sk_1qrrfd {
+  color: #8839ef;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #cba6f7;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #81a1c1;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #bb9af7;
+  --shiki-tokyo-font-style: italic;
+  --shiki-rose: #31748f;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_i3eqou {
   color: #df8e1d;
   --shiki-light-font-style: italic;
   --shiki-dark: #f9e2af;
@@ -1561,9 +2104,11 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #0db9d7;
   --shiki-tokyo-font-style: italic;
+  --shiki-rose: #9ccfd8;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_b2m26z {
+._sk_zydw3a {
   color: #4c4f69;
   --shiki-light-font-style: italic;
   --shiki-dark: #cdd6f4;
@@ -1572,9 +2117,11 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #c0caf5;
   --shiki-tokyo-font-style: italic;
+  --shiki-rose: #ebbcba;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_19kq3h {
+._sk_21xaeo {
   color: #179299;
   --shiki-light-font-style: inherit;
   --shiki-dark: #94e2d5;
@@ -1583,51 +2130,37 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-style: inherit;
   --shiki-tokyo: #89ddff;
   --shiki-tokyo-font-style: italic;
+  --shiki-rose: #31748f;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_1l7b8r {
-  color: #7c7f93;
-  --shiki-dark: #9399b2;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #89ddff;
-}
-
-._sk_1hyunr {
-  color: #04a5e5;
-  --shiki-dark: #89dceb;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #89ddff;
-}
-
-._sk_61b1s6 {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #c0caf5;
-}
-
-._sk_1kuxmi {
-  color: #7c7f93;
-  --shiki-dark: #9399b2;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #e0af68;
-}
-
-._sk_kr7bdp {
+._sk_v3mrvm {
   color: #40a02b;
+  --shiki-light-font-style: inherit;
   --shiki-dark: #a6e3a1;
-  --shiki-nord: #81a1c1;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #eceff4;
+  --shiki-nord-font-style: inherit;
   --shiki-tokyo: #89ddff;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #f6c177;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_14wbpx {
-  color: #4c4f69;
-  --shiki-dark: #cdd6f4;
-  --shiki-nord: #8fbcbb;
-  --shiki-tokyo: #9abdf5;
+._sk_3e6394 {
+  color: #40a02b;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #a6e3a1;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #a3be8c;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #9ece6a;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #f6c177;
+  --shiki-rose-font-style: italic;
 }
 
-._sk_1swkum {
+._sk_1eq952 {
   color: #d20f39;
   --shiki-light-font-weight: inherit;
   --shiki-dark: #f38ba8;
@@ -1636,9 +2169,11 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-weight: inherit;
   --shiki-tokyo: #89ddff;
   --shiki-tokyo-font-weight: bold;
+  --shiki-rose: #908caa;
+  --shiki-rose-font-weight: bold;
 }
 
-._sk_1ij3e7 {
+._sk_ngcjsv {
   color: #d20f39;
   --shiki-light-font-weight: inherit;
   --shiki-dark: #f38ba8;
@@ -1647,4 +2182,191 @@ pre.shiki.has-focused > code {
   --shiki-nord-font-weight: inherit;
   --shiki-tokyo: #89ddff;
   --shiki-tokyo-font-weight: bold;
+  --shiki-rose: #9ccfd8;
+  --shiki-rose-font-weight: bold;
 }
+
+._sk_1ndkbg {
+  color: #fe640b;
+  --shiki-light-font-weight: inherit;
+  --shiki-dark: #fab387;
+  --shiki-dark-font-weight: inherit;
+  --shiki-nord: #81a1c1;
+  --shiki-nord-font-weight: inherit;
+  --shiki-tokyo: #61bdf2;
+  --shiki-tokyo-font-weight: bold;
+  --shiki-rose: #908caa;
+  --shiki-rose-font-weight: bold;
+}
+
+._sk_90ysr2 {
+  color: #fe640b;
+  --shiki-light-font-weight: inherit;
+  --shiki-dark: #fab387;
+  --shiki-dark-font-weight: inherit;
+  --shiki-nord: #88c0d0;
+  --shiki-nord-font-weight: inherit;
+  --shiki-tokyo: #61bdf2;
+  --shiki-tokyo-font-weight: bold;
+  --shiki-rose: #9ccfd8;
+  --shiki-rose-font-weight: bold;
+}
+
+._sk_10afqs {
+  color: #7c7f93;
+  --shiki-dark: #9399b2;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #908caa;
+}
+
+._sk_oiga1b {
+  color: #04a5e5;
+  --shiki-dark: #89dceb;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #e0def4;
+}
+
+._sk_13bifu {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #c0caf5;
+  --shiki-rose: #e0def4;
+}
+
+._sk_1y8512 {
+  color: #df8e1d;
+  --shiki-light-font-weight: inherit;
+  --shiki-dark: #f9e2af;
+  --shiki-dark-font-weight: inherit;
+  --shiki-nord: #81a1c1;
+  --shiki-nord-font-weight: inherit;
+  --shiki-tokyo: #7aa2f7;
+  --shiki-tokyo-font-weight: bold;
+  --shiki-rose: #908caa;
+  --shiki-rose-font-weight: bold;
+}
+
+._sk_6n2meq {
+  color: #df8e1d;
+  --shiki-light-font-weight: inherit;
+  --shiki-dark: #f9e2af;
+  --shiki-dark-font-weight: inherit;
+  --shiki-nord: #88c0d0;
+  --shiki-nord-font-weight: inherit;
+  --shiki-tokyo: #7aa2f7;
+  --shiki-tokyo-font-weight: bold;
+  --shiki-rose: #9ccfd8;
+  --shiki-rose-font-weight: bold;
+}
+
+._sk_xp8evv {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #e0def4;
+}
+
+._sk_27r4ll {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #d8dee9ff;
+  --shiki-tokyo: #c0cefc;
+  --shiki-rose: #e0def4;
+}
+
+._sk_1cs5bu {
+  color: #7c7f93;
+  --shiki-dark: #9399b2;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #9abdf5;
+  --shiki-rose: #908caa;
+}
+
+._sk_iygcsr {
+  color: #4c4f69;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #cdd6f4;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #8fbcbb;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #73daca;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #ebbcba;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_26utif {
+  color: #1e66f5;
+  --shiki-dark: #89b4fa;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #7aa2f7;
+  --shiki-rose: #e0def4;
+}
+
+._sk_1ijvbe {
+  color: #e64553;
+  --shiki-light-font-style: italic;
+  --shiki-dark: #eba0ac;
+  --shiki-dark-font-style: italic;
+  --shiki-nord: #8fbcbb;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #c0caf5;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: inherit;
+}
+
+._sk_1wrm2x {
+  color: #40a02b;
+  --shiki-dark: #a6e3a1;
+  --shiki-nord: #81a1c1;
+  --shiki-tokyo: #89ddff;
+  --shiki-rose: #f6c177;
+}
+
+._sk_xtdtnt {
+  color: #4c4f69;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #cdd6f4;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #8fbcbb;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #c0caf5;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #e0def4;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_2c4py3 {
+  color: #7c7f93;
+  --shiki-light-font-style: inherit;
+  --shiki-dark: #9399b2;
+  --shiki-dark-font-style: inherit;
+  --shiki-nord: #8fbcbb;
+  --shiki-nord-font-style: inherit;
+  --shiki-tokyo: #e0af68;
+  --shiki-tokyo-font-style: inherit;
+  --shiki-rose: #908caa;
+  --shiki-rose-font-style: italic;
+}
+
+._sk_1dndbb {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #9abdf5;
+  --shiki-rose: #9ccfd8;
+}
+
+._sk_1d6im5 {
+  color: #4c4f69;
+  --shiki-dark: #cdd6f4;
+  --shiki-nord: #8fbcbb;
+  --shiki-tokyo: #9abdf5;
+  --shiki-rose: #e0def4;
+}
+

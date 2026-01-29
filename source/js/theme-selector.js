@@ -7,7 +7,7 @@
 
   const THEME_MAP = {
     mocha: "night",
-    macchiato: "night",
+    rose_pine: "night",
     nord: "light",
     nord_night: "night",
     tokyo_night: "night",

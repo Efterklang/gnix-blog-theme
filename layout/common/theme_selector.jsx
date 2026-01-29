@@ -62,11 +62,11 @@ class ThemeSelector extends Component {
             </div>
             <div
               class="theme-option"
-              data-theme-option="macchiato"
+              data-theme-option="rose_pine"
               data-index="4"
               onclick="window.selectThemeOption?.(event, 4)"
             >
-              <span class="theme-name">🌺 Macchiato</span>
+              <span class="theme-name">🌹 Rose Pine</span>
               <span class="theme-check">
                 <iconify-icon icon="mingcute:check-fill"></iconify-icon>
               </span>
