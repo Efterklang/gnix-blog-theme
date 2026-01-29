@@ -41,6 +41,11 @@
       "quoteStyle": "double"
     }
   },
+  "css": {
+    "formatter": {
+      "lineWidth": 200
+    }
+  },
   "assist": {
     "enabled": true,
     "actions": {

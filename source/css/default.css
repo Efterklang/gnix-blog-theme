@@ -1,18 +1,10 @@
 @charset "UTF-8";
 
 :root {
-  --font-serif:
-    "PT Serif", Georgia, "Times New Roman", Times, "Songti SC", "STSong", serif;
-  --font-sans-serif:
-    Avenir, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
-    "Open Sans", "Helvetica Neue", sans-serif;
-  --font-mono:
-    "Maple Mono NF CN Local", "Maple Mono NF CN", "SF Mono", "SF Pro", Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace;
-  --font-article:
-    Avenir, system-ui, "Segoe UI", Roboto, Helvetica, Arial, "PingFang SC",
-    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
-    "Source Han Sans CN", sans-serif;
+  --font-serif: Georgia, "Times New Roman", Times, "Songti SC", "STSong", serif;
+  --font-sans-serif: Avenir, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  --font-mono: "Maple Mono NF CN Local", "Maple Mono NF CN", "SF Mono", "SF Pro", Monaco, Consolas, monospace;
+  --font-article: Avenir, system-ui, "Segoe UI", Roboto, Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans CN", sans-serif;
   --font-handwriting: "Bradley Hand", "homemade-apple", cursive;
   --radius: 12px;
   --spaceing: 0.25rem;
@@ -49,34 +41,34 @@
   --crust: #dce0e8;
 }
 
-:where([data-theme="macchiato"]) {
+:where([data-theme="rose_pine"]) {
   color-scheme: dark;
-  --rosewater: #f4dbd6;
-  --flamingo: #f0c6c6;
-  --pink: #f5bde6;
-  --mauve: #c6a0f6;
-  --red: #ed8796;
-  --maroon: #ee99a0;
-  --peach: #f5a97f;
-  --yellow: #eed49f;
-  --green: #a6da95;
-  --teal: #8bd5ca;
-  --sky: #91d7e3;
-  --sapphire: #7dc4e4;
-  --blue: #8aadf4;
-  --lavender: #b7bdf8;
-  --text: #cad3f5;
-  --subtext1: #b8c0e0;
-  --subtext0: #a5adcb;
-  --overlay2: #939ab7;
-  --overlay1: #8087a2;
-  --overlay0: #6e738d;
-  --surface2: #5b6078;
-  --surface1: #494d64;
-  --surface0: #363a4f;
-  --base: #24273a;
-  --mantle: #1e2030;
-  --crust: #181926;
+  --rosewater: #f6c177;
+  --flamingo: #f2cdcd;
+  --pink: #c4a7e7;
+  --mauve: #cba6f7;
+  --red: #eb6f92;
+  --maroon: #ea9a97;
+  --peach: #f2cdcd;
+  --yellow: #f6c177;
+  --green: #9ccfd8;
+  --teal: #31748f;
+  --sky: #9ccfd8;
+  --sapphire: #31748f;
+  --blue: #9ccfd8;
+  --lavender: #c4a7e7;
+  --text: #e0def4;
+  --subtext1: #908caa;
+  --subtext0: #6e6a86;
+  --overlay2: #57526e;
+  --overlay1: #454158;
+  --overlay0: #3c3b4d;
+  --surface2: #302d41;
+  --surface1: #26233a;
+  --surface0: #1f1d2e;
+  --base: #191726;
+  --mantle: #161422;
+  --crust: #11111b;
 }
 
 :where([data-theme="nord"]) {
@@ -403,6 +395,7 @@ body {
   width: auto;
   display: flex;
   min-height: 4rem;
+
   button {
     background: none;
     border: none;
@@ -429,6 +422,7 @@ body {
   svg {
     width: 1.2em;
   }
+
   .navbar-item {
     &:hover {
       scale: 1.1;
@@ -876,6 +870,7 @@ body {
       top: 0px;
     }
   }
+
   ol {
     list-style-position: outside;
     padding-left: 2em;
