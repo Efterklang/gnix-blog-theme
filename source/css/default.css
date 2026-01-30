@@ -4,7 +4,7 @@
   --font-serif: Georgia, "Times New Roman", Times, "Songti SC", "STSong", serif;
   --font-sans-serif: Avenir, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   --font-mono: "Maple Mono NF CN Local", "Maple Mono NF CN", "SF Mono", "SF Pro", Monaco, Consolas, monospace;
-  --font-article: Avenir, system-ui, "Segoe UI", Roboto, Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans CN", sans-serif;
+  --font-article: Avenir, system-ui, "Segoe UI", Roboto, Helvetica, Arial, "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans CN", sans-serif;
   --font-handwriting: "Bradley Hand", "homemade-apple", cursive;
   --radius: 12px;
   --spaceing: 0.25rem;
@@ -242,14 +242,6 @@ input:-webkit-autofill {
   box-shadow: 0 0 0 1000px var(--surface0) inset;
 }
 
-.pagination-link.is-current,
-.pagination-link:hover,
-.pagination-next:hover,
-.pagination-previous:hover {
-  background-color: var(--lavender);
-  color: var(--base);
-}
-
 .searchbox-input {
   color: var(--text);
   background-color: var(--mantle);
@@ -346,7 +338,6 @@ html {
 
 body {
   min-height: 100%;
-  font-weight: 400;
   line-height: 1.5;
   display: flex;
   flex-direction: column;
@@ -443,116 +434,54 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
   visibility: hidden;
   pointer-events: none;
-}
-
-.theme-selector-content {
-  position: relative;
-  z-index: 1;
-  background-color: var(--crust);
-  border-radius: 16px;
-  border: 2px solid var(--surface0);
-  padding: 2rem;
-  width: 90%;
-  max-width: 480px;
-  transform: scale(0.9);
-  opacity: 0;
-  transition:
-    transform 0.2s ease,
-    opacity 0.2s ease;
-}
-
-#theme-selector-modal.is-active {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-
-  .theme-selector-content {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.theme-selector-header {
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.theme-selector-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 0.5rem;
-}
-
-.theme-selector-hint {
-  font-size: 0.875rem;
-  color: var(--subtext0);
-  font-family: var(--font-mono);
+  backdrop-filter: blur(8px);
 }
 
 .theme-selector-list {
+  background-color: hsl(from var(--mantle) h s l / 0.8);
+  border-radius: var(--radius);
+  border: 2px solid var(--mauve);
+  width: 90%;
+  max-width: 480px;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  max-height: 60vh;
-  overflow-y: auto;
   padding: 0.5rem;
+}
+
+#theme-selector-modal.is-active {
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .theme-option {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  text-align: center;
   padding: 1rem 1.25rem;
-  background-color: var(--mantle);
-  border-radius: 12px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
   position: relative;
 
+  &.is-focused,
   &:hover {
-    background-color: var(--surface0);
-    border-color: var(--blue);
-    transform: translateX(4px);
-  }
-
-  &.is-focused {
-    background-color: var(--surface1);
-    transform: translateX(8px);
+    color: var(--rosewater);
   }
 
   .theme-name {
     flex: 1;
-    font-size: 1.125rem;
-    font-weight: 600;
+    font-size: 1.5rem;
+    word-spacing: 0.5rem;
+    letter-spacing: 0.05rem;
+    font-family: var(--font-serif);
   }
-
-  .theme-check {
-    font-size: 1rem;
-    color: var(--green);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-}
-
-.theme-option.is-active .theme-check {
-  opacity: 1;
 }
 
 /* #endregion Theme Selector */
 
 /* #region Pagination */
-
-.pagination {
-  margin: -0.25rem;
-}
-
-.pagination:not(:last-child) {
-  margin-bottom: 0.5rem;
-}
 
 .pagination,
 .pagination-list {
@@ -560,6 +489,10 @@ body {
   display: flex;
   justify-content: center;
   text-align: center;
+}
+
+.pagination-link.is-current {
+  color: var(--lavender);
 }
 
 .pagination-ellipsis,
