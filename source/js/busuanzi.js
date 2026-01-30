@@ -1,8 +1,7 @@
 !(() => {
   const TYPES = ["site_pv", "site_uv", "page_pv", "page_uv"];
   const script = document.currentScript;
-  const api =
-    script.getAttribute("data-api") || "https://bsz.dusays.com:9001/api";
+  const api = script.getAttribute("data-api") || "https://bsz.dusays.com:9001/api";
   const STORAGE_KEY = "bsz-id";
   const BASE = { site_pv: 12801, site_uv: 2450 };
 

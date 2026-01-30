@@ -1,8 +1,4 @@
-const {
-  Component,
-  Fragment,
-  loadComponent,
-} = require("../../include/util/common");
+const { Component, Fragment, loadComponent } = require("../../include/util/common");
 
 module.exports = class extends Component {
   render() {
@@ -17,16 +13,7 @@ module.exports = class extends Component {
             return null;
           }
           const Plugin = loadComponent(`plugin/${name}`);
-          return (
-            <Plugin
-              site={site}
-              config={config}
-              page={page}
-              helper={helper}
-              plugin={plugins[name]}
-              head={head}
-            />
-          );
+          return <Plugin site={site} config={config} page={page} helper={helper} plugin={plugins[name]} head={head} />;
         })}
       </Fragment>
     );

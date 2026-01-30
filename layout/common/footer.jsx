@@ -2,27 +2,10 @@ const { Component, cacheComponent } = require("../../include/util/common");
 
 class Footer extends Component {
   render() {
-    const {
-      siteTitle,
-      siteYear,
-      author,
-      links,
-      subdomains,
-      archives,
-      copyright,
-      showVisitorCounter,
-      visitorCounterTitle,
-      ICPRecord,
-    } = this.props;
+    const { siteTitle, siteYear, author, links, subdomains, archives, copyright, showVisitorCounter, visitorCounterTitle, ICPRecord } = this.props;
 
     const svg_line = (
-      <svg
-        aria-hidden="true"
-        width="100%"
-        height="8"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg aria-hidden="true" width="100%" height="8" fill="none" xmlns="http://www.w3.org/2000/svg">
         <pattern id="a" width="91" height="8" patternUnits="userSpaceOnUse">
           <g clip-path="url(#clip0_2426_11367)">
             <path
@@ -49,31 +32,17 @@ class Footer extends Component {
           {showVisitorCounter ? (
             <>
               <br />
-              <span
-                id="busuanzi_container_site_uv"
-                dangerouslySetInnerHTML={{ __html: visitorCounterTitle }}
-              ></span>
+              <span id="busuanzi_container_site_uv" dangerouslySetInnerHTML={{ __html: visitorCounterTitle }}></span>
             </>
           ) : null}
           {ICPRecord ? (
             <>
               <br />
-              <a
-                href="https://beian.miit.gov.cn/"
-                style={"color: inherit"}
-                target="_blank"
-                rel="noopener"
-                dangerouslySetInnerHTML={{ __html: ICPRecord }}
-              ></a>
+              <a href="https://beian.miit.gov.cn/" style={"color: inherit"} target="_blank" rel="noopener" dangerouslySetInnerHTML={{ __html: ICPRecord }}></a>
             </>
           ) : null}
         </p>
-        {copyright ? (
-          <p
-            class="footer-meta"
-            dangerouslySetInnerHTML={{ __html: copyright }}
-          ></p>
-        ) : null}
+        {copyright ? <p class="footer-meta" dangerouslySetInnerHTML={{ __html: copyright }}></p> : null}
       </div>
     );
 
@@ -85,18 +54,8 @@ class Footer extends Component {
             ? Object.keys(links).map((name) => {
                 const link = links[name];
                 return (
-                  <a
-                    class="footer-link"
-                    target="_blank"
-                    rel="noopener"
-                    title={name}
-                    href={link.url}
-                  >
-                    {link.icon ? (
-                      <iconify-icon icon={link.icon}></iconify-icon>
-                    ) : (
-                      name
-                    )}
+                  <a class="footer-link" target="_blank" rel="noopener" title={name} href={link.url}>
+                    {link.icon ? <iconify-icon icon={link.icon}></iconify-icon> : name}
                   </a>
                 );
               })
@@ -113,13 +72,7 @@ class Footer extends Component {
             ? Object.keys(subdomains).map((name) => {
                 const link = subdomains[name];
                 return (
-                  <a
-                    class="footer-link"
-                    target="_blank"
-                    rel="noopener"
-                    title={name}
-                    href={link.url}
-                  >
+                  <a class="footer-link" target="_blank" rel="noopener" title={name} href={link.url}>
                     {name}
                   </a>
                 );
@@ -219,10 +172,7 @@ module.exports = cacheComponent(Footer, "common.footer", (props) => {
     archives,
     copyright: footer?.copyright ?? "",
     showVisitorCounter: plugins && plugins.busuanzi === true,
-    visitorCounterTitle: _p(
-      "plugin.visitor_count",
-      '<span id="busuanzi_value_site_uv">0</span>',
-    ),
+    visitorCounterTitle: _p("plugin.visitor_count", '<span id="busuanzi_value_site_uv">0</span>'),
     ICPRecord: footer?.ICPRecord || "",
   };
 });

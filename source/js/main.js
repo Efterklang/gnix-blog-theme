@@ -37,12 +37,8 @@ function activateTab(container, targetIndex) {
   // 先重置该容器内所有 Tab 的状态
   resetTabsState(container);
 
-  const buttonToActivate = container.querySelector(
-    `.tabs-tab-button[data-tab="${targetIndex}"]`,
-  );
-  const contentToActivate = container.querySelector(
-    `.tabs-tab-content[data-index="${targetIndex}"]`,
-  );
+  const buttonToActivate = container.querySelector(`.tabs-tab-button[data-tab="${targetIndex}"]`);
+  const contentToActivate = container.querySelector(`.tabs-tab-content[data-index="${targetIndex}"]`);
 
   if (buttonToActivate) {
     buttonToActivate.classList.add("active");
@@ -77,9 +73,7 @@ function resetTabsState(container) {
  * @param {string} syncId - 用于同步的 data-id
  */
 function syncRelatedTabs(syncId) {
-  const relatedButtons = document.querySelectorAll(
-    `.tabs-tab-button[data-id="${syncId}"]`,
-  );
+  const relatedButtons = document.querySelectorAll(`.tabs-tab-button[data-id="${syncId}"]`);
 
   relatedButtons.forEach((button) => {
     const container = button.closest(".tabs-tabs-wrapper");
@@ -143,9 +137,7 @@ function handleMermaid() {
   if (window.initMermaidDiagram) {
     runInit();
   } else {
-    const existingScript = document.querySelector(
-      `script[src="${adapterUrl}"]`,
-    );
+    const existingScript = document.querySelector(`script[src="${adapterUrl}"]`);
     if (existingScript) {
       existingScript.addEventListener("load", runInit);
     } else {
@@ -222,10 +214,7 @@ function handleNavbarClick(e) {
 
 function tableWrapFix() {
   document.querySelectorAll(".content table").forEach((table) => {
-    if (
-      table.hasAttribute("data-nowrap") ||
-      table.parentElement.classList.contains("table-wrapper")
-    ) {
+    if (table.hasAttribute("data-nowrap") || table.parentElement.classList.contains("table-wrapper")) {
       return;
     }
     // if width exceeds container, wrap it

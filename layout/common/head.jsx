@@ -20,9 +20,7 @@ function getPageTitle(page, siteTitle, helper) {
     title = helper._p("common.tag", Infinity);
   }
 
-  return [title, siteTitle]
-    .filter((str) => typeof str !== "undefined" && str.trim() !== "")
-    .join(" - ");
+  return [title, siteTitle].filter((str) => typeof str !== "undefined" && str.trim() !== "").join(" - ");
 }
 
 module.exports = class extends Component {
@@ -30,14 +28,7 @@ module.exports = class extends Component {
     const { site, config, helper, page } = this.props;
     const { url_for, is_post } = helper;
     const { url, head = {}, article } = config;
-    const {
-      meta = [],
-      open_graph = {},
-      structured_data = {},
-      canonical_url = page.permalink,
-      rss,
-      favicon,
-    } = head;
+    const { meta = [], open_graph = {}, structured_data = {}, canonical_url = page.permalink, rss, favicon } = head;
 
     const noIndex = helper.is_archive() || helper.is_tag();
 
@@ -72,33 +63,16 @@ module.exports = class extends Component {
     }
 
     let openGraphImages = images;
-    if (
-      typeof open_graph === "object" &&
-      open_graph !== null &&
-      ((Array.isArray(open_graph.image) && open_graph.image.length > 0) ||
-        typeof open_graph.image === "string")
-    ) {
+    if (typeof open_graph === "object" && open_graph !== null && ((Array.isArray(open_graph.image) && open_graph.image.length > 0) || typeof open_graph.image === "string")) {
       openGraphImages = open_graph.image;
-    } else if (
-      (Array.isArray(page.photos) && page.photos.length > 0) ||
-      typeof page.photos === "string"
-    ) {
+    } else if ((Array.isArray(page.photos) && page.photos.length > 0) || typeof page.photos === "string") {
       openGraphImages = page.photos;
     }
 
     let structuredImages = images;
-    if (
-      typeof structured_data === "object" &&
-      structured_data !== null &&
-      ((Array.isArray(structured_data.image) &&
-        structured_data.image.length > 0) ||
-        typeof structured_data.image === "string")
-    ) {
+    if (typeof structured_data === "object" && structured_data !== null && ((Array.isArray(structured_data.image) && structured_data.image.length > 0) || typeof structured_data.image === "string")) {
       structuredImages = structured_data.image;
-    } else if (
-      (Array.isArray(page.photos) && page.photos.length > 0) ||
-      typeof page.photos === "string"
-    ) {
+    } else if ((Array.isArray(page.photos) && page.photos.length > 0) || typeof page.photos === "string") {
       structuredImages = page.photos;
     }
 
@@ -125,10 +99,7 @@ module.exports = class extends Component {
 
     return (
       <head>
-        <script
-          data-swup-ignore-script
-          dangerouslySetInnerHTML={{ __html: themeInitScript }}
-        ></script>
+        <script data-swup-ignore-script dangerouslySetInnerHTML={{ __html: themeInitScript }}></script>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {noIndex ? <meta name="robots" content="noindex" /> : null}
@@ -141,16 +112,8 @@ module.exports = class extends Component {
             date={page.date}
             updated={page.updated}
             author={open_graph.author || config.author}
-            description={
-              open_graph.description ||
-              page.description ||
-              page.excerpt ||
-              page.content ||
-              config.description
-            }
-            keywords={
-              (page.tags?.length ? page.tags : undefined) || config.keywords
-            }
+            description={open_graph.description || page.description || page.excerpt || page.content || config.description}
+            keywords={(page.tags?.length ? page.tags : undefined) || config.keywords}
             url={open_graph.url || page.permalink || url}
             images={openGraphImages}
             siteName={open_graph.site_name || config.title}
@@ -166,13 +129,7 @@ module.exports = class extends Component {
         {typeof structured_data === "object" && structured_data !== null ? (
           <StructuredData
             title={structured_data.title || page.title || config.title}
-            description={
-              structured_data.description ||
-              page.description ||
-              page.excerpt ||
-              page.content ||
-              config.description
-            }
+            description={structured_data.description || page.description || page.excerpt || page.content || config.description}
             url={structured_data.url || page.permalink || url}
             author={structured_data.author || config.author}
             publisher={structured_data.publisher || config.title}
@@ -183,66 +140,20 @@ module.exports = class extends Component {
           />
         ) : null}
         {canonical_url ? <link rel="canonical" href={canonical_url} /> : null}
-        {rss ? (
-          <link
-            rel="alternate"
-            href={url_for(rss)}
-            title={config.title}
-            type="application/atom+xml"
-          />
-        ) : null}
+        {rss ? <link rel="alternate" href={url_for(rss)} title={config.title} type="application/atom+xml" /> : null}
         {favicon ? <link rel="icon" href={url_for(favicon)} /> : null}
         <link rel="stylesheet" href={url_for("/css/default.css")} />
-        <link
-          rel="stylesheet"
-          href={url_for("/css/responsive/mobile.css")}
-          media="screen and (max-width:768px)"
-        />
-        <link
-          rel="stylesheet"
-          href={url_for("/css/responsive/tablet.css")}
-          media="screen and (min-width:769px)"
-        />
-        <link
-          rel="stylesheet"
-          href={url_for("/css/responsive/touch.css")}
-          media="screen and (max-width:1023px)"
-        />
-        <link
-          rel="stylesheet"
-          href={url_for("/css/responsive/desktop.css")}
-          media="screen and (min-width:1024px)"
-        />
-        <link
-          rel="preload"
-          as="style"
-          href={url_for("/css/callout_blocks.css")}
-          onload="this.onload=null;this.rel='stylesheet'"
-        />
+        <link rel="stylesheet" href={url_for("/css/responsive/mobile.css")} media="screen and (max-width:768px)" />
+        <link rel="stylesheet" href={url_for("/css/responsive/tablet.css")} media="screen and (min-width:769px)" />
+        <link rel="stylesheet" href={url_for("/css/responsive/touch.css")} media="screen and (max-width:1023px)" />
+        <link rel="stylesheet" href={url_for("/css/responsive/desktop.css")} media="screen and (min-width:1024px)" />
+        <link rel="preload" as="style" href={url_for("/css/callout_blocks.css")} onload="this.onload=null;this.rel='stylesheet'" />
         {/* Maple Mono CN */}
         <link rel="preconnect" href="https://fontsapi.zeoseven.com" />
-        <link
-          rel="preload"
-          as="style"
-          href="https://fontsapi.zeoseven.com/442/main/result.css"
-          onload="this.onload=null;this.rel='stylesheet'"
-        />
+        <link rel="preload" as="style" href="https://fontsapi.zeoseven.com/442/main/result.css" onload="this.onload=null;this.rel='stylesheet'" />
         <link rel="stylesheet" href="/css/shiki/shiki.css" />
-        <Plugins
-          site={site}
-          config={config}
-          helper={helper}
-          page={page}
-          head={true}
-        />
-        {adsenseClientId ? (
-          <script
-            data-swup-ignore-script
-            data-ad-client={adsenseClientId}
-            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-            async
-          ></script>
-        ) : null}
+        <Plugins site={site} config={config} helper={helper} page={page} head={true} />
+        {adsenseClientId ? <script data-swup-ignore-script data-ad-client={adsenseClientId} src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" async></script> : null}
       </head>
     );
   }

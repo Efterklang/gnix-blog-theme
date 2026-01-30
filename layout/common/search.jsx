@@ -1,8 +1,4 @@
-const {
-  Component,
-  loadComponent,
-  handleWidgetError,
-} = require("../../include/util/common");
+const { Component, loadComponent, handleWidgetError } = require("../../include/util/common");
 
 module.exports = class extends Component {
   render() {

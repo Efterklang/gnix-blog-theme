@@ -11,15 +11,7 @@ module.exports = class extends Component {
     return (
       <a href={url_for(page.link || page.path)} class="cover-image">
         <img class="cover-lqip" src={lqip_src} alt="placeholder" />
-        <img
-          class="cover-origin"
-          src={cover}
-          alt={page.title || cover}
-          srcset={imageSrcset}
-          referrerpolicy="no-referrer"
-          decoding="async"
-          loading={index ? "lazy" : "eager"}
-        />
+        <img class="cover-origin" src={cover} alt={page.title || cover} srcset={imageSrcset} referrerpolicy="no-referrer" decoding="async" loading={index ? "lazy" : "eager"} />
       </a>
     );
   }

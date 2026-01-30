@@ -2,8 +2,7 @@ const { Component } = require("inferno");
 
 module.exports = class extends Component {
   render() {
-    const { current, total, baseUrl, path, urlFor, prevTitle, nextTitle } =
-      this.props;
+    const { current, total, baseUrl, path, urlFor, prevTitle, nextTitle } = this.props;
 
     function getPageUrl(i) {
       return urlFor(i === 1 ? baseUrl : `${baseUrl + path}/${i}/`);
@@ -38,21 +37,14 @@ module.exports = class extends Component {
           } else if (i - l !== 1) {
             elements.push(
               <li>
-                <span
-                  class="pagination-ellipsis"
-                  style="pointer-events: none;"
-                  dangerouslySetInnerHTML={{ __html: "&hellip;" }}
-                ></span>
+                <span class="pagination-ellipsis" style="pointer-events: none;" dangerouslySetInnerHTML={{ __html: "&hellip;" }}></span>
               </li>,
             );
           }
         }
         elements.push(
           <li>
-            <a
-              class={`pagination-link${c === i ? " is-current" : ""}`}
-              href={getPageUrl(i)}
-            >
+            <a class={`pagination-link${c === i ? " is-current" : ""}`} href={getPageUrl(i)}>
               {i}
             </a>
           </li>,
@@ -63,28 +55,14 @@ module.exports = class extends Component {
     }
 
     return (
-      <nav
-        class="pagination is-centered"
-        aria-label="pagination"
-        style="padding-top: 1.5em;"
-      >
-        <a
-          href={getPageUrl(current - 1)}
-          class={`pagination-previous`}
-          style={current > 1 ? {} : { visibility: "hidden" }}
-        >
+      <nav class="pagination is-centered" aria-label="pagination" style="padding-top: 1.5em;">
+        <a href={getPageUrl(current - 1)} class={`pagination-previous`} style={current > 1 ? {} : { visibility: "hidden" }}>
           {prevTitle}
         </a>
-        <a
-          href={getPageUrl(current + 1)}
-          class={`pagination-next`}
-          style={current < total ? {} : { visibility: "hidden" }}
-        >
+        <a href={getPageUrl(current + 1)} class={`pagination-next`} style={current < total ? {} : { visibility: "hidden" }}>
           {nextTitle}
         </a>
-        <ul class="pagination-list is-hidden-mobile">
-          {pagination(current, total)}
-        </ul>
+        <ul class="pagination-list is-hidden-mobile">{pagination(current, total)}</ul>
       </nav>
     );
   }

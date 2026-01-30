@@ -24,9 +24,7 @@
     // Initialize with current theme
     mermaid.initialize({
       startOnLoad: false,
-      theme: document.documentElement.classList.contains("night")
-        ? "dark"
-        : "default",
+      theme: document.documentElement.classList.contains("night") ? "dark" : "default",
       darkMode: document.documentElement.classList.contains("night"),
       themeVariables,
       securityLevel: "strict",
@@ -71,8 +69,7 @@
         const cl = btn.classList;
 
         if (cl.contains("zoom-in")) this.scale = Math.min(this.scale * 1.2, 5);
-        else if (cl.contains("zoom-out"))
-          this.scale = Math.max(this.scale / 1.2, 0.2);
+        else if (cl.contains("zoom-out")) this.scale = Math.max(this.scale / 1.2, 0.2);
         else if (cl.contains("reset")) {
           this.scale = 1;
           this.tx = 0;
@@ -151,9 +148,7 @@
 
   // Theme Observer
   const observer = new MutationObserver((mutations) => {
-    const isThemeChange = mutations.some(
-      (m) => m.type === "attributes" && m.attributeName === "class",
-    );
+    const isThemeChange = mutations.some((m) => m.type === "attributes" && m.attributeName === "class");
     if (isThemeChange) {
       pruneInstances();
       instances.forEach(({ container, code, themeVariables }, id) => {

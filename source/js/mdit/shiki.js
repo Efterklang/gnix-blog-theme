@@ -37,9 +37,7 @@ const FeatureHandlers = {
   },
 
   toggleWrap(element) {
-    const code = element
-      .closest(SELECTORS.figureHighlight)
-      .querySelector("code");
+    const code = element.closest(SELECTORS.figureHighlight).querySelector("code");
 
     function setWrap(enabled) {
       Object.assign(code.style, {

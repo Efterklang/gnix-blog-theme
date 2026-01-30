@@ -13,15 +13,7 @@ module.exports = class extends Component {
           <Article config={config} page={post} helper={helper} index={true} />
         ))}
         {page.total > 1 ? (
-          <Paginator
-            current={page.current}
-            total={page.total}
-            baseUrl={page.base}
-            path={config.pagination_dir}
-            urlFor={url_for}
-            prevTitle={__("common.prev")}
-            nextTitle={__("common.next")}
-          />
+          <Paginator current={page.current} total={page.total} baseUrl={page.base} path={config.pagination_dir} urlFor={url_for} prevTitle={__("common.prev")} nextTitle={__("common.next")} />
         ) : null}
       </Fragment>
     );

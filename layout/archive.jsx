@@ -90,19 +90,10 @@ module.exports = class extends Component {
       return (
         <div class="card">
           <div class={["card-content", season ? season.toLowerCase() : null].filter(Boolean).join(" ")}>
-            <span class="year">
-              {title}
-            </span>
+            <span class="year">{title}</span>
             <div class="timeline">
               {posts.map((post) => {
-                return (
-                  <ArticleMedia
-                    url={url_for(post.link || post.path)}
-                    title={post.title}
-                    date={date(post.date)}
-                    dateXml={date_xml(post.date)}
-                  />
-                );
+                return <ArticleMedia url={url_for(post.link || post.path)} title={post.title} date={date(post.date)} dateXml={date_xml(post.date)} />;
               })}
             </div>
           </div>
@@ -125,7 +116,7 @@ module.exports = class extends Component {
           groups.push({
             year,
             season,
-            posts: [p]
+            posts: [p],
           });
         }
       });

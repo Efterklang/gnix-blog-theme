@@ -8,9 +8,7 @@ module.exports = class extends Component {
     let { description, images, date, updated, publisherLogo } = this.props;
 
     if (description) {
-      description = escapeHTML(
-        stripHTML(description).substring(0, 200).trim(),
-      ).replace(/\n/g, " ");
+      description = escapeHTML(stripHTML(description).substring(0, 200).trim()).replace(/\n/g, " ");
     }
 
     if (!Array.isArray(images)) {
@@ -21,13 +19,7 @@ module.exports = class extends Component {
         const parsed = new URL(path, url);
         return parsed.toString();
       })
-      .filter(
-        (url) =>
-          url.endsWith(".jpg") ||
-          url.endsWith(".png") ||
-          url.endsWith(".gif") ||
-          url.endsWith(".webp"),
-      );
+      .filter((url) => url.endsWith(".jpg") || url.endsWith(".png") || url.endsWith(".gif") || url.endsWith(".webp"));
 
     if (typeof publisherLogo === "string") {
       const parsedLogo = new URL(publisherLogo, url);
@@ -74,11 +66,6 @@ module.exports = class extends Component {
       description: description,
     };
 
-    return (
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-      ></script>
-    );
+    return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}></script>;
   }
 };

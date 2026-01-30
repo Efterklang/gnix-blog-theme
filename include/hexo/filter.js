@@ -28,12 +28,7 @@ module.exports = (hexo) => {
   function stripConfig(source, reservedKeys) {
     const result = {};
     Object.keys(source)
-      .filter(
-        (key) =>
-          !key.startsWith("_") &&
-          !reservedKeys.includes(key) &&
-          typeof source[key] !== "function",
-      )
+      .filter((key) => !key.startsWith("_") && !reservedKeys.includes(key) && typeof source[key] !== "function")
       .forEach((key) => {
         result[key] = source[key];
       });
@@ -59,10 +54,7 @@ module.exports = (hexo) => {
       locals.config = Object.assign({}, locals.config, locals.theme);
       if (page.layout in ALTERNATIVE_CONFIG) {
         // load alternative config if exists
-        locals.config = Object.assign(
-          locals.config,
-          ALTERNATIVE_CONFIG[page.layout],
-        );
+        locals.config = Object.assign(locals.config, ALTERNATIVE_CONFIG[page.layout]);
       }
       // merge page configs
       if (page.__post === true) {

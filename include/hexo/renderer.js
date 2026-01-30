@@ -11,8 +11,7 @@ Module._extensions[".jsx"] = (module, filename) => {
     format: "cjs",
     jsxFactory: "__createElement",
     jsxFragment: "__Fragment",
-    banner:
-      "const __createElement = require('inferno-create-element').createElement; const __Fragment = require('inferno').Fragment;",
+    banner: "const __createElement = require('inferno-create-element').createElement; const __Fragment = require('inferno').Fragment;",
     sourcefile: filename,
   });
   module._compile(code, filename);
@@ -28,10 +27,7 @@ function compile(data) {
     const markup = renderToStaticMarkup(element);
     // test if the layout is root layout file so we can skip costly large string comparison
     if ("layout" in locals && "view_dir" in locals && "filename" in locals) {
-      if (
-        locals.filename.startsWith(locals.view_dir) &&
-        locals.layout === false
-      ) {
+      if (locals.filename.startsWith(locals.view_dir) && locals.layout === false) {
         // this is root layout file, add doctype
         return DOCTYPE + markup;
       }

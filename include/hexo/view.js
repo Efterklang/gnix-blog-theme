@@ -6,16 +6,14 @@ function _resolve(filename) {
   if (path.isAbsolute(filename)) {
     return require.resolve(filename);
   }
-  const resolved = [path.join(themeDir, "/layout/", filename)].find(
-    (filepath) => {
-      try {
-        require.resolve(filepath);
-        return true;
-      } catch (_e) {
-        return false;
-      }
-    },
-  );
+  const resolved = [path.join(themeDir, "/layout/", filename)].find((filepath) => {
+    try {
+      require.resolve(filepath);
+      return true;
+    } catch (_e) {
+      return false;
+    }
+  });
 
   return require.resolve(resolved ? resolved : filename);
 }

@@ -30,18 +30,14 @@ class BingWebmaster extends Component {
  *     head={true}
  *     plugin={{ tracking_id: '*******' }} />
  */
-BingWebmaster.Cacheable = cacheComponent(
-  BingWebmaster,
-  "plugin.bingwebmaster",
-  (props) => {
-    const { head, plugin } = props;
-    if (!head || !plugin.tracking_id) {
-      return null;
-    }
-    return {
-      trackingId: plugin.tracking_id,
-    };
-  },
-);
+BingWebmaster.Cacheable = cacheComponent(BingWebmaster, "plugin.bingwebmaster", (props) => {
+  const { head, plugin } = props;
+  if (!head || !plugin.tracking_id) {
+    return null;
+  }
+  return {
+    trackingId: plugin.tracking_id,
+  };
+});
 
 module.exports = BingWebmaster;

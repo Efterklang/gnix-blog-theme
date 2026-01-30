@@ -72,8 +72,7 @@ function loadInsight(config, translation) {
     // 排序
     indices.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 
-    if (!indices.length)
-      return maxlen ? escapeHTML(text.slice(0, maxlen)) : escapeHTML(text);
+    if (!indices.length) return maxlen ? escapeHTML(text.slice(0, maxlen)) : escapeHTML(text);
 
     let result = "";
     let last = 0;
@@ -86,9 +85,7 @@ function loadInsight(config, translation) {
 
     for (let i = 0; i < ranges.length; i++) {
       const range = ranges[i];
-      result += escapeHTML(
-        text.slice(last, Math.min(range[0], sumRange[0] + maxlen)),
-      );
+      result += escapeHTML(text.slice(last, Math.min(range[0], sumRange[0] + maxlen)));
       if (maxlen && range[0] >= sumRange[0] + maxlen) break;
 
       result += `<em style="color: var(--green)">${escapeHTML(text.slice(range[0], range[1]))}</em>`;
@@ -96,12 +93,7 @@ function loadInsight(config, translation) {
 
       if (i === ranges.length - 1) {
         if (maxlen) {
-          result += escapeHTML(
-            text.slice(
-              range[1],
-              Math.min(text.length, sumRange[0] + maxlen + 1),
-            ),
-          );
+          result += escapeHTML(text.slice(range[1], Math.min(text.length, sumRange[0] + maxlen + 1)));
         } else {
           result += escapeHTML(text.slice(range[1]));
         }
@@ -166,9 +158,7 @@ function loadInsight(config, translation) {
 
     // 把keywords中的特殊字符转义, 将转移后的关键词编译为正则表达式(忽略大小写，全局，多行)
     // 后续在文章内容匹配时使用
-    const keywordRegexes = keywords.map(
-      (k) => new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "img"),
-    );
+    const keywordRegexes = keywords.map((k) => new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "img"));
 
     const calculateWeight = (obj, fields, weights) => {
       let value = 0;
@@ -225,11 +215,7 @@ function loadInsight(config, translation) {
     const fragment = document.createDocumentFragment(); // 使用 Fragment 减少重排
 
     for (const key in searchResult) {
-      const sectionNode = sectionFactory(
-        parseKeywords(keywords),
-        key.toUpperCase(),
-        searchResult[key],
-      );
+      const sectionNode = sectionFactory(parseKeywords(keywords), key.toUpperCase(), searchResult[key]);
       if (sectionNode) {
         fragment.appendChild(sectionNode);
       }
@@ -257,19 +243,14 @@ function loadInsight(config, translation) {
   }
 
   function selectItemByDiff(value) {
-    const items = Array.from(
-      container.querySelectorAll(".searchbox-result-item"),
-    );
+    const items = Array.from(container.querySelectorAll(".searchbox-result-item"));
     if (items.length === 0) return;
 
     // 查找 active 索引
-    const prevPosition = items.findIndex((item) =>
-      item.classList.contains("active"),
-    );
+    const prevPosition = items.findIndex((item) => item.classList.contains("active"));
 
     const nextPosition = (items.length + prevPosition + value) % items.length;
-    const finalPosition =
-      nextPosition < 0 ? nextPosition + items.length : nextPosition;
+    const finalPosition = nextPosition < 0 ? nextPosition + items.length : nextPosition;
 
     if (prevPosition !== -1) items[prevPosition].classList.remove("active");
 
@@ -354,9 +335,7 @@ function loadInsight(config, translation) {
         selectItemByDiff(1);
         break;
       case "Enter": {
-        const activeItem = container.querySelector(
-          ".searchbox-result-item.active",
-        );
+        const activeItem = container.querySelector(".searchbox-result-item.active");
         if (activeItem) location.href = activeItem.getAttribute("href");
         break;
       }

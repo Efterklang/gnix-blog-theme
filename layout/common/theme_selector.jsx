@@ -13,19 +13,11 @@ const themes = [
 class ThemeSelector extends Component {
   render() {
     return (
-      <div
-        id="theme-selector-modal"
-        onclick="window.handleThemeModalClick?.(event)"
-      >
+      <div id="theme-selector-modal" onclick="window.handleThemeModalClick?.(event)">
         <div class="theme-selector-backdrop"></div>
         <div class="theme-selector-list">
           {themes.map((theme, index) => (
-            <div
-              class="theme-option"
-              data-theme-option={theme.value}
-              data-index={index}
-              onclick={`window.selectThemeOption?.(event, ${index})`}
-            >
+            <div class="theme-option" data-theme-option={theme.value} data-index={index} onclick={`window.selectThemeOption?.(event, ${index})`}>
               <span class="theme-name">{theme.name}</span>
             </div>
           ))}

@@ -1,8 +1,4 @@
-const {
-  Component,
-  Fragment,
-  cacheComponent,
-} = require("../../include/util/common");
+const { Component, Fragment, cacheComponent } = require("../../include/util/common");
 
 function isSameLink(a, b) {
   function santize(url) {
@@ -41,12 +37,7 @@ class Navbar extends Component {
     return (
       <nav class="navbar navbar-main" onclick="handleNavbarClick(event);">
         <div class="navbar-container">
-          <a
-            href={siteUrl}
-            style={
-              "font-family: homemade-apple; color: var(--text); display: flex; align-items: center; padding: 0 1em;"
-            }
-          >
+          <a href={siteUrl} style={"font-family: homemade-apple; color: var(--text); display: flex; align-items: center; padding: 0 1em;"}>
             GnixAij
           </a>
           <div class="navbar-menu">
@@ -69,26 +60,14 @@ class Navbar extends Component {
                   {Object.keys(links).map((name) => {
                     const link = links[name];
                     return (
-                      <a
-                        class="navbar-item"
-                        target="_blank"
-                        rel="noopener"
-                        title={name}
-                        href={link.url}
-                      >
+                      <a class="navbar-item" target="_blank" rel="noopener" title={name} href={link.url}>
                         {renderLinkIcon(link)}
                       </a>
                     );
                   })}
                 </Fragment>
               ) : null}
-              <button
-                type="button"
-                class="navbar-item"
-                id="theme-selector-trigger"
-                title="Choose Theme"
-                onclick="window.openThemeModal?.()"
-              >
+              <button type="button" class="navbar-item" id="theme-selector-trigger" title="Choose Theme" onclick="window.openThemeModal?.()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                   <title>brightness_fill</title>
                   <g id="brightness_fill" fill="currentColor">
@@ -96,11 +75,7 @@ class Navbar extends Component {
                   </g>
                 </svg>
               </button>
-              <button
-                type="button"
-                class="navbar-item search"
-                title={searchTitle}
-              >
+              <button type="button" class="navbar-item search" title={searchTitle}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                   <title>search_line</title>
                   <g id="search_line" fill="currentColor">
@@ -110,12 +85,7 @@ class Navbar extends Component {
               </button>
             </div>
           </div>
-          <button
-            type="button"
-            class="navbar-burger"
-            aria-label="menu"
-            aria-expanded="false"
-          >
+          <button type="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
@@ -131,12 +101,8 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
   const { url_for, _p, __ } = helper;
   const { logo, title, navbar, widgets } = config;
 
-  const hasTocWidget =
-    Array.isArray(widgets) && widgets.find((widget) => widget.type === "toc");
-  const showToc =
-    (config.toc === true || page.toc) &&
-    hasTocWidget &&
-    ["page", "post"].includes(page.layout);
+  const hasTocWidget = Array.isArray(widgets) && widgets.find((widget) => widget.type === "toc");
+  const showToc = (config.toc === true || page.toc) && hasTocWidget && ["page", "post"].includes(page.layout);
 
   const menu = {};
   if (navbar?.menu) {

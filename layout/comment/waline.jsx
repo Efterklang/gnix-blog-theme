@@ -57,8 +57,7 @@ class Waline extends Component {
     if (!serverURL) {
       return (
         <div class="notification is-danger">
-          You forgot to set the <code>server_url</code> for Waline. Please set
-          it in <code>_config.yml</code>.
+          You forgot to set the <code>server_url</code> for Waline. Please set it in <code>_config.yml</code>.
         </div>
       );
     }
@@ -131,8 +130,7 @@ Waline.Cacheable = cacheComponent(Waline, "comment.waline", (props) => {
   return {
     serverURL: comment.server_url,
     path: comment.path,
-    lang:
-      comment.lang || page.lang || page.language || config.language || "zh-CN",
+    lang: comment.lang || page.lang || page.language || config.language || "zh-CN",
     locale: comment.locale,
     emoji: comment.emoji,
     dark: comment.dark,

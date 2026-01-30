@@ -13,14 +13,7 @@ module.exports = class extends Component {
         <div class="card-content">
           {(() => {
             const Comment = loadComponent(`comment/${comment.type}`);
-            return (
-              <Comment
-                config={config}
-                page={page}
-                helper={helper}
-                comment={comment}
-              />
-            );
+            return <Comment config={config} page={page} helper={helper} comment={comment} />;
           })()}
         </div>
       </div>

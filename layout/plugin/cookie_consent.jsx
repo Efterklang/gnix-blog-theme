@@ -34,14 +34,7 @@ class CookieConsent extends Component {
     });`;
 
     if (head) {
-      return (
-        <link
-          rel="preload"
-          href={cssUrl}
-          as="style"
-          onload="this.onload=null;this.rel='stylesheet'"
-        />
-      );
+      return <link rel="preload" href={cssUrl} as="style" onload="this.onload=null;this.rel='stylesheet'" />;
     }
     return (
       <>
@@ -52,41 +45,28 @@ class CookieConsent extends Component {
   }
 }
 
-CookieConsent.Cacheable = cacheComponent(
-  CookieConsent,
-  "plugin.cookieconsent",
-  (props) => {
-    const { head, plugin, helper } = props;
-    const {
-      type = "info",
-      theme = "edgeless",
-      position = "bottom-left",
-      policyLink = "https://www.cookiesandyou.com/",
-    } = plugin;
+CookieConsent.Cacheable = cacheComponent(CookieConsent, "plugin.cookieconsent", (props) => {
+  const { head, plugin, helper } = props;
+  const { type = "info", theme = "edgeless", position = "bottom-left", policyLink = "https://www.cookiesandyou.com/" } = plugin;
 
-    return {
-      head,
-      type,
-      theme,
-      position,
-      policyLink,
-      static: plugin.static || false,
-      text: {
-        message: helper.__("plugin.cookie_consent.message"),
-        dismiss: helper.__("plugin.cookie_consent.dismiss"),
-        allow: helper.__("plugin.cookie_consent.allow"),
-        deny: helper.__("plugin.cookie_consent.deny"),
-        link: helper.__("plugin.cookie_consent.link"),
-        policy: helper.__("plugin.cookie_consent.policy"),
-      },
-      cssUrl: helper.cdn(
-        "cookieconsent",
-        "3.1.1",
-        "build/cookieconsent.min.css",
-      ),
-      jsUrl: helper.cdn("cookieconsent", "3.1.1", "build/cookieconsent.min.js"),
-    };
-  },
-);
+  return {
+    head,
+    type,
+    theme,
+    position,
+    policyLink,
+    static: plugin.static || false,
+    text: {
+      message: helper.__("plugin.cookie_consent.message"),
+      dismiss: helper.__("plugin.cookie_consent.dismiss"),
+      allow: helper.__("plugin.cookie_consent.allow"),
+      deny: helper.__("plugin.cookie_consent.deny"),
+      link: helper.__("plugin.cookie_consent.link"),
+      policy: helper.__("plugin.cookie_consent.policy"),
+    },
+    cssUrl: helper.cdn("cookieconsent", "3.1.1", "build/cookieconsent.min.css"),
+    jsUrl: helper.cdn("cookieconsent", "3.1.1", "build/cookieconsent.min.js"),
+  };
+});
 
 module.exports = CookieConsent;

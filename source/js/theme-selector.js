@@ -1,9 +1,7 @@
 ((window, document, localStorage) => {
   const STORAGE_KEY = "themePreference";
   const DEFAULT_THEME = "system";
-  const colorSchemeMediaQuery = window.matchMedia(
-    "(prefers-color-scheme: dark)",
-  );
+  const colorSchemeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
   const THEME_MAP = {
     mocha: "night",
@@ -27,11 +25,7 @@
   }
 
   function resolveTheme(theme) {
-    return theme === "system"
-      ? colorSchemeMediaQuery.matches
-        ? "mocha"
-        : "nord"
-      : theme;
+    return theme === "system" ? (colorSchemeMediaQuery.matches ? "mocha" : "nord") : theme;
   }
 
   function applyTheme(theme, persist = false) {
