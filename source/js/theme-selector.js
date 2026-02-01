@@ -178,4 +178,5 @@
 
   // Export for navbar to get current theme
   window.getThemePreference = getThemePreference;
+  window.applyTheme = applyTheme;
 })(window, document, window.localStorage);
