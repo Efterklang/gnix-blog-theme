@@ -88,7 +88,7 @@ function loadInsight(config, translation) {
       result += escapeHTML(text.slice(last, Math.min(range[0], sumRange[0] + maxlen)));
       if (maxlen && range[0] >= sumRange[0] + maxlen) break;
 
-      result += `<em style="color: var(--green)">${escapeHTML(text.slice(range[0], range[1]))}</em>`;
+      result += `<span style="color: var(--mauve)">${escapeHTML(text.slice(range[0], range[1]))}</span>`;
       last = range[1];
 
       if (i === ranges.length - 1) {
