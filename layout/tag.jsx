@@ -11,7 +11,7 @@ const breadcrumb_css = `
   .breadcrumb {
     color: var(--blue);
     white-space: nowrap;
-    font-family: Monaspace Radon, var(--font-mono);
+    font-family: var(--font-mono);
 
     a {
       align-items: center;

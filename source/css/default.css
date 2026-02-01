@@ -2,9 +2,8 @@
 
 :root {
   --font-serif: Georgia, "Times New Roman", Times, "Songti SC", "STSong", serif;
-  --font-sans-serif: Avenir, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  --font-mono: "Maple Mono NF CN Local", "Maple Mono NF CN", "SF Mono", "SF Pro", Monaco, Consolas, monospace;
-  --font-article: Avenir, system-ui, "Segoe UI", Roboto, Helvetica, Arial, "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans CN", sans-serif;
+  --font-sans-serif: system-ui, sans-serif;
+  --font-mono: "RecMonoCasual Nerd Font", "Maple Mono NF CN Local", "Maple Mono NF CN", "SF Mono", "SF Pro", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", cursive;
   --radius: 12px;
   --spaceing: 0.25rem;
@@ -237,16 +236,6 @@ hr {
   background-color: var(--surface0);
 }
 
-input:-webkit-autofill {
-  -webkit-text-fill-color: var(--text);
-  box-shadow: 0 0 0 1000px var(--surface0) inset;
-}
-
-.searchbox-input {
-  color: var(--text);
-  background-color: var(--mantle);
-}
-
 .searchbox-result-item.active span {
   color: var(--yellow);
 }
@@ -344,7 +333,7 @@ body {
 }
 
 .toc-text,
-.footer,
+.footer-grid,
 .widget {
   font-family: var(--font-sans-serif);
 }
@@ -374,7 +363,6 @@ body {
   top: env(safe-area-inset-top);
   left: 0;
   right: 0;
-  /* transition: transform 0.3s ease-in-out; */
   z-index: 100;
   font-family: var(--font-sans-serif);
   border-bottom: 0.5px solid var(--surface0);
@@ -414,12 +402,10 @@ body {
     width: 1.2em;
   }
 
-  .navbar-item {
-    &:hover {
-      scale: 1.1;
-      transition: all 0.2s ease;
-      color: var(--lavender);
-    }
+  .navbar-item:hover {
+    scale: 1.1;
+    transition: all 0.2s ease;
+    color: var(--lavender);
   }
 }
 
@@ -666,7 +652,7 @@ body {
 .content {
   overflow: auto;
   word-wrap: break-word;
-  font-family: var(--font-article);
+  font-family: var(--font-sans-serif);
   font-size: 1rem;
   line-height: 1.5;
   letter-spacing: -0.003em;
@@ -1061,7 +1047,7 @@ small {
 
 /* #endregion Content */
 
-article :target {
+:target {
   scroll-margin-top: 5rem;
 }
 
@@ -1082,7 +1068,7 @@ section {
 /* #region Article Meta*/
 
 .article-title {
-  font-family: var(--font-article);
+  font-family: var(--font-sans-serif);
   font-size: 2.75em;
   font-weight: bold;
   line-height: 1.2;
@@ -1197,7 +1183,7 @@ section {
   width: 100%;
   height: 100%;
   z-index: 100;
-  font-family: monospace, var(--font-mono);
+  font-family: var(--font-mono);
   line-height: 0;
   opacity: 0;
   visibility: hidden;
@@ -1211,12 +1197,11 @@ section {
 }
 
 input.searchbox-input {
-  font-size: 1rem;
+  color: inherit;
+  background-color: inherit;
   font-family: inherit;
   border: none;
   outline: 0;
-  box-shadow: none;
-  border-radius: 0;
   flex-grow: 1;
   box-sizing: border-box;
   padding: 0.75em 0 0.75em 1.25em;
