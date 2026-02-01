@@ -41,7 +41,7 @@ plugin:
     policy: Cookie政策
 search:
   search: "搜索"
-  hint: "想要查找什么...(󰘳 + K)"
+  hint: "Search something... (󰘳 + K)"
   no_result: "未找到搜索结果"
   untitled: "(无标题)"
   empty_preview: "(无内容预览)"
