@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.10/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -7,19 +7,12 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": [
-      "**",
-      "!**/*.min.js",
-      "!**/*.min.css",
-      "!node_modules",
-      "!source/js/host",
-      "!source/js/live2d_Asoul",
-      "!.vscode"
-    ]
+    "includes": ["**", "!**/*.min.js", "!**/*.min.css", "!node_modules", "!source/js/host", "!source/js/live2d_Asoul", "!.vscode"]
   },
   "formatter": {
     "enabled": true,
-    "indentStyle": "space"
+    "indentStyle": "space",
+    "lineWidth": 200
   },
   "linter": {
     "enabled": true,
@@ -39,11 +32,6 @@
   "javascript": {
     "formatter": {
       "quoteStyle": "double"
-    }
-  },
-  "css": {
-    "formatter": {
-      "lineWidth": 200
     }
   },
   "assist": {
