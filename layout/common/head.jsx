@@ -83,6 +83,7 @@ module.exports = class extends Component {
     macchiato: "night",
     nord: "light",
     nord_night: "night",
+    rose_pine: "night",
     tokyo_night: "night",
     latte: "light"
   };
