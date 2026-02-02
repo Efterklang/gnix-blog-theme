@@ -663,6 +663,7 @@ body {
   font-size: 1rem;
   line-height: 1.5;
   letter-spacing: -0.003em;
+  color: var(--subtext1);
 
   ::selection {
     color: inherit;
@@ -749,6 +750,10 @@ body {
   pre,
   details {
     margin-bottom: 1rem;
+  }
+
+  li {
+    margin-bottom: 0.5rem;
   }
 
   p:last-child,
@@ -884,14 +889,27 @@ body {
     position: relative;
   }
 
+  a {
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--subtext1);
+    color: var(--text);
+    &:hover {
+      color: var(--lavender);
+      text-decoration: none;
+    }
+  }
+
   a[href*="apple"]::before,
   a[href*="github"]::before,
   a[href*="wikipedia"]::before,
   a[href*="youtube"]::before {
+    font-size: 1.2em;
     font-family: var(--font-mono);
-    font-size: 1em;
-    padding-left: 0.5em;
-    color: var(--lavender);
+    text-decoration: none;
+    display: inline-block;
+    padding-right: 0.5em;
   }
 
   a[href*="github"]::before {
@@ -907,7 +925,17 @@ body {
   }
 
   a[href*="apple"]::before {
-    content: " ";
+    content: "";
+  }
+
+  a.header-anchor,
+  .footnote-ref a,
+  .footnotes-item a,
+  a.footnote-backref {
+    text-decoration: none;
+    &:hover {
+      color: inherit;
+    }
   }
 }
 
@@ -1099,7 +1127,7 @@ section {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
 
   a {
     color: var(--subtext0);
@@ -1115,17 +1143,17 @@ section {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.3rem;
+  gap: 0.2rem;
 }
 
 .article-tags-inline {
   /* Push to the right */
+  gap: 0.8rem;
   margin-left: auto;
 }
 
 .meta-separator {
   color: var(--overlay0);
-  padding: 0 0.1em;
 }
 
 /* #endregion Article Meta */
@@ -1319,24 +1347,3 @@ input.searchbox-input {
     z-index: 2;
   }
 }
-
-/* html.is-changing .transition-fade {
-  view-transition-name: main;
-}
-
-::view-transition-old(main) {
-  animation: fade 0.5s ease-in-out both;
-}
-
-::view-transition-new(main) {
-  animation: fade 0.5s ease-in-out both reverse;
-}
-
-@keyframes fade {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-} */
