@@ -53,11 +53,11 @@ module.exports = class extends Component {
                       {format(page.date, "LLL dd")}
                     </time>
                   )}
-                  {page.date && (wordCount > 0 || !index) && <span class="meta-separator">·</span>}
+                  {page.date && (wordCount > 0 || !index) && <span class="meta-separator">/</span>}
                   {wordCount > 0 && <span class="article-reading-time">{readTime} min</span>}
                   {!index && (
                     <Fragment>
-                      <span class="meta-separator">·</span>
+                      <span class="meta-separator">/</span>
                       <span
                         class="article-visit-count"
                         data-flag-title={page.title}
@@ -70,9 +70,8 @@ module.exports = class extends Component {
                 </div>
                 {page.tags?.length ? (
                   <div class="article-tags-inline">
-                    {page.tags.map((tag, idx) => (
+                    {page.tags.map((tag) => (
                       <Fragment>
-                        {idx > 0 && <span class="meta-separator">,</span>}
                         <a class="article-tag" rel="tag" href={url_for(tag.path)}>
                           {tag.name}
                         </a>
