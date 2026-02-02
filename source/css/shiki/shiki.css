@@ -7,6 +7,10 @@ code span {
   font-style: var(--shiki-light-font-style);
   font-weight: var(--shiki-light-font-weight);
 }
+span.tab {
+  display: inline-block;
+  tab-size: 2;
+}
 
 :is([data-theme="tokyo_night"]) code span {
   font-style: var(--shiki-tokyo-font-style) !important;

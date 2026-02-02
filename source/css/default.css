@@ -1,7 +1,7 @@
 @charset "UTF-8";
 
 :root {
-  --font-serif: Georgia, "Times New Roman", Times, "Songti SC", "STSong", serif;
+  --font-serif: New York, PT Serif, Georgia, serif;
   --font-sans-serif: system-ui, sans-serif;
   --font-mono: "RecMonoCasual Nerd Font", "Maple Mono NF CN Local", "Maple Mono NF CN", "SF Mono", "SF Pro", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", cursive;
@@ -252,6 +252,13 @@ hr {
   font-family: "Maple Mono NF CN Local";
   font-weight: 100 900;
   src: local("MapleMono-NF-CN-Regular");
+}
+
+@font-face {
+  font-family: "NewYork";
+  src: local("New York"), local("New York Text"), local("New York Display");
+  font-weight: 400 700;
+  font-style: normal;
 }
 
 @font-face {
