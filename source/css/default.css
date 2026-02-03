@@ -2,7 +2,7 @@
 
 :root {
   --font-serif: New York, PT Serif, Georgia, serif;
-  --font-sans-serif: system-ui, sans-serif;
+  --font-sans-serif: SF Pro SC, SF Pro Display, SF Pro Icons, PingFang SC, system-ui, sans-serif;
   --font-mono: "RecMonoCasual Nerd Font", "Maple Mono NF CN Local", "Maple Mono NF CN", "SF Mono", "SF Pro", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", cursive;
   --radius: 12px;
@@ -1192,8 +1192,9 @@ section {
 }
 
 .licensing-meta {
-  .level-item {
+  .level-item p {
     margin-right: 1.5rem;
+    margin-bottom: 0;
     font-size: 0.75rem;
   }
 
