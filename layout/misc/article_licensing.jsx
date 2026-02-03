@@ -15,10 +15,12 @@ class ArticleLicensing extends Component {
         <div class="licensing-title">
           {title ? <p>{title}</p> : null}
           <p>
-            <a href={link}>{link}</a>
+            <a style="text-decoration: none" href={link}>
+              {link}
+            </a>
           </p>
         </div>
-        <div class="licensing-meta level is-mobile">
+        <div class="licensing-meta level">
           <div style="display: flex">
             {author ? (
               <div class="level-item">
