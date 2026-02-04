@@ -41,7 +41,7 @@ plugin:
     policy: Cookie Policy
 search:
   search: "Search"
-  hint: "Search(󰘳 + K)"
+  hint: "Search Something..."
   no_result: "No results for"
   untitled: "(Untitled)"
   empty_preview: "(No preview)"
