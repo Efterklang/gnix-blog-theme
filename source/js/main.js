@@ -7,7 +7,6 @@ function initializeTabs() {
   const tabContainers = document.querySelectorAll(".tabs-tabs-wrapper");
 
   tabContainers.forEach((container) => {
-    // 先移除已有事件（防止PJAX重复绑定）
     const buttons = container.querySelectorAll(".tabs-tab-button");
     buttons.forEach((button) => {
       // 移除旧事件，避免叠加
