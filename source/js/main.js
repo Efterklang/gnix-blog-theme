@@ -3,20 +3,14 @@
  * 初始化页面上所有的 Tab 组件
  */
 function initializeTabs() {
-  // 选取页面上所有的 Tab 容器
-  const tabContainers = document.querySelectorAll(".tabs-tabs-wrapper");
-
-  tabContainers.forEach((container) => {
-    const buttons = container.querySelectorAll(".tabs-tab-button");
-    buttons.forEach((button) => {
-      // 移除旧事件，避免叠加
-      button.removeEventListener("click", handleTabClick);
-      button.addEventListener("click", handleTabClick);
-    });
+  document.querySelectorAll(".tabs-tabs-wrapper").forEach((container) => {
+    if (!container.dataset.tabInitialized) {
+      container.addEventListener("click", handleTabClick);
+      container.dataset.tabInitialized = "true";
+    }
   });
 }
 
-// 抽离Tab点击处理函数，方便移除事件
 function handleTabClick() {
   const tabContainer = this.closest(".tabs-tabs-wrapper");
   const targetIndex = this.getAttribute("data-tab");
@@ -83,6 +77,98 @@ function syncRelatedTabs(syncId) {
 
 // #endregion
 
+// #region markdown-exit shiki
+const SELECTORS = {
+  figure: "figure.shiki",
+  pre: "pre.shiki",
+  code: "pre.shiki code",
+  expandBtn: ".code-expand-btn",
+};
+
+const CLS = {
+  copy: "copy-true",
+  wrap: "wrap-active",
+  expanded: "expanded",
+  expandDone: "expand-done",
+};
+
+function addHighlightTool() {
+  const figures = document.querySelectorAll(SELECTORS.figure);
+  if (!figures.length) return;
+
+  figures.forEach((figure) => {
+    if (figure.hasAttribute("data-initialized")) return;
+    figure.setAttribute("data-initialized", "true");
+
+    const pre = figure.querySelector(SELECTORS.pre);
+    const toolbar = figure.querySelector(".shiki-tools");
+    const expandBtn = figure.querySelector(SELECTORS.expandBtn);
+
+    // Copy button handler
+    if (toolbar) {
+      toolbar.addEventListener("click", (e) => {
+        const target = e.target;
+        if (target.closest(".copy-button")) {
+          const btn = target.closest(".copy-button");
+          const notice = btn.previousElementSibling;
+          const code = figure.querySelector(SELECTORS.code);
+
+          navigator.clipboard.writeText(code.innerText);
+          notice.textContent = "Copied";
+          notice.classList.add("show");
+          setTimeout(() => notice.classList.remove("show"), 800);
+        } else if (target.closest(".toggle-wrap")) {
+          // Toggle wrap
+          const code = figure.querySelector(SELECTORS.code);
+          const enabled = code.style.whiteSpace !== "pre-wrap";
+          code.style.whiteSpace = enabled ? "pre-wrap" : "pre";
+          code.style.wordBreak = enabled ? "break-all" : "normal";
+          target.closest(".toggle-wrap").classList.toggle(CLS.wrap, enabled);
+        }
+      });
+    }
+
+    // Expand button handler
+    if (expandBtn) {
+      expandBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const showLines = parseInt(figure.dataset.maxLines || "10", 10);
+        const isExpanded = figure.classList.contains(CLS.expanded);
+
+        if (isExpanded) {
+          const computed = getComputedStyle(pre);
+          const lineHeight = parseFloat(computed.lineHeight) || 20;
+          const padding = (parseFloat(computed.paddingTop) || 0) + (parseFloat(computed.paddingBottom) || 0);
+          figure.classList.remove(CLS.expanded);
+          pre.style.maxHeight = `${showLines * lineHeight + padding}px`;
+          expandBtn.classList.remove(CLS.expandDone);
+        } else {
+          figure.classList.add(CLS.expanded);
+          pre.style.maxHeight = `${pre.scrollHeight}px`;
+          expandBtn.classList.add(CLS.expandDone);
+
+          setTimeout(() => {
+            pre.style.maxHeight = "none";
+          }, 300);
+        }
+      });
+    }
+
+    // Initialize collapsed state
+    if (figure.dataset.collapsible === "true" && pre) {
+      requestAnimationFrame(() => {
+        const lineHeight = parseFloat(getComputedStyle(pre).lineHeight) || 20;
+        const showLines = parseInt(figure.dataset.maxLines || "10", 10);
+        pre.style.maxHeight = `${showLines * lineHeight}px`;
+        pre.style.overflow = "hidden";
+      });
+    }
+  });
+}
+// #endregion
+
 // #region Keyboard Shortcuts
 
 function handleKeyDown(e) {
@@ -90,17 +176,34 @@ function handleKeyDown(e) {
   if (!isModifier) return;
 
   const tag = e.target.tagName;
-  if (tag === "INPUT" || tag === "TEXTAREA" || e.target.isContentEditable) {
-    return;
-  }
+  if (["INPUT", "TEXTAREA"].includes(tag) || e.target.isContentEditable) return;
 
-  if (e.code === "KeyK") {
-    e.preventDefault();
-    const searchBtn = document.querySelector(".navbar-main .search");
-    if (searchBtn) searchBtn.click();
-  } else if ((e.shiftKey && e.code === "KeyP") || e.code === "KeyP") {
-    e.preventDefault();
-    window.openThemeModal?.();
+  switch (e.code) {
+    case "KeyK":
+      e.preventDefault();
+      document.querySelector(".navbar-main .search")?.click();
+      break;
+    case "KeyP":
+      if (!e.shiftKey) {
+        e.preventDefault();
+        window.openThemeModal?.();
+      }
+      break;
+  }
+}
+
+/**
+ * 加载脚本一次，如果已存在则监听 load 事件
+ */
+function loadScriptOnce(url, onLoad) {
+  const existingScript = document.querySelector(`script[src="${url}"]`);
+  if (existingScript) {
+    existingScript.addEventListener("load", onLoad);
+  } else {
+    const script = document.createElement("script");
+    script.src = url;
+    script.onload = onLoad;
+    document.head.appendChild(script);
   }
 }
 
@@ -136,23 +239,21 @@ function handleMermaid() {
   if (window.initMermaidDiagram) {
     runInit();
   } else {
-    const existingScript = document.querySelector(`script[src="${adapterUrl}"]`);
-    if (existingScript) {
-      existingScript.addEventListener("load", runInit);
-    } else {
-      const script = document.createElement("script");
-      script.src = adapterUrl;
-      script.onload = runInit;
-      document.head.appendChild(script);
-    }
+    loadScriptOnce(adapterUrl, runInit);
   }
 }
 
 // #endregion
 
+function initPage() {
+  console.log("Page initialized");
+  initLogic();
+}
+
 function initLogic() {
   initializeTabs();
   handleMermaid();
+  addHighlightTool();
   mediumZoom(".article img", {
     background: "hsla(from var(--mantle) / 0.9)",
   });
@@ -174,16 +275,11 @@ function initLogic() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  initLogic();
-});
+document.addEventListener("DOMContentLoaded", initPage, { once: true });
 
 // Re-initialize on page changes when using swup
 if (typeof swup !== "undefined") {
-  swup.hooks.on("page:view", (visit) => {
-    console.log("New page loaded:", visit.to.url);
-    initLogic();
-  });
+  swup.hooks.on("page:view", initPage);
 }
 
 // Global functions

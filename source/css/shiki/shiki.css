@@ -99,17 +99,13 @@ figure.shiki {
 .shiki-tools > .right > .copy-notice {
   position: absolute;
   white-space: nowrap;
-  opacity: 0;
   visibility: hidden;
   z-index: 1000;
   padding: 0 5px 0 0;
   transform: translate(-110%);
-  transition:
-    opacity 0.2s ease,
-    visibility 0.2s ease;
+  transition: visibility 0.2s ease;
 
-  &[style*="opacity: 1"] {
-    opacity: 1;
+  &.show {
     visibility: visible;
   }
 }
