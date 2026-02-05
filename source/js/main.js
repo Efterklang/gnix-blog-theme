@@ -2,12 +2,14 @@
 /**
  * 初始化页面上所有的 Tab 组件
  */
+
 function initializeTabs() {
   document.querySelectorAll(".tabs-tabs-wrapper").forEach((container) => {
-    if (!container.dataset.tabInitialized) {
-      container.addEventListener("click", handleTabClick);
-      container.dataset.tabInitialized = "true";
-    }
+    const buttons = container.querySelectorAll(".tabs-tab-button");
+    buttons.forEach((button) => {
+      button.removeEventListener("click", handleTabClick);
+      button.addEventListener("click", handleTabClick);
+    });
   });
 }
 
