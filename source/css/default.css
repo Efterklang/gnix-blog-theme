@@ -782,7 +782,8 @@ body {
   button.physical-btn,
   kbd {
     display: inline-block;
-    padding: 0.1em 0.3em;
+    padding: 0 0.3em;
+    margin: 0 0.3em;
     font-family: var(--font-mono);
     font-size: 0.85em;
     color: var(--subtext0);
@@ -796,8 +797,7 @@ body {
     top: -3px;
     transition:
       top 0.1s ease,
-      border-bottom-width 0.1s ease,
-      box-shadow 0.1s ease;
+      border-bottom-width 0.1s ease;
 
     &:active {
       top: 0px;

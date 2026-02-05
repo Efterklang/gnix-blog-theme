@@ -27,6 +27,7 @@ class Accordion extends HTMLElement {
     const style = `
       x-accordion {
         display: block;
+        margin: 1em 0;
       }
 
       .accordion-item {
