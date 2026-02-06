@@ -7,6 +7,7 @@ code span {
   font-style: var(--shiki-light-font-style);
   font-weight: var(--shiki-light-font-weight);
 }
+
 span.tab {
   display: inline-block;
   tab-size: 2;
@@ -43,7 +44,6 @@ figure.shiki {
   overflow: auto;
   background: var(--mantle);
   color: var(--text);
-
   iconify-icon {
     color: transparent;
     cursor: pointer;
@@ -55,7 +55,6 @@ figure.shiki {
   &:hover {
     iconify-icon {
       color: var(--text);
-
       &:hover {
         color: var(--blue);
         transform: scale(1.2);
@@ -73,7 +72,6 @@ figure.shiki {
   user-select: none;
   overflow: hidden;
   position: relative;
-
   > .left {
     gap: 5px;
     display: flex;
@@ -104,7 +102,6 @@ figure.shiki {
   padding: 0 5px 0 0;
   transform: translate(-110%);
   transition: visibility 0.2s ease;
-
   &.show {
     visibility: visible;
   }
@@ -122,7 +119,6 @@ figure.shiki {
   border-radius: 50%;
   margin-left: 0.5em;
   position: relative;
-
   &.red {
     background-color: var(--red);
   }
@@ -157,7 +153,6 @@ figure.shiki {
   align-items: center;
   font-size: 1em;
   cursor: pointer;
-
   > iconify-icon {
     padding: 6px 0;
     animation: code-expand-pulse 1.2s infinite;
@@ -172,7 +167,6 @@ figure.shiki {
 pre.shiki {
   background: var(--mantle);
   padding: 0.6em;
-
   > code {
     text-align: left;
     counter-reset: step;
@@ -217,7 +211,6 @@ span.line {
   display: block;
   width: fit-content;
   min-width: 100%;
-
   &:before {
     content: counter(step);
     counter-increment: step;
@@ -232,7 +225,6 @@ span.line {
 span.line.diff {
   &.remove {
     background-color: hsl(from var(--red) h s l / 0.2);
-
     &:before {
       content: "-";
       color: var(--red);
@@ -241,7 +233,6 @@ span.line.diff {
 
   &.add {
     background-color: hsl(from var(--green) h s l / 0.2);
-
     &:before {
       content: "+";
       color: var(--green);
@@ -251,7 +242,6 @@ span.line.diff {
 
 span.line.highlighted {
   background-color: hsl(from var(--blue) h s l / 0.2);
-
   &.error {
     background-color: hsl(from var(--red) h s l / 0.2);
   }
@@ -474,15 +464,10 @@ pre.shiki.has-focused > code {
 
 ._sk_91qhgb {
   color: #7c7f93;
-  --shiki-light-font-style: italic;
   --shiki-dark: #9399b2;
-  --shiki-dark-font-style: italic;
   --shiki-nord: #616e88;
-  --shiki-nord-font-style: inherit;
   --shiki-tokyo: #51597d;
-  --shiki-tokyo-font-style: italic;
   --shiki-rose: #6e6a86;
-  --shiki-rose-font-style: italic;
 }
 
 ._sk_zgl5lx {
