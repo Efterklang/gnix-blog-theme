@@ -723,6 +723,7 @@ body {
     font-size: 1.35em;
     font-weight: 600;
     line-height: 1.25;
+    font-variant-caps: all-petite-caps;
     letter-spacing: -0.005em;
     margin: 1.2rem 0 1rem;
 
@@ -735,15 +736,12 @@ body {
     font-size: 1.1em;
     font-weight: 600;
     line-height: 1.25;
+    font-variant-caps: all-petite-caps;
     margin: 1.2rem 0 1rem;
 
     > a.header-anchor:hover::after {
       content: "######";
     }
-  }
-
-  p:not(:last-child) {
-    margin-bottom: 1rem;
   }
 
   p,
@@ -1003,12 +1001,12 @@ blockquote {
 
 ul.contains-task-list {
   list-style-type: none;
+  padding-left: 0.5rem;
 }
 
 li.task-list-item {
   position: relative;
   padding-left: 1.75rem;
-  font-size: 1rem;
   list-style: none;
 }
 
@@ -1022,18 +1020,17 @@ input.task-list-item-checkbox {
   position: absolute;
   left: 0;
   top: 0.15rem;
-}
-
-input.task-list-item-checkbox:checked::before {
-  content: "";
-  font-family: var(--font-mono);
-  color: var(--base);
-  position: absolute;
-  top: 50%;
-  left: 40%;
-  transform: translate(-50%, -50%);
-  font-size: 0.9rem;
-  font-weight: 700;
+  &:checked::before {
+    content: "";
+    font-family: var(--font-mono);
+    color: var(--base);
+    position: absolute;
+    top: 50%;
+    left: 40%;
+    transform: translate(-50%, -50%);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
 }
 
 .medium-zoom-overlay {
