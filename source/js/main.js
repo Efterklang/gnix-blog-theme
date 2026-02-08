@@ -1,3 +1,19 @@
+function tableWrapFix() {
+  document.querySelectorAll(".content table").forEach((table) => {
+    if (table.hasAttribute("data-nowrap") || table.parentElement.classList.contains("table-wrapper")) {
+      return;
+    }
+    // if width exceeds container, wrap it
+    const wrapper = document.createElement("div");
+    Object.assign(wrapper.style, {
+      width: "100%",
+      overflowX: "auto",
+    });
+    table.parentNode.insertBefore(wrapper, table);
+    wrapper.appendChild(table);
+  });
+}
+
 // #region mdit@tab-plugin
 /**
  * 初始化页面上所有的 Tab 组件
@@ -249,10 +265,7 @@ function handleMermaid() {
 
 function initPage() {
   console.log("Page initialized");
-  initLogic();
-}
-
-function initLogic() {
+  tableWrapFix();
   initializeTabs();
   handleMermaid();
   addHighlightTool();
@@ -309,23 +322,6 @@ function handleNavbarClick(e) {
   }
 }
 
-function tableWrapFix() {
-  document.querySelectorAll(".content table").forEach((table) => {
-    if (table.hasAttribute("data-nowrap") || table.parentElement.classList.contains("table-wrapper")) {
-      return;
-    }
-    // if width exceeds container, wrap it
-    const wrapper = document.createElement("div");
-    Object.assign(wrapper.style, {
-      width: "100%",
-      overflowX: "auto",
-    });
-    table.parentNode.insertBefore(wrapper, table);
-    wrapper.appendChild(table);
-  });
-}
-
-tableWrapFix();
 document.addEventListener("keydown", handleKeyDown, {
   capture: true, // 捕获阶段监听，优先于浏览器默认处理
   passive: false, // 允许调用 preventDefault
