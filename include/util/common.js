@@ -27,11 +27,18 @@ function cacheComponent(type, prefix, transform) {
 }
 
 function lazy_load_css(href) {
-  script_str = `var link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = '${href}';
-  document.getElementsByTagName('head')[0].appendChild(link);`;
-  return script_str;
+  return `
+    (function () {
+      if (document.querySelector('link[rel="stylesheet"][href="${href}"]')) {
+        return;
+      }
+
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '${href}';
+      document.head.appendChild(link);
+    })();
+  `;
 }
 
 module.exports = {
