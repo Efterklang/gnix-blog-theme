@@ -297,31 +297,6 @@ if (typeof swup !== "undefined") {
   swup.hooks.on("page:view", initPage);
 }
 
-// Global functions
-// biome-ignore lint/correctness/noUnusedVariables: used in <nav click="handleNavbarClick(event)">
-function handleNavbarClick(e) {
-  const target = e.target;
-  const navbarBurger = document.querySelector(".navbar-burger");
-  const navbarMenu = document.querySelector(".navbar-menu");
-
-  if (!navbarBurger || !navbarMenu) return;
-
-  // 处理 burger 点击
-  if (target.closest(".navbar-burger")) {
-    navbarBurger.classList.toggle("is-active");
-    navbarMenu.classList.toggle("is-active");
-    return;
-  }
-
-  // 处理 item 点击
-  if (target.closest(".navbar-item")) {
-    if (navbarBurger.classList.contains("is-active")) {
-      navbarBurger.classList.remove("is-active");
-      navbarMenu.classList.remove("is-active");
-    }
-  }
-}
-
 document.addEventListener("keydown", handleKeyDown, {
   capture: true, // 捕获阶段监听，优先于浏览器默认处理
   passive: false, // 允许调用 preventDefault
