@@ -305,31 +305,10 @@
 }
 
 .tk-tag-green {
-  background-color: hsl(from var(--green) h s l / 0.13);
-  border: 1px solid hsl(from var(--green) h s l / 0.5);
+  background-color: hsl(from var(--green) h s l / 0.1);
+  border: 1px solid hsl(from var(--green) h s l / 0.8);
   border-radius: 2px;
   color: var(--green);
-}
-
-.tk-tag-yellow {
-  background-color: hsl(from var(--yellow) h s l / 0.13);
-  border: 1px solid hsl(from var(--yellow) h s l / 0.5);
-  border-radius: 2px;
-  color: var(--yellow);
-}
-
-.tk-tag-blue {
-  background-color: hsl(from var(--blue) h s l / 0.13);
-  border: 1px solid hsl(from var(--blue) h s l / 0.5);
-  border-radius: 2px;
-  color: var(--blue);
-}
-
-.tk-tag-red {
-  background-color: hsl(from var(--red) h s l / 0.13);
-  border: 1px solid hsl(from var(--red) h s l / 0.5);
-  border-radius: 2px;
-  color: var(--red);
 }
 
 .tk-comment {
@@ -818,7 +797,7 @@
   fill: var(--lavender);
 }
 
-/* å…¨å±€ CSS */
+/* Ã¥â€¦Â¨Ã¥Â±â‚¬ CSS */
 .tk-expand {
   width: 100%;
   cursor: pointer;
