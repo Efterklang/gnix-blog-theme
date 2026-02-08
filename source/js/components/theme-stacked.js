@@ -193,7 +193,7 @@ class ThemeStackedElement extends HTMLElement {
 
         .color-grid {
           display: grid;
-          grid-template-columns: repeat(7, 1fr);
+          grid-template-columns: repeat(8, 1fr);
           gap: 6px;
           margin-bottom: 1rem;
 
@@ -203,17 +203,16 @@ class ThemeStackedElement extends HTMLElement {
         }
 
         .color-swatch {
-          aspect-ratio: 1;
+          aspect-ratio: 1 / 1;
           border-radius: 6px;
           cursor: pointer;
           transition: transform 0.2s ease;
-          border: 1px solid var(--surface0);
+          border: 2px solid hsl(from var(--color) h s calc(l - 10) / 0.7);
           background-color: var(--color);
           position: relative;
 
           &:hover {
             transform: scale(1.15);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             z-index: 10;
 
             &::before,
