@@ -585,7 +585,7 @@ body {
   flex-grow: 1;
   margin: 0 auto;
   position: relative;
-  max-width: 1080px;
+  max-width: 960px;
 }
 
 /* #region Footer */
