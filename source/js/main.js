@@ -14,6 +14,29 @@ function tableWrapFix() {
   });
 }
 
+function twikoo_handler() {
+  const twikooContainer = document.getElementById("tko");
+  if (!twikooContainer) return;
+  const initTwikoo = () => {
+    if (window.twikoo?.init && window.twikooConfig) {
+      window.twikoo.init(window.twikooConfig);
+    }
+  };
+
+  // 简化判断逻辑：直接检查twikoo库是否加载完成
+  if (window.twikoo && typeof twikoo.init === "function") {
+    initTwikoo();
+  } else {
+    // 监听Twikoo脚本加载（保留SPA兼容逻辑）
+    const script = document.querySelector('script[src*="twikoo.all.min.js"]');
+    if (script) {
+      script.addEventListener("load", initTwikoo);
+      if (script.readyState === "complete" || script.readyState === "loaded") {
+        setTimeout(initTwikoo, 0);
+      }
+    }
+  }
+}
 // #region mdit@tab-plugin
 /**
  * 初始化页面上所有的 Tab 组件
@@ -272,22 +295,7 @@ function initPage() {
   mediumZoom(".article img", {
     background: "hsla(from var(--mantle) / 0.9)",
   });
-  if (document.getElementById("twikoo")) {
-    const initTwikoo = () => {
-      if (window.twikoo && window.twikooConfig) {
-        window.twikoo.init(window.twikooConfig);
-      }
-    };
-
-    if (typeof twikoo !== "undefined") {
-      initTwikoo();
-    } else {
-      const script = document.querySelector('script[src*="twikoo.all.min.js"]');
-      if (script) {
-        script.addEventListener("load", initTwikoo);
-      }
-    }
-  }
+  twikoo_handler();
 }
 
 document.addEventListener("DOMContentLoaded", initPage, { once: true });
