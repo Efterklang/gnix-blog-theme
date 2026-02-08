@@ -146,8 +146,8 @@ Waline.Cacheable = cacheComponent(Waline, "comment.waline", (props) => {
     pageview: comment.pageview,
     comment: comment.comment,
     copyright: comment.copyright,
-    jsUrl: helper.cdn("@waline/client", "3.3.0", "dist/waline.js"),
-    cssUrl: helper.cdn("@waline/client", "3.3.0", "dist/waline.css"),
+    jsUrl: "https://unpkg.com/@waline/client@v3/dist/waline.js",
+    cssUrl: "https://unpkg.com/@waline/client@v3/dist/waline.css",
   };
 });
 
