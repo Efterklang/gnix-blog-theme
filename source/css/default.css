@@ -351,12 +351,10 @@ body {
   max-width: 100%;
   position: relative;
   overflow: visible;
-  border-radius: var(--radius);
-  border: 0.5px dashed var(--surface0);
+  border: 1px solid var(--surface0);
 }
-
 .card + .card {
-  margin-top: 1.5rem;
+  border-top: none;
 }
 
 .card-content {
@@ -1103,15 +1101,12 @@ section {
 
 .article-title {
   font-family: var(--font-sans-serif);
-  font-size: 2.75em;
-  font-weight: bold;
+  font-size: 2.25em;
   line-height: 1.2;
-  letter-spacing: -0.02em;
   margin-bottom: 0.3em;
-  color: var(--text);
 
   > a {
-    color: inherit;
+    color: var(--text);
   }
 }
 
@@ -1126,7 +1121,7 @@ section {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 
   a {
     color: var(--subtext0);
@@ -1324,7 +1319,6 @@ input.searchbox-input {
   position: relative;
   display: block;
   overflow: hidden;
-  border-radius: var(--radius) var(--radius) 0 0;
   height: 380px;
 
   img {
