@@ -2,7 +2,7 @@ const { Component, cacheComponent } = require("../../include/util/common");
 
 class Footer extends Component {
   render() {
-    const { siteTitle, siteYear, author, links, subdomains, archives, copyright, showVisitorCounter, visitorCounterTitle, ICPRecord } = this.props;
+    const { siteTitle, siteYear, author, links, subdomains, copyright, showVisitorCounter, visitorCounterTitle, ICPRecord } = this.props;
 
     const svg_line = (
       <svg aria-hidden="true" width="100%" height="8" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -82,21 +82,6 @@ class Footer extends Component {
       </div>
     );
 
-    const footer_archives = (
-      <div class="footer-column footer-archives">
-        <p class="footer-heading">Archives</p>
-        <div class="footer-links">
-          {archives?.length
-            ? archives.map((item) => (
-                <a class="footer-link" href={item.url}>
-                  {item.year}
-                </a>
-              ))
-            : null}
-        </div>
-      </div>
-    );
-
     return (
       <>
         {" "}
@@ -105,7 +90,6 @@ class Footer extends Component {
           <div class="footer-grid">
             {footer_brand}
             {footer_subdomains}
-            {footer_archives}
             {footer_social}
           </div>
         </footer>
