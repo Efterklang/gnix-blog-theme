@@ -1341,3 +1341,126 @@ input.searchbox-input {
     z-index: 2;
   }
 }
+
+/* #region TOC */
+
+.toc-button {
+  position: fixed;
+  top: 7rem;
+  left: 2rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 100;
+
+  > span {
+    background-color: hsl(from var(--text) h s l / 0.5);
+    height: 2px;
+    left: calc(50% - 8px);
+    position: absolute;
+    transform-origin: center;
+    transition-duration: 200ms;
+    transition-property: background-color, opacity, transform;
+    transition-timing-function: ease-out;
+    width: 1rem;
+
+    &:nth-child(1) {
+      top: calc(50% - 6px);
+    }
+
+    &:nth-child(2) {
+      width: 0.75rem;
+      top: calc(50% - 1px);
+    }
+
+    &:nth-child(3) {
+      top: calc(50% + 4px);
+    }
+  }
+}
+
+#icarus-toc-container {
+  .toc-body {
+    position: fixed;
+    inset: 0;
+    background: hsl(from var(--mantle) h s l / 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    visibility: hidden;
+    pointer-events: none;
+    font-weight: 600;
+    z-index: 99;
+  }
+
+  &.is-open {
+    .toc-body {
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .toc-button {
+      span:nth-child(1) {
+        transform: translateY(5px) rotate(45deg);
+      }
+
+      span:nth-child(2) {
+        opacity: 0;
+      }
+
+      span:nth-child(3) {
+        transform: translateY(-5px) rotate(-45deg);
+      }
+    }
+  }
+
+  .toc {
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toc-item {
+    margin-bottom: 0.5rem;
+  }
+
+  .toc-child {
+    padding-left: 1.5rem;
+    list-style: none;
+  }
+
+  .toc-text {
+    font-family: var(--font-sans-serif);
+    display: inline;
+    color: var(--text);
+    &:hover {
+      color: var(--mauve);
+    }
+    .toc-level-2 & {
+      font-size: 1.8rem;
+    }
+    .toc-level-3 & {
+      font-size: 1.5rem;
+    }
+    .toc-level-4 & {
+      color: var(--subtext0);
+      font-size: 1.25rem;
+    }
+    .toc-level-5 & {
+      color: var(--subtext0);
+      font-size: 1rem;
+    }
+    > .toc-level-6 & {
+      color: var(--subtext0);
+      font-size: 0.875rem;
+    }
+  }
+}
+
+/* #endregion TOC */
