@@ -118,11 +118,9 @@ class TextImageSection extends HTMLElement {
     const alt = this.getAttribute("alt") || "";
     const imageWidth = this.getAttribute("image-width") || "300px";
     const reverse = this.hasAttribute("reverse");
-    const breakpoint = this.getAttribute("breakpoint") || "640px";
 
     const contentNodes = Array.from(this.childNodes).filter((node) => {
-      return node.nodeType !== Node.ELEMENT_NODE || 
-             node.tagName.toLowerCase() !== "text-image-section";
+      return node.nodeType !== Node.ELEMENT_NODE || node.tagName.toLowerCase() !== "text-image-section";
     });
 
     const content = contentNodes
@@ -154,17 +152,6 @@ class TextImageSection extends HTMLElement {
         </div>
       </div>
     `;
-  }
-
-  static get observedAttributes() {
-    return ["image", "alt", "image-width", "reverse", "breakpoint"];
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue && this._rendered) {
-      this._rendered = false;
-      this.render();
-    }
   }
 }
 
