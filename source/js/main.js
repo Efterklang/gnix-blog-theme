@@ -220,6 +220,10 @@ function handleKeyDown(e) {
   if (["INPUT", "TEXTAREA"].includes(tag) || e.target.isContentEditable) return;
 
   switch (e.code) {
+    case "KeyT":
+      e.preventDefault();
+      document.getElementById("icarus-toc-container")?.classList.toggle("is-open");
+      break;
     case "KeyK":
       e.preventDefault();
       document.querySelector(".navbar-main .search")?.click();
