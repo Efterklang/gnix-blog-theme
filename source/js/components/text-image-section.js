@@ -6,7 +6,7 @@
  * <text-image-section
  *   image="https://example.com/image.jpg"
  *   alt="Image description"
- *   image-width="300px"
+ *   width="300px"
  * >
  *   Your text content here...
  * </text-image-section>
@@ -14,9 +14,11 @@
  * Attributes:
  * - image: Image URL (required)
  * - alt: Image alt text
- * - image-width: Image width (default: 300px)
- * - reverse: Reverse layout (image on left, text on right)
- * - breakpoint: Mobile breakpoint (default: 640px)
+ * - width: Image width (default: 300px)
+ * - left: Put image on left (default: image on right)
+ * - font-family: Text font family
+ * - font-size: Text font size (default: 0.8rem)
+ * - color: Text color
  */
 
 let styleSheetInjected = false;
@@ -43,31 +45,38 @@ class TextImageSection extends HTMLElement {
       }
 
       .ti-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 24px;
-        align-items: flex-start;
+        /* Clearfix to contain float */
+        overflow: hidden;
       }
 
-      .ti-container.reverse {
-        flex-direction: row-reverse;
+      .ti-container::after {
+        content: "";
+        display: table;
+        clear: both;
       }
 
       .ti-text {
-        flex: 1;
-        min-width: 280px;
         line-height: 1.8;
+        font-family: var(--ti-font-family, inherit);
+        font-size: var(--ti-font-size, 0.8rem);
+        color: var(--ti-color, inherit);
       }
 
       .ti-image {
-        flex: 0 0 var(--ti-image-width, 300px);
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
+        float: right;
+        width: var(--ti-image-width, 300px);
+        margin-left: 24px;
+        margin-bottom: 12px;
+      }
+
+      .ti-container.image-left .ti-image {
+        float: left;
+        margin-left: 0;
+        margin-right: 24px;
       }
 
       .ti-image img {
-        max-width: 100%;
+        width: 100%;
         height: auto;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -87,19 +96,16 @@ class TextImageSection extends HTMLElement {
       }
 
       @media (max-width: 640px) {
-        .ti-container,
-        .ti-container.reverse {
-          flex-direction: column;
-        }
-
-        .ti-image {
-          flex: none;
+        .ti-image,
+        .ti-container.image-left .ti-image {
+          float: none;
           width: 100%;
+          margin: 0 0 16px 0;
           --ti-image-width: 100%;
         }
 
         .ti-image img {
-          max-width: 100%;
+          width: 100%;
         }
       }
     `;
@@ -116,9 +122,11 @@ class TextImageSection extends HTMLElement {
 
     const image = this.getAttribute("image");
     const alt = this.getAttribute("alt") || "";
-    const imageWidth = this.getAttribute("image-width") || "300px";
-    const reverse = this.hasAttribute("reverse");
-
+    const imageWidth = this.getAttribute("width") || "300px";
+    const imageLeft = this.hasAttribute("left");
+    const fontFamily = this.getAttribute("font-family");
+    const fontSize = this.getAttribute("font-size");
+    const color = this.getAttribute("color");
     const contentNodes = Array.from(this.childNodes).filter((node) => {
       return node.nodeType !== Node.ELEMENT_NODE || node.tagName.toLowerCase() !== "text-image-section";
     });
@@ -135,7 +143,7 @@ class TextImageSection extends HTMLElement {
       return;
     }
 
-    const containerClass = reverse ? "ti-container reverse" : "ti-container";
+    const containerClass = imageLeft ? "ti-container image-left" : "ti-container";
 
     const figureHtml = alt
       ? `<figure>
@@ -144,12 +152,17 @@ class TextImageSection extends HTMLElement {
         </figure>`
       : `<img src="${image}" alt="${alt}" loading="lazy">`;
 
+    const styleAttrs = [];
+    styleAttrs.push(`--ti-image-width: ${imageWidth};`);
+    if (fontFamily) styleAttrs.push(`--ti-font-family: ${fontFamily};`);
+    if (fontSize) styleAttrs.push(`--ti-font-size: ${fontSize};`);
+    if (color) styleAttrs.push(`--ti-color: ${color};`);
     this.innerHTML = `
-      <div class="${containerClass}" style="--ti-image-width: ${imageWidth};">
-        <div class="ti-text">${content}</div>
+      <div class="${containerClass}" style="${styleAttrs.join(" ")}">
         <div class="ti-image">
           ${figureHtml}
         </div>
+        <div class="ti-text">${content}</div>
       </div>
     `;
   }
