@@ -438,41 +438,41 @@
 .twikoo div.code-toolbar {
   position: relative;
   border-radius: 0.3em;
-}
 
-.twikoo div.code-toolbar > .toolbar {
-  position: absolute;
-  right: 4px;
-  top: 4px;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  display: flex;
-}
+  > .toolbar {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    display: flex;
 
-.twikoo div.code-toolbar > .toolbar > .toolbar-item {
-  margin-left: 0.3em;
-}
+    > .toolbar-item {
+      margin-left: 0.3em;
 
-.twikoo div.code-toolbar > .toolbar > .toolbar-item > a,
-.twikoo div.code-toolbar > .toolbar > .toolbar-item > button,
-.twikoo div.code-toolbar > .toolbar > .toolbar-item > span {
-  padding: 2px 4px;
-  border-radius: 0.3em;
-}
+      > a,
+      > button,
+      > span {
+        padding: 2px 4px;
+        border-radius: 0.3em;
+      }
 
-.twikoo div.code-toolbar > .toolbar > .toolbar-item > button {
-  border: 1px solid rgba(128, 128, 128, 0.31);
-}
+      > button {
+        border: 1px solid rgba(128, 128, 128, 0.31);
 
-.twikoo div.code-toolbar > .toolbar > .toolbar-item > button:hover {
-  cursor: pointer;
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+  }
 }
 
 .tk-footer {
   width: 100%;
   text-align: end;
   font-size: 0.75em;
-  color: #999999;
+  color: var(--subtext0);
   margin-top: 1em;
 }
 
@@ -1446,6 +1446,39 @@
   position: fixed;
 }
 
+.el-loading-spinner {
+  top: 50%;
+  margin-top: -21px;
+  width: 100%;
+  text-align: center;
+  position: absolute;
+
+  .el-loading-text {
+    color: var(--blue);
+    margin: 3px 0;
+    font-size: 14px;
+  }
+
+  .circular {
+    height: 42px;
+    width: 42px;
+    animation: loading-rotate 2s linear infinite;
+  }
+
+  .path {
+    animation: loading-dash 1.5s ease-in-out infinite;
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: 0;
+    stroke-width: 2;
+    stroke: var(--blue);
+    stroke-linecap: round;
+  }
+
+  i {
+    color: var(--blue);
+  }
+}
+
 .el-loading-mask.is-fullscreen .el-loading-spinner {
   margin-top: -25px;
 }
@@ -1453,39 +1486,6 @@
 .el-loading-mask.is-fullscreen .el-loading-spinner .circular {
   height: 50px;
   width: 50px;
-}
-
-.el-loading-spinner {
-  top: 50%;
-  margin-top: -21px;
-  width: 100%;
-  text-align: center;
-  position: absolute;
-}
-
-.el-loading-spinner .el-loading-text {
-  color: var(--blue);
-  margin: 3px 0;
-  font-size: 14px;
-}
-
-.el-loading-spinner .circular {
-  height: 42px;
-  width: 42px;
-  animation: loading-rotate 2s linear infinite;
-}
-
-.el-loading-spinner .path {
-  animation: loading-dash 1.5s ease-in-out infinite;
-  stroke-dasharray: 90, 150;
-  stroke-dashoffset: 0;
-  stroke-width: 2;
-  stroke: var(--blue);
-  stroke-linecap: round;
-}
-
-.el-loading-spinner i {
-  color: var(--blue);
 }
 
 .el-loading-fade-enter,
