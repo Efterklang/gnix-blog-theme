@@ -681,7 +681,7 @@ body {
   }
 
   h2 {
-    font-size: 2.25em;
+    font-size: 2em;
     font-weight: 700;
     line-height: 1.25;
     letter-spacing: -0.02em;
@@ -694,7 +694,7 @@ body {
   }
 
   h3 {
-    font-size: 1.875em;
+    font-size: 1.75em;
     font-weight: 700;
     line-height: 1.25;
     letter-spacing: -0.015em;
@@ -718,7 +718,7 @@ body {
   }
 
   h5 {
-    font-size: 1.35em;
+    font-size: 1.25em;
     font-weight: 600;
     line-height: 1.25;
     font-variant-caps: all-petite-caps;
