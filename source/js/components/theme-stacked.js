@@ -11,6 +11,10 @@ class ThemeStackedElement extends HTMLElement {
     this._startX = 0;
     this._currentX = 0;
     this._cards = [];
+    this._isVisible = false;
+    this._observer = null;
+    this._keyHandler = null;
+    this._mouseUpHandler = null;
 
     this.attachShadow({ mode: "open" });
 
@@ -54,40 +58,60 @@ class ThemeStackedElement extends HTMLElement {
   }
 
   connectedCallback() {
+    this._observer = new IntersectionObserver((entries) => {
+      this._isVisible = entries[0].isIntersecting;
+    });
+    this._observer.observe(this);
+
     this.loadThemeData().then(() => {
       this.render();
       this.init();
     });
   }
 
+  disconnectedCallback() {
+    this._observer?.disconnect();
+    if (this._keyHandler) document.removeEventListener("keydown", this._keyHandler);
+    if (this._mouseUpHandler) document.removeEventListener("mouseup", this._mouseUpHandler);
+  }
+
   async loadThemeData() {
-    // Try to get theme colors from CSS variables of existing themes
-    // Create a temporary container to extract color values
-    const tempContainer = document.createElement("div");
-    tempContainer.style.cssText = "position:absolute;left:-9999px;width:0;height:0;overflow:hidden;";
-    document.body.appendChild(tempContainer);
-
-    for (const theme of this.themes) {
-      const themeEl = document.createElement("div");
-      themeEl.setAttribute("data-theme", theme.id);
-      themeEl.style.cssText = "position:absolute;";
-      tempContainer.appendChild(themeEl);
-
-      // Extract computed colors for this theme
-      const colors = {};
-      const computedStyle = window.getComputedStyle(themeEl);
-
-      // Get each color variable
-      for (const colorVar of this.previewColors) {
-        const varValue = computedStyle.getPropertyValue(`--${colorVar}`).trim();
-        if (varValue) colors[colorVar] = varValue;
-      }
-      this._themeData[theme.id] = colors;
-
-      themeEl.remove();
+    if (window.__cachedThemeData) {
+      this._themeData = window.__cachedThemeData;
+      return;
     }
 
-    tempContainer.remove();
+    // Restore from localStorage before doing any DOM work
+    try {
+      const cached = localStorage.getItem("themeDataCache");
+      if (cached) {
+        this._themeData = JSON.parse(cached);
+        window.__cachedThemeData = this._themeData;
+        return;
+      }
+    } catch (_e) {}
+
+    const temp = document.createElement("div");
+    temp.style.cssText = "position:absolute;left:-9999px;width:0;height:0;overflow:hidden;";
+    document.body.appendChild(temp);
+
+    for (const theme of this.themes) {
+      temp.setAttribute("data-theme", theme.id);
+      // Force style recalc once per theme
+      const computed = window.getComputedStyle(temp);
+      const colors = {};
+      for (const colorVar of this.previewColors) {
+        const v = computed.getPropertyValue(`--${colorVar}`).trim();
+        if (v) colors[colorVar] = v;
+      }
+      this._themeData[theme.id] = colors;
+    }
+
+    temp.remove();
+    window.__cachedThemeData = this._themeData; // in-memory cache
+    try {
+      localStorage.setItem("themeDataCache", JSON.stringify(this._themeData));
+    } catch (_e) {}
   }
 
   render() {
@@ -411,21 +435,6 @@ class ThemeStackedElement extends HTMLElement {
         </div>
       `;
 
-      // Apply button click
-      const applyBtn = card.querySelector(".apply-btn");
-      applyBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        this.applyTheme(theme.id);
-        applyBtn.textContent = "Applied";
-      });
-
-      // Card click to navigate
-      card.addEventListener("click", () => {
-        if (!card.classList.contains("active")) {
-          this.goTo(index);
-        }
-      });
-
       this._cardStack.appendChild(card);
       this._cards.push(card);
     });
@@ -453,11 +462,9 @@ class ThemeStackedElement extends HTMLElement {
 
       if (dist === 0) {
         card.classList.add("active");
-      } else if (dist === -1 || (this._currentIndex === 0 && index === total - 1)) {
-        // Previous card (circular)
+      } else if (dist === -1) {
         card.classList.add("prev");
-      } else if (dist === 1 || (this._currentIndex === total - 1 && index === 0)) {
-        // Next card (circular)
+      } else if (dist === 1) {
         card.classList.add("next");
       } else {
         card.classList.add("hidden");
@@ -513,9 +520,34 @@ class ThemeStackedElement extends HTMLElement {
     this._prevBtn.addEventListener("click", () => this.prev());
     this._nextBtn.addEventListener("click", () => this.next());
 
+    // Single delegated click handler for the card stack
+    this._cardStack.addEventListener("click", (e) => {
+      const swatch = e.target.closest(".color-swatch");
+      if (swatch) {
+        e.stopPropagation();
+        const hex = (swatch.dataset.value || "").replace("#", "");
+        if (hex && hex !== "transparent") window.open(`https://www.colorhexa.com/${hex}`, "_blank");
+        return;
+      }
+
+      const applyBtn = e.target.closest(".apply-btn");
+      if (applyBtn) {
+        e.stopPropagation();
+        const themeId = applyBtn.dataset.theme;
+        this.applyTheme(themeId);
+        return;
+      }
+
+      const card = e.target.closest(".theme-card");
+      if (card) {
+        const idx = Number(card.dataset.index);
+        if (!card.classList.contains("active")) this.goTo(idx);
+      }
+    });
+
     // Keyboard navigation
-    document.addEventListener("keydown", (e) => {
-      if (!this.isVisible()) return;
+    this._keyHandler = (e) => {
+      if (!this._isVisible) return;
 
       switch (e.key) {
         case "ArrowLeft":
@@ -533,7 +565,8 @@ class ThemeStackedElement extends HTMLElement {
           }
           break;
       }
-    });
+    };
+    document.addEventListener("keydown", this._keyHandler);
 
     // Touch/drag support
     let startX = 0;
@@ -557,15 +590,15 @@ class ThemeStackedElement extends HTMLElement {
       handleStart(e.clientX);
       this._cardStack.style.cursor = "grabbing";
     });
-    document.addEventListener("mouseup", (e) => {
+    this._mouseUpHandler = (e) => {
       handleEnd(e.clientX);
       this._cardStack.style.cursor = "";
-    });
+    };
+    document.addEventListener("mouseup", this._mouseUpHandler);
   }
 
   isVisible() {
-    const rect = this.getBoundingClientRect();
-    return rect.top < window.innerHeight && rect.bottom > 0;
+    return this._isVisible;
   }
 
   getCurrentTheme() {
