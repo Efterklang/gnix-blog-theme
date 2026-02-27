@@ -7,42 +7,17 @@ class ThemeStackedElement extends HTMLElement {
   constructor() {
     super();
     this._currentIndex = 0;
-    this._isDragging = false;
-    this._startX = 0;
-    this._currentX = 0;
     this._cards = [];
     this._isVisible = false;
-    this._observer = null;
-    this._keyHandler = null;
-    this._mouseUpHandler = null;
+    this._themeData = {};
 
     this.attachShadow({ mode: "open" });
 
-    // All theme color variables to display
     this.previewColors = [
-      "rosewater",
-      "flamingo",
-      "pink",
-      "mauve",
-      "red",
-      "maroon",
-      "peach",
-      "yellow",
-      "green",
-      "teal",
-      "sky",
-      "sapphire",
-      "blue",
-      "lavender",
-      "text",
-      "subtext1",
-      "subtext0",
-      "overlay2",
-      "overlay1",
-      "overlay0",
-      "surface2",
-      "surface1",
-      "surface0",
+      "rosewater", "flamingo", "pink", "mauve", "red", "maroon", "peach",
+      "yellow", "green", "teal", "sky", "sapphire", "blue", "lavender",
+      "text", "subtext1", "subtext0", "overlay2", "overlay1", "overlay0",
+      "surface2", "surface1", "surface0",
     ];
 
     this.themes = [
@@ -53,26 +28,20 @@ class ThemeStackedElement extends HTMLElement {
       { id: "mocha", name: "Catppuccin Mocha" },
       { id: "tokyo_night", name: "Tokyo Night" },
     ];
-
-    this._themeData = {};
   }
 
-  connectedCallback() {
-    this._observer = new IntersectionObserver((entries) => {
-      this._isVisible = entries[0].isIntersecting;
-    });
+  async connectedCallback() {
+    this._observer = new IntersectionObserver((e) => { this._isVisible = e[0].isIntersecting; });
     this._observer.observe(this);
-
-    this.loadThemeData().then(() => {
-      this.render();
-      this.init();
-    });
+    await this.loadThemeData();
+    this.render();
+    this.init();
   }
 
   disconnectedCallback() {
     this._observer?.disconnect();
-    if (this._keyHandler) document.removeEventListener("keydown", this._keyHandler);
-    if (this._mouseUpHandler) document.removeEventListener("mouseup", this._mouseUpHandler);
+    document.removeEventListener("keydown", this._keyHandler);
+    document.removeEventListener("mouseup", this._mouseUpHandler);
   }
 
   async loadThemeData() {
@@ -80,13 +49,10 @@ class ThemeStackedElement extends HTMLElement {
       this._themeData = window.__cachedThemeData;
       return;
     }
-
-    // Restore from localStorage before doing any DOM work
     try {
       const cached = localStorage.getItem("themeDataCache");
       if (cached) {
-        this._themeData = JSON.parse(cached);
-        window.__cachedThemeData = this._themeData;
+        this._themeData = window.__cachedThemeData = JSON.parse(cached);
         return;
       }
     } catch (_e) {}
@@ -97,21 +63,17 @@ class ThemeStackedElement extends HTMLElement {
 
     for (const theme of this.themes) {
       temp.setAttribute("data-theme", theme.id);
-      // Force style recalc once per theme
       const computed = window.getComputedStyle(temp);
-      const colors = {};
-      for (const colorVar of this.previewColors) {
-        const v = computed.getPropertyValue(`--${colorVar}`).trim();
-        if (v) colors[colorVar] = v;
-      }
-      this._themeData[theme.id] = colors;
+      this._themeData[theme.id] = Object.fromEntries(
+        this.previewColors
+          .map((c) => [c, computed.getPropertyValue(`--${c}`).trim()])
+          .filter(([, v]) => v)
+      );
     }
 
     temp.remove();
-    window.__cachedThemeData = this._themeData; // in-memory cache
-    try {
-      localStorage.setItem("themeDataCache", JSON.stringify(this._themeData));
-    } catch (_e) {}
+    window.__cachedThemeData = this._themeData;
+    try { localStorage.setItem("themeDataCache", JSON.stringify(this._themeData)); } catch (_e) {}
   }
 
   render() {
@@ -326,8 +288,6 @@ class ThemeStackedElement extends HTMLElement {
           &:active {
             transform: scale(0.95);
           }
-
-
         }
 
         .dots {
@@ -361,9 +321,7 @@ class ThemeStackedElement extends HTMLElement {
       </style>
 
       <div class="stacked-container">
-        <div class="card-stack" id="card-stack">
-          <!-- Cards will be generated here -->
-        </div>
+        <div class="card-stack" id="card-stack"></div>
 
         <div class="controls">
           <button class="nav-btn" id="prev-btn" aria-label="Previous theme">
@@ -392,135 +350,84 @@ class ThemeStackedElement extends HTMLElement {
 
     this.renderCards();
     this.renderDots();
-    this.updateStack();
     this.attachEvents();
 
-    // Set initial index based on current theme
-    const currentTheme = this.getCurrentTheme();
-    const initialIndex = this.themes.findIndex((t) => t.id === currentTheme);
-    if (initialIndex !== -1) {
-      this.goTo(initialIndex, false);
-    }
+    const idx = this.themes.findIndex((t) => t.id === this.getCurrentTheme());
+    this.goTo(idx !== -1 ? idx : 0, false);
   }
 
   renderCards() {
-    this._cardStack.innerHTML = "";
-    this._cards = [];
-
-    this.themes.forEach((theme, index) => {
-      const card = document.createElement("div");
-      card.className = "theme-card";
-      card.dataset.index = index;
-      card.dataset.theme = theme.id;
-
-      const colors = this._themeData[theme.id] || {};
-      const colorSwatches = this.previewColors
-        .map((color) => {
-          const colorValue = colors[color] || "transparent";
-          return `<div class="color-swatch" data-color="${color}" data-value="${colorValue}" style="--color: ${colorValue};"></div>`;
-        })
-        .join("");
-
-      const isActive = this.getCurrentTheme() === theme.id;
-
-      card.innerHTML = `
-        <h4 class="card-title">${theme.name}</h4>
-        <div class="color-grid">
-          ${colorSwatches}
-        </div>
-        <div class="card-footer">
-          <button class="apply-btn ${isActive ? "applied" : ""}" data-theme="${theme.id}">
-            ${isActive ? "Applied ✓" : "Apply"}
-          </button>
-        </div>
-      `;
-
-      this._cardStack.appendChild(card);
-      this._cards.push(card);
-    });
+    const current = this.getCurrentTheme();
+    this._cardStack.innerHTML = this.themes
+      .map((theme, i) => {
+        const colors = this._themeData[theme.id] || {};
+        const swatches = this.previewColors
+          .map((c) => {
+            const v = colors[c] || "transparent";
+            return `<div class="color-swatch" data-color="${c}" data-value="${v}" style="--color:${v}"></div>`;
+          })
+          .join("");
+        const active = current === theme.id;
+        return `
+          <div class="theme-card" data-index="${i}" data-theme="${theme.id}">
+            <h4 class="card-title">${theme.name}</h4>
+            <div class="color-grid">${swatches}</div>
+            <div class="card-footer">
+              <button class="apply-btn${active ? " applied" : ""}" data-theme="${theme.id}">
+                ${active ? "Applied ✓" : "Apply"}
+              </button>
+            </div>
+          </div>`;
+      })
+      .join("");
+    this._cards = [...this._cardStack.querySelectorAll(".theme-card")];
   }
 
   renderDots() {
-    this._dotsContainer.innerHTML = "";
-    this.themes.forEach((_, index) => {
-      const dot = document.createElement("button");
-      dot.className = "dot";
-      dot.dataset.index = index;
-      dot.setAttribute("aria-label", `Go to theme ${index + 1}`);
-      dot.addEventListener("click", () => this.goTo(index));
-      this._dotsContainer.appendChild(dot);
-    });
+    this._dotsContainer.innerHTML = this.themes
+      .map((_, i) => `<button class="dot" data-index="${i}" aria-label="Go to theme ${i + 1}"></button>`)
+      .join("");
+    this._dotsContainer.querySelectorAll(".dot").forEach((dot, i) =>
+      dot.addEventListener("click", () => this.goTo(i))
+    );
   }
 
   updateStack() {
     const total = this._cards.length;
-
-    this._cards.forEach((card, index) => {
-      card.classList.remove("active", "prev", "next", "hidden");
-
-      const dist = this.getDistance(index, this._currentIndex, total);
-
-      if (dist === 0) {
-        card.classList.add("active");
-      } else if (dist === -1) {
-        card.classList.add("prev");
-      } else if (dist === 1) {
-        card.classList.add("next");
-      } else {
-        card.classList.add("hidden");
-      }
+    const distClass = { 0: "active", "-1": "prev", 1: "next" };
+    this._cards.forEach((card, i) => {
+      const cls = distClass[this.getDistance(i, this._currentIndex, total)] ?? "hidden";
+      card.className = `theme-card ${cls}`;
     });
-
-    // Update dots
-    this._dotsContainer.querySelectorAll(".dot").forEach((dot, index) => {
-      dot.classList.toggle("active", index === this._currentIndex);
-    });
+    this._dotsContainer.querySelectorAll(".dot").forEach((dot, i) =>
+      dot.classList.toggle("active", i === this._currentIndex)
+    );
   }
 
   getDistance(index, current, total) {
-    const diff = index - current;
-    if (Math.abs(diff) <= 1) return diff;
-    if (current === 0 && index === total - 1) return -1;
-    if (current === total - 1 && index === 0) return 1;
+    const d = ((index - current + total) % total);
+    if (d === 0) return 0;
+    if (d === 1) return 1;
+    if (d === total - 1) return -1;
     return 2;
   }
 
   goTo(index, animate = true) {
     const total = this.themes.length;
-
-    // Handle circular wrapping for goTo as well
-    if (index < 0) {
-      index = total - 1;
-    } else if (index >= total) {
-      index = 0;
-    }
-
-    this._currentIndex = index;
+    this._currentIndex = ((index % total) + total) % total;
     this.updateStack();
-
-    // Trigger animation
-    if (animate) {
-      this.dispatchEvent(
-        new CustomEvent("themeChange", {
-          detail: { index, theme: this.themes[index] },
-        }),
-      );
-    }
+    if (animate) this.dispatchEvent(new CustomEvent("themeChange", {
+      detail: { index: this._currentIndex, theme: this.themes[this._currentIndex] },
+    }));
   }
 
-  next() {
-    this.goTo(this._currentIndex + 1);
-  }
-  prev() {
-    this.goTo(this._currentIndex - 1);
-  }
+  next() { this.goTo(this._currentIndex + 1); }
+  prev() { this.goTo(this._currentIndex - 1); }
 
   attachEvents() {
-    // Navigation buttons
     this._prevBtn.addEventListener("click", () => this.prev());
     this._nextBtn.addEventListener("click", () => this.next());
 
-    // Single delegated click handler for the card stack
     this._cardStack.addEventListener("click", (e) => {
       const swatch = e.target.closest(".color-swatch");
       if (swatch) {
@@ -529,112 +436,61 @@ class ThemeStackedElement extends HTMLElement {
         if (hex && hex !== "transparent") window.open(`https://www.colorhexa.com/${hex}`, "_blank");
         return;
       }
-
       const applyBtn = e.target.closest(".apply-btn");
       if (applyBtn) {
         e.stopPropagation();
-        const themeId = applyBtn.dataset.theme;
-        this.applyTheme(themeId);
+        this.applyTheme(applyBtn.dataset.theme);
         return;
       }
-
       const card = e.target.closest(".theme-card");
-      if (card) {
-        const idx = Number(card.dataset.index);
-        if (!card.classList.contains("active")) this.goTo(idx);
-      }
+      if (card && !card.classList.contains("active")) this.goTo(Number(card.dataset.index));
     });
 
-    // Keyboard navigation
     this._keyHandler = (e) => {
       if (!this._isVisible) return;
-
-      switch (e.key) {
-        case "ArrowLeft":
-          e.preventDefault();
-          this.prev();
-          break;
-        case "ArrowRight":
-        case " ":
-          e.preventDefault();
-          this.next();
-          break;
-        case "Enter":
-          if (this._cards[this._currentIndex].classList.contains("active")) {
-            this.applyTheme(this.themes[this._currentIndex].id);
-          }
-          break;
-      }
+      if (e.key === "ArrowLeft") { e.preventDefault(); this.prev(); }
+      else if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); this.next(); }
+      else if (e.key === "Enter") this.applyTheme(this.themes[this._currentIndex].id);
     };
     document.addEventListener("keydown", this._keyHandler);
 
-    // Touch/drag support
-    let startX = 0;
-    let isDragging = false;
-
-    const handleStart = (x) => {
-      startX = x;
-      isDragging = true;
-    };
-    const handleEnd = (x) => {
-      if (!isDragging) return;
-      isDragging = false;
+    let startX = 0, dragging = false;
+    const onStart = (x) => { startX = x; dragging = true; };
+    const onEnd = (x) => {
+      if (!dragging) return;
+      dragging = false;
       const diff = startX - x;
       if (Math.abs(diff) > 50) diff > 0 ? this.next() : this.prev();
     };
 
-    this._cardStack.addEventListener("touchstart", (e) => handleStart(e.touches[0].clientX), { passive: true });
-    this._cardStack.addEventListener("touchend", (e) => handleEnd(e.changedTouches[0].clientX));
-
-    this._cardStack.addEventListener("mousedown", (e) => {
-      handleStart(e.clientX);
-      this._cardStack.style.cursor = "grabbing";
-    });
-    this._mouseUpHandler = (e) => {
-      handleEnd(e.clientX);
-      this._cardStack.style.cursor = "";
-    };
+    this._cardStack.addEventListener("touchstart", (e) => onStart(e.touches[0].clientX), { passive: true });
+    this._cardStack.addEventListener("touchend", (e) => onEnd(e.changedTouches[0].clientX));
+    this._cardStack.addEventListener("mousedown", (e) => { onStart(e.clientX); this._cardStack.style.cursor = "grabbing"; });
+    this._mouseUpHandler = (e) => { onEnd(e.clientX); this._cardStack.style.cursor = ""; };
     document.addEventListener("mouseup", this._mouseUpHandler);
   }
 
-  isVisible() {
-    return this._isVisible;
-  }
-
   getCurrentTheme() {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("themePreference");
-      if (stored) return stored;
-      return document.documentElement.getAttribute("data-theme") || "mocha";
-    }
-    return "mocha";
+    return localStorage.getItem("themePreference") ||
+           document.documentElement.getAttribute("data-theme") ||
+           "mocha";
   }
 
   applyTheme(themeId) {
-    if (typeof window !== "undefined" && window.applyTheme) {
-      window.applyTheme(themeId, true);
-
-      // Update all buttons
-      this._cards.forEach((card, idx) => {
-        const btn = card.querySelector(".apply-btn");
-        const isThisTheme = this.themes[idx].id === themeId;
-
-        btn.classList.toggle("applied", isThisTheme);
-        btn.textContent = isThisTheme ? "Applied ✓" : "Apply Theme";
-      });
-
-      // Visual feedback on active card
-      const activeCard = this._cards[this._currentIndex];
-      const activeBtn = activeCard.querySelector(".apply-btn");
-      activeBtn.style.transform = "scale(0.95)";
-      setTimeout(() => {
-        activeBtn.style.transform = "";
-      }, 150);
-    }
+    if (!window.applyTheme) return;
+    window.applyTheme(themeId, true);
+    this._cards.forEach((card, i) => {
+      const btn = card.querySelector(".apply-btn");
+      const match = this.themes[i].id === themeId;
+      btn.classList.toggle("applied", match);
+      btn.textContent = match ? "Applied ✓" : "Apply Theme";
+    });
+    const btn = this._cards[this._currentIndex].querySelector(".apply-btn");
+    btn.style.transform = "scale(0.95)";
+    setTimeout(() => { btn.style.transform = ""; }, 150);
   }
 }
 
-// Register the custom element
 if (!customElements.get("theme-stacked")) {
   customElements.define("theme-stacked", ThemeStackedElement);
 }
