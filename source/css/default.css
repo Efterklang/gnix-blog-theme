@@ -2,7 +2,7 @@
 
 :root {
   --font-serif: New York, PT Serif, Georgia, serif;
-  --font-sans-serif: SF Pro SC, SF Pro Display, SF Pro Icons, PingFang SC, system-ui, sans-serif;
+  --font-sans-serif: system-ui, sans-serif;
   --font-mono: "RecMonoCasual Nerd Font", "Maple Mono NF CN Local", "Maple Mono NF CN", "SF Mono", "SF Pro", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", cursive;
   --radius: 12px;
@@ -661,8 +661,6 @@ body {
   word-wrap: break-word;
   font-family: var(--font-sans-serif);
   font-size: 1rem;
-  line-height: 1.5;
-  letter-spacing: -0.003em;
   color: var(--subtext1);
 
   ::selection {
@@ -683,8 +681,6 @@ body {
   h2 {
     font-size: 2em;
     font-weight: 700;
-    line-height: 1.25;
-    letter-spacing: -0.02em;
     margin: 1rem 0 1rem;
     border-bottom: 0.8px solid var(--surface0);
 
@@ -696,8 +692,6 @@ body {
   h3 {
     font-size: 1.75em;
     font-weight: 700;
-    line-height: 1.25;
-    letter-spacing: -0.015em;
     margin: 1.2rem 0 1rem;
 
     > a.header-anchor:hover::after {
@@ -708,8 +702,6 @@ body {
   h4 {
     font-size: 1.5em;
     font-weight: 600;
-    line-height: 1.25;
-    letter-spacing: -0.01em;
     margin: 1.2rem 0 1rem;
 
     > a.header-anchor:hover::after {
@@ -720,9 +712,7 @@ body {
   h5 {
     font-size: 1.25em;
     font-weight: 600;
-    line-height: 1.25;
     font-variant-caps: all-petite-caps;
-    letter-spacing: -0.005em;
     margin: 1.2rem 0 1rem;
 
     > a.header-anchor:hover::after {
@@ -733,7 +723,6 @@ body {
   h6 {
     font-size: 1.1em;
     font-weight: 600;
-    line-height: 1.25;
     font-variant-caps: all-petite-caps;
     margin: 1.2rem 0 1rem;
 
