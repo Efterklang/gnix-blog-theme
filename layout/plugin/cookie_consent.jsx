@@ -6,41 +6,39 @@ class CookieConsent extends Component {
     const { type, theme, position, policyLink } = this.props;
     const { message, dismiss, allow, deny, link, policy } = text;
 
-    const js = `window.addEventListener("load", () => {
-      window.cookieconsent.initialise({
-        type: ${JSON.stringify(type)},
-        theme: ${JSON.stringify(theme)},
-        static: ${JSON.stringify(this.props.static)},
-        position: ${JSON.stringify(position)},
-        content: {
-          message: ${JSON.stringify(message)},
-          dismiss: ${JSON.stringify(dismiss)},
-          allow: ${JSON.stringify(allow)},
-          deny: ${JSON.stringify(deny)},
-          link: ${JSON.stringify(link)},
-          policy: ${JSON.stringify(policy)},
-          href: ${JSON.stringify(policyLink)},
-        },
-        palette: {
-          popup: {
-            background: "var(--base)",
-            text: "var(--text)"
-          },
-          button: {
-            background: "var(--blue)"
-          },
-        },
-      });
-    });`;
-
     if (head) {
       return <link rel="preload" href={cssUrl} as="style" onload="this.onload=null;this.rel='stylesheet'" />;
     }
     return (
-      <>
-        <script src={jsUrl} defer={true} onLoad={js}></script>
-        {/* <script dangerouslySetInnerHTML={{ __html: js }}></script> */}
-      </>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+          (function() {
+            var s = document.createElement('script');
+            s.src = ${JSON.stringify(jsUrl)};
+            s.defer = true;
+            s.onload = function() {
+              window.cookieconsent.initialise(${JSON.stringify({
+                type,
+                theme,
+                static: this.props.static,
+                position,
+                content: {
+                  message,
+                  dismiss,
+                  allow,
+                  deny,
+                  link,
+                  policy,
+                  href: policyLink,
+                },
+              })});
+            };
+            document.body.appendChild(s);
+          })();
+        `,
+        }}
+      />
     );
   }
 }

@@ -36,22 +36,7 @@ class Navbar extends Component {
 
     return (
       <nav class="navbar navbar-main">
-        <div
-          class="navbar-container"
-          onclick="
-            const burger = this.querySelector('.navbar-burger');
-            const menu = this.querySelector('.navbar-menu');
-            const target = event.target;
-
-            if (target.closest('.navbar-burger')) {
-              burger.classList.toggle('is-active');
-              menu.classList.toggle('is-active');
-            } else if (target.closest('.navbar-item')) { // 点击菜单项：自动关闭菜单
-              burger.classList.remove('is-active');
-              menu.classList.remove('is-active');
-            }
-          "
-        >
+        <div class="navbar-container" onclick="toggleNav(event)">
           <a href={siteUrl} style={"font-family: homemade-apple; color: var(--text); display: flex; align-items: center; padding: 0 1em;"}>
             GnixAij
           </a>

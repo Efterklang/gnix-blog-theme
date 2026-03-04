@@ -313,3 +313,18 @@ document.addEventListener("keydown", handleKeyDown, {
   capture: true, // 捕获阶段监听，优先于浏览器默认处理
   passive: false, // 允许调用 preventDefault
 });
+
+function toggleNav(event) {
+  const container = event.currentTarget;
+  const burger = container.querySelector(".navbar-burger");
+  const menu = container.querySelector(".navbar-menu");
+  const target = event.target;
+
+  if (target.closest(".navbar-burger")) {
+    burger.classList.toggle("is-active");
+    menu.classList.toggle("is-active");
+  } else if (target.closest(".navbar-item")) {
+    burger.classList.remove("is-active");
+    menu.classList.remove("is-active");
+  }
+}
