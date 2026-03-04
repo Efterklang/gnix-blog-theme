@@ -6,26 +6,12 @@ class Swup extends Component {
       return null;
     }
 
-    const swupScript = `
-const swup = new Swup({
-  containers: ["#swup"],
-  cache: true,
-  native: true,
-  animationSelector: false,
-  plugins: [
-    new SwupHeadPlugin({
-      persistTags: true
-    }),
-    new SwupScriptsPlugin()
-  ]
-});
-`;
     return (
       <Fragment>
-        <script src="/js/host/swup/Swup.umd.min.js"></script>
-        <script src="/js/host/swup/head-plugin.umd.min.js"></script>
-        <script src="/js/host/swup/scripts-plugin.umd.min.js"></script>
-        <script data-swup-ignore-script dangerouslySetInnerHTML={{ __html: swupScript }}></script>
+        <script defer src="/js/host/swup/Swup.umd.min.js"></script>
+        <script defer src="/js/host/swup/head-plugin.umd.min.js"></script>
+        <script defer src="/js/host/swup/scripts-plugin.umd.min.js"></script>
+        <script defer src="/js/swup-init.js"></script>
       </Fragment>
     );
   }

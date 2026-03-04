@@ -72,7 +72,7 @@ class Footer extends Component {
             ? Object.keys(subdomains).map((name) => {
                 const link = subdomains[name];
                 return (
-                  <a class="footer-link" target="_blank" rel="noopener" title={name} href={link.url}>
+                  <a class="footer-link" target="_self" rel="noopener" title={name} href={link.url}>
                     {name}
                   </a>
                 );
