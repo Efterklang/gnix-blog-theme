@@ -1,6 +1,7 @@
 const { Component, cacheComponent } = require("../../include/util/common");
 
 class CookieConsent extends Component {
+  // https://www.osano.com/cookieconsent/documentation/javascript-api/
   render() {
     const { head, text, jsUrl, cssUrl } = this.props;
     const { type, theme, position, policyLink } = this.props;
@@ -31,6 +32,16 @@ class CookieConsent extends Component {
                   link,
                   policy,
                   href: policyLink,
+                },
+                palette: {
+                  popup: {
+                    background: "var(--base)",
+                    text: "var(--text)",
+                  },
+                  button: {
+                    background: "var(--lavender)",
+                    text: "var(--base)",
+                  },
                 },
               })});
             };
