@@ -3,6 +3,41 @@
  * Displays themes as a stack of interactive cards with circular navigation
  */
 
+const PREVIEW_COLORS = [
+  "rosewater",
+  "flamingo",
+  "pink",
+  "mauve",
+  "red",
+  "maroon",
+  "peach",
+  "yellow",
+  "green",
+  "teal",
+  "sky",
+  "sapphire",
+  "blue",
+  "lavender",
+  "text",
+  "subtext1",
+  "subtext0",
+  "overlay2",
+  "overlay1",
+  "overlay0",
+  "surface2",
+  "surface1",
+  "surface0",
+];
+
+const THEMES = [
+  { id: "latte", name: "Catppuccin Latte" },
+  { id: "nord", name: "Nord Light" },
+  { id: "nord_night", name: "Nord Night" },
+  { id: "rose_pine", name: "Rosé Pine" },
+  { id: "mocha", name: "Catppuccin Mocha" },
+  { id: "tokyo_night", name: "Tokyo Night" },
+];
+
 class ThemeStackedElement extends HTMLElement {
   constructor() {
     super();
@@ -10,43 +45,7 @@ class ThemeStackedElement extends HTMLElement {
     this._cards = [];
     this._isVisible = false;
     this._themeData = {};
-
     this.attachShadow({ mode: "open" });
-
-    this.previewColors = [
-      "rosewater",
-      "flamingo",
-      "pink",
-      "mauve",
-      "red",
-      "maroon",
-      "peach",
-      "yellow",
-      "green",
-      "teal",
-      "sky",
-      "sapphire",
-      "blue",
-      "lavender",
-      "text",
-      "subtext1",
-      "subtext0",
-      "overlay2",
-      "overlay1",
-      "overlay0",
-      "surface2",
-      "surface1",
-      "surface0",
-    ];
-
-    this.themes = [
-      { id: "latte", name: "Catppuccin Latte" },
-      { id: "nord", name: "Nord Light" },
-      { id: "nord_night", name: "Nord Night" },
-      { id: "rose_pine", name: "Rosé Pine" },
-      { id: "mocha", name: "Catppuccin Mocha" },
-      { id: "tokyo_night", name: "Tokyo Night" },
-    ];
   }
 
   async connectedCallback() {
@@ -82,10 +81,10 @@ class ThemeStackedElement extends HTMLElement {
     temp.style.cssText = "position:absolute;left:-9999px;width:0;height:0;overflow:hidden;";
     document.body.appendChild(temp);
 
-    for (const theme of this.themes) {
+    for (const theme of THEMES) {
       temp.setAttribute("data-theme", theme.id);
       const computed = window.getComputedStyle(temp);
-      this._themeData[theme.id] = Object.fromEntries(this.previewColors.map((c) => [c, computed.getPropertyValue(`--${c}`).trim()]).filter(([, v]) => v));
+      this._themeData[theme.id] = Object.fromEntries(PREVIEW_COLORS.map((c) => [c, computed.getPropertyValue(`--${c}`).trim()]).filter(([, v]) => v));
     }
 
     temp.remove();
@@ -133,7 +132,7 @@ class ThemeStackedElement extends HTMLElement {
           position: relative;
           width: min(550px, 90%);
           background: var(--base);
-          border: 2px solid var(--surface0);
+          border: 2px solid color-mix(in oklch, var(--base) 80%, var(--text));
           border-radius: 16px;
           padding: 1.5rem;
           cursor: grab;
@@ -371,39 +370,37 @@ class ThemeStackedElement extends HTMLElement {
     this.renderDots();
     this.attachEvents();
 
-    const idx = this.themes.findIndex((t) => t.id === this.getCurrentTheme());
+    const idx = THEMES.findIndex((t) => t.id === this.getCurrentTheme());
     this.goTo(idx !== -1 ? idx : 0, false);
   }
 
   renderCards() {
     const current = this.getCurrentTheme();
-    this._cardStack.innerHTML = this.themes
-      .map((theme, i) => {
-        const colors = this._themeData[theme.id] || {};
-        const swatches = this.previewColors
-          .map((c) => {
-            const v = colors[c] || "transparent";
-            return `<div class="color-swatch" data-color="${c}" data-value="${v}" style="--color:${v}"></div>`;
-          })
-          .join("");
-        const active = current === theme.id;
-        return `
-          <div class="theme-card" data-index="${i}" data-theme="${theme.id}">
-            <h4 class="card-title">${theme.name}</h4>
-            <div class="color-grid">${swatches}</div>
-            <div class="card-footer">
-              <button class="apply-btn${active ? " applied" : ""}" data-theme="${theme.id}">
-                ${active ? "Applied ✓" : "Apply"}
-              </button>
-            </div>
-          </div>`;
-      })
-      .join("");
+    this._cardStack.innerHTML = THEMES.map((theme, i) => {
+      const colors = this._themeData[theme.id] || {};
+      const themeVars = Object.entries(colors)
+        .map(([k, v]) => `--${k}: ${v}`)
+        .join(";");
+      const swatches = PREVIEW_COLORS.map((c) => {
+        const v = colors[c] || "transparent";
+        return `<div class="color-swatch" data-color="${c}" data-value="${v}" style="--color:${v}"></div>`;
+      }).join("");
+      const active = current === theme.id;
+      return `<div class="theme-card" data-index="${i}" data-theme="${theme.id}" style="${themeVars}">
+        <h4 class="card-title">${theme.name}</h4>
+        <div class="color-grid">${swatches}</div>
+        <div class="card-footer">
+          <button class="apply-btn${active ? " applied" : ""}" data-theme="${theme.id}">
+            ${active ? "Applied ✓" : "Apply"}
+          </button>
+        </div>
+      </div>`;
+    }).join("");
     this._cards = [...this._cardStack.querySelectorAll(".theme-card")];
   }
 
   renderDots() {
-    this._dotsContainer.innerHTML = this.themes.map((_, i) => `<button class="dot" data-index="${i}" aria-label="Go to theme ${i + 1}"></button>`).join("");
+    this._dotsContainer.innerHTML = THEMES.map((_, i) => `<button class="dot" data-index="${i}" aria-label="Go to theme ${i + 1}"></button>`).join("");
     this._dotsContainer.querySelectorAll(".dot").forEach((dot, i) => dot.addEventListener("click", () => this.goTo(i)));
   }
 
@@ -419,20 +416,16 @@ class ThemeStackedElement extends HTMLElement {
 
   getDistance(index, current, total) {
     const d = (index - current + total) % total;
-    if (d === 0) return 0;
-    if (d === 1) return 1;
-    if (d === total - 1) return -1;
-    return 2;
+    return d === 0 ? 0 : d === 1 ? 1 : d === total - 1 ? -1 : 2;
   }
 
   goTo(index, animate = true) {
-    const total = this.themes.length;
-    this._currentIndex = ((index % total) + total) % total;
+    this._currentIndex = ((index % THEMES.length) + THEMES.length) % THEMES.length;
     this.updateStack();
     if (animate)
       this.dispatchEvent(
         new CustomEvent("themeChange", {
-          detail: { index: this._currentIndex, theme: this.themes[this._currentIndex] },
+          detail: { index: this._currentIndex, theme: THEMES[this._currentIndex] },
         }),
       );
   }
@@ -474,7 +467,7 @@ class ThemeStackedElement extends HTMLElement {
       } else if (e.key === "ArrowRight" || e.key === " ") {
         e.preventDefault();
         this.next();
-      } else if (e.key === "Enter") this.applyTheme(this.themes[this._currentIndex].id);
+      } else if (e.key === "Enter") this.applyTheme(THEMES[this._currentIndex].id);
     };
     document.addEventListener("keydown", this._keyHandler);
 
@@ -513,7 +506,7 @@ class ThemeStackedElement extends HTMLElement {
     window.applyTheme(themeId, true);
     this._cards.forEach((card, i) => {
       const btn = card.querySelector(".apply-btn");
-      const match = this.themes[i].id === themeId;
+      const match = THEMES[i].id === themeId;
       btn.classList.toggle("applied", match);
       btn.textContent = match ? "Applied ✓" : "Apply Theme";
     });
