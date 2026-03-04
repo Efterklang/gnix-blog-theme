@@ -14,10 +14,29 @@ class ThemeStackedElement extends HTMLElement {
     this.attachShadow({ mode: "open" });
 
     this.previewColors = [
-      "rosewater", "flamingo", "pink", "mauve", "red", "maroon", "peach",
-      "yellow", "green", "teal", "sky", "sapphire", "blue", "lavender",
-      "text", "subtext1", "subtext0", "overlay2", "overlay1", "overlay0",
-      "surface2", "surface1", "surface0",
+      "rosewater",
+      "flamingo",
+      "pink",
+      "mauve",
+      "red",
+      "maroon",
+      "peach",
+      "yellow",
+      "green",
+      "teal",
+      "sky",
+      "sapphire",
+      "blue",
+      "lavender",
+      "text",
+      "subtext1",
+      "subtext0",
+      "overlay2",
+      "overlay1",
+      "overlay0",
+      "surface2",
+      "surface1",
+      "surface0",
     ];
 
     this.themes = [
@@ -31,7 +50,9 @@ class ThemeStackedElement extends HTMLElement {
   }
 
   async connectedCallback() {
-    this._observer = new IntersectionObserver((e) => { this._isVisible = e[0].isIntersecting; });
+    this._observer = new IntersectionObserver((e) => {
+      this._isVisible = e[0].isIntersecting;
+    });
     this._observer.observe(this);
     await this.loadThemeData();
     this.render();
@@ -64,16 +85,14 @@ class ThemeStackedElement extends HTMLElement {
     for (const theme of this.themes) {
       temp.setAttribute("data-theme", theme.id);
       const computed = window.getComputedStyle(temp);
-      this._themeData[theme.id] = Object.fromEntries(
-        this.previewColors
-          .map((c) => [c, computed.getPropertyValue(`--${c}`).trim()])
-          .filter(([, v]) => v)
-      );
+      this._themeData[theme.id] = Object.fromEntries(this.previewColors.map((c) => [c, computed.getPropertyValue(`--${c}`).trim()]).filter(([, v]) => v));
     }
 
     temp.remove();
     window.__cachedThemeData = this._themeData;
-    try { localStorage.setItem("themeDataCache", JSON.stringify(this._themeData)); } catch (_e) {}
+    try {
+      localStorage.setItem("themeDataCache", JSON.stringify(this._themeData));
+    } catch (_e) {}
   }
 
   render() {
@@ -179,7 +198,7 @@ class ThemeStackedElement extends HTMLElement {
 
         .color-grid {
           display: grid;
-          grid-template-columns: repeat(8, 1fr);
+          grid-template-columns: repeat(9, 1fr);
           gap: 6px;
           margin-bottom: 1rem;
 
@@ -384,12 +403,8 @@ class ThemeStackedElement extends HTMLElement {
   }
 
   renderDots() {
-    this._dotsContainer.innerHTML = this.themes
-      .map((_, i) => `<button class="dot" data-index="${i}" aria-label="Go to theme ${i + 1}"></button>`)
-      .join("");
-    this._dotsContainer.querySelectorAll(".dot").forEach((dot, i) =>
-      dot.addEventListener("click", () => this.goTo(i))
-    );
+    this._dotsContainer.innerHTML = this.themes.map((_, i) => `<button class="dot" data-index="${i}" aria-label="Go to theme ${i + 1}"></button>`).join("");
+    this._dotsContainer.querySelectorAll(".dot").forEach((dot, i) => dot.addEventListener("click", () => this.goTo(i)));
   }
 
   updateStack() {
@@ -399,13 +414,11 @@ class ThemeStackedElement extends HTMLElement {
       const cls = distClass[this.getDistance(i, this._currentIndex, total)] ?? "hidden";
       card.className = `theme-card ${cls}`;
     });
-    this._dotsContainer.querySelectorAll(".dot").forEach((dot, i) =>
-      dot.classList.toggle("active", i === this._currentIndex)
-    );
+    this._dotsContainer.querySelectorAll(".dot").forEach((dot, i) => dot.classList.toggle("active", i === this._currentIndex));
   }
 
   getDistance(index, current, total) {
-    const d = ((index - current + total) % total);
+    const d = (index - current + total) % total;
     if (d === 0) return 0;
     if (d === 1) return 1;
     if (d === total - 1) return -1;
@@ -416,13 +429,20 @@ class ThemeStackedElement extends HTMLElement {
     const total = this.themes.length;
     this._currentIndex = ((index % total) + total) % total;
     this.updateStack();
-    if (animate) this.dispatchEvent(new CustomEvent("themeChange", {
-      detail: { index: this._currentIndex, theme: this.themes[this._currentIndex] },
-    }));
+    if (animate)
+      this.dispatchEvent(
+        new CustomEvent("themeChange", {
+          detail: { index: this._currentIndex, theme: this.themes[this._currentIndex] },
+        }),
+      );
   }
 
-  next() { this.goTo(this._currentIndex + 1); }
-  prev() { this.goTo(this._currentIndex - 1); }
+  next() {
+    this.goTo(this._currentIndex + 1);
+  }
+  prev() {
+    this.goTo(this._currentIndex - 1);
+  }
 
   attachEvents() {
     this._prevBtn.addEventListener("click", () => this.prev());
@@ -448,14 +468,22 @@ class ThemeStackedElement extends HTMLElement {
 
     this._keyHandler = (e) => {
       if (!this._isVisible) return;
-      if (e.key === "ArrowLeft") { e.preventDefault(); this.prev(); }
-      else if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); this.next(); }
-      else if (e.key === "Enter") this.applyTheme(this.themes[this._currentIndex].id);
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        this.prev();
+      } else if (e.key === "ArrowRight" || e.key === " ") {
+        e.preventDefault();
+        this.next();
+      } else if (e.key === "Enter") this.applyTheme(this.themes[this._currentIndex].id);
     };
     document.addEventListener("keydown", this._keyHandler);
 
-    let startX = 0, dragging = false;
-    const onStart = (x) => { startX = x; dragging = true; };
+    let startX = 0,
+      dragging = false;
+    const onStart = (x) => {
+      startX = x;
+      dragging = true;
+    };
     const onEnd = (x) => {
       if (!dragging) return;
       dragging = false;
@@ -465,15 +493,19 @@ class ThemeStackedElement extends HTMLElement {
 
     this._cardStack.addEventListener("touchstart", (e) => onStart(e.touches[0].clientX), { passive: true });
     this._cardStack.addEventListener("touchend", (e) => onEnd(e.changedTouches[0].clientX));
-    this._cardStack.addEventListener("mousedown", (e) => { onStart(e.clientX); this._cardStack.style.cursor = "grabbing"; });
-    this._mouseUpHandler = (e) => { onEnd(e.clientX); this._cardStack.style.cursor = ""; };
+    this._cardStack.addEventListener("mousedown", (e) => {
+      onStart(e.clientX);
+      this._cardStack.style.cursor = "grabbing";
+    });
+    this._mouseUpHandler = (e) => {
+      onEnd(e.clientX);
+      this._cardStack.style.cursor = "";
+    };
     document.addEventListener("mouseup", this._mouseUpHandler);
   }
 
   getCurrentTheme() {
-    return localStorage.getItem("themePreference") ||
-           document.documentElement.getAttribute("data-theme") ||
-           "mocha";
+    return localStorage.getItem("themePreference") || document.documentElement.getAttribute("data-theme") || "mocha";
   }
 
   applyTheme(themeId) {
@@ -487,7 +519,9 @@ class ThemeStackedElement extends HTMLElement {
     });
     const btn = this._cards[this._currentIndex].querySelector(".apply-btn");
     btn.style.transform = "scale(0.95)";
-    setTimeout(() => { btn.style.transform = ""; }, 150);
+    setTimeout(() => {
+      btn.style.transform = "";
+    }, 150);
   }
 }
 

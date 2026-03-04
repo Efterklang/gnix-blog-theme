@@ -1,6 +1,15 @@
 @charset "UTF-8";
 
 :root {
+  --subtext1: color-mix(in oklch, var(--text) 90%, var(--mantle));
+  --subtext0: color-mix(in oklch, var(--text) 80%, var(--mantle));
+  --surface0: color-mix(in oklch, var(--base) 80%, var(--text));
+  --surface1: color-mix(in oklch, var(--base) 78%, var(--text));
+  --surface2: color-mix(in oklch, var(--base) 67%, var(--text));
+  --overlay0: color-mix(in oklch, var(--base) 56%, var(--text));
+  --overlay1: color-mix(in oklch, var(--base) 45%, var(--text));
+  --overlay2: color-mix(in oklch, var(--base) 34%, var(--text));
+
   --font-serif: New York, PT Serif, Georgia, serif;
   --font-sans-serif: system-ui, sans-serif;
   --font-mono: "RecMonoCasual Nerd Font", "Maple Mono NF CN Local", "Maple Mono NF CN", "SF Mono", "SF Pro", Monaco, Consolas, monospace;
@@ -27,14 +36,6 @@
   --blue: #1e66f5;
   --lavender: #7287fd;
   --text: #4c4f69;
-  --subtext1: #5c5f77;
-  --subtext0: #6c6f85;
-  --overlay2: #7c7f93;
-  --overlay1: #8c8fa1;
-  --overlay0: #9ca0b0;
-  --surface2: #acb0be;
-  --surface1: #bcc0cc;
-  --surface0: #ccd0da;
   --base: #eff1f5;
   --mantle: #e6e9ef;
   --crust: #dce0e8;
@@ -57,14 +58,6 @@
   --blue: #9ccfd8;
   --lavender: #c4a7e7;
   --text: #e0def4;
-  --subtext1: #908caa;
-  --subtext0: #6e6a86;
-  --overlay2: #57526e;
-  --overlay1: #454158;
-  --overlay0: #3c3b4d;
-  --surface2: #302d41;
-  --surface1: #26233a;
-  --surface0: #1f1d2e;
   --base: #191726;
   --mantle: #161422;
   --crust: #11111b;
@@ -87,14 +80,6 @@
   --blue: #81a1c1;
   --lavender: #5e81ac;
   --text: #4c566a;
-  --subtext1: #3b4252;
-  --subtext0: #434c5e;
-  --overlay2: #4c566a;
-  --overlay1: #5a657a;
-  --overlay0: #686e7e;
-  --surface2: #76809f;
-  --surface1: #7d8fa3;
-  --surface0: #8fa3b0;
   --base: #eceff4;
   --mantle: #e5e9f0;
   --crust: #d8dee9;
@@ -117,14 +102,6 @@
   --blue: #89b4fa;
   --lavender: #b4befe;
   --text: #cdd6f4;
-  --subtext1: #bac2de;
-  --subtext0: #a6adc8;
-  --overlay2: #9399b2;
-  --overlay1: #7f849c;
-  --overlay0: #6c7086;
-  --surface2: #585b70;
-  --surface1: #45475a;
-  --surface0: #313244;
   --base: #1e1e2e;
   --mantle: #181825;
   --crust: #11111b;
@@ -147,14 +124,6 @@
   --blue: #7aa2f7;
   --lavender: #82aaff;
   --text: #c0caf5;
-  --subtext1: #a9b1d6;
-  --subtext0: #9aa5ce;
-  --overlay2: #787c99;
-  --overlay1: #565f89;
-  --overlay0: #414868;
-  --surface2: #414868;
-  --surface1: #33467c;
-  --surface0: #24283b;
   --base: #1a1b26;
   --mantle: #16161e;
   --crust: #101014;
@@ -177,14 +146,6 @@
   --blue: #5e81ac;
   --lavender: #81a1c1;
   --text: #eceff4;
-  --subtext1: #e5e9f0;
-  --subtext0: #d8dee9;
-  --overlay2: #4c566a;
-  --overlay1: #434c5e;
-  --overlay0: #3b4252;
-  --surface2: #434c5e;
-  --surface1: #3b4252;
-  --surface0: #3b4252;
   --base: #2e3440;
   --mantle: #292e39;
   --crust: #242933;
