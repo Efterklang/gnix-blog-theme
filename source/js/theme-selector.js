@@ -14,8 +14,10 @@
   let currentIndex = 0;
   let previewTheme = null;
   let originalTheme = null;
-  let modal = null;
   let themeOptions = [];
+  let shouldApply = false;
+  let previousFocus = null;
+  let popoverEl = null;
 
   function getThemePreference() {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -23,8 +25,7 @@
   }
 
   function applyTheme(theme, persist = false) {
-    const resolved =
-      theme === "system" ? (colorSchemeMediaQuery.matches ? "mocha" : "nord") : theme;
+    const resolved = theme === "system" ? (colorSchemeMediaQuery.matches ? "mocha" : "nord") : theme;
     const html = document.documentElement;
     html.setAttribute("data-theme", resolved);
     html.classList.remove("night", "light");
@@ -34,8 +35,10 @@
 
   function updateFocus() {
     themeOptions.forEach((option, index) => {
-      option.classList.toggle("is-focused", index === currentIndex);
-      if (index !== currentIndex) return;
+      const focused = index === currentIndex;
+      option.classList.toggle("is-focused", focused);
+      option.setAttribute("aria-selected", focused ? "true" : "false");
+      if (!focused) return;
 
       option.scrollIntoView({ block: "nearest", behavior: "smooth" });
       const theme = option.getAttribute("data-theme-option");
@@ -46,101 +49,115 @@
     });
   }
 
-  function openModal() {
-    const el = document.getElementById("theme-selector-modal");
-    if (!el || modal) return;
-
-    modal = el;
+  function onOpen(el) {
+    previousFocus = document.activeElement;
     originalTheme = getThemePreference();
-    themeOptions = modal.querySelectorAll(".theme-option");
+    previewTheme = null;
+    shouldApply = false;
+    themeOptions = el.querySelectorAll(".theme-option");
 
     themeOptions.forEach((option, index) => {
       const theme = option.getAttribute("data-theme-option");
       if (theme === originalTheme) currentIndex = index;
       option.classList.toggle("is-active", theme === originalTheme);
+      option.setAttribute("aria-selected", theme === originalTheme ? "true" : "false");
     });
 
     updateFocus();
-    modal.classList.add("is-active");
+    el.focus();
   }
 
-  function closeModal(apply = false) {
-    if (!modal) return;
-
-    if (apply && previewTheme) {
+  function onClose() {
+    if (shouldApply && previewTheme) {
       applyTheme(previewTheme, true);
     } else if (previewTheme && previewTheme !== originalTheme) {
       applyTheme(originalTheme);
     }
 
-    modal.classList.remove("is-active");
-    themeOptions.forEach((option) => option.classList.remove("is-active", "is-focused"));
+    themeOptions.forEach((option) => {
+      option.classList.remove("is-active", "is-focused");
+      option.setAttribute("aria-selected", "false");
+    });
 
     previewTheme = null;
     originalTheme = null;
-    modal = null;
     themeOptions = [];
+    shouldApply = false;
+    previousFocus?.focus();
+    previousFocus = null;
+  }
+
+  function setup() {
+    popoverEl = document.getElementById("theme-selector-popover");
+    if (!popoverEl) return;
+
+    popoverEl.addEventListener("toggle", (event) => {
+      if (event.newState === "open") {
+        onOpen(popoverEl);
+      } else {
+        onClose();
+      }
+    });
+
+    popoverEl.addEventListener("click", (event) => {
+      if (event.target === popoverEl) popoverEl.hidePopover();
+    });
+
+    popoverEl.addEventListener(
+      "keydown",
+      (event) => {
+        const maxIndex = themeOptions.length - 1;
+
+        switch (event.key) {
+          case "Tab":
+            event.preventDefault();
+            currentIndex = event.shiftKey ? (currentIndex > 0 ? currentIndex - 1 : maxIndex) : currentIndex < maxIndex ? currentIndex + 1 : 0;
+            updateFocus();
+            break;
+
+          case "j":
+          case "ArrowDown":
+          case "Down":
+            event.preventDefault();
+            currentIndex = currentIndex < maxIndex ? currentIndex + 1 : 0;
+            updateFocus();
+            break;
+
+          case "k":
+          case "ArrowUp":
+          case "Up":
+            event.preventDefault();
+            currentIndex = currentIndex > 0 ? currentIndex - 1 : maxIndex;
+            updateFocus();
+            break;
+
+          case "Enter":
+            event.preventDefault();
+            shouldApply = true;
+            popoverEl.hidePopover();
+            break;
+        }
+      },
+      { passive: false },
+    );
   }
 
   colorSchemeMediaQuery.addEventListener("change", () => {
     if (getThemePreference() === "system") applyTheme("system", true);
   });
 
-  document.addEventListener(
-    "keydown",
-    (event) => {
-      if (!modal) return;
-      const maxIndex = themeOptions.length - 1;
-
-      switch (event.key) {
-        case "j":
-        case "ArrowDown":
-        case "Down":
-          event.preventDefault();
-          currentIndex = currentIndex < maxIndex ? currentIndex + 1 : 0;
-          updateFocus();
-          break;
-
-        case "k":
-        case "ArrowUp":
-        case "Up":
-          event.preventDefault();
-          currentIndex = currentIndex > 0 ? currentIndex - 1 : maxIndex;
-          updateFocus();
-          break;
-
-        case "Enter":
-          event.preventDefault();
-          closeModal(true);
-          break;
-
-        case "Escape":
-        case "Esc":
-          event.preventDefault();
-          closeModal(false);
-          break;
-      }
-    },
-    { capture: true, passive: false }
-  );
-
-  window.handleThemeModalClick = (event) => {
-    if (event.target.classList.contains("theme-selector-modal")) {
-      event.preventDefault();
-      closeModal(false);
-    }
-  };
-
-  window.selectThemeOption = (event, index) => {
-    if (!modal) return;
-    event.preventDefault();
-    event.stopPropagation();
+  window.selectThemeOption = (index) => {
     currentIndex = index;
     updateFocus();
-    setTimeout(() => closeModal(true), 150);
+    // Brief delay so the focused highlight is visible before the popover closes
+    setTimeout(() => {
+      shouldApply = true;
+      popoverEl.hidePopover();
+    }, 150);
   };
 
-  window.openThemeModal = openModal;
   window.getThemePreference = getThemePreference;
   window.applyTheme = applyTheme;
+
+  setup();
 })(window, document, window.localStorage);

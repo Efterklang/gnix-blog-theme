@@ -67,7 +67,7 @@ class Navbar extends Component {
                   })}
                 </Fragment>
               ) : null}
-              <button type="button" class="navbar-item" id="theme-selector-trigger" title="Choose Theme" onclick="window.openThemeModal?.()">
+              <button type="button" class="navbar-item" title="Choose Theme" popovertarget="theme-selector-popover">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                   <title>brightness_fill</title>
                   <g id="brightness_fill" fill="currentColor">
@@ -75,7 +75,7 @@ class Navbar extends Component {
                   </g>
                 </svg>
               </button>
-              <button type="button" class="navbar-item search" title={searchTitle}>
+              <button type="button" class="navbar-item search" popovertarget="searchbox" title={searchTitle}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                   <title>search_line</title>
                   <g id="search_line" fill="currentColor">

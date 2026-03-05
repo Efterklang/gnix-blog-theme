@@ -1,6 +1,6 @@
 // biome-ignore lint/correctness/noUnusedVariables: Called in other files
 function loadInsight(config, translation) {
-  const main = document.querySelector(".searchbox");
+  const main = document.querySelector("#searchbox");
   if (!main) return;
 
   const input = main.querySelector(".searchbox-input");
@@ -221,6 +221,18 @@ function loadInsight(config, translation) {
       }
     }
     container.appendChild(fragment);
+
+    // 为动态生成的结果项补充 ARIA 属性
+    const items = container.querySelectorAll(".searchbox-result-item");
+    items.forEach((item, i) => {
+      item.id = `searchbox-result-${i}`;
+      item.setAttribute("role", "option");
+      item.setAttribute("aria-selected", "false");
+      item.setAttribute("tabindex", "-1");
+    });
+
+    input.removeAttribute("aria-activedescendant");
+    input.setAttribute("aria-expanded", items.length > 0 ? "true" : "false");
   }
 
   function scrollTo(item) {
@@ -252,10 +264,15 @@ function loadInsight(config, translation) {
     const nextPosition = (items.length + prevPosition + value) % items.length;
     const finalPosition = nextPosition < 0 ? nextPosition + items.length : nextPosition;
 
-    if (prevPosition !== -1) items[prevPosition].classList.remove("active");
+    if (prevPosition !== -1) {
+      items[prevPosition].classList.remove("active");
+      items[prevPosition].setAttribute("aria-selected", "false");
+    }
 
     const nextItem = items[finalPosition];
     nextItem.classList.add("active");
+    nextItem.setAttribute("aria-selected", "true");
+    input.setAttribute("aria-activedescendant", nextItem.id);
     scrollTo(nextItem);
   }
 
@@ -300,58 +317,41 @@ function loadInsight(config, translation) {
     }, 200);
   });
 
-  main.addEventListener("focusout", (e) => {
-    if (main.contains(e.relatedTarget)) {
-      return;
+  // 键盘导航
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      selectItemByDiff(1);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      selectItemByDiff(-1);
+    } else if (e.key === "Enter") {
+      const active = container.querySelector(".searchbox-result-item.active");
+      if (active) {
+        active.click();
+      }
+    } else if (e.key === "Escape") {
+      main.hidePopover();
     }
-    main.classList.remove("show");
   });
 
   main.addEventListener("click", (e) => {
-    const resultItem = e.target.closest(".searchbox-result-item");
-    if (resultItem) {
-      main.classList.remove("show");
+    if (e.target === main || e.target.closest(".searchbox-result-item")) {
+      main.hidePopover();
     }
   });
 
-  document.addEventListener("click", (e) => {
-    if (e.target.closest(".navbar-main .search")) {
-      main.classList.add("show");
-      const inp = main.querySelector(".searchbox-input");
-      inp.focus();
-
-      // Lazy Load - 打开时再请求数据
-      fetchData();
-    }
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (!main.classList.contains("show")) return;
-    switch (e.key) {
-      case "ArrowUp":
-        selectItemByDiff(-1);
-        break;
-      case "ArrowDown":
-        selectItemByDiff(1);
-        break;
-      case "Enter": {
-        const activeItem = container.querySelector(".searchbox-result-item.active");
-        if (activeItem) location.href = activeItem.getAttribute("href");
-        break;
-      }
-    }
-  });
-
-  document.addEventListener("touchstart", () => {
-    touch = true;
-  });
-  document.addEventListener("touchmove", () => {
-    touch = false;
-  });
-
-  // 处理 location.hash 自动打开的情况
   if (location.hash.trim() === "#insight-search") {
-    main.classList.add("show");
-    fetchData();
+    main.showPopover();
   }
+
+  // Popover 打开时 focus input 并预加载数据
+  main.addEventListener("toggle", (e) => {
+    if (e.newState === "open") {
+      fetchData();
+      input.focus();
+    } else {
+      input.setAttribute("aria-expanded", "false");
+    }
+  });
 }

@@ -100,7 +100,7 @@ module.exports = class extends Component {
 
     return (
       <head>
-        <script data-swup-ignore-script dangerouslySetInnerHTML={{ __html: themeInitScript }}></script>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }}></script>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {noIndex ? <meta name="robots" content="noindex" /> : null}
