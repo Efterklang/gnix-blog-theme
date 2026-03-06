@@ -155,7 +155,6 @@ module.exports = class extends Component {
         <link rel="preload" as="style" href="https://fontsapi.zeoseven.com/442/main/result.css" onload="this.onload=null;this.rel='stylesheet'" />
         <link rel="stylesheet" href="/css/shiki/shiki.css" />
         <Plugins site={site} config={config} helper={helper} page={page} head={true} />
-        {adsenseClientId ? <script data-swup-ignore-script data-ad-client={adsenseClientId} src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" async></script> : null}
       </head>
     );
   }
