@@ -13,13 +13,12 @@ const themes = [
 class ThemeSelector extends Component {
   render() {
     return (
-      <div id="theme-selector-modal" onclick="window.handleThemeModalClick?.(event)">
-        <div class="theme-selector-backdrop"></div>
-        <div class="theme-selector-list">
+      <div id="theme-selector-popover" popover="auto" tabindex="-1">
+        <div class="theme-selector-list" role="listbox" aria-label="Select theme">
           {themes.map((theme, index) => (
-            <div class="theme-option" data-theme-option={theme.value} data-index={index} onclick={`window.selectThemeOption?.(event, ${index})`}>
-              <span class="theme-name">{theme.name}</span>
-            </div>
+            <button class="theme-option" type="submit" data-theme-option={theme.value} data-index={index} onclick={`window.selectThemeOption?.(${index})`}>
+              {theme.name}
+            </button>
           ))}
         </div>
       </div>

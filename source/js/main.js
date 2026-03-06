@@ -222,16 +222,16 @@ function handleKeyDown(e) {
   switch (e.code) {
     case "KeyT":
       e.preventDefault();
-      document.getElementById("icarus-toc-container")?.classList.toggle("is-open");
+      document.getElementById("toc-body")?.togglePopover();
       break;
     case "KeyK":
       e.preventDefault();
-      document.querySelector(".navbar-main .search")?.click();
+      document.querySelector("#searchbox")?.showPopover();
       break;
     case "KeyP":
       if (!e.shiftKey) {
         e.preventDefault();
-        window.openThemeModal?.();
+        document.querySelector("#theme-selector-popover")?.showPopover();
       }
       break;
   }

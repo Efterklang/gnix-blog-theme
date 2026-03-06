@@ -129,8 +129,4 @@
   }
 
   initAll();
-
-  if (typeof swup !== "undefined") {
-    swup.hooks.on("page:view", initAll);
-  }
 })();

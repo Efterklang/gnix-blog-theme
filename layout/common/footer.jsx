@@ -25,10 +25,10 @@ class Footer extends Component {
         <p class="footer-meta">
           <span
             dangerouslySetInnerHTML={{
-              __html: `&copy; ${siteYear} ${author || siteTitle}`,
+              __html: `&copy; 2022 - ${siteYear}`,
             }}
           ></span>
-          &nbsp;Powered by Hexo&nbsp;& Icarus
+          &nbsp;Powered by Hexo
           {showVisitorCounter ? (
             <>
               <br />

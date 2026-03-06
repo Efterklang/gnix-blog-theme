@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/gjx/Projects/vluv/source/**)",
+      "Bash(wc:*)",
+      "Bash(grep:*)"
+    ]
+  }
+}

@@ -34,11 +34,11 @@
   ],
   "dependencies": {
     "date-fns": "^4.1.0",
-    "esbuild": "^0.27.2",
+    "esbuild": "^0.27.3",
     "hexo-pagination": "^4.0.0",
-    "inferno": "^9.0.10",
-    "inferno-create-element": "^9.0.10",
-    "inferno-server": "^9.0.10",
+    "inferno": "^9.0.11",
+    "inferno-create-element": "^9.0.11",
+    "inferno-server": "^9.0.11",
     "js-yaml": "^4.1.1"
   },
   "peerDependencies": {

@@ -1,6 +1,6 @@
 // biome-ignore lint/correctness/noUnusedVariables: Called in other files
 function loadInsight(config, translation) {
-  const main = document.querySelector(".searchbox");
+  const main = document.querySelector("#searchbox");
   if (!main) return;
 
   const input = main.querySelector(".searchbox-input");
@@ -29,16 +29,14 @@ function loadInsight(config, translation) {
   // --- 核心逻辑优化区 ---
 
   // HTML 转义函数，防止 XSS 攻击和标签渲染异常
+  const _escapeMap = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
+  const _escapeRe = /[&<>"']/g;
   function escapeHTML(str) {
-    const map = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;",
-    };
-    return str.replace(/[&<>"']/g, (m) => map[m]);
+    return str.replace(_escapeRe, (m) => _escapeMap[m]);
   }
+
+  // 字段名 → 预计算小写字段名的映射
+  const _lowerFields = { title: "_lowerTitle", text: "_lowerText", name: "_lowerName", slug: "_lowerSlug" };
 
   // 优化点：合并 ranges 的逻辑保持不变，这是高亮的核心算法
   function merge(ranges) {
@@ -174,7 +172,8 @@ function loadInsight(config, translation) {
           if (!obj[field]) continue;
 
           // 1. 快速检查：如果都不包含这个词，直接跳过正则
-          if (obj[field].toLowerCase().indexOf(keyword) === -1) continue;
+          const lowerVal = obj[_lowerFields[field]] ?? obj[field].toLowerCase();
+          if (lowerVal.indexOf(keyword) === -1) continue;
 
           // 2. 权重计算
           const matches = obj[field].match(regex);
@@ -221,6 +220,18 @@ function loadInsight(config, translation) {
       }
     }
     container.appendChild(fragment);
+
+    // 为动态生成的结果项补充 ARIA 属性
+    const items = container.querySelectorAll(".searchbox-result-item");
+    items.forEach((item, i) => {
+      item.id = `searchbox-result-${i}`;
+      item.setAttribute("role", "option");
+      item.setAttribute("aria-selected", "false");
+      item.setAttribute("tabindex", "-1");
+    });
+
+    input.removeAttribute("aria-activedescendant");
+    input.setAttribute("aria-expanded", items.length > 0 ? "true" : "false");
   }
 
   function scrollTo(item) {
@@ -252,10 +263,15 @@ function loadInsight(config, translation) {
     const nextPosition = (items.length + prevPosition + value) % items.length;
     const finalPosition = nextPosition < 0 ? nextPosition + items.length : nextPosition;
 
-    if (prevPosition !== -1) items[prevPosition].classList.remove("active");
+    if (prevPosition !== -1) {
+      items[prevPosition].classList.remove("active");
+      items[prevPosition].setAttribute("aria-selected", "false");
+    }
 
     const nextItem = items[finalPosition];
     nextItem.classList.add("active");
+    nextItem.setAttribute("aria-selected", "true");
+    input.setAttribute("aria-activedescendant", nextItem.id);
     scrollTo(nextItem);
   }
 
@@ -269,6 +285,14 @@ function loadInsight(config, translation) {
     fetch(config.contentUrl)
       .then((response) => response.json())
       .then((json) => {
+        for (const post of json.posts) {
+          post._lowerTitle = post.title ? post.title.toLowerCase() : "";
+          post._lowerText = post.text ? post.text.toLowerCase() : "";
+        }
+        for (const tag of json.tags) {
+          tag._lowerName = tag.name ? tag.name.toLowerCase() : "";
+          tag._lowerSlug = tag.slug ? tag.slug.toLowerCase() : "";
+        }
         dataset = json;
         isLoading = false;
         // 如果加载完之后输入框里有字，立即触发一次搜索
@@ -294,64 +318,44 @@ function loadInsight(config, translation) {
       return;
     }
 
-    // 优化点：防抖 (Debounce) 300ms
     searchTimer = setTimeout(() => {
       searchResultToDOM(keywords, search(dataset, keywords));
-    }, 200);
+    }, 300);
   });
 
-  main.addEventListener("focusout", (e) => {
-    if (main.contains(e.relatedTarget)) {
-      return;
-    }
-    main.classList.remove("show");
-  });
-
-  main.addEventListener("click", (e) => {
-    const resultItem = e.target.closest(".searchbox-result-item");
-    if (resultItem) {
-      main.classList.remove("show");
-    }
-  });
-
-  document.addEventListener("click", (e) => {
-    if (e.target.closest(".navbar-main .search")) {
-      main.classList.add("show");
-      const inp = main.querySelector(".searchbox-input");
-      inp.focus();
-
-      // Lazy Load - 打开时再请求数据
-      fetchData();
-    }
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (!main.classList.contains("show")) return;
-    switch (e.key) {
-      case "ArrowUp":
-        selectItemByDiff(-1);
-        break;
-      case "ArrowDown":
-        selectItemByDiff(1);
-        break;
-      case "Enter": {
-        const activeItem = container.querySelector(".searchbox-result-item.active");
-        if (activeItem) location.href = activeItem.getAttribute("href");
-        break;
+  // 键盘导航
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      selectItemByDiff(1);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      selectItemByDiff(-1);
+    } else if (e.key === "Enter") {
+      const active = container.querySelector(".searchbox-result-item.active");
+      if (active) {
+        active.click();
       }
     }
   });
 
-  document.addEventListener("touchstart", () => {
-    touch = true;
-  });
-  document.addEventListener("touchmove", () => {
-    touch = false;
+  main.addEventListener("click", (e) => {
+    if (e.target === main || e.target.closest(".searchbox-result-item")) {
+      main.hidePopover();
+    }
   });
 
-  // 处理 location.hash 自动打开的情况
   if (location.hash.trim() === "#insight-search") {
-    main.classList.add("show");
-    fetchData();
+    main.showPopover();
   }
+
+  // Popover 打开时 focus input 并预加载数据
+  main.addEventListener("toggle", (e) => {
+    if (e.newState === "open") {
+      fetchData();
+      input.focus();
+    } else {
+      input.setAttribute("aria-expanded", "false");
+    }
+  });
 }

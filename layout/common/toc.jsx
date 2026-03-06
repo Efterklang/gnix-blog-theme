@@ -14,12 +14,12 @@ class FloatingToc extends Component {
 
     return (
       <div class="toc-container" id="icarus-toc-container">
-        <button class="toc-button" type="button" onclick="document.getElementById('icarus-toc-container').classList.toggle('is-open')" aria-label="Table of Contents">
+        <button class="toc-button" type="button" popovertarget="toc-body" aria-label="Table of Contents">
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
         </button>
-        <div class="toc-body" onclick="if(event.target === this || event.target.matches('.toc-link')) { document.getElementById('icarus-toc-container').classList.remove('is-open'); }">
+        <div id="toc-body" popover="auto" class="toc-body" onclick="if(event.target===this||event.target.closest('.toc-link'))this.hidePopover();">
           <div dangerouslySetInnerHTML={{ __html: tocContent }} />
         </div>
       </div>

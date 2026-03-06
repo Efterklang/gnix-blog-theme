@@ -7,7 +7,6 @@ module.exports = class extends Component {
     const { page, helper, site, config } = this.props;
     const { url_for, date_xml, date } = helper;
 
-
     function getSeason(month) {
       if (month >= 2 && month <= 4) return "Spring";
       if (month >= 5 && month <= 7) return "Summer";
@@ -96,7 +95,7 @@ module.exports = class extends Component {
 
     return (
       <Fragment>
-        <script data-swup-ignore-script defer src="/js/archive-breadcrumb.js"></script>
+        <script data-swup-reload-script defer src="/js/archive-breadcrumb.js"></script>
         <link rel="stylesheet" href="/css/archive.css" />
         <nav class="archive-breadcrumb" aria-label="archive breadcrumb" data-archive-breadcrumb data-archive-dir={archiveDir}>
           <span class="prompt">$</span>{" "}
