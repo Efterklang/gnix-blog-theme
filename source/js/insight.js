@@ -29,16 +29,14 @@ function loadInsight(config, translation) {
   // --- 核心逻辑优化区 ---
 
   // HTML 转义函数，防止 XSS 攻击和标签渲染异常
+  const _escapeMap = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
+  const _escapeRe = /[&<>"']/g;
   function escapeHTML(str) {
-    const map = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;",
-    };
-    return str.replace(/[&<>"']/g, (m) => map[m]);
+    return str.replace(_escapeRe, (m) => _escapeMap[m]);
   }
+
+  // 字段名 → 预计算小写字段名的映射
+  const _lowerFields = { title: "_lowerTitle", text: "_lowerText", name: "_lowerName", slug: "_lowerSlug" };
 
   // 优化点：合并 ranges 的逻辑保持不变，这是高亮的核心算法
   function merge(ranges) {
@@ -174,7 +172,8 @@ function loadInsight(config, translation) {
           if (!obj[field]) continue;
 
           // 1. 快速检查：如果都不包含这个词，直接跳过正则
-          if (obj[field].toLowerCase().indexOf(keyword) === -1) continue;
+          const lowerVal = obj[_lowerFields[field]] ?? obj[field].toLowerCase();
+          if (lowerVal.indexOf(keyword) === -1) continue;
 
           // 2. 权重计算
           const matches = obj[field].match(regex);
@@ -286,6 +285,14 @@ function loadInsight(config, translation) {
     fetch(config.contentUrl)
       .then((response) => response.json())
       .then((json) => {
+        for (const post of json.posts) {
+          post._lowerTitle = post.title ? post.title.toLowerCase() : "";
+          post._lowerText = post.text ? post.text.toLowerCase() : "";
+        }
+        for (const tag of json.tags) {
+          tag._lowerName = tag.name ? tag.name.toLowerCase() : "";
+          tag._lowerSlug = tag.slug ? tag.slug.toLowerCase() : "";
+        }
         dataset = json;
         isLoading = false;
         // 如果加载完之后输入框里有字，立即触发一次搜索
@@ -311,10 +318,9 @@ function loadInsight(config, translation) {
       return;
     }
 
-    // 优化点：防抖 (Debounce) 300ms
     searchTimer = setTimeout(() => {
       searchResultToDOM(keywords, search(dataset, keywords));
-    }, 200);
+    }, 300);
   });
 
   // 键盘导航
@@ -330,8 +336,6 @@ function loadInsight(config, translation) {
       if (active) {
         active.click();
       }
-    } else if (e.key === "Escape") {
-      main.hidePopover();
     }
   });
 
