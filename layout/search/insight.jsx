@@ -13,16 +13,29 @@ class Insight extends Component {
 
     return (
       <>
-        <div class="searchbox">
+        <div class="searchbox" id="searchbox" popover="auto">
           <div class="searchbox-container">
             <div class="searchbox-input-container">
-              <input type="text" name="search-input" class="searchbox-input" placeholder={translation.hint} />
+              <input
+                type="text"
+                name="search-input"
+                class="searchbox-input"
+                placeholder={translation.hint}
+                autofocus
+                autocomplete="off"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-autocomplete="list"
+                aria-controls="searchbox-results"
+                aria-expanded="false"
+                aria-label={translation.hint}
+              />
             </div>
-            <div class="searchbox-body"></div>
+            <div class="searchbox-body" id="searchbox-results" role="listbox"></div>
           </div>
         </div>
-        <script data-swup-ignore-script defer src={jsUrl}></script>
-        <script data-swup-ignore-script dangerouslySetInnerHTML={{ __html: js }}></script>
+        <script defer src={jsUrl}></script>
+        <script dangerouslySetInnerHTML={{ __html: js }}></script>
       </>
     );
   }

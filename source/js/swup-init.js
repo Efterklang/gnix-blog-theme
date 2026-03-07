@@ -5,10 +5,10 @@ const swup = new Swup({
   animationSelector: false,
   plugins: [
     new SwupHeadPlugin({
-      persistTags: true
+      persistTags: true,
     }),
     new SwupScriptsPlugin({
-      optin: true
-    })
-  ]
+      optin: true,
+    }),
+  ],
 });

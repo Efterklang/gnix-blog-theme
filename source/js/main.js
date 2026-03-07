@@ -15,27 +15,21 @@ function tableWrapFix() {
 }
 
 function twikoo_handler() {
-  const twikooContainer = document.getElementById("tko");
-  if (!twikooContainer) return;
-  const initTwikoo = () => {
-    if (window.twikoo?.init && window.twikooConfig) {
-      window.twikoo.init(window.twikooConfig);
-    }
-  };
+  const el = document.getElementById("tko");
+  if (!el) return;
 
-  // 简化判断逻辑：直接检查twikoo库是否加载完成
-  if (window.twikoo && typeof twikoo.init === "function") {
-    initTwikoo();
-  } else {
-    // 监听Twikoo脚本加载（保留SPA兼容逻辑）
-    const script = document.querySelector('script[src*="twikoo.all.min.js"]');
-    if (script) {
-      script.addEventListener("load", initTwikoo);
-      if (script.readyState === "complete" || script.readyState === "loaded") {
-        setTimeout(initTwikoo, 0);
-      }
-    }
+  const { envId, region, lang, jsUrl, cssUrl } = el.dataset;
+
+  if (cssUrl) loadCSSOnce(cssUrl);
+
+  const config = { envId, region, lang, el: "#tko" };
+
+  if (typeof window.twikoo?.init === "function") {
+    window.twikoo.init(config);
+    return;
   }
+
+  loadScriptOnce(jsUrl, () => window.twikoo.init(config));
 }
 // #region mdit@tab-plugin
 /**
@@ -222,18 +216,27 @@ function handleKeyDown(e) {
   switch (e.code) {
     case "KeyT":
       e.preventDefault();
-      document.getElementById("icarus-toc-container")?.classList.toggle("is-open");
+      document.getElementById("toc-body")?.togglePopover();
       break;
     case "KeyK":
       e.preventDefault();
-      document.querySelector(".navbar-main .search")?.click();
+      document.querySelector("#searchbox")?.showPopover();
       break;
     case "KeyP":
       if (!e.shiftKey) {
         e.preventDefault();
-        window.openThemeModal?.();
+        document.querySelector("#theme-selector-popover")?.showPopover();
       }
       break;
+  }
+}
+
+function loadCSSOnce(url) {
+  if (!document.querySelector(`link[href="${url}"]`)) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = url;
+    document.head.appendChild(link);
   }
 }
 
@@ -259,12 +262,7 @@ function handleMermaid() {
   const cssUrl = "/css/optional/mermaid.css";
   const adapterUrl = "/js/mdit/mermaid.js";
 
-  if (!document.querySelector(`link[href="${cssUrl}"]`)) {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = cssUrl;
-    document.head.appendChild(link);
-  }
+  loadCSSOnce(cssUrl);
 
   const runInit = () => {
     const isNight = document.documentElement.classList.contains("night");

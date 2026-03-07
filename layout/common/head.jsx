@@ -100,7 +100,7 @@ module.exports = class extends Component {
 
     return (
       <head>
-        <script data-swup-ignore-script dangerouslySetInnerHTML={{ __html: themeInitScript }}></script>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }}></script>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {noIndex ? <meta name="robots" content="noindex" /> : null}
@@ -143,6 +143,7 @@ module.exports = class extends Component {
         {canonical_url ? <link rel="canonical" href={canonical_url} /> : null}
         {rss ? <link rel="alternate" href={url_for(rss)} title={config.title} type="application/atom+xml" /> : null}
         {favicon ? <link rel="icon" href={url_for(favicon)} /> : null}
+        <link rel="preload" href={url_for("/css/font/woff2/HomemadeApple.woff2")} as="font" type="font/woff2" crossorigin />
         <link rel="stylesheet" href={url_for("/css/default.css")} />
         <link rel="stylesheet" href={url_for("/css/responsive/mobile.css")} media="screen and (max-width:768px)" />
         <link rel="stylesheet" href={url_for("/css/responsive/tablet.css")} media="screen and (min-width:769px)" />
@@ -154,7 +155,6 @@ module.exports = class extends Component {
         <link rel="preload" as="style" href="https://fontsapi.zeoseven.com/442/main/result.css" onload="this.onload=null;this.rel='stylesheet'" />
         <link rel="stylesheet" href="/css/shiki/shiki.css" />
         <Plugins site={site} config={config} helper={helper} page={page} head={true} />
-        {adsenseClientId ? <script data-swup-ignore-script data-ad-client={adsenseClientId} src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" async></script> : null}
       </head>
     );
   }
