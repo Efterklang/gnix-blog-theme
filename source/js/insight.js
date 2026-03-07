@@ -320,7 +320,7 @@ function loadInsight(config, translation) {
 
     searchTimer = setTimeout(() => {
       searchResultToDOM(keywords, search(dataset, keywords));
-    }, 300);
+    }, 150);
   });
 
   // 键盘导航

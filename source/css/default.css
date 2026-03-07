@@ -241,6 +241,7 @@ hr {
 
 @font-face {
   font-family: homemade-apple;
+  font-display: swap;
   src:
     local("Homemade Apple"),
     local("HomemadeApple-Regular"),
