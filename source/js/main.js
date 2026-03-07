@@ -15,16 +15,22 @@ function tableWrapFix() {
 }
 
 function twikoo_handler() {
-  const twikooContainer = document.getElementById("tko");
-  if (!twikooContainer) return;
+  const el = document.getElementById("tko");
+  if (!el) return;
+  const config = {
+    envId: el.dataset.envId,
+    region: el.dataset.region,
+    lang: el.dataset.lang,
+    el: "#tko",
+  };
   const initTwikoo = () => {
-    if (window.twikoo?.init && window.twikooConfig) {
-      window.twikoo.init(window.twikooConfig);
+    if (window.twikoo?.init) {
+      window.twikoo.init(config);
     }
   };
 
   // 简化判断逻辑：直接检查twikoo库是否加载完成
-  if (window.twikoo && typeof twikoo.init === "function") {
+  if (window.twikoo?.init === "function") {
     initTwikoo();
   } else {
     // 监听Twikoo脚本加载（保留SPA兼容逻辑）
@@ -32,7 +38,7 @@ function twikoo_handler() {
     if (script) {
       script.addEventListener("load", initTwikoo);
       if (script.readyState === "complete" || script.readyState === "loaded") {
-        setTimeout(initTwikoo, 0);
+        initTwikoo();
       }
     }
   }
