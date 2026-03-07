@@ -236,6 +236,15 @@ function handleKeyDown(e) {
   }
 }
 
+function loadCSSOnce(url) {
+  if (!document.querySelector(`link[href="${url}"]`)) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = url;
+    document.head.appendChild(link);
+  }
+}
+
 /**
  * 加载脚本一次，如果已存在则监听 load 事件
  */
@@ -258,12 +267,7 @@ function handleMermaid() {
   const cssUrl = "/css/optional/mermaid.css";
   const adapterUrl = "/js/mdit/mermaid.js";
 
-  if (!document.querySelector(`link[href="${cssUrl}"]`)) {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = cssUrl;
-    document.head.appendChild(link);
-  }
+  loadCSSOnce(cssUrl);
 
   const runInit = () => {
     const isNight = document.documentElement.classList.contains("night");
