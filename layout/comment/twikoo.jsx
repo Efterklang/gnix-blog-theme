@@ -3,13 +3,11 @@ const { Component, Fragment, cacheComponent, lazy_load_css } = require("../../in
 class Twikoo extends Component {
   render() {
     const { envId, region, lang, jsUrl } = this.props;
-    const configJs = `window.twikooConfig = { envId: '${envId}', ${region ? `region: ${JSON.stringify(region)},` : ""} ${lang ? `lang: ${JSON.stringify(lang)},` : ""} el: '#tko' };`;
     const lazy_load_css_script = lazy_load_css("/css/twikoo.css");
     return (
       <Fragment>
-        <div id="tko" class="content twikoo"></div>
+        <div id="tko" class="content twikoo" data-env-id={envId} data-region={JSON.stringify(region)} data-lang={JSON.stringify(lang)}></div>
         <script dangerouslySetInnerHTML={{ __html: lazy_load_css_script }}></script>
-        <script dangerouslySetInnerHTML={{ __html: configJs }}></script>
         <script defer src={jsUrl}></script>
       </Fragment>
     );
