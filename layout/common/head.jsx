@@ -51,7 +51,7 @@ module.exports = class extends Component {
         images.push(img[1]);
       }
     } else {
-      images = [url_for("/img/og_image.png")];
+      images = [url_for("/img/og_image.webp")];
     }
 
     let adsenseClientId = null;
@@ -153,7 +153,7 @@ module.exports = class extends Component {
         {/* Maple Mono CN */}
         <link rel="preconnect" href="https://fontsapi.zeoseven.com" />
         <link rel="preload" as="style" href="https://fontsapi.zeoseven.com/442/main/result.css" onload="this.onload=null;this.rel='stylesheet'" />
-        <link rel="stylesheet" href="/css/shiki/shiki.css" />
+        <link rel="preload" as="style" href="/css/shiki/shiki.css" onload="this.onload=null;this.rel='stylesheet'" />
         <Plugins site={site} config={config} helper={helper} page={page} head={true} />
       </head>
     );

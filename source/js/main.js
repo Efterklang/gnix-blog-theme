@@ -289,7 +289,6 @@ function handleMermaid() {
 // #endregion
 
 function initPage() {
-  console.log("Page initialized");
   tableWrapFix();
   initializeTabs();
   handleMermaid();
