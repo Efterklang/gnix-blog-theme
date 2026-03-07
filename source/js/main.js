@@ -17,24 +17,19 @@ function tableWrapFix() {
 function twikoo_handler() {
   const el = document.getElementById("tko");
   if (!el) return;
-  const config = {
-    envId: el.dataset.envId,
-    region: el.dataset.region,
-    lang: el.dataset.lang,
-    el: "#tko",
-  };
+
+  const { envId, region, lang, jsUrl, cssUrl } = el.dataset;
+
+  if (cssUrl) loadCSSOnce(cssUrl);
+
+  const config = { envId, region, lang, el: "#tko" };
 
   if (typeof window.twikoo?.init === "function") {
     window.twikoo.init(config);
-  } else {
-    const script = document.querySelector('script[src*="twikoo.all.min.js"]');
-    if (script) {
-      script.addEventListener("load", () => window.twikoo.init(config));
-      if (script.readyState === "complete" || script.readyState === "loaded") {
-        window.twikoo.init(config);
-      }
-    }
+    return;
   }
+
+  loadScriptOnce(jsUrl, () => window.twikoo.init(config));
 }
 // #region mdit@tab-plugin
 /**

@@ -26,27 +26,11 @@ function cacheComponent(type, prefix, transform) {
   };
 }
 
-function lazy_load_css(href) {
-  return `
-    (function () {
-      if (document.querySelector('link[rel="stylesheet"][href="${href}"]')) {
-        return;
-      }
-
-      var link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = '${href}';
-      document.head.appendChild(link);
-    })();
-  `;
-}
-
 module.exports = {
   // 导出常用的依赖
   Component,
   Fragment,
   view,
-  lazy_load_css,
   cacheComponent,
 
   // 通用的组件加载函数

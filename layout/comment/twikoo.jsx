@@ -1,15 +1,10 @@
-const { Component, Fragment, cacheComponent, lazy_load_css } = require("../../include/util/common");
+const { Component, cacheComponent } = require("../../include/util/common");
 
 class Twikoo extends Component {
   render() {
     const { envId, region, lang, jsUrl } = this.props;
-    const lazy_load_css_script = lazy_load_css("/css/twikoo.css");
     return (
-      <Fragment>
-        <div id="tko" class="content twikoo" data-env-id={envId} data-region={JSON.stringify(region)} data-lang={JSON.stringify(lang)}></div>
-        <script dangerouslySetInnerHTML={{ __html: lazy_load_css_script }}></script>
-        <script defer src={jsUrl}></script>
-      </Fragment>
+      <div id="tko" class="content twikoo" data-env-id={envId} data-region={JSON.stringify(region)} data-lang={JSON.stringify(lang)} data-js-url={jsUrl} data-css-url="/css/twikoo.css"></div>
     );
   }
 }
