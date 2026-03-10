@@ -702,6 +702,7 @@ body {
   }
 
   img,
+  iframe,
   video {
     display: block;
     max-width: 100%;
@@ -769,10 +770,6 @@ body {
   math {
     overflow: auto;
     margin-bottom: 1rem;
-  }
-
-  iframe {
-    overflow: auto;
   }
 
   figure {
