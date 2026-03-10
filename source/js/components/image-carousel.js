@@ -14,6 +14,166 @@
  * - ratio: Aspect ratio as CSS value (default: 3/2)
  */
 
+// Shared stylesheet — parsed once, reused across all carousel instances
+let _sheet;
+
+const STYLES = `
+  :host {
+    display: block;
+    margin: 1.5em 0;
+  }
+
+  .carousel {
+    outline: none;
+  }
+
+  .carousel:focus-visible {
+    outline: 2px solid var(--blue, #89b4fa);
+    outline-offset: 2px;
+  }
+
+  .stage {
+    position: relative;
+    border-radius: var(--radius, 12px);
+    overflow: hidden;
+    background: var(--crust, #11111b);
+    contain: content;
+  }
+
+  .slides {
+    position: relative;
+    width: 100%;
+    aspect-ratio: var(--carousel-ratio, 3/2);
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+    pointer-events: none;
+  }
+
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .slide figure {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .slide figcaption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem 1.25rem 0.875rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
+    color: #fff;
+    font-size: 0.875rem;
+    font-style: italic;
+    font-family: var(--font-serif, serif);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    color: white;
+    border: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: background 0.2s ease-out, opacity 0.2s ease-out;
+    z-index: 2;
+    padding: 0;
+  }
+
+  .nav svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .carousel:hover .nav,
+  .carousel:focus-within .nav {
+    opacity: 1;
+  }
+
+  .nav:hover {
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .nav:focus-visible {
+    opacity: 1;
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
+  .nav:active {
+    transform: translateY(-50%) scale(0.92);
+  }
+
+  .prev { left: 0.75rem; }
+  .next { right: 0.75rem; }
+
+  .dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    padding: 0.5rem 0 0;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: var(--overlay0, rgba(127, 127, 127, 0.45));
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s ease-out, transform 0.2s ease-out;
+  }
+
+  .dot:hover {
+    background: var(--overlay1);
+  }
+
+  .dot:focus-visible {
+    outline: 2px solid var(--blue, #89b4fa);
+    outline-offset: 2px;
+  }
+
+  .dot.active {
+    background: var(--text);
+    transform: scale(1.25);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide { transition: none; }
+    .nav, .dot { transition: none; }
+  }
+`;
+
 class ImageCarousel extends HTMLElement {
   constructor() {
     super();
@@ -21,7 +181,15 @@ class ImageCarousel extends HTMLElement {
     this._currentIndex = 0;
     this._timer = null;
     this._images = [];
+    this._slides = [];
+    this._dots = [];
     this._touchStartX = 0;
+    this._observer = null;
+    this._isVisible = true;
+    this._handleVisibility = () => {
+      if (document.hidden) this._stopAutoplay();
+      else if (this._isVisible && this.hasAttribute("autoplay")) this._startAutoplay();
+    };
   }
 
   connectedCallback() {
@@ -29,6 +197,7 @@ class ImageCarousel extends HTMLElement {
     this.render();
     if (this._images.length > 1) {
       this._setupListeners();
+      this._observeVisibility();
     }
     if (this.hasAttribute("autoplay") && this._images.length > 1) {
       this._startAutoplay();
@@ -37,6 +206,8 @@ class ImageCarousel extends HTMLElement {
 
   disconnectedCallback() {
     this._stopAutoplay();
+    this._observer?.disconnect();
+    document.removeEventListener("visibilitychange", this._handleVisibility);
   }
 
   _collectImages() {
@@ -66,19 +237,19 @@ class ImageCarousel extends HTMLElement {
   }
 
   _goTo(index) {
+    const prev = this._currentIndex;
     this._currentIndex = index;
-    this._update();
+    this._toggleSlide(prev, false);
+    this._toggleSlide(index, true);
   }
 
-  _update() {
-    const root = this.shadowRoot;
-    root.querySelectorAll(".slide").forEach((slide, i) => {
-      slide.classList.toggle("active", i === this._currentIndex);
-    });
-    root.querySelectorAll(".dot").forEach((dot, i) => {
-      dot.classList.toggle("active", i === this._currentIndex);
-      dot.setAttribute("aria-selected", String(i === this._currentIndex));
-    });
+  _toggleSlide(i, active) {
+    this._slides[i]?.classList.toggle("active", active);
+    const dot = this._dots[i];
+    if (dot) {
+      dot.classList.toggle("active", active);
+      dot.setAttribute("aria-selected", String(active));
+    }
   }
 
   render() {
@@ -89,6 +260,13 @@ class ImageCarousel extends HTMLElement {
       this.shadowRoot.innerHTML = "";
       return;
     }
+
+    if (!_sheet) {
+      _sheet = new CSSStyleSheet();
+      _sheet.replaceSync(STYLES);
+    }
+    this.shadowRoot.adoptedStyleSheets = [_sheet];
+    this.style.setProperty("--carousel-ratio", ratio);
 
     const slidesHTML = images
       .map(
@@ -117,7 +295,6 @@ class ImageCarousel extends HTMLElement {
         : "";
 
     this.shadowRoot.innerHTML = `
-      <style>${this._styles(ratio)}</style>
       <div class="carousel" role="region" aria-label="Image carousel" tabindex="0">
         <div class="stage">
           <div class="slides">${slidesHTML}</div>
@@ -127,6 +304,9 @@ class ImageCarousel extends HTMLElement {
       </div>
       <slot style="display:none"></slot>
     `;
+
+    this._slides = Array.from(this.shadowRoot.querySelectorAll(".slide"));
+    this._dots = Array.from(this.shadowRoot.querySelectorAll(".dot"));
   }
 
   _setupListeners() {
@@ -144,11 +324,11 @@ class ImageCarousel extends HTMLElement {
       this._goTo((this._currentIndex + 1) % n);
     });
 
-    root.querySelectorAll(".dot").forEach((dot) => {
-      dot.addEventListener("click", () => {
-        this._resetAutoplay();
-        this._goTo(parseInt(dot.dataset.index, 10));
-      });
+    root.querySelector(".dots")?.addEventListener("click", (e) => {
+      const dot = e.target.closest(".dot");
+      if (!dot) return;
+      this._resetAutoplay();
+      this._goTo(parseInt(dot.dataset.index, 10));
     });
 
     // Pause autoplay on hover
@@ -190,145 +370,24 @@ class ImageCarousel extends HTMLElement {
     );
   }
 
+  _observeVisibility() {
+    this._observer = new IntersectionObserver(([entry]) => {
+      this._isVisible = entry.isIntersecting;
+      if (!entry.isIntersecting) {
+        this._stopAutoplay();
+      } else if (this.hasAttribute("autoplay")) {
+        this._startAutoplay();
+      }
+    });
+    this._observer.observe(this);
+    document.addEventListener("visibilitychange", this._handleVisibility);
+  }
+
   _resetAutoplay() {
     if (this.hasAttribute("autoplay")) {
       this._stopAutoplay();
       this._startAutoplay();
     }
-  }
-
-  _styles(ratio) {
-    return `
-      :host {
-        display: block;
-        margin: 1.5em 0;
-      }
-
-      .carousel {
-        outline: none;
-      }
-
-      .stage {
-        position: relative;
-        border-radius: 12px;
-        overflow: hidden;
-        background: var(--crust, #11111b);
-      }
-
-      .slides {
-        position: relative;
-        width: 100%;
-        aspect-ratio: ${ratio};
-      }
-
-      .slide {
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        transition: opacity 0.7s ease;
-        pointer-events: none;
-      }
-
-      .slide.active {
-        opacity: 1;
-        pointer-events: auto;
-      }
-
-      .slide figure {
-        margin: 0;
-        width: 100%;
-        height: 100%;
-      }
-
-      .slide img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-      }
-
-      .slide figcaption {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        padding: 2rem 1.25rem 0.875rem;
-        background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
-        color: #fff;
-        font-size: 0.875rem;
-        font-style: italic;
-        font-family: var(--font-serif, serif);
-        text-align: center;
-        pointer-events: none;
-      }
-
-      .nav {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background: rgba(0, 0, 0, 0.28);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-        color: white;
-        border: none;
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: background 0.2s, opacity 0.2s;
-        z-index: 2;
-        padding: 0;
-      }
-
-      .nav svg {
-        width: 1.5rem;
-        height: 1.5rem;
-      }
-
-      .carousel:hover .nav,
-      .carousel:focus-within .nav {
-        opacity: 1;
-      }
-
-      .nav:hover {
-        background: rgba(0, 0, 0, 0.55);
-      }
-
-      .prev { left: 0.75rem; }
-      .next { right: 0.75rem; }
-
-      .dots {
-        display: flex;
-        justify-content: center;
-        gap: 6px;
-        padding: 0.6rem 0 0;
-      }
-
-      .dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        border: none;
-        background: var(--overlay0, rgba(127, 127, 127, 0.45));
-        cursor: pointer;
-        padding: 0;
-        transition: background 0.25s, transform 0.25s;
-      }
-
-      .dot.active {
-        background: var(--text);
-        transform: scale(1.35);
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .slide { transition: none; }
-        .nav, .dot { transition: none; }
-      }
-    `;
   }
 
   static get observedAttributes() {
