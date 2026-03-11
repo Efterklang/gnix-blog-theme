@@ -4,7 +4,7 @@ class Busuanzi extends Component {
   render() {
     return (
       // busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js
-      <script defer src="/js/busuanzi.js"></script>
+      <script data-swup-reload-script defer src="/js/busuanzi.js"></script>
       // <script src="https://vercount.one/js" defer={true}></script>
     );
   }
