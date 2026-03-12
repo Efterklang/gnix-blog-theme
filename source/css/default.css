@@ -614,28 +614,15 @@ body {
 
   sup.footnote-ref > a,
   li.footnote-item,
+  a.footnote-backref,
+  a.header-anchor,
   h2,
   h3,
   h4,
   h5,
   h6 {
     scroll-margin-top: 5rem;
-  }
-
-  h2,
-  h3 {
-    font-weight: 700;
-  }
-
-  h4,
-  h5,
-  h6 {
-    font-weight: 600;
-  }
-
-  h5,
-  h6 {
-    font-variant-caps: all-petite-caps;
+    text-decoration: none;
   }
 
   h2 {
@@ -832,45 +819,7 @@ body {
     text-decoration-color: var(--subtext1);
     color: var(--text);
     &:hover {
-      color: var(--lavender);
-      text-decoration: none;
-    }
-  }
-
-  a[href*="apple"]::before,
-  a[href*="github"]::before,
-  a[href*="wikipedia"]::before,
-  a[href*="youtube"]::before {
-    font-size: 1.2em;
-    font-family: var(--font-mono);
-    text-decoration: none;
-    display: inline-block;
-    padding-right: 0.5em;
-  }
-
-  a[href*="github"]::before {
-    content: " ";
-  }
-
-  a[href*="wikipedia"]::before {
-    content: "󰖬 ";
-  }
-
-  a[href*="youtube"]::before {
-    content: " ";
-  }
-
-  a[href*="apple"]::before {
-    content: "";
-  }
-
-  a.header-anchor,
-  .footnote-ref a,
-  .footnotes-item a,
-  a.footnote-backref {
-    text-decoration: none;
-    &:hover {
-      color: inherit;
+      text-decoration-thickness: 2px;
     }
   }
 }
