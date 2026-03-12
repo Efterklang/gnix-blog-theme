@@ -300,11 +300,6 @@ body {
   flex-direction: column;
   /* Ref: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-autospace */
   text-autospace: normal;
-}
-
-.toc-text,
-.footer-grid,
-.widget {
   font-family: var(--font-sans-serif);
 }
 
@@ -332,7 +327,6 @@ body {
   left: 0;
   right: 0;
   z-index: 100;
-  font-family: var(--font-sans-serif);
   border-bottom: 0.5px solid var(--surface0);
 }
 
@@ -378,12 +372,6 @@ body {
 
 /* #region Theme Selector */
 
-#theme-selector-popover:popover-open {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 #theme-selector-popover:focus {
   outline: none;
 }
@@ -405,7 +393,6 @@ body {
   padding: 0.75rem 1.25rem;
   cursor: pointer;
   font-size: 2rem;
-  font-family: var(--font-sans-serif);
   font-variation-settings:
     "wght" 200,
     "wdth" 400;
@@ -482,7 +469,6 @@ body {
   position: relative;
   transition: color 0.3s ease;
   outline: 0;
-  font-family: var(--font-sans-serif);
   color: var(--subtext0);
 
   &:hover,
@@ -593,7 +579,6 @@ body {
 .content {
   overflow: auto;
   word-wrap: break-word;
-  font-family: var(--font-sans-serif);
   font-size: 1rem;
   color: var(--subtext1);
 
@@ -614,28 +599,16 @@ body {
 
   sup.footnote-ref > a,
   li.footnote-item,
+  a.footnote-backref,
+  a.header-anchor,
   h2,
   h3,
   h4,
   h5,
   h6 {
     scroll-margin-top: 5rem;
-  }
-
-  h2,
-  h3 {
-    font-weight: 700;
-  }
-
-  h4,
-  h5,
-  h6 {
-    font-weight: 600;
-  }
-
-  h5,
-  h6 {
-    font-variant-caps: all-petite-caps;
+    scroll-behavior: smooth;
+    text-decoration: none;
   }
 
   h2 {
@@ -826,51 +799,11 @@ body {
   }
 
   a {
-    font-weight: 500;
     text-decoration: underline;
-    text-underline-offset: 3px;
     text-decoration-color: var(--subtext1);
     color: var(--text);
     &:hover {
-      color: var(--lavender);
-      text-decoration: none;
-    }
-  }
-
-  a[href*="apple"]::before,
-  a[href*="github"]::before,
-  a[href*="wikipedia"]::before,
-  a[href*="youtube"]::before {
-    font-size: 1.2em;
-    font-family: var(--font-mono);
-    text-decoration: none;
-    display: inline-block;
-    padding-right: 0.5em;
-  }
-
-  a[href*="github"]::before {
-    content: " ";
-  }
-
-  a[href*="wikipedia"]::before {
-    content: "󰖬 ";
-  }
-
-  a[href*="youtube"]::before {
-    content: " ";
-  }
-
-  a[href*="apple"]::before {
-    content: "";
-  }
-
-  a.header-anchor,
-  .footnote-ref a,
-  .footnotes-item a,
-  a.footnote-backref {
-    text-decoration: none;
-    &:hover {
-      color: inherit;
+      text-decoration-thickness: 2px;
     }
   }
 }
@@ -992,7 +925,6 @@ input.task-list-item-checkbox {
 strong {
   font-weight: bolder;
   padding: 0 0.15em;
-  /* color: var(--maroon); */
 }
 
 hr {
@@ -1034,7 +966,6 @@ section {
 /* #region Article Meta*/
 
 .article-title {
-  font-family: var(--font-sans-serif);
   font-size: 2.25em;
   line-height: 1.2;
   margin-bottom: 0.3em;
@@ -1095,7 +1026,6 @@ section {
   padding: 1.25rem;
   z-index: 0;
   border-radius: 0 0 24px 24px;
-  box-shadow: none;
   overflow: hidden;
   justify-content: space-between;
 }
@@ -1300,20 +1230,24 @@ input.searchbox-input {
   border: none;
   background: hsl(from var(--mantle) h s l / 0.7);
   backdrop-filter: blur(10px);
-}
+  &.toc-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
 
-.toc-body:popover-open {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-}
-
-.searchbox:popover-open {
-  font-family: var(--font-mono);
-  line-height: 0;
-  display: flex;
+  &.searchbox {
+    font-family: var(--font-mono);
+    line-height: 0;
+    display: flex;
+  }
+  &#theme-selector-popover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 #icarus-toc-container {
@@ -1334,7 +1268,6 @@ input.searchbox-input {
   }
 
   .toc-text {
-    font-family: var(--font-sans-serif);
     display: inline;
     color: var(--subtext0);
 

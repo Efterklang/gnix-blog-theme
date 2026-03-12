@@ -10,6 +10,7 @@ function loadInsight(config, translation) {
   let dataset = null; // 缓存 JSON 数据
   let isLoading = false; // 加载锁
   let searchTimer = null; // 防抖定时器
+  const keywordRegexCache = new Map();
 
   // 辅助：创建 DOM
   function createElement(tag, className, text) {
@@ -72,7 +73,7 @@ function loadInsight(config, translation) {
 
     if (!indices.length) return maxlen ? escapeHTML(text.slice(0, maxlen)) : escapeHTML(text);
 
-    let result = "";
+    const parts = [];
     let last = 0;
     const ranges = merge(indices);
     const sumRange = [ranges[0][0], ranges[ranges.length - 1][1]];
@@ -83,21 +84,21 @@ function loadInsight(config, translation) {
 
     for (let i = 0; i < ranges.length; i++) {
       const range = ranges[i];
-      result += escapeHTML(text.slice(last, Math.min(range[0], sumRange[0] + maxlen)));
+      parts.push(escapeHTML(text.slice(last, Math.min(range[0], sumRange[0] + maxlen))));
       if (maxlen && range[0] >= sumRange[0] + maxlen) break;
 
-      result += `<span style="color: var(--mauve)">${escapeHTML(text.slice(range[0], range[1]))}</span>`;
+      parts.push(`<span style="color: var(--mauve)">${escapeHTML(text.slice(range[0], range[1]))}</span>`);
       last = range[1];
 
       if (i === ranges.length - 1) {
         if (maxlen) {
-          result += escapeHTML(text.slice(range[1], Math.min(text.length, sumRange[0] + maxlen + 1)));
+          parts.push(escapeHTML(text.slice(range[1], Math.min(text.length, sumRange[0] + maxlen + 1))));
         } else {
-          result += escapeHTML(text.slice(range[1]));
+          parts.push(escapeHTML(text.slice(range[1])));
         }
       }
     }
-    return result;
+    return parts.join("");
   }
 
   function searchItem(title, preview, url) {
@@ -154,9 +155,14 @@ function loadInsight(config, translation) {
     const keywords = parseKeywords(keywordsStr);
     if (keywords.length === 0) return {};
 
-    // 把keywords中的特殊字符转义, 将转移后的关键词编译为正则表达式(忽略大小写，全局，多行)
-    // 后续在文章内容匹配时使用
-    const keywordRegexes = keywords.map((k) => new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "img"));
+    const keywordRegexes = keywords.map((k) => {
+      let regex = keywordRegexCache.get(k);
+      if (!regex) {
+        regex = new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "img");
+        keywordRegexCache.set(k, regex);
+      }
+      return regex;
+    });
 
     const calculateWeight = (obj, fields, weights) => {
       let value = 0;
@@ -225,9 +231,9 @@ function loadInsight(config, translation) {
     const items = container.querySelectorAll(".searchbox-result-item");
     items.forEach((item, i) => {
       item.id = `searchbox-result-${i}`;
-      item.setAttribute("role", "option");
+      item.role = "option";
       item.setAttribute("aria-selected", "false");
-      item.setAttribute("tabindex", "-1");
+      item.tabIndex = -1;
     });
 
     input.removeAttribute("aria-activedescendant");

@@ -136,13 +136,14 @@ class ThemeStackedElement extends HTMLElement {
           border-radius: 16px;
           padding: 1.5rem;
           cursor: grab;
-          transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
           user-select: none;
           touch-action: pan-y;
           opacity: 0;
           transform: scale(0.8) translateX(200px);
           pointer-events: none;
+          contain: layout style;
 
           &.active {
             opacity: 1;
@@ -474,6 +475,7 @@ class ThemeStackedElement extends HTMLElement {
     let startX = 0,
       dragging = false;
     const onStart = (x) => {
+      if (!this._isVisible) return;
       startX = x;
       dragging = true;
     };
@@ -491,10 +493,11 @@ class ThemeStackedElement extends HTMLElement {
       this._cardStack.style.cursor = "grabbing";
     });
     this._mouseUpHandler = (e) => {
+      if (!this._isVisible) return;
       onEnd(e.clientX);
       this._cardStack.style.cursor = "";
     };
-    document.addEventListener("mouseup", this._mouseUpHandler);
+    document.addEventListener("mouseup", this._mouseUpHandler, { passive: true });
   }
 
   getCurrentTheme() {
