@@ -14,8 +14,6 @@ common:
   page:
     one: "PAGE"
     other: "PAGE"
-  prev: "Previous"
-  next: "Next"
 article:
   created_at: "%s"
   more: "Read"

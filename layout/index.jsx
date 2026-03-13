@@ -5,16 +5,14 @@ const Article = require("./common/article");
 module.exports = class extends Component {
   render() {
     const { config, page, helper } = this.props;
-    const { __, url_for } = helper;
+    const { url_for } = helper;
 
     return (
       <Fragment>
         {page.posts.map((post) => (
           <Article config={config} page={post} helper={helper} index={true} />
         ))}
-        {page.total > 1 ? (
-          <Paginator current={page.current} total={page.total} baseUrl={page.base} path={config.pagination_dir} urlFor={url_for} prevTitle={__("common.prev")} nextTitle={__("common.next")} />
-        ) : null}
+        {page.total > 1 ? <Paginator current={page.current} total={page.total} baseUrl={page.base} path={config.pagination_dir} urlFor={url_for} /> : null}
       </Fragment>
     );
   }

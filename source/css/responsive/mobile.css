@@ -16,7 +16,7 @@ td {
 }
 
 .section {
-  padding: 1rem 0 2rem 0;
+  padding: 0;
 }
 
 .card {
@@ -34,16 +34,5 @@ td {
 }
 
 .pagination {
-  flex-wrap: wrap;
-}
-
-.pagination-previous,
-.pagination-next {
-  flex-grow: 1;
-  flex-shrink: 1;
-}
-
-.pagination-list li {
-  flex-grow: 1;
-  flex-shrink: 1;
+  height: 2.5em;
 }
