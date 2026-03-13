@@ -83,17 +83,13 @@ class Footer extends Component {
     );
 
     return (
-      <>
-        {" "}
-        {svg_line}
-        <footer class="footer">
-          <div class="footer-grid">
-            {footer_brand}
-            {footer_subdomains}
-            {footer_social}
-          </div>
-        </footer>
-      </>
+      <footer class="footer">
+        <div class="footer-grid">
+          {footer_brand}
+          {footer_subdomains}
+          {footer_social}
+        </div>
+      </footer>
     );
   }
 }
