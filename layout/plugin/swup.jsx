@@ -1,4 +1,4 @@
-const { Component, Fragment } = require("../../include/util/common");
+const { Component } = require("../../include/util/common");
 
 class Swup extends Component {
   render() {
@@ -6,14 +6,7 @@ class Swup extends Component {
       return null;
     }
 
-    return (
-      <Fragment>
-        <script defer src="/js/host/swup/Swup.umd.min.js"></script>
-        <script defer src="/js/host/swup/head-plugin.umd.min.js"></script>
-        <script defer src="/js/host/swup/scripts-plugin.umd.min.js"></script>
-        <script defer src="/js/swup-init.js"></script>
-      </Fragment>
-    );
+    return <script defer src="/js/swup.bundle.js"></script>;
   }
 }
 
