@@ -54,7 +54,9 @@ bun i hexo-renderer-markdown-exit
 ## Links
 
 - Change log: http://vluv.space/change
-- Live Preview: http://vluv.space/test_markdown/
+- Live Preview for Markdown: http://vluv.space/test_markdown/
+- Live Preview for Components: https://vluv.space/test_components/
+- Live Preview for Flavoured Markdown & HTML Element: https://vluv.space/test_flavored_md/
 
 
 ## Credit
