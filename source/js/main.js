@@ -293,9 +293,11 @@ function initPage() {
   initializeTabs();
   handleMermaid();
   addHighlightTool();
-  mediumZoom(".article img", {
-    background: "hsla(from var(--mantle) / 0.9)",
-  });
+  const zoomOpts = { background: "hsla(from var(--mantle) / 0.9)" };
+  const zoomImgs = new Set();
+  document.querySelectorAll(".content img").forEach((img) => zoomImgs.add(img));
+  document.querySelectorAll(".content text-image-section img").forEach((img) => zoomImgs.add(img));
+  mediumZoom([...zoomImgs], zoomOpts);
   twikoo_handler();
 }
 
