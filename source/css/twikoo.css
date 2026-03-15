@@ -36,6 +36,11 @@
 
 .tk-avatar.tk-clickable {
   cursor: pointer;
+  transition: opacity 0.2s ease-out;
+
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .tk-meta-input {
@@ -111,6 +116,11 @@
   margin-right: 10px;
   cursor: pointer;
   flex-shrink: 0;
+  transition: opacity 0.15s ease-out;
+
+  &:hover {
+    opacity: 0.7;
+  }
 }
 
 .tk-submit-action-icon.__markdown {
@@ -260,6 +270,7 @@
 .tk-nick-link {
   color: inherit;
   text-decoration: none;
+  transition: color 0.15s ease-out;
 }
 
 .tk-replies .tk-nick-link {
@@ -295,6 +306,7 @@
   color: var(--subtext1);
   font-size: 0.75rem;
   border-radius: 3px;
+  transition: background-color 0.15s ease-out;
 }
 
 .tk-extra:hover {
@@ -391,6 +403,11 @@
 .tk-ruser {
   color: var(--blue);
   text-decoration: none;
+  transition: opacity 0.15s ease-out;
+
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .tk-lightbox {
@@ -399,6 +416,7 @@
   background-color: hsl(from var(--crust) h s l / 0.5);
   inset: 0;
   z-index: 999;
+  cursor: zoom-out;
 }
 
 .tk-lightbox-image {
@@ -459,6 +477,11 @@
   line-height: 0;
   cursor: pointer;
   color: var(--blue);
+  transition: opacity 0.15s ease-out;
+
+  &:hover {
+    opacity: 0.7;
+  }
 }
 
 .twikoo div.code-toolbar {
@@ -522,10 +545,17 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.15s ease-out;
+
+  &:hover {
+    background-color: hsl(from var(--text) h s l / 0.06);
+  }
 }
 
 .tk-pagination-pager.__current {
   background-color: var(--blue);
+  color: var(--base);
   pointer-events: none;
 }
 
@@ -743,6 +773,12 @@
   padding: 1rem;
   box-sizing: content-box;
   color: var(--base);
+  cursor: pointer;
+  transition: opacity 0.15s ease-out;
+
+  &:hover {
+    opacity: 0.7;
+  }
 }
 
 .tk-login,
@@ -796,6 +832,10 @@
   color: var(--red);
   font-size: 1rem;
   text-decoration: underline;
+
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .tk-panel .tk-tabs {
@@ -810,6 +850,11 @@
   line-height: 2em;
   margin-right: 2em;
   margin-bottom: -2px;
+  transition: color 0.15s ease-out;
+
+  &:hover {
+    color: var(--text);
+  }
 }
 
 .tk-panel .tk-tab.__active {
@@ -830,7 +875,7 @@
   cursor: pointer;
   padding: 0.75em;
   text-align: center;
-  transition: all 0.5s;
+  transition: background-color 0.2s ease-out;
 }
 
 .tk-expand:hover {
@@ -845,6 +890,7 @@
   max-width: 300px;
   max-height: 300px;
   vertical-align: middle;
+  cursor: zoom-in;
 }
 
 .tk-owo-emotion,
@@ -864,6 +910,10 @@
 
   &:focus {
     border-color: var(--blue);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px hsl(from var(--blue) h s l / 0.25);
   }
 }
 
@@ -947,10 +997,15 @@
         display: inline-block;
         font-size: 16px;
         cursor: pointer;
-        transition: 0.3s;
+        transition: background-color 0.15s ease-out;
         text-align: center;
         &:hover {
           background-color: var(--surface0);
+        }
+
+        &:focus-visible {
+          background-color: var(--surface0);
+          outline: none;
         }
       }
     }
@@ -1045,12 +1100,17 @@
   box-sizing: border-box;
   outline: 0;
   margin: 0;
-  transition: 0.1s;
+  transition: color 0.15s ease-out, background-color 0.15s ease-out, border-color 0.15s ease-out;
   font-weight: 500;
   user-select: none;
   padding: 12px 20px;
   font-size: 14px;
   border-radius: 4px;
+
+  &:focus-visible {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 2px hsl(from var(--blue) h s l / 0.25);
+  }
 }
 
 .el-button + .el-button {
@@ -1168,7 +1228,7 @@
 }
 
 .el-input .el-input__clear:hover {
-  color: var(--subtext0);
+  color: var(--text);
 }
 
 .el-input .el-input__count {
@@ -1495,5 +1555,29 @@
   to {
     stroke-dasharray: 90, 150;
     stroke-dashoffset: -120px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tk-fade-in,
+  .tk-expand,
+  .tk-extra,
+  .tk-nick-link,
+  .tk-avatar.tk-clickable,
+  .tk-ruser,
+  .tk-admin-close,
+  .tk-panel-logout,
+  .el-button,
+  .el-textarea__inner,
+  .el-input__inner,
+  .el-input .el-input__clear,
+  .el-input__prefix,
+  .el-input__suffix,
+  .el-input__icon {
+    transition: none;
+  }
+
+  .tk-fade-in {
+    animation: none;
   }
 }
