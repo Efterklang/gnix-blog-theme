@@ -1,0 +1,73 @@
+.encrypted-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 2rem 1rem;
+}
+
+.encrypt-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 360px;
+}
+
+.encrypt-message {
+  color: var(--overlay0);
+  font-size: 0.95rem;
+  text-align: center;
+  margin: 0;
+}
+
+.encrypt-input-wrap {
+  width: 100%;
+}
+
+.encrypt-input-wrap input {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1.5px solid var(--surface2);
+  border-radius: var(--radius);
+  background: var(--mantle);
+  color: var(--text);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.encrypt-input-wrap input:focus {
+  border-color: var(--lavender);
+}
+
+.encrypt-input-wrap input::placeholder {
+  color: var(--overlay0);
+}
+
+.encrypt-error {
+  color: var(--red);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.encrypt-relock {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.4rem 1rem;
+  border: 1.5px solid var(--surface2);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--overlay0);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.encrypt-relock:hover {
+  color: var(--text);
+  border-color: var(--overlay0);
+}

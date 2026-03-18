@@ -43,3 +43,9 @@ search:
   no_result: "No results for"
   untitled: "(Untitled)"
   empty_preview: "(No preview)"
+encrypt:
+  message: "This article is encrypted, please enter the password to view"
+  placeholder: "Enter password..."
+  wrong_pass: "Wrong password, please try again"
+  abstract: "This article is encrypted"
+  relock: "Re-lock"

@@ -26,7 +26,8 @@ module.exports = class extends Component {
     const { url_for } = helper;
 
     const cover = page.cover ? url_for(page.cover) : null;
-    const wordCount = getWordCount(page._content);
+    const isEncrypted = page.encrypt === true;
+    const wordCount = isEncrypted ? 0 : getWordCount(page._content);
     const readTime = Math.ceil(wordCount / 200); // 假设每分钟阅读200字
 
     return (
@@ -90,11 +91,19 @@ module.exports = class extends Component {
               }}
             ></div>
             {/* Licensing block */}
-            {!index && article && article.licenses && Object.keys(article.licenses) ? <ArticleLicensing.Cacheable page={page} config={config} helper={helper} /> : null}
+            {!index && !isEncrypted && article && article.licenses && Object.keys(article.licenses) ? <ArticleLicensing.Cacheable page={page} config={config} helper={helper} /> : null}
           </article>
         </div>
         {/* Comment */}
-        {!index ? <Comment config={config} page={page} helper={helper} /> : null}
+        {!index ? (
+          isEncrypted ? (
+            <div id="comment-deferred" style="display:none">
+              <Comment config={config} page={page} helper={helper} />
+            </div>
+          ) : (
+            <Comment config={config} page={page} helper={helper} />
+          )
+        ) : null}
       </Fragment>
     );
   }

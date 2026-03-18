@@ -1,6 +1,9 @@
 (() => {
   const instances = new Map();
   let mermaidPromise = null;
+  let renderSeq = 0;
+  let lastTheme = document.documentElement.classList.contains("night");
+
   const loadMermaid = (jsUrl) => {
     if (mermaidPromise) return mermaidPromise;
     if (window.mermaid) {
@@ -21,11 +24,15 @@
     const mermaid = await mermaidPromise;
     if (!content || !mermaid) return;
 
-    // Initialize with current theme
+    const instance = instances.get(id);
+    if (!instance) return;
+    const version = (instance.renderVersion = ++renderSeq);
+
+    const isNight = document.documentElement.classList.contains("night");
     mermaid.initialize({
       startOnLoad: false,
-      theme: document.documentElement.classList.contains("night") ? "dark" : "default",
-      darkMode: document.documentElement.classList.contains("night"),
+      theme: isNight ? "dark" : "default",
+      darkMode: isNight,
       themeVariables,
       securityLevel: "strict",
       fontSize: 16,
@@ -33,9 +40,11 @@
 
     try {
       content.innerHTML = "";
-      const { svg } = await mermaid.render(`${id}-svg`, code);
+      const { svg } = await mermaid.render(`${id}-svg-${version}`, code);
+      if (instance.renderVersion !== version) return;
       content.insertAdjacentHTML("beforeend", svg);
     } catch (error) {
+      if (instance.renderVersion !== version) return;
       console.error("Mermaid rendering error:", error);
       content.innerHTML = `<p style="color: red;">Failed to render diagram: ${error.message}</p>`;
     }

@@ -154,6 +154,7 @@ module.exports = class extends Component {
         <link rel="preconnect" href="https://fontsapi.zeoseven.com" />
         <link rel="preload" as="style" href="https://fontsapi.zeoseven.com/442/main/result.css" onload="this.onload=null;this.rel='stylesheet'" />
         <link rel="preload" as="style" href="/css/shiki/shiki.css" onload="this.onload=null;this.rel='stylesheet'" />
+        {page.encrypt ? <link rel="stylesheet" href={url_for("/css/encrypt.css")} /> : null}
         <Plugins site={site} config={config} helper={helper} page={page} head={true} />
       </head>
     );
