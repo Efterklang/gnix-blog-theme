@@ -8,19 +8,19 @@ class FloatingToc extends Component {
       list_number: false,
     });
 
-    if (!tocContent) {
+    if (!tocContent && !page.encrypt) {
       return null;
     }
 
     return (
-      <div class="toc-container" id="icarus-toc-container">
+      <div class="toc-container" id="icarus-toc-container" style={page.encrypt ? "display:none" : null}>
         <button class="toc-button" type="button" popovertarget="toc-body" aria-label="Table of Contents">
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
         </button>
         <div id="toc-body" popover="auto" class="toc-body" onclick="if(event.target===this||event.target.closest('.toc-link'))this.hidePopover();">
-          <div dangerouslySetInnerHTML={{ __html: tocContent }} />
+          <div id="toc-insert" dangerouslySetInnerHTML={{ __html: tocContent || "" }} />
         </div>
       </div>
     );

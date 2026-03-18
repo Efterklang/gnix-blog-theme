@@ -3,7 +3,12 @@
     "allow": [
       "Read(//Users/gjx/Projects/vluv/source/**)",
       "Bash(wc:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(du:*)",
+      "Bash(find source:*)",
+      "Bash(bun add:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)"
     ]
   }
 }
