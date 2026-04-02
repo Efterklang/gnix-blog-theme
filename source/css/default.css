@@ -457,6 +457,9 @@ html {
 
 .tabs-tabs-header {
   padding: 0 0.5rem;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .tabs-tab-button {
@@ -470,6 +473,8 @@ html {
   transition: color 0.3s ease;
   outline: 0;
   color: var(--subtext0);
+  flex: 0 0 auto;
+  white-space: nowrap;
 
   &:hover,
   &.active {
