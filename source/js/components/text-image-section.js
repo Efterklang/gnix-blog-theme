@@ -58,7 +58,7 @@ class TextImageSection extends HTMLElement {
       .ti-text {
         line-height: 1.8;
         font-family: var(--ti-font-family, inherit);
-        font-size: var(--ti-font-size, 0.8rem);
+        font-size: var(--ti-font-size, 1rem);
         color: var(--ti-color, inherit);
       }
 
