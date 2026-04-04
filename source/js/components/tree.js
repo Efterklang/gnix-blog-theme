@@ -211,6 +211,30 @@ const STYLES = `
     color: var(--mauve, #cba6f7);
   }
 
+  .tree-icon.py {
+    color: var(--green, #a6e3a1);
+  }
+
+  .tree-icon.md {
+    color: var(--peach, #fab387);
+  }
+
+  .tree-icon.go {
+    color: var(--sky, #89dceb);
+  }
+
+  .tree-icon.rs {
+    color: var(--red, #f38ba8);
+  }
+
+  .tree-icon.vue {
+    color: var(--green, #a6e3a1);
+  }
+
+  .tree-icon.svelte {
+    color: var(--red, #f38ba8);
+  }
+
   .tree-label {
     color: var(--text, #cdd6f4);
     font-size: 13px;
@@ -314,6 +338,7 @@ class XTree extends HTMLElement {
       .map((item) => {
         const isFolder = item.hasChildren;
         const icon = this.getIcon(item.label, isFolder);
+        const extClass = isFolder ? "folder" : this.getExtClass(item.label);
 
         const toggleHTML = isFolder ? `<button class="tree-toggle" aria-expanded="true">${ICON_CHEVRON}</button>` : `<span class="tree-toggle-placeholder"></span>`;
 
@@ -323,7 +348,7 @@ class XTree extends HTMLElement {
           <li class="tree-item">
             <div class="tree-row">
               ${toggleHTML}
-              <span class="tree-icon ${isFolder ? "folder" : ""}">${icon}</span>
+              <span class="tree-icon ${extClass}">${icon}</span>
               <span class="tree-label">${this.escapeHTML(item.label)}</span>
             </div>
             ${childrenHTML}
@@ -331,6 +356,11 @@ class XTree extends HTMLElement {
         `;
       })
       .join("");
+  }
+
+  getExtClass(filename) {
+    const ext = filename.includes(".") ? filename.split(".").pop().toLowerCase() : "";
+    return ext;
   }
 
   toggleNode(btn) {
