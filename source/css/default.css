@@ -200,7 +200,11 @@ mark {
 }
 
 hr {
-  background-color: var(--surface0);
+  border: none;
+  display: block;
+  margin: 1.5rem 0;
+  background: transparent; /* 去掉实色背景 */
+  border-top: 2px dotted var(--surface0); /* 关键：改成 dotted */
 }
 
 .searchbox-result-item.active span {
@@ -268,7 +272,6 @@ h3,
 h4,
 h5,
 h6,
-hr,
 html,
 iframe,
 legend,
@@ -833,17 +836,15 @@ td,
 th {
   vertical-align: middle;
   padding: 0.75em 1em;
+  &:not([align]) {
+    text-align: left;
+  }
 }
 
 thead th {
   font-weight: 700;
   border-bottom: 1px solid var(--surface0);
   padding: 1em;
-}
-
-td:not([align]),
-th:not([align]) {
-  text-align: left;
 }
 
 tbody tr td {
@@ -856,11 +857,10 @@ tbody tr:last-child td {
 
 blockquote {
   position: relative;
-  padding: 1.5rem 2rem 1.5rem 3rem;
+  padding: 0.7rem 2.5rem;
   margin: 1.5rem 0;
   border-left: 2px solid var(--red);
-  border-radius: 0 8px 8px 0;
-  font-family: var(--font-serif);
+  font-family: Kai, var(--font-serif);
 
   &:before {
     content: "”";
@@ -923,22 +923,14 @@ input.task-list-item-checkbox {
 .heimu {
   color: var(--text);
   background-color: var(--text);
-}
-
-.heimu:hover {
-  color: var(--base);
+  &:hover {
+    color: var(--base);
+  }
 }
 
 strong {
   font-weight: bolder;
   padding: 0 0.15em;
-}
-
-hr {
-  border: none;
-  display: block;
-  height: 0.1em;
-  margin: 1.5rem 0;
 }
 
 a strong {
