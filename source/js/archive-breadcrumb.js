@@ -20,7 +20,7 @@
 
   function getMenuForTrigger(trigger) {
     const menu = trigger?.nextElementSibling;
-    if (!menu || !menu.classList.contains("archive-breadcrumb__menu")) return null;
+    if (!menu?.classList.contains("archive-breadcrumb__menu")) return null;
     return menu;
   }
 

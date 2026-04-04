@@ -2,7 +2,6 @@
   const instances = new Map();
   let mermaidPromise = null;
   let renderSeq = 0;
-  let lastTheme = document.documentElement.classList.contains("night");
 
   const loadMermaid = (jsUrl) => {
     if (mermaidPromise) return mermaidPromise;

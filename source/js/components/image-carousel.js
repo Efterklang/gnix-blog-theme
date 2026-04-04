@@ -290,7 +290,7 @@ class ImageCarousel extends HTMLElement {
     const dotsHTML =
       images.length > 1
         ? `<div class="dots" role="tablist" aria-label="Slide navigation">
-        ${images.map((img, i) => `<button class="dot${i === 0 ? " active" : ""}" data-index="${i}" role="tab" aria-label="Slide ${i + 1}" aria-selected="${i === 0}"></button>`).join("")}
+        ${images.map((_img, i) => `<button class="dot${i === 0 ? " active" : ""}" data-index="${i}" role="tab" aria-label="Slide ${i + 1}" aria-selected="${i === 0}"></button>`).join("")}
       </div>`
         : "";
 

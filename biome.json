@@ -22,7 +22,8 @@
         "useValidAnchor": "off"
       },
       "suspicious": {
-        "noAssignInExpressions": "off"
+        "noAssignInExpressions": "off",
+        "useIterableCallbackReturn": "off"
       },
       "complexity": {
         "noImportantStyles": "off"

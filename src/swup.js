@@ -1,6 +1,6 @@
-import Swup from "swup";
 import SwupHeadPlugin from "@swup/head-plugin";
 import SwupScriptsPlugin from "@swup/scripts-plugin";
+import Swup from "swup";
 
 const swup = new Swup({
   containers: ["#swup"],

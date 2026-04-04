@@ -11,7 +11,17 @@ module.exports = class extends Component {
     return (
       <a href={url_for(page.link || page.path)} class="cover-image">
         <img class="cover-lqip" src={lqip_src} alt="placeholder" />
-        <img class="cover-origin" src={cover} alt={page.title || cover} srcset={imageSrcset} sizes="(max-width: 768px) 100vw, (max-width: 1024px) 100vw, 960px" referrerpolicy="no-referrer" decoding="async" loading={index ? "lazy" : "eager"} fetchpriority={index ? undefined : "high"} />
+        <img
+          class="cover-origin"
+          src={cover}
+          alt={page.title || cover}
+          srcset={imageSrcset}
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 100vw, 960px"
+          referrerpolicy="no-referrer"
+          decoding="async"
+          loading={index ? "lazy" : "eager"}
+          fetchpriority={index ? undefined : "high"}
+        />
       </a>
     );
   }
