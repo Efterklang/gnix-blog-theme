@@ -148,7 +148,7 @@ const STYLES = `
   .tree-row {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: .75rem;
     padding: 3px 0;
     cursor: default;
     border-radius: 4px;
@@ -201,6 +201,14 @@ const STYLES = `
 
   .tree-icon.folder {
     color: var(--yellow, #f9e2af);
+  }
+
+  .tree-icon.js, .tree-icon.ts, .tree-icon.mjs {
+    color: var(--yellow, #f9e2af);
+  }
+
+  .tree-icon.css, .tree-icon.scss, .tree-icon.less {
+    color: var(--mauve, #cba6f7);
   }
 
   .tree-label {
