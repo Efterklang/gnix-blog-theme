@@ -10,7 +10,7 @@
   --overlay1: color-mix(in oklch, var(--base) 45%, var(--text));
   --overlay2: color-mix(in oklch, var(--base) 34%, var(--text));
 
-  --font-serif: New York, PT Serif, Georgia, serif;
+  --font-serif: Songti SC, New York, PT Serif, Georgia, serif;
   --font-sans-serif: system-ui, sans-serif;
   --font-mono: "RecMonoCasual Nerd Font", "Maple Mono NF CN Local", "Maple Mono NF CN", "SF Mono", "SF Pro", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", cursive;
@@ -596,6 +596,7 @@ html {
 
   a.header-anchor {
     color: var(--text);
+    font-family: var(--font-serif);
 
     &:hover::after {
       margin-left: 0.2em;
