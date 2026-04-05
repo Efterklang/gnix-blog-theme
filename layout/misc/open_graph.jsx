@@ -1,6 +1,6 @@
-const { isDate, parseISO, isValid } = require("date-fns");
-const { Component } = require("inferno");
+const { Component, isValidDate, parseISO } = require("../../include/util/common");
 const { encodeURL, stripHTML, escapeHTML } = require("hexo-util");
+
 const localeMap = {
   en: "en_US",
   de: "de_DE",
@@ -63,14 +63,14 @@ module.exports = class extends Component {
 
     if (date) {
       const d = typeof date === "string" ? parseISO(date) : date;
-      if ((isDate(d) || d instanceof Date) && isValid(d)) {
+      if (isValidDate(d)) {
         htmlTags.push(<meta property="article:published_time" content={d.toISOString()} />);
       }
     }
 
     if (updated) {
       const u = typeof updated === "string" ? parseISO(updated) : updated;
-      if ((isDate(u) || u instanceof Date) && isValid(u)) {
+      if (isValidDate(u)) {
         htmlTags.push(<meta property="article:modified_time" content={u.toISOString()} />);
       }
     }

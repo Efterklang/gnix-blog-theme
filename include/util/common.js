@@ -42,4 +42,11 @@ module.exports = {
       return fallback;
     }
   },
+
+  isValidDate: (val) => val instanceof Date && !Number.isNaN(val.getTime()),
+  parseISO: (str) => new Date(str),
+  dateFormatters: {
+    shortDay: new Intl.DateTimeFormat("en", { month: "short", day: "2-digit" }),
+    longMonth: new Intl.DateTimeFormat("en", { month: "long" }),
+  },
 };

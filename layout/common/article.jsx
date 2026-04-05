@@ -1,6 +1,4 @@
-import { format } from "date-fns";
-
-const { Component, Fragment } = require("../../include/util/common");
+const { Component, Fragment, dateFormatters } = require("../../include/util/common");
 const Comment = require("./comment");
 const ArticleLicensing = require("../misc/article_licensing");
 const ArticleCover = require("./article_cover");
@@ -50,7 +48,7 @@ module.exports = class extends Component {
                 <div class="article-meta-info">
                   {page.date && (
                     <time class="article-date" datetime={page.date.toISOString()}>
-                      {format(page.date, "LLL dd")}
+                      {dateFormatters.shortDay.format(page.date)}
                     </time>
                   )}
                   {page.date && (wordCount > 0 || !index) && <span class="meta-separator">/</span>}

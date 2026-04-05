@@ -1,5 +1,4 @@
-const { format, isValid, parseISO } = require("date-fns");
-const { Component, Fragment } = require("../include/util/common");
+const { Component, Fragment, isValidDate, parseISO, dateFormatters } = require("../include/util/common");
 const ArticleMedia = require("./common/article_media");
 
 module.exports = class extends Component {
@@ -24,8 +23,8 @@ module.exports = class extends Component {
       let title = `'${String(year).slice(-2)}`;
       if (sectionTitle) {
         title = sectionTitle;
-      } else if (month !== null && isValid(time)) {
-        title = format(time, "LLLL");
+      } else if (month !== null && isValidDate(time)) {
+        title = dateFormatters.longMonth.format(time);
       }
 
       return (

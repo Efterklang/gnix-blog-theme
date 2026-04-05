@@ -1,14 +1,12 @@
 /**
  * Article media component, used in article lists such as archive page and recent posts widget
  */
-const { Component } = require("inferno");
-const { format, parseISO } = require("date-fns");
+const { Component, dateFormatters, parseISO } = require("../../include/util/common");
 
 module.exports = class extends Component {
   render() {
     const { url, title, date } = this.props;
-    // Formatted like May.15
-    const formattedDate = format(parseISO(date), "MMM dd");
+    const formattedDate = dateFormatters.shortDay.format(parseISO(date));
 
     return (
       <article class="archive-item">

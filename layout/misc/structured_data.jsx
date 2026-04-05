@@ -1,5 +1,4 @@
-const { isDate, parseISO, isValid } = require("date-fns");
-const { Component } = require("inferno");
+const { Component, isValidDate, parseISO } = require("../../include/util/common");
 const { stripHTML, escapeHTML } = require("hexo-util");
 
 module.exports = class extends Component {
@@ -28,14 +27,14 @@ module.exports = class extends Component {
 
     if (date) {
       const d = typeof date === "string" ? parseISO(date) : date;
-      if ((isDate(d) || d instanceof Date) && isValid(d)) {
+      if (isValidDate(d)) {
         date = d.toISOString();
       }
     }
 
     if (updated) {
       const u = typeof updated === "string" ? parseISO(updated) : updated;
-      if ((isDate(u) || u instanceof Date) && isValid(u)) {
+      if (isValidDate(u)) {
         updated = u.toISOString();
       }
     }
