@@ -27,12 +27,20 @@ class TextImageSection extends HTMLElement {
   constructor() {
     super();
     this._rendered = false;
-    this._originalContent = null;
   }
 
   connectedCallback() {
     this.injectStyles();
     this.render();
+    this.initZoom();
+  }
+
+  initZoom() {
+    if (typeof mediumZoom !== "function") return;
+    const img = this.querySelector(".ti-image img");
+    if (img) {
+      mediumZoom(img, { background: "hsla(from var(--mantle) / 0.9)" });
+    }
   }
 
   injectStyles() {
@@ -45,14 +53,13 @@ class TextImageSection extends HTMLElement {
       }
 
       .ti-container {
-        /* Clearfix to contain float */
         overflow: hidden;
-      }
 
-      .ti-container::after {
-        content: "";
-        display: table;
-        clear: both;
+        &::after {
+          content: "";
+          display: table;
+          clear: both;
+        }
       }
 
       .ti-text {
@@ -63,49 +70,49 @@ class TextImageSection extends HTMLElement {
       }
 
       .ti-image {
-        float: right;
+        position: relative;
+        z-index: 1;
         width: var(--ti-image-width, 300px);
-        margin-left: 24px;
         margin-bottom: 12px;
-      }
 
-      .ti-container.image-left .ti-image {
-        float: left;
-        margin-left: 0;
-        margin-right: 24px;
-      }
+        .ti-container > & {
+          float: right;
+          margin-left: 24px;
+        }
 
-      .ti-image img {
-        width: 100%;
-        height: auto;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
+        .image-left > & {
+          float: left;
+          margin-left: 0;
+          margin-right: 24px;
+        }
 
-      .ti-image figure {
-        margin: 0;
-      }
+        img {
+          width: 100%;
+          height: auto;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
 
-      .ti-image figcaption {
-        font-family: var(--font-serif);
-        font-size: 0.875em;
-        color: var(--subtext0);
-        text-align: center;
-        margin-top: 8px;
-        font-style: italic;
+        figure {
+          margin: 0;
+        }
+
+        figcaption {
+          font-family: var(--font-serif);
+          font-size: 0.875em;
+          color: var(--subtext0);
+          text-align: center;
+          margin-top: 8px;
+          font-style: italic;
+        }
       }
 
       @media (max-width: 640px) {
-        .ti-image,
-        .ti-container.image-left .ti-image {
+        .ti-image {
           float: none;
           width: 100%;
           margin: 0 0 16px 0;
           --ti-image-width: 100%;
-        }
-
-        .ti-image img {
-          width: 100%;
         }
       }
     `;
