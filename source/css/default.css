@@ -873,6 +873,15 @@ blockquote {
     opacity: 0.3;
     line-height: 1;
   }
+
+  small {
+    display: block;
+    text-align: right;
+    margin-top: 0.5em;
+    color: var(--subtext0);
+    font-style: italic;
+    font-size: 0.9em;
+  }
 }
 
 ul.contains-task-list {
