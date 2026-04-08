@@ -36,6 +36,12 @@ const CHAT_STYLES = `
     border-radius: 12px;
     max-height: 500px;
     overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .chat-container::-webkit-scrollbar {
+    display: none;
   }
 
   .chat-message {
@@ -54,7 +60,6 @@ const CHAT_STYLES = `
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
-    background: var(--surface1, #45475a);
   }
 
   .avatar-placeholder {
