@@ -3,6 +3,7 @@
   code {
     font-family: var(--font-mono);
   }
+
   p {
     color: var(--text);
   }
@@ -37,7 +38,6 @@
 .tk-avatar.tk-clickable {
   cursor: pointer;
   transition: opacity 0.2s ease-out;
-
   &:hover {
     opacity: 0.8;
   }
@@ -117,10 +117,6 @@
   cursor: pointer;
   flex-shrink: 0;
   transition: opacity 0.15s ease-out;
-
-  &:hover {
-    opacity: 0.7;
-  }
 }
 
 .tk-submit-action-icon.__markdown {
@@ -401,10 +397,6 @@
   color: var(--blue);
   text-decoration: none;
   transition: opacity 0.15s ease-out;
-
-  &:hover {
-    opacity: 0.8;
-  }
 }
 
 .tk-lightbox {
@@ -475,10 +467,6 @@
   cursor: pointer;
   color: var(--blue);
   transition: opacity 0.15s ease-out;
-
-  &:hover {
-    opacity: 0.7;
-  }
 }
 
 .twikoo div.code-toolbar {
@@ -544,10 +532,6 @@
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.15s ease-out;
-
-  &:hover {
-    background-color: hsl(from var(--text) h s l / 0.06);
-  }
 }
 
 .tk-pagination-pager.__current {
@@ -772,10 +756,6 @@
   color: var(--base);
   cursor: pointer;
   transition: opacity 0.15s ease-out;
-
-  &:hover {
-    opacity: 0.7;
-  }
 }
 
 .tk-login,
@@ -829,10 +809,6 @@
   color: var(--red);
   font-size: 1rem;
   text-decoration: underline;
-
-  &:hover {
-    opacity: 0.8;
-  }
 }
 
 .tk-panel .tk-tabs {
@@ -848,7 +824,6 @@
   margin-right: 2em;
   margin-bottom: -2px;
   transition: color 0.15s ease-out;
-
   &:hover {
     color: var(--text);
   }
@@ -867,20 +842,13 @@
 }
 
 .tk-expand {
-  font-size: 0.75em;
-  width: 100%;
   cursor: pointer;
   padding: 0.75em;
   text-align: center;
-  transition: background-color 0.2s ease-out;
-}
-
-.tk-expand:hover {
-  background-color: hsl(from var(--text) h s l / 0.06);
-}
-
-.tk-expand:active {
-  background-color: hsl(from var(--text) h s l / 0.1);
+  &:hover,
+  &:active {
+    background-color: var(--surfacevar(--surface0) 0);
+  }
 }
 
 .tk-content img {
@@ -901,9 +869,6 @@
   color: currentColor;
   background-color: transparent;
   border-color: hsl(from var(--surface1) h s l / 0.31);
-  &:hover {
-    border-color: hsl(from var(--surface1) h s l / 0.5);
-  }
 
   &:focus {
     border-color: var(--blue);
@@ -969,96 +934,82 @@
     display: flex;
   }
 
-  .OwO-body {
-    display: none;
-    position: absolute;
-    left: 0;
-    right: 0;
-    max-width: 500px;
-    color: var(--text);
-    background-color: var(--base);
-    border: 1px solid hsl(from var(--surface1) h s l / 0.31);
-    top: 2em;
-    border-radius: 0 4px 4px;
-    z-index: 1000;
-    .OwO-items {
-      user-select: none;
-      display: none;
-      padding: 10px 0 10px 10px;
-      margin: 0;
-      overflow: auto;
-      font-size: 0;
-      .OwO-item {
-        list-style-type: none;
-        padding: 5px 10px;
-        display: inline-block;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.15s ease-out;
-        text-align: center;
-        &:hover {
-          background-color: var(--surface0);
-        }
-
-        &:focus-visible {
-          background-color: var(--surface0);
-          outline: none;
-        }
-      }
-    }
-
-    .OwO-items-image {
-      .OwO-item {
-        img {
-          max-width: 100%;
-        }
-      }
-    }
-
-    .OwO-items-show {
-      display: block;
-    }
-
-    .OwO-bar {
-      width: 100%;
-      border-top: 1px solid hsl(from var(--surface1) h s l / 0.31);
-      border-radius: 0 0 4px 4px;
-      .OwO-packages {
-        margin: 0;
-        padding: 0;
-        font-size: 0;
-        li {
-          list-style-type: none;
-          display: inline-block;
-          line-height: 30px;
-          font-size: 14px;
-          padding: 0 10px;
-          cursor: pointer;
-          margin-right: 3px;
-          &:nth-child(1) {
-            border-radius: 0 0 0 3px;
-          }
-
-          &:hover {
-            background-color: var(--surface0);
-          }
-        }
-
-        .OwO-package-active {
-          background-color: var(--surface0);
-        }
-      }
-    }
-  }
-
   &.OwO-open .OwO-body {
     display: block;
   }
 }
 
-.night .OwO .OwO-body {
+.OwO-body {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  max-width: 500px;
   color: var(--text);
-  background-color: var(--mantle);
+  background-color: var(--base);
+  border: 1px solid var(--surface0);
+  top: 2em;
+  border-radius: var(--radius);
+  z-index: 200;
+
+  .OwO-items {
+    padding: 10px 0 10px 10px;
+    margin: 0;
+    overflow: auto;
+    font-size: 0;
+  }
+
+  .OwO-item {
+    list-style-type: none;
+    padding: 5px 10px;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    &:hover {
+      background-color: var(--surface0);
+    }
+
+    &:focus-visible {
+      background-color: var(--surface0);
+      outline: none;
+    }
+  }
+
+  .OwO-items-image {
+    .OwO-item {
+      img {
+        max-width: 100%;
+      }
+    }
+  }
+
+  .OwO-bar {
+    width: 100%;
+    border-top: 1px solid var(--surface0);
+    .OwO-packages {
+      margin: 0;
+      padding: 0;
+      font-size: 0;
+      li {
+        list-style-type: none;
+        display: inline-block;
+        line-height: 30px;
+        font-size: 14px;
+        padding: 0 10px;
+        cursor: pointer;
+        margin-right: 3px;
+        &:nth-child(1) {
+          border-radius: 0 0 0 3px;
+        }
+      }
+
+      .OwO-package-active,
+      .OwO-packages:hover {
+        color: var(--lavender);
+      }
+    }
+  }
 }
 
 @media screen and (max-width: 600px) {
@@ -1106,7 +1057,6 @@
   padding: 12px 20px;
   font-size: 14px;
   border-radius: 4px;
-
   &:focus-visible {
     border-color: var(--blue);
     box-shadow: 0 0 0 2px hsl(from var(--blue) h s l / 0.25);
@@ -1171,7 +1121,6 @@
   border-color: var(--surface0);
   color: var(--subtext0);
   cursor: not-allowed;
-
   &::placeholder {
     color: var(--subtext0);
   }
@@ -1573,7 +1522,8 @@
   .el-input .el-input__clear,
   .el-input__prefix,
   .el-input__suffix,
-  .el-input__icon {
+  .el-input__icon,
+  .tk-submit-action-icon.OwO .OwO-logo {
     transition: none;
   }
 
