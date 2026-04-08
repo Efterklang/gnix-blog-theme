@@ -10,7 +10,7 @@
   --overlay1: color-mix(in oklch, var(--base) 45%, var(--text));
   --overlay2: color-mix(in oklch, var(--base) 34%, var(--text));
 
-  --font-serif: Songti SC, New York, PT Serif, Georgia, serif;
+  --font-serif: STFangsong, STSong, New York, Songti SC, Georgia, serif;
   --font-sans-serif: system-ui, sans-serif;
   --font-mono: "RecMonoCasual Nerd Font", "Maple Mono NF CN Local", "Maple Mono NF CN", "SF Mono", "SF Pro", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", cursive;
@@ -860,7 +860,7 @@ blockquote {
   padding: 0.7rem 2.5rem;
   margin: 1.5rem 0;
   border-left: 2px solid var(--red);
-  font-family: Kai, var(--font-serif);
+  font-family: Georgia, Kai, var(--font-serif);
 
   &:before {
     content: "”";
@@ -974,6 +974,7 @@ section {
 
 .article-title {
   font-size: 2.25em;
+  font-family: var(--font-serif);
   line-height: 1.2;
   margin-bottom: 0.3em;
 
