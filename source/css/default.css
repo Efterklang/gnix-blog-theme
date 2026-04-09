@@ -12,7 +12,7 @@
 
   --font-serif: STFangsong, STSong, New York, Songti SC, Georgia, serif;
   --font-sans-serif: system-ui, sans-serif;
-  --font-mono: "RecMonoCasual Nerd Font", "Maple Mono NF CN Local", "Maple Mono NF CN", "SF Mono", "SF Pro", Monaco, Consolas, monospace;
+  --font-mono: "SF Mono", "SF Pro", "Maple Mono NF CN Local", "Maple Mono NF CN", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", cursive;
   --radius: 12px;
 }
@@ -203,8 +203,8 @@ hr {
   border: none;
   display: block;
   margin: 1.5rem 0;
-  background: transparent; /* 去掉实色背景 */
-  border-top: 2px dotted var(--surface0); /* 关键：改成 dotted */
+  background: transparent;
+  border-top: 2px dotted var(--surface0);
 }
 
 .searchbox-result-item.active span {
@@ -315,7 +315,6 @@ html {
 
 .card-content {
   padding: 1.25rem;
-  border-radius: 0;
 }
 
 /* #region Navbar */
