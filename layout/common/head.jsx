@@ -28,7 +28,7 @@ module.exports = class extends Component {
     const { site, config, helper, page } = this.props;
     const { url_for, is_post } = helper;
     const { url, head = {}, article } = config;
-    const { meta = [], open_graph = {}, structured_data = {}, canonical_url = page.permalink, rss, favicon } = head;
+    const { meta = [], open_graph = {}, structured_data = {}, canonical_url = page.permalink, favicon } = head;
 
     const noIndex = helper.is_archive() || helper.is_tag();
 
@@ -52,14 +52,6 @@ module.exports = class extends Component {
       }
     } else {
       images = [url_for("/img/og_image.webp")];
-    }
-
-    let adsenseClientId = null;
-    if (Array.isArray(config.widgets)) {
-      const widget = config.widgets.find((widget) => widget.type === "adsense");
-      if (widget) {
-        adsenseClientId = widget.client_id;
-      }
     }
 
     let openGraphImages = images;
@@ -141,7 +133,6 @@ module.exports = class extends Component {
           />
         ) : null}
         {canonical_url ? <link rel="canonical" href={canonical_url} /> : null}
-        {rss ? <link rel="alternate" href={url_for(rss)} title={config.title} type="application/atom+xml" /> : null}
         {favicon ? <link rel="icon" href={url_for(favicon)} /> : null}
         <link rel="preload" href={url_for("/css/font/woff2/HomemadeApple.woff2")} as="font" type="font/woff2" crossorigin />
         <link rel="stylesheet" href={url_for("/css/default.css")} />
