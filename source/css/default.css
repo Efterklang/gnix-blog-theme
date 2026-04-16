@@ -307,10 +307,6 @@ html {
   max-width: 100%;
   position: relative;
   overflow: visible;
-  border: 0.5px solid var(--surface0);
-}
-.card + .card {
-  border-top: none;
 }
 
 .card-content {
@@ -987,7 +983,6 @@ section {
   overflow: auto;
   padding-bottom: 0.5em;
   margin-bottom: 1rem;
-  border-bottom: 1px dashed var(--surface0);
   color: var(--subtext0);
   display: flex;
   align-items: center;
@@ -1171,6 +1166,7 @@ input.searchbox-input {
   display: block;
   overflow: hidden;
   height: 380px;
+  border-radius: var(--radius);
 
   img {
     display: block;
@@ -1299,3 +1295,7 @@ input.searchbox-input {
 }
 
 /* #endregion TOC */
+.pagination,
+#comments {
+  border-top: 1px dashed var(--surface0);
+}

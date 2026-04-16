@@ -374,9 +374,9 @@
   max-height: 200px;
   overflow: hidden;
   position: relative;
-  margin-top: 0.75rem;
+  margin-top: 0.65rem;
   padding-left: 1rem;
-  border-left: 2px solid var(--surface0);
+  border-left: 1px dashed var(--surface0);
 }
 
 .tk-replies .tk-comment {
