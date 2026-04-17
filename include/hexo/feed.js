@@ -101,6 +101,7 @@ module.exports = (hexo) => {
     const { limit, order_by } = feedConfig;
     let processedPosts = posts.sort(order_by || "-date");
     processedPosts = processedPosts.filter((post) => post.draft !== true);
+    processedPosts = processedPosts.filter((post) => !post.password);
     if (limit) processedPosts = processedPosts.limit(limit);
     return processedPosts;
   }
