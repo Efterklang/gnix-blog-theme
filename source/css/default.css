@@ -10,9 +10,9 @@
   --overlay1: color-mix(in oklch, var(--base) 45%, var(--text));
   --overlay2: color-mix(in oklch, var(--base) 34%, var(--text));
 
-  --font-serif: STFangsong, STSong, New York, Songti SC, Georgia, serif;
+  --font-serif: "Noto Serif CJK", STFangsong, STSong, New York, Songti SC, Georgia, serif;
   --font-sans-serif: system-ui, sans-serif;
-  --font-mono: "SF Mono", "SF Pro", "Maple Mono NF CN Local", "Maple Mono NF CN", Monaco, Consolas, monospace;
+  --font-mono: "SF Mono", "Maple Mono NF CN Local", "Maple Mono NF CN", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", cursive;
   --radius: 12px;
 }
@@ -507,7 +507,7 @@ html {
   flex-grow: 1;
   margin: 0 auto;
   position: relative;
-  max-width: 960px;
+  max-width: 55em;
 }
 
 /* #region Footer */
@@ -980,6 +980,7 @@ section {
   font-family: var(--font-serif);
   line-height: 1.2;
   margin-bottom: 0.3em;
+  text-wrap: balance;
 
   > a {
     color: var(--text);

@@ -134,15 +134,15 @@ module.exports = class extends Component {
         ) : null}
         {canonical_url ? <link rel="canonical" href={canonical_url} /> : null}
         {favicon ? <link rel="icon" href={url_for(favicon)} /> : null}
-        <link rel="preload" href={url_for("/css/font/woff2/HomemadeApple.woff2")} as="font" type="font/woff2" crossorigin />
         <link rel="stylesheet" href={url_for("/css/default.css")} />
         <link rel="stylesheet" href={url_for("/css/responsive/mobile.css")} media="screen and (max-width:768px)" />
         <link rel="stylesheet" href={url_for("/css/responsive/tablet.css")} media="screen and (min-width:769px)" />
         <link rel="stylesheet" href={url_for("/css/responsive/touch.css")} media="screen and (max-width:1023px)" />
         <link rel="stylesheet" href={url_for("/css/responsive/desktop.css")} media="screen and (min-width:1024px)" />
         <link rel="preload" as="style" href={url_for("/css/callout_blocks.css")} onload="this.onload=null;this.rel='stylesheet'" />
-        {/* Maple Mono CN */}
+        <link rel="preload" href={url_for("/css/font/woff2/HomemadeApple.woff2")} as="font" type="font/woff2" crossorigin />
         <link rel="preconnect" href="https://fontsapi.zeoseven.com" />
+        <link rel="preload" as="style" href="https://fontsapi.zeoseven.com/285/main/result.css" onload="this.onload=null;this.rel='stylesheet'" />
         <link rel="preload" as="style" href="https://fontsapi.zeoseven.com/442/main/result.css" onload="this.onload=null;this.rel='stylesheet'" />
         <link rel="preload" as="style" href="/css/shiki/shiki.css" onload="this.onload=null;this.rel='stylesheet'" />
         {page.encrypt ? <link rel="stylesheet" href={url_for("/css/encrypt.css")} /> : null}
