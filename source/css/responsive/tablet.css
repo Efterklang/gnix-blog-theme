@@ -25,6 +25,22 @@
   order: 3;
 }
 
+.page-shell-home,
+.page-shell-post {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.article-feed--with-cover {
+  grid-template-columns: minmax(0, 1fr) 190px;
+  align-items: center;
+}
+
+.article-feed-cover {
+  width: 190px;
+  justify-self: end;
+}
+
 .pagination {
   justify-content: space-between;
 }

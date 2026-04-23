@@ -25,73 +25,115 @@ module.exports = class extends Component {
 
     const cover = page.cover ? url_for(page.cover) : null;
     const wordCount = getWordCount(page._content);
-    const readTime = Math.ceil(wordCount / 200); // 假设每分钟阅读200字
+    const readTime = Math.max(1, Math.ceil(wordCount / 200));
+    const postUrl = url_for(page.link || page.path);
+    const authorName = page.author || config.author || config.title;
+    const authorInitial = authorName ? authorName.trim().charAt(0).toUpperCase() : null;
+    const hasTags = Boolean(page.tags?.length);
+    const articleClass = ["card", "article-shell", index ? "article-shell--feed" : "article-shell--post"].join(" ");
+    const contentHtml = index && page.excerpt ? page.excerpt : page.content;
 
     return (
       <Fragment>
-        {/* Main content */}
-        <div class="card">
-          {/* Cover image */}
-          {cover ? <ArticleCover page={page} cover={cover} index={index} helper={helper} /> : null}
-          <article class={`card-content article${"direction" in page ? ` ${page.direction}` : ""}`}>
-            {/* Title */}
-            {page.title !== "" && index ? (
-              <h2 class="article-title">
-                <a href={url_for(page.link || page.path)}>{page.title}</a>
-              </h2>
-            ) : null}
-            {page.title !== "" && !index ? <h1 class="article-title">{page.title}</h1> : null}
-
-            {/* Metadata - Medium style */}
-            {page.layout !== "page" ? (
-              <div class="article-header-meta">
-                <div class="article-meta-info">
-                  {page.date && (
-                    <time class="article-date" datetime={page.date.toISOString()}>
-                      {dateFormatters.shortDay.format(page.date)}
-                    </time>
-                  )}
-                  {page.date && (wordCount > 0 || !index) && <span class="meta-separator">/</span>}
-                  {wordCount > 0 && <span class="article-reading-time">{readTime} min</span>}
-                  {!index && (
-                    <Fragment>
-                      <span class="meta-separator">/</span>
-                      <span
-                        class="article-visit-count"
-                        data-flag-title={page.title}
-                        dangerouslySetInnerHTML={{
-                          __html: '<span id="busuanzi_page_pv"></span> PV',
-                        }}
-                      ></span>
-                    </Fragment>
-                  )}
+        <div class={articleClass}>
+          <article class={`card-content article${"direction" in page ? ` ${page.direction}` : ""}${index ? " article--feed" : " article--post"}`}>
+            {index ? (
+              <div class={`article-feed${cover ? " article-feed--with-cover" : ""}`}>
+                <div class="article-feed-main">
+                  {page.layout !== "page" ? (
+                    <div class="article-feed-meta">
+                      {authorName ? <span class="article-feed-author">{authorName}</span> : null}
+                      {page.date ? (
+                        <time class="article-date" datetime={page.date.toISOString()}>
+                          {dateFormatters.shortDay.format(page.date)}
+                        </time>
+                      ) : null}
+                      {wordCount > 0 ? <span class="article-reading-time">{readTime} min read</span> : null}
+                    </div>
+                  ) : null}
+                  {page.title !== "" ? (
+                    <h2 class="article-title">
+                      <a href={postUrl}>{page.title}</a>
+                    </h2>
+                  ) : null}
+                  <div
+                    class="content article-excerpt"
+                    dangerouslySetInnerHTML={{
+                      __html: contentHtml,
+                    }}
+                  ></div>
+                  <div class="article-feed-footer">
+                    {hasTags ? (
+                      <div class="article-tags-inline">
+                        {page.tags.map((tag) => (
+                          <a class="article-tag" rel="tag" href={url_for(tag.path)}>
+                            {tag.name}
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <span class="article-feed-rule" aria-hidden="true"></span>
+                    )}
+                    <a class="article-read-more" href={postUrl}>
+                      Continue reading
+                    </a>
+                  </div>
                 </div>
-                {page.tags?.length ? (
-                  <div class="article-tags-inline">
-                    {page.tags.map((tag) => (
-                      <Fragment>
-                        <a class="article-tag" rel="tag" href={url_for(tag.path)}>
-                          {tag.name}
-                        </a>
-                      </Fragment>
-                    ))}
+                {cover ? (
+                  <div class="article-feed-cover">
+                    <ArticleCover page={page} cover={cover} index={index} helper={helper} />
                   </div>
                 ) : null}
               </div>
-            ) : null}
-
-            {/* Content/Excerpt */}
-            <div
-              class="content"
-              dangerouslySetInnerHTML={{
-                __html: index && page.excerpt ? page.excerpt : page.content,
-              }}
-            ></div>
-            {/* Licensing block */}
-            {!index && article && article.licenses && Object.keys(article.licenses) ? <ArticleLicensing.Cacheable page={page} config={config} helper={helper} /> : null}
+            ) : (
+              <Fragment>
+                <header class="article-hero">
+                  {page.layout !== "page" && authorName ? (
+                    <div class="article-byline">
+                      {authorInitial ? <span class="article-byline-avatar">{authorInitial}</span> : null}
+                      <div class="article-byline-text">
+                        <span class="article-byline-name">{authorName}</span>
+                        <div class="article-header-meta">
+                          {page.date ? (
+                            <time class="article-date" datetime={page.date.toISOString()}>
+                              {dateFormatters.shortDay.format(page.date)}
+                            </time>
+                          ) : null}
+                          {wordCount > 0 ? <span class="article-reading-time">{readTime} min read</span> : null}
+                          <span
+                            class="article-visit-count"
+                            data-flag-title={page.title}
+                            dangerouslySetInnerHTML={{
+                              __html: '<span id="busuanzi_page_pv"></span> views',
+                            }}
+                          ></span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                  {page.title !== "" ? <h1 class="article-title">{page.title}</h1> : null}
+                  {hasTags ? (
+                    <div class="article-tags-inline">
+                      {page.tags.map((tag) => (
+                        <a class="article-tag" rel="tag" href={url_for(tag.path)}>
+                          {tag.name}
+                        </a>
+                      ))}
+                    </div>
+                  ) : null}
+                  {cover ? <ArticleCover page={page} cover={cover} index={index} helper={helper} /> : null}
+                </header>
+                <div
+                  class="content"
+                  dangerouslySetInnerHTML={{
+                    __html: contentHtml,
+                  }}
+                ></div>
+                {!index && article && article.licenses && Object.keys(article.licenses) ? <ArticleLicensing.Cacheable page={page} config={config} helper={helper} /> : null}
+              </Fragment>
+            )}
           </article>
         </div>
-        {/* Comment */}
         {!index ? <Comment config={config} page={page} helper={helper} /> : null}
       </Fragment>
     );

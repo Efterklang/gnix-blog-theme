@@ -34,3 +34,18 @@
   justify-content: flex-end;
   margin-left: auto;
 }
+
+.page-shell-home,
+.page-shell-post {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.article-feed--with-cover {
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 2.2rem;
+}
+
+.page-shell-home .pagination {
+  padding-top: 1.25rem;
+}

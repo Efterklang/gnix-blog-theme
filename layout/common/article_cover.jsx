@@ -1,4 +1,4 @@
-const { Component } = require("inferno");
+const { Component, Fragment } = require("inferno");
 
 module.exports = class extends Component {
   render() {
@@ -7,9 +7,8 @@ module.exports = class extends Component {
 
     const imageSrcset = `${cover}?w=800 800w, ${cover}?w=1500 1500w, ${cover}?w=2000 2000w, ${cover} 6144w`;
     const lqip_src = `${cover}?q=80&blur=80`;
-
-    return (
-      <a href={url_for(page.link || page.path)} class="cover-image">
+    const image = (
+      <Fragment>
         <img class="cover-lqip" src={lqip_src} alt="placeholder" />
         <img
           class="cover-origin"
@@ -22,7 +21,17 @@ module.exports = class extends Component {
           loading={index ? "lazy" : "eager"}
           fetchpriority={index ? undefined : "high"}
         />
-      </a>
+      </Fragment>
     );
+
+    if (index) {
+      return (
+        <a href={url_for(page.link || page.path)} class="cover-image">
+          {image}
+        </a>
+      );
+    }
+
+    return <figure class="cover-image cover-image--hero">{image}</figure>;
   }
 };
