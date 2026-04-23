@@ -34,14 +34,6 @@ module.exports = class extends Component {
           {/* Cover image */}
           {cover ? <ArticleCover page={page} cover={cover} index={index} helper={helper} /> : null}
           <article class={`card-content article${"direction" in page ? ` ${page.direction}` : ""}`}>
-            {/* Title */}
-            {page.title !== "" && index ? (
-              <h2 class="article-title">
-                <a href={url_for(page.link || page.path)}>{page.title}</a>
-              </h2>
-            ) : null}
-            {page.title !== "" && !index ? <h1 class="article-title">{page.title}</h1> : null}
-
             {/* Metadata - Medium style */}
             {page.layout !== "page" ? (
               <div class="article-header-meta">
@@ -51,11 +43,11 @@ module.exports = class extends Component {
                       {dateFormatters.shortDay.format(page.date)}
                     </time>
                   )}
-                  {page.date && (wordCount > 0 || !index) && <span class="meta-separator">/</span>}
+                  {page.date && (wordCount > 0 || !index) && <span class="meta-separator">·</span>}
                   {wordCount > 0 && <span class="article-reading-time">{readTime} min</span>}
                   {!index && (
                     <Fragment>
-                      <span class="meta-separator">/</span>
+                      <span class="meta-separator">·</span>
                       <span
                         class="article-visit-count"
                         data-flag-title={page.title}
@@ -66,27 +58,50 @@ module.exports = class extends Component {
                     </Fragment>
                   )}
                 </div>
-                {page.tags?.length ? (
-                  <div class="article-tags-inline">
-                    {page.tags.map((tag) => (
-                      <Fragment>
-                        <a class="article-tag" rel="tag" href={url_for(tag.path)}>
-                          {tag.name}
-                        </a>
-                      </Fragment>
-                    ))}
-                  </div>
-                ) : null}
               </div>
             ) : null}
 
-            {/* Content/Excerpt */}
-            <div
-              class="content"
-              dangerouslySetInnerHTML={{
-                __html: index && page.excerpt ? page.excerpt : page.content,
-              }}
-            ></div>
+            {/* Title */}
+            {page.title !== "" && index ? (
+              <h2 class="article-title">
+                <a href={url_for(page.link || page.path)}>{page.title}</a>
+              </h2>
+            ) : null}
+            {page.title !== "" && !index ? <h1 class="article-title">{page.title}</h1> : null}
+
+            {!index && page.excerpt && <div class="content article-excerpt" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div>}
+
+            {(index || !page.excerpt) && (
+              <div
+                class={index && page.excerpt ? "content article-excerpt" : "content"}
+                dangerouslySetInnerHTML={{
+                  __html: index && page.excerpt ? page.excerpt : page.content,
+                }}
+              ></div>
+            )}
+
+            {page.tags?.length && (
+              <div class="article-footer">
+                <div class="article-tags">
+                  {page.tags.map((tag, i) => (
+                    <Fragment>
+                      {i > 0 && <span class="meta-separator">·</span>}
+                      <a class="article-tag" rel="tag" href={url_for(tag.path)}>
+                        {tag.name}
+                      </a>
+                    </Fragment>
+                  ))}
+                </div>
+                {index && (
+                  <a class="article-read-more" href={url_for(page.link || page.path)}>
+                    Read More →
+                  </a>
+                )}
+              </div>
+            )}
+
+            {!index && page.excerpt && <div class="content" dangerouslySetInnerHTML={{ __html: page.content }}></div>}
+
             {/* Licensing block */}
             {!index && article && article.licenses && Object.keys(article.licenses) ? <ArticleLicensing.Cacheable page={page} config={config} helper={helper} /> : null}
           </article>
