@@ -568,11 +568,6 @@ html {
   align-items: center;
   gap: 0.4rem;
   color: var(--subtext0);
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
 }
 
 /* #endregion Footer */
@@ -598,6 +593,7 @@ html {
   a.header-anchor {
     color: var(--text);
     font-family: var(--font-serif);
+    text-decoration: none;
     &::after {
       margin-left: 0.4em;
       opacity: 0;
@@ -612,14 +608,16 @@ html {
 
   sup.footnote-ref > a,
   li.footnote-item,
-  a.footnote-backref,
-  a.header-anchor,
   h2,
   h3,
   h4,
   h5,
   h6 {
     scroll-margin-top: 5rem;
+  }
+
+  .footnote-ref > a,
+  .footnote-backref {
     text-decoration: none;
   }
 
@@ -862,6 +860,8 @@ blockquote {
   margin: 1.5rem 0;
   border-left: 2px solid var(--red);
   font-family: Georgia, Kai, var(--font-serif);
+  font-style: italic;
+  font-synthesis: none;
 
   &:before {
     content: "”";
@@ -1029,9 +1029,10 @@ section {
   }
 }
 
-.article-excerpt,
 /* .article-title, */
-  .footnotes {
+em,
+.article-excerpt,
+.footnotes {
   font-family: var(--font-serif);
   font-style: italic;
   font-synthesis: none;
