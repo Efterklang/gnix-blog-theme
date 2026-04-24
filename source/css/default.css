@@ -412,7 +412,8 @@ html {
   align-items: center;
   display: flex;
   text-align: center;
-  font-family: var(--font-mono);
+  font-family: var(--font-serif);
+  font-style: italic;
 }
 
 .pagination-link.is-current {
@@ -426,7 +427,7 @@ html {
 .pagination-previous {
   user-select: none;
   color: var(--subtext0);
-  padding: 0 0.5em;
+  padding: 0 1rem;
   display: inline-flex;
   min-width: 1.5em;
 }
