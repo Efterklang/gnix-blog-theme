@@ -301,7 +301,7 @@ html {
   min-width: 300px;
   overflow-x: hidden;
   overflow-y: scroll;
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth; */
 }
 
 .card {
