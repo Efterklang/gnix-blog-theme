@@ -301,6 +301,7 @@ html {
   min-width: 300px;
   overflow-x: hidden;
   overflow-y: scroll;
+  scroll-behavior: smooth;
 }
 
 .card {
@@ -618,7 +619,6 @@ html {
   h5,
   h6 {
     scroll-margin-top: 5rem;
-    scroll-behavior: smooth;
     text-decoration: none;
   }
 
@@ -820,7 +820,6 @@ html {
 }
 
 .footnotes {
-  font-family: var(--font-serif);
   font-size: 0.9em;
 }
 
@@ -975,7 +974,6 @@ section {
 
 .article-title {
   font-size: 1.75em;
-  font-family: var(--font-serif);
   line-height: 1.2;
   margin-bottom: 0.3em;
   text-wrap: balance;
@@ -1030,8 +1028,12 @@ section {
   }
 }
 
-.article-excerpt {
+.article-excerpt,
+/* .article-title, */
+  .footnotes {
   font-family: var(--font-serif);
+  font-style: italic;
+  font-synthesis: none;
 }
 
 .article-tags {
