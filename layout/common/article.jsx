@@ -162,7 +162,7 @@ module.exports = class extends Component {
             <div id="article-font-settings" popover="auto" class="article-popover article-font-popover">
               <div class="article-popover-header">
                 <h3>{helper.__("article.display_settings")}</h3>
-                <button type="button" class="article-popover-close" popovertarget="article-font-settings" popovertargetaction="hide" aria-label="Close">
+                <button type="button" class="article-popover-close" popovertarget="article-font-settings" popovertargetaction="hide" aria-label={helper.__("article.close")}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="18"
@@ -251,7 +251,7 @@ module.exports = class extends Component {
             <div id="article-info-popover" popover="auto" class="article-popover article-info-popover">
               <div class="article-popover-header">
                 <h3>{helper.__("article.article_info")}</h3>
-                <button type="button" class="article-popover-close" popovertarget="article-info-popover" popovertargetaction="hide" aria-label="Close">
+                <button type="button" class="article-popover-close" popovertarget="article-info-popover" popovertargetaction="hide" aria-label={helper.__("article.close")}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="18"

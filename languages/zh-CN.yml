@@ -34,6 +34,7 @@ article:
   font_mono: "等宽体"
   font_handwriting: "手写体"
   preview: "预览效果"
+  close: "关闭"
   created_time: "创建时间"
   updated_time: "更新时间"
   license: "许可证"

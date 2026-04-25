@@ -1081,6 +1081,16 @@ em,
     color: var(--mauve);
   }
 
+  &:active {
+    color: var(--mauve);
+    opacity: 0.7;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: 2px;
+  }
+
   svg {
     width: 1.1rem;
     height: 1.1rem;
@@ -1123,6 +1133,11 @@ em,
   &:hover {
     color: var(--text);
     background-color: var(--surface0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: 2px;
   }
 }
 
@@ -1173,6 +1188,11 @@ em,
     color: var(--text);
   }
 
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: 2px;
+  }
+
   &.is-active {
     border-color: var(--mauve);
     color: var(--mauve);
@@ -1200,7 +1220,6 @@ em,
 }
 
 .font-type-btn {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1216,6 +1235,11 @@ em,
   &:hover {
     border-color: var(--overlay0);
     color: var(--text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: 2px;
   }
 
   &.is-active {
@@ -1522,7 +1546,7 @@ input.searchbox-input {
     }
 
     &.article-font-popover {
-      max-width: 360px;
+      max-width: min(460px, 90vw);
     }
   }
 
