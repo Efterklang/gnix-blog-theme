@@ -288,11 +288,87 @@ function handleMermaid() {
 
 // #endregion
 
+function initArticleSettings() {
+  const fontSettingsPopover = document.getElementById("article-font-settings");
+  if (!fontSettingsPopover) return;
+
+  const STORAGE_KEY = "gnix-article-font";
+  const DEFAULT_SETTINGS = { size: "medium", type: "serif" };
+  const SIZE_MAP = {
+    small: "0.875rem",
+    "medium-small": "0.9375rem",
+    medium: "1rem",
+    "medium-large": "1.0625rem",
+    large: "1.125rem",
+  };
+
+  const FONT_MAP = {
+    serif: "var(--font-serif)",
+    "sans-serif": "var(--font-sans-serif)",
+    mono: "var(--font-mono)",
+    handwriting: "var(--font-handwriting)",
+  };
+
+  let settings = DEFAULT_SETTINGS;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) settings = { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
+  } catch {
+    settings = DEFAULT_SETTINGS;
+  }
+
+  function applySettings() {
+    const article = document.querySelector("article.card-content");
+    if (!article) return;
+    article.style.setProperty("--article-font-size", SIZE_MAP[settings.size] || SIZE_MAP.medium);
+    article.style.setProperty("--article-font-family", FONT_MAP[settings.type] || FONT_MAP.serif);
+  }
+
+  function updateActiveStates() {
+    fontSettingsPopover.querySelectorAll(".font-size-btn").forEach((btn) => {
+      btn.classList.toggle("is-active", btn.dataset.size === settings.size);
+    });
+    fontSettingsPopover.querySelectorAll(".font-type-btn").forEach((btn) => {
+      btn.classList.toggle("is-active", btn.dataset.font === settings.type);
+    });
+    updatePreview();
+  }
+
+  function updatePreview() {
+    const previewBox = fontSettingsPopover.querySelector(".font-preview-box");
+    if (!previewBox) return;
+    previewBox.style.fontSize = SIZE_MAP[settings.size] || SIZE_MAP.medium;
+    previewBox.style.fontFamily = FONT_MAP[settings.type] || FONT_MAP.serif;
+  }
+
+  fontSettingsPopover.querySelectorAll(".font-size-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      settings.size = btn.dataset.size;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+      updateActiveStates();
+      applySettings();
+    });
+  });
+
+  fontSettingsPopover.querySelectorAll(".font-type-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      settings.type = btn.dataset.font;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+      updateActiveStates();
+      applySettings();
+    });
+  });
+
+  updateActiveStates();
+  applySettings();
+}
+
 function initPage() {
   tableWrapFix();
   initializeTabs();
   handleMermaid();
   addHighlightTool();
+  initArticleSettings();
   const zoomOpts = { background: "hsla(from var(--mantle) / 0.9)" };
   const zoomImgs = new Set();
   document.querySelectorAll(".content img").forEach((img) => zoomImgs.add(img));
