@@ -597,11 +597,15 @@ html {
 
 .footer-title {
   font-family: homemade-apple, var(--font-handwriting);
+  font-weight: bolder;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
 }
 
-.footer-title,
 .footer-heading {
   font-weight: bolder;
+  font-family: var(--font-serif);
+  font-style: italic;
   font-size: 1.1rem;
   margin-bottom: 0.25rem;
 }
