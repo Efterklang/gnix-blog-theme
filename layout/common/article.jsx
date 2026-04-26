@@ -95,43 +95,27 @@ module.exports = class extends Component {
                 </div>
                 <div class="article-title-actions">
                   <button type="button" class="article-action-btn" popovertarget="article-font-settings" aria-label={helper.__("article.font_settings")} title={helper.__("article.font_settings")}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      role="img"
-                      aria-label="Font settings"
-                    >
-                      <title>Font settings</title>
-                      <text x="4" y="18" font-family="serif" font-size="16" fill="currentColor" stroke="none">
-                        Aa
-                      </text>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-label={helper.__("article.font_settings")}>
+                      <title>{helper.__("article.font_settings")}</title>
+                      <g fill="none" fill-rule="evenodd">
+                        <path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" />
+                        <path
+                          fill="currentColor"
+                          d="M21 12a1 1 0 0 1 1 1v6a1 1 0 0 1-1.911.412a4 4 0 1 1 0-6.824A1 1 0 0 1 21 12M8 4c.732 0 1.381.473 1.605 1.17l4.347 13.524a1 1 0 0 1-1.904.612L10.664 15H5.336l-1.384 4.306a1 1 0 0 1-1.904-.612L6.395 5.17A1.69 1.69 0 0 1 8 4m10 10a2 2 0 1 0 0 4a2 2 0 0 0 0-4M8 6.712L5.979 13h4.042z"
+                        />
+                      </g>
                     </svg>
                   </button>
                   <button type="button" class="article-action-btn" popovertarget="article-info-popover" aria-label={helper.__("article.article_info")} title={helper.__("article.article_info")}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      role="img"
-                      aria-label="Article info"
-                    >
-                      <title>Article info</title>
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M12 16v-4" />
-                      <path d="M12 8h.01" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-label={helper.__("article.article_info")}>
+                      <title>{helper.__("article.article_info")}</title>
+                      <g fill="none">
+                        <path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" />
+                        <path
+                          fill="currentColor"
+                          d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 2a8 8 0 1 0 0 16a8 8 0 0 0 0-16m-.01 6c.558 0 1.01.452 1.01 1.01v5.124A1 1 0 0 1 12.5 18h-.49A1.01 1.01 0 0 1 11 16.99V12a1 1 0 1 1 0-2zM12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2"
+                        />
+                      </g>
                     </svg>
                   </button>
                 </div>
@@ -187,19 +171,19 @@ module.exports = class extends Component {
                   <span class="font-setting-label">{helper.__("article.font_size")}</span>
                   <div class="font-size-selector">
                     <button type="button" class="font-size-btn" data-size="small" aria-label="Small">
-                      <span style="font-size: 12px;">A</span>
+                      <span class="font-size-preview">A</span>
                     </button>
                     <button type="button" class="font-size-btn" data-size="medium-small" aria-label="Medium Small">
-                      <span style="font-size: 14px;">A</span>
+                      <span class="font-size-preview">A</span>
                     </button>
                     <button type="button" class="font-size-btn is-active" data-size="medium" aria-label="Medium">
-                      <span style="font-size: 16px;">A</span>
+                      <span class="font-size-preview">A</span>
                     </button>
                     <button type="button" class="font-size-btn" data-size="medium-large" aria-label="Medium Large">
-                      <span style="font-size: 18px;">A</span>
+                      <span class="font-size-preview">A</span>
                     </button>
                     <button type="button" class="font-size-btn" data-size="large" aria-label="Large">
-                      <span style="font-size: 20px;">A</span>
+                      <span class="font-size-preview">A</span>
                     </button>
                   </div>
                   <div class="font-size-labels">
@@ -211,27 +195,19 @@ module.exports = class extends Component {
                   <span class="font-setting-label">{helper.__("article.font_type")}</span>
                   <div class="font-type-selector">
                     <button type="button" class="font-type-btn is-active" data-font="serif">
-                      <span class="font-type-preview" style="font-family: var(--font-serif);">
-                        Aa
-                      </span>
+                      <span class="font-type-preview">Aa</span>
                       <span class="font-type-name">Serif ({helper.__("article.font_serif")})</span>
                     </button>
                     <button type="button" class="font-type-btn" data-font="sans-serif">
-                      <span class="font-type-preview" style="font-family: var(--font-sans-serif);">
-                        Aa
-                      </span>
+                      <span class="font-type-preview">Aa</span>
                       <span class="font-type-name">Sans Serif ({helper.__("article.font_sans_serif")})</span>
                     </button>
                     <button type="button" class="font-type-btn" data-font="mono">
-                      <span class="font-type-preview" style="font-family: var(--font-mono);">
-                        Aa
-                      </span>
+                      <span class="font-type-preview">Aa</span>
                       <span class="font-type-name">Mono ({helper.__("article.font_mono")})</span>
                     </button>
                     <button type="button" class="font-type-btn" data-font="handwriting">
-                      <span class="font-type-preview" style="font-family: var(--font-handwriting);">
-                        Aa
-                      </span>
+                      <span class="font-type-preview">Aa</span>
                       <span class="font-type-name">Handwriting ({helper.__("article.font_handwriting")})</span>
                     </button>
                   </div>
