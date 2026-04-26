@@ -3,6 +3,7 @@ const MetaTags = require("../../layout/misc/meta");
 const OpenGraph = require("../../layout/misc/open_graph");
 const StructuredData = require("../../layout/misc/structured_data");
 const Plugins = require("./plugins");
+const { getThemeInitScript } = require("../../include/util/theme");
 
 function getPageTitle(page, siteTitle, helper) {
   let title = page.title;
@@ -68,27 +69,7 @@ module.exports = class extends Component {
       structuredImages = page.photos;
     }
 
-    const themeInitScript = `
-(function() {
-  var THEME_MAP = {
-    mocha: "night",
-    macchiato: "night",
-    nord: "light",
-    nord_night: "night",
-    rose_pine: "night",
-    tokyo_night: "night",
-    latte: "light"
-  };
-  var stored = localStorage.getItem("themePreference");
-  var theme = stored && stored in THEME_MAP ? stored : "system";
-  var html = document.documentElement;
-  var resolvedTheme = theme === "system"
-    ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "mocha" : "nord"
-    : theme;
-  html.setAttribute("data-theme", resolvedTheme);
-  html.classList.add(THEME_MAP[resolvedTheme]);
-})();
-`;
+    const themeInitScript = getThemeInitScript();
 
     return (
       <head>

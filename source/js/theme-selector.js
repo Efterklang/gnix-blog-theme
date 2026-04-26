@@ -1,15 +1,14 @@
 ((window, document, localStorage) => {
-  const STORAGE_KEY = "themePreference";
-  const colorSchemeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const themeConfig = window.__GNIX_THEME_CONFIG__;
 
-  const THEME_MAP = {
-    mocha: "night",
-    rose_pine: "night",
-    nord: "light",
-    nord_night: "night",
-    tokyo_night: "night",
-    latte: "light",
-  };
+  if (!themeConfig) return;
+
+  const STORAGE_KEY = themeConfig.storageKey;
+  const DEFAULT_THEME = themeConfig.defaultTheme;
+  const SYSTEM_THEME = themeConfig.systemTheme;
+  const THEME_MAP = themeConfig.themeClassMap || {};
+  const THEME_CLASSES = [...new Set(Object.values(THEME_MAP))];
+  const colorSchemeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
   let currentIndex = 0;
   let previewTheme = null;
@@ -19,18 +18,28 @@
   let previousFocus = null;
   let popoverEl = null;
 
+  function isValidTheme(theme) {
+    return theme === DEFAULT_THEME || Object.hasOwn(THEME_MAP, theme);
+  }
+
+  function resolveTheme(theme) {
+    return theme === DEFAULT_THEME ? (colorSchemeMediaQuery.matches ? SYSTEM_THEME.dark : SYSTEM_THEME.light) : theme;
+  }
+
   function getThemePreference() {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored && stored in THEME_MAP ? stored : "system";
+    return isValidTheme(stored) ? stored : DEFAULT_THEME;
   }
 
   function applyTheme(theme, persist = false) {
-    const resolved = theme === "system" ? (colorSchemeMediaQuery.matches ? "mocha" : "nord") : theme;
+    const preference = isValidTheme(theme) ? theme : DEFAULT_THEME;
+    const resolved = resolveTheme(preference);
+    const themeClass = THEME_MAP[resolved];
     const html = document.documentElement;
     html.setAttribute("data-theme", resolved);
-    html.classList.remove("night", "light");
-    html.classList.add(THEME_MAP[resolved]);
-    if (persist) localStorage.setItem(STORAGE_KEY, theme);
+    html.classList.remove(...THEME_CLASSES);
+    if (themeClass) html.classList.add(themeClass);
+    if (persist) localStorage.setItem(STORAGE_KEY, preference);
   }
 
   function updateFocus() {
@@ -54,6 +63,7 @@
     originalTheme = getThemePreference();
     previewTheme = null;
     shouldApply = false;
+    currentIndex = 0;
     themeOptions = el.querySelectorAll(".theme-option");
 
     themeOptions.forEach((option, index) => {
@@ -143,7 +153,7 @@
   }
 
   colorSchemeMediaQuery.addEventListener("change", () => {
-    if (getThemePreference() === "system") applyTheme("system", true);
+    if (getThemePreference() === DEFAULT_THEME) applyTheme(DEFAULT_THEME, true);
   });
 
   window.selectThemeOption = (index) => {
