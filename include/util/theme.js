@@ -7,13 +7,14 @@ const SYSTEM_THEME = Object.freeze({
 });
 
 const THEME_OPTIONS = Object.freeze([
-  { label: "🖥️ SYSTEM", name: "System", value: DEFAULT_THEME },
-  { label: "🌻 LATTE", name: "Catppuccin Latte", value: "latte", colorScheme: "light" },
-  { label: "🦭 NORD", name: "Nord Light", value: "nord", colorScheme: "light" },
-  { label: "🐻‍❄️ NORD NIGHT", name: "Nord Night", value: "nord_night", colorScheme: "night" },
-  { label: "🌹 ROSE PINE", name: "Rosé Pine", value: "rose_pine", colorScheme: "night" },
-  { label: "🌿 MOCHA", name: "Catppuccin Mocha", value: "mocha", colorScheme: "night" },
-  { label: "🏙 TOKYO NIGHT", name: "Tokyo Night", value: "tokyo_night", colorScheme: "night" },
+  { label: "SYSTEM", name: "System", value: DEFAULT_THEME },
+  { label: "LATTE", name: "Catppuccin Latte", value: "latte", colorScheme: "light" },
+  { label: "NORD", name: "Nord Light", value: "nord", colorScheme: "light" },
+  { label: "SONG CI", name: "Song Porcelain", value: "song_ci", colorScheme: "light" },
+  { label: "NORD NIGHT", name: "Nord Night", value: "nord_night", colorScheme: "night" },
+  { label: "ROSE PINE", name: "Rosé Pine", value: "rose_pine", colorScheme: "night" },
+  { label: "MOCHA", name: "Catppuccin Mocha", value: "mocha", colorScheme: "night" },
+  { label: "TOKYO NIGHT", name: "Tokyo Night", value: "tokyo_night", colorScheme: "night" },
 ]);
 
 function getConcreteThemeOptions() {

@@ -122,6 +122,28 @@
   --crust: #d8dee9;
 }
 
+:where([data-theme="song_ci"]) {
+  color-scheme: light;
+  --rosewater: #d8a48f;
+  --flamingo: #c87363;
+  --pink: #c04851;
+  --mauve: #7f5a83;
+  --red: #b13a2e;
+  --maroon: #9a3f3f;
+  --peach: #d68a3a;
+  --yellow: #c99a2e;
+  --green: #5f8f6f;
+  --teal: #2f7d73;
+  --sky: #73a6a1;
+  --sapphire: #2d6f8f;
+  --blue: #2f5597;
+  --lavender: #6f6a9f;
+  --text: #0f4c20;
+  --base: #f4efe3;
+  --mantle: #f0f5e5;
+  --crust: #c4d1b5;
+}
+
 :where([data-theme="mocha"]) {
   color-scheme: dark;
   --rosewater: #f5e0dc;
@@ -378,13 +400,14 @@ html {
 }
 
 .navbar-item {
-  color: var(--subtext1);
+  color: var(--subtext0);
   align-items: center;
   display: flex;
   padding: 0 0.5rem;
   position: relative;
   flex-grow: 0;
   flex-shrink: 0;
+  letter-spacing: 0.05em;
 }
 
 .navbar-end {
