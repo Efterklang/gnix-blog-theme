@@ -14,7 +14,45 @@
   --font-sans-serif: system-ui, sans-serif;
   --font-mono: "SF Mono", "Maple Mono NF CN Local", "Maple Mono NF CN", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", cursive;
+  --article-font-size: 1rem;
+  --article-font-family: var(--font-serif);
   --radius: 12px;
+}
+
+:root[data-article-font-size="small"] {
+  --article-font-size: 0.875rem;
+}
+
+:root[data-article-font-size="medium-small"] {
+  --article-font-size: 0.9375rem;
+}
+
+:root[data-article-font-size="medium"] {
+  --article-font-size: 1rem;
+}
+
+:root[data-article-font-size="medium-large"] {
+  --article-font-size: 1.0625rem;
+}
+
+:root[data-article-font-size="large"] {
+  --article-font-size: 1.125rem;
+}
+
+:root[data-article-font-family="serif"] {
+  --article-font-family: var(--font-serif);
+}
+
+:root[data-article-font-family="sans-serif"] {
+  --article-font-family: var(--font-sans-serif);
+}
+
+:root[data-article-font-family="mono"] {
+  --article-font-family: var(--font-mono);
+}
+
+:root[data-article-font-family="handwriting"] {
+  --article-font-family: var(--font-handwriting);
 }
 
 /* #region Color */
@@ -573,16 +611,9 @@ html {
 
 /* #region Content */
 
-article.card-content {
-  --article-font-size: 1rem;
-  --article-font-family: var(--font-serif);
-}
-
 .content {
   overflow: auto;
   word-wrap: break-word;
-  font-size: var(--article-font-size);
-  font-family: var(--article-font-family);
   color: var(--subtext1);
 
   ::selection {
@@ -817,6 +848,11 @@ article.card-content {
       text-decoration-thickness: 2px;
     }
   }
+}
+
+article.card-content .content {
+  font-size: var(--article-font-size);
+  font-family: var(--article-font-family);
 }
 
 .footnotes {
@@ -1065,30 +1101,15 @@ em,
 
 .article-action-btn {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 1.5rem;
   padding: 0;
   background: none;
   border: none;
-  border-radius: 8px;
-  color: var(--subtext0);
+  color: var(--subtext1);
   cursor: pointer;
-  transition: color 0.2s ease;
 
   &:hover {
     color: var(--mauve);
-  }
-
-  &:active {
-    color: var(--mauve);
-    opacity: 0.7;
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--mauve);
-    outline-offset: 2px;
   }
 
   svg {
@@ -1170,38 +1191,50 @@ em,
 }
 
 .font-size-btn {
+  --font-size-preview: 16px;
   flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 2.5rem;
+  height: 3em;
   padding: 0;
   background: transparent;
-  border: 1.5px solid var(--surface0);
-  border-radius: 10px;
   color: var(--subtext0);
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
 
+  &.is-active,
   &:hover {
-    border-color: var(--overlay0);
-    color: var(--text);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--mauve);
-    outline-offset: 2px;
-  }
-
-  &.is-active {
     border-color: var(--mauve);
+    border-radius: 100px;
     color: var(--mauve);
     background-color: hsl(from var(--mauve) h s l / 0.08);
   }
+}
 
-  span {
-    font-weight: 500;
-  }
+.font-size-btn[data-size="small"] {
+  --font-size-preview: 12px;
+}
+
+.font-size-btn[data-size="medium-small"] {
+  --font-size-preview: 14px;
+}
+
+.font-size-btn[data-size="medium"] {
+  --font-size-preview: 16px;
+}
+
+.font-size-btn[data-size="medium-large"] {
+  --font-size-preview: 18px;
+}
+
+.font-size-btn[data-size="large"] {
+  --font-size-preview: 20px;
+}
+
+.font-size-preview {
+  font-size: var(--font-size-preview);
+  font-weight: 500;
 }
 
 .font-size-labels {
@@ -1220,6 +1253,7 @@ em,
 }
 
 .font-type-btn {
+  --font-type-preview-family: var(--font-serif);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1249,8 +1283,25 @@ em,
   }
 }
 
+.font-type-btn[data-font="serif"] {
+  --font-type-preview-family: var(--font-serif);
+}
+
+.font-type-btn[data-font="sans-serif"] {
+  --font-type-preview-family: var(--font-sans-serif);
+}
+
+.font-type-btn[data-font="mono"] {
+  --font-type-preview-family: var(--font-mono);
+}
+
+.font-type-btn[data-font="handwriting"] {
+  --font-type-preview-family: var(--font-handwriting);
+}
+
 .font-type-preview {
   font-size: 1.5rem;
+  font-family: var(--font-type-preview-family);
   line-height: 1;
 }
 
@@ -1260,6 +1311,8 @@ em,
 }
 
 .font-preview-box {
+  font-size: var(--article-font-size);
+  font-family: var(--article-font-family);
   padding: 0.875rem 1rem;
   background: var(--base);
   border: 1px solid var(--surface0);

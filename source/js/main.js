@@ -294,34 +294,36 @@ function initArticleSettings() {
 
   const STORAGE_KEY = "gnix-article-font";
   const DEFAULT_SETTINGS = { size: "medium", type: "serif" };
-  const SIZE_MAP = {
-    small: "0.875rem",
-    "medium-small": "0.9375rem",
-    medium: "1rem",
-    "medium-large": "1.0625rem",
-    large: "1.125rem",
-  };
+  const SIZE_OPTIONS = new Set(["small", "medium-small", "medium", "medium-large", "large"]);
+  const FONT_OPTIONS = new Set(["serif", "sans-serif", "mono", "handwriting"]);
 
-  const FONT_MAP = {
-    serif: "var(--font-serif)",
-    "sans-serif": "var(--font-sans-serif)",
-    mono: "var(--font-mono)",
-    handwriting: "var(--font-handwriting)",
-  };
+  function normalizeSettings(value = {}) {
+    const candidate = value || {};
+    return {
+      size: SIZE_OPTIONS.has(candidate.size) ? candidate.size : DEFAULT_SETTINGS.size,
+      type: FONT_OPTIONS.has(candidate.type) ? candidate.type : DEFAULT_SETTINGS.type,
+    };
+  }
 
-  let settings = DEFAULT_SETTINGS;
+  let settings = { ...DEFAULT_SETTINGS };
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) settings = { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
+    if (stored) settings = normalizeSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(stored) });
   } catch {
-    settings = DEFAULT_SETTINGS;
+    settings = { ...DEFAULT_SETTINGS };
   }
 
   function applySettings() {
-    const article = document.querySelector("article.card-content");
-    if (!article) return;
-    article.style.setProperty("--article-font-size", SIZE_MAP[settings.size] || SIZE_MAP.medium);
-    article.style.setProperty("--article-font-family", FONT_MAP[settings.type] || FONT_MAP.serif);
+    document.documentElement.dataset.articleFontSize = settings.size;
+    document.documentElement.dataset.articleFontFamily = settings.type;
+  }
+
+  function saveSettings() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    } catch {
+      // Keep the current page responsive even when storage is unavailable.
+    }
   }
 
   function updateActiveStates() {
@@ -331,20 +333,13 @@ function initArticleSettings() {
     fontSettingsPopover.querySelectorAll(".font-type-btn").forEach((btn) => {
       btn.classList.toggle("is-active", btn.dataset.font === settings.type);
     });
-    updatePreview();
-  }
-
-  function updatePreview() {
-    const previewBox = fontSettingsPopover.querySelector(".font-preview-box");
-    if (!previewBox) return;
-    previewBox.style.fontSize = SIZE_MAP[settings.size] || SIZE_MAP.medium;
-    previewBox.style.fontFamily = FONT_MAP[settings.type] || FONT_MAP.serif;
   }
 
   fontSettingsPopover.querySelectorAll(".font-size-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
+      if (!SIZE_OPTIONS.has(btn.dataset.size)) return;
       settings.size = btn.dataset.size;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+      saveSettings();
       updateActiveStates();
       applySettings();
     });
@@ -352,8 +347,9 @@ function initArticleSettings() {
 
   fontSettingsPopover.querySelectorAll(".font-type-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
+      if (!FONT_OPTIONS.has(btn.dataset.font)) return;
       settings.type = btn.dataset.font;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+      saveSettings();
       updateActiveStates();
       applySettings();
     });
