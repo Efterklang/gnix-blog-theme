@@ -293,15 +293,30 @@ function initArticleSettings() {
   if (!fontSettingsPopover) return;
 
   const STORAGE_KEY = "gnix-article-font";
-  const DEFAULT_SETTINGS = { size: "medium", type: "serif" };
+  const DEFAULT_SETTINGS = { size: "medium", type: "serif", lineHeight: 1.7, weight: "regular" };
   const SIZE_OPTIONS = new Set(["small", "medium-small", "medium", "medium-large", "large"]);
   const FONT_OPTIONS = new Set(["serif", "sans-serif", "mono", "handwriting"]);
+  const WEIGHT_OPTIONS = new Set(["light", "regular", "medium"]);
+  const LINE_HEIGHT_MIN = 1.45;
+  const LINE_HEIGHT_MAX = 1.9;
+
+  function normalizeLineHeight(value) {
+    if (value === "compact") return 1.55;
+    if (value === "normal") return 1.7;
+    if (value === "relaxed") return 1.85;
+
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) return DEFAULT_SETTINGS.lineHeight;
+    return Math.min(LINE_HEIGHT_MAX, Math.max(LINE_HEIGHT_MIN, parsed));
+  }
 
   function normalizeSettings(value = {}) {
     const candidate = value || {};
     return {
       size: SIZE_OPTIONS.has(candidate.size) ? candidate.size : DEFAULT_SETTINGS.size,
       type: FONT_OPTIONS.has(candidate.type) ? candidate.type : DEFAULT_SETTINGS.type,
+      lineHeight: normalizeLineHeight(candidate.lineHeight),
+      weight: WEIGHT_OPTIONS.has(candidate.weight) ? candidate.weight : DEFAULT_SETTINGS.weight,
     };
   }
 
@@ -316,6 +331,8 @@ function initArticleSettings() {
   function applySettings() {
     document.documentElement.dataset.articleFontSize = settings.size;
     document.documentElement.dataset.articleFontFamily = settings.type;
+    document.documentElement.dataset.articleFontWeight = settings.weight;
+    document.documentElement.style.setProperty("--article-line-height", String(settings.lineHeight));
   }
 
   function saveSettings() {
@@ -326,13 +343,31 @@ function initArticleSettings() {
     }
   }
 
+  function updateButtonStates(selector, isActive) {
+    fontSettingsPopover.querySelectorAll(selector).forEach((btn) => {
+      const active = isActive(btn);
+      btn.classList.toggle("is-active", active);
+      btn.setAttribute("aria-pressed", String(active));
+    });
+  }
+
+  const lineHeightSlider = fontSettingsPopover.querySelector(".font-line-height-slider");
+  const lineHeightValue = fontSettingsPopover.querySelector(".font-line-height-value");
+
+  function updateLineHeightUI() {
+    if (lineHeightSlider) {
+      lineHeightSlider.value = String(settings.lineHeight);
+    }
+    if (lineHeightValue) {
+      lineHeightValue.textContent = settings.lineHeight.toFixed(2);
+    }
+  }
+
   function updateActiveStates() {
-    fontSettingsPopover.querySelectorAll(".font-size-btn").forEach((btn) => {
-      btn.classList.toggle("is-active", btn.dataset.size === settings.size);
-    });
-    fontSettingsPopover.querySelectorAll(".font-type-btn").forEach((btn) => {
-      btn.classList.toggle("is-active", btn.dataset.font === settings.type);
-    });
+    updateButtonStates(".font-size-btn", (btn) => btn.dataset.size === settings.size);
+    updateButtonStates(".font-type-btn", (btn) => btn.dataset.font === settings.type);
+    updateButtonStates(".font-weight-btn", (btn) => btn.dataset.weight === settings.weight);
+    updateLineHeightUI();
   }
 
   fontSettingsPopover.querySelectorAll(".font-size-btn").forEach((btn) => {
@@ -349,6 +384,28 @@ function initArticleSettings() {
     btn.addEventListener("click", () => {
       if (!FONT_OPTIONS.has(btn.dataset.font)) return;
       settings.type = btn.dataset.font;
+      saveSettings();
+      updateActiveStates();
+      applySettings();
+    });
+  });
+
+  if (lineHeightSlider) {
+    lineHeightSlider.min = String(LINE_HEIGHT_MIN);
+    lineHeightSlider.max = String(LINE_HEIGHT_MAX);
+    lineHeightSlider.step = "0.05";
+    lineHeightSlider.addEventListener("input", () => {
+      settings.lineHeight = normalizeLineHeight(lineHeightSlider.value);
+      saveSettings();
+      updateActiveStates();
+      applySettings();
+    });
+  }
+
+  fontSettingsPopover.querySelectorAll(".font-weight-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!WEIGHT_OPTIONS.has(btn.dataset.weight)) return;
+      settings.weight = btn.dataset.weight;
       saveSettings();
       updateActiveStates();
       applySettings();

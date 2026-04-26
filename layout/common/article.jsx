@@ -167,7 +167,7 @@ module.exports = class extends Component {
                 </button>
               </div>
               <div class="article-popover-body">
-                <div class="font-setting-group">
+                <div class="font-setting-group font-size-group">
                   <span class="font-setting-label">{helper.__("article.font_size")}</span>
                   <div class="font-size-selector">
                     <button type="button" class="font-size-btn" data-size="small" aria-label="Small">
@@ -191,28 +191,59 @@ module.exports = class extends Component {
                     <span>{helper.__("article.font_size_large")}</span>
                   </div>
                 </div>
-                <div class="font-setting-group">
+                <div class="font-setting-group font-line-height-group">
+                  <span class="font-setting-label">{helper.__("article.line_height")}</span>
+                  <div class="font-line-height-control">
+                    <span class="font-line-height-label">{helper.__("article.line_height_compact")}</span>
+                    <input id="article-line-height-slider" class="font-line-height-slider" type="range" min="1.45" max="1.9" step="0.05" value="1.7" aria-label={helper.__("article.line_height")} />
+                    <span class="font-line-height-label">{helper.__("article.line_height_relaxed")}</span>
+                  </div>
+                  <div class="font-line-height-meta">
+                    <span>{helper.__("article.line_height_normal")}</span>
+                    <output class="font-line-height-value" for="article-line-height-slider">
+                      1.70
+                    </output>
+                  </div>
+                </div>
+                <div class="font-setting-group font-type-group">
                   <span class="font-setting-label">{helper.__("article.font_type")}</span>
                   <div class="font-type-selector">
                     <button type="button" class="font-type-btn is-active" data-font="serif">
                       <span class="font-type-preview">Aa</span>
-                      <span class="font-type-name">Serif ({helper.__("article.font_serif")})</span>
+                      <span class="font-type-name">Serif</span>
                     </button>
                     <button type="button" class="font-type-btn" data-font="sans-serif">
                       <span class="font-type-preview">Aa</span>
-                      <span class="font-type-name">Sans Serif ({helper.__("article.font_sans_serif")})</span>
+                      <span class="font-type-name">Sans Serif</span>
                     </button>
                     <button type="button" class="font-type-btn" data-font="mono">
                       <span class="font-type-preview">Aa</span>
-                      <span class="font-type-name">Mono ({helper.__("article.font_mono")})</span>
+                      <span class="font-type-name">Monospace</span>
                     </button>
                     <button type="button" class="font-type-btn" data-font="handwriting">
                       <span class="font-type-preview">Aa</span>
-                      <span class="font-type-name">Handwriting ({helper.__("article.font_handwriting")})</span>
+                      <span class="font-type-name">Handwriting</span>
                     </button>
                   </div>
                 </div>
-                <div class="font-setting-group">
+                <div class="font-setting-group font-weight-group">
+                  <span class="font-setting-label">{helper.__("article.font_weight")}</span>
+                  <div class="font-weight-selector">
+                    <button type="button" class="font-weight-btn" data-weight="light" aria-label={helper.__("article.font_weight_light")}>
+                      <span class="font-weight-preview">Aa</span>
+                      <span class="font-option-name">{helper.__("article.font_weight_light")}</span>
+                    </button>
+                    <button type="button" class="font-weight-btn is-active" data-weight="regular" aria-label={helper.__("article.font_weight_regular")}>
+                      <span class="font-weight-preview">Aa</span>
+                      <span class="font-option-name">{helper.__("article.font_weight_regular")}</span>
+                    </button>
+                    <button type="button" class="font-weight-btn" data-weight="medium" aria-label={helper.__("article.font_weight_medium")}>
+                      <span class="font-weight-preview">Aa</span>
+                      <span class="font-option-name">{helper.__("article.font_weight_medium")}</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="font-setting-group font-preview-group">
                   <span class="font-setting-label">{helper.__("article.preview")}</span>
                   <div class="font-preview-box">
                     <p class="font-preview-title">{page.title}</p>
