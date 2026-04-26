@@ -29,12 +29,22 @@ const PREVIEW_COLORS = [
   "surface0",
 ];
 
+const THEME_DATA_CACHE_PREFIX = "themeDataCache";
+
 function getThemeOptions() {
   const config = window.__GNIX_THEME_CONFIG__;
 
   if (!Array.isArray(config?.themes)) return [];
 
   return config.themes.filter((theme) => theme.value !== config.defaultTheme).map((theme) => ({ id: theme.value, name: theme.name || theme.label }));
+}
+
+function getThemeDataCacheKey(themes) {
+  return `${THEME_DATA_CACHE_PREFIX}:${themes.map((theme) => theme.id).join(",")}`;
+}
+
+function hasThemeDataForThemes(themeData, themes) {
+  return Boolean(themeData) && themes.every((theme) => themeData[theme.id]);
 }
 
 class ThemeStackedElement extends HTMLElement {
@@ -68,15 +78,21 @@ class ThemeStackedElement extends HTMLElement {
   }
 
   async loadThemeData() {
-    if (window.__cachedThemeData) {
+    if (hasThemeDataForThemes(window.__cachedThemeData, this._themes)) {
       this._themeData = window.__cachedThemeData;
       return;
     }
+
+    const cacheKey = getThemeDataCacheKey(this._themes);
+
     try {
-      const cached = localStorage.getItem("themeDataCache");
+      const cached = localStorage.getItem(cacheKey);
       if (cached) {
-        this._themeData = window.__cachedThemeData = JSON.parse(cached);
-        return;
+        const cachedThemeData = JSON.parse(cached);
+        if (hasThemeDataForThemes(cachedThemeData, this._themes)) {
+          this._themeData = window.__cachedThemeData = cachedThemeData;
+          return;
+        }
       }
     } catch (_e) {}
 
@@ -93,7 +109,7 @@ class ThemeStackedElement extends HTMLElement {
     temp.remove();
     window.__cachedThemeData = this._themeData;
     try {
-      localStorage.setItem("themeDataCache", JSON.stringify(this._themeData));
+      localStorage.setItem(cacheKey, JSON.stringify(this._themeData));
     } catch (_e) {}
   }
 
