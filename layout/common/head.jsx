@@ -114,7 +114,7 @@ module.exports = class extends Component {
           />
         ) : null}
         {canonical_url ? <link rel="canonical" href={canonical_url} /> : null}
-        {favicon ? <link rel="icon" href={url_for(favicon)} /> : null}
+        <link rel="icon" href="/img/favicon.svg" />
         <link rel="stylesheet" href={url_for("/css/default.css")} />
         <link rel="stylesheet" href={url_for("/css/responsive/mobile.css")} media="screen and (max-width:768px)" />
         <link rel="stylesheet" href={url_for("/css/responsive/tablet.css")} media="screen and (min-width:769px)" />
