@@ -17,6 +17,7 @@ function tableWrapFix() {
 function twikoo_handler() {
   const el = document.getElementById("tko");
   if (!el) return;
+  if (el.dataset.initialized === "true" || el.dataset.initializing === "true") return;
 
   const { envId, region, lang, jsUrl, cssUrl } = el.dataset;
 
@@ -26,10 +27,20 @@ function twikoo_handler() {
 
   if (typeof window.twikoo?.init === "function") {
     window.twikoo.init(config);
+    el.dataset.initialized = "true";
     return;
   }
 
-  loadScriptOnce(jsUrl, () => window.twikoo.init(config));
+  el.dataset.initializing = "true";
+  loadScriptOnce(jsUrl, () => {
+    if (el.dataset.initialized === "true") {
+      delete el.dataset.initializing;
+      return;
+    }
+    window.twikoo.init(config);
+    el.dataset.initialized = "true";
+    delete el.dataset.initializing;
+  });
 }
 // #region mdit@tab-plugin
 /**
@@ -416,6 +427,25 @@ function initArticleSettings() {
   applySettings();
 }
 
+function initArticleCommentPopover() {
+  const commentPopover = document.getElementById("article-comment-popover");
+  if (!commentPopover) {
+    twikoo_handler();
+    return;
+  }
+
+  const initializeComments = () => twikoo_handler();
+  if (commentPopover.matches(":popover-open")) {
+    initializeComments();
+  }
+
+  if (commentPopover.dataset.bound === "true") return;
+  commentPopover.dataset.bound = "true";
+  commentPopover.addEventListener("toggle", (event) => {
+    if (event.newState === "open") initializeComments();
+  });
+}
+
 function initPage() {
   tableWrapFix();
   initializeTabs();
@@ -426,7 +456,7 @@ function initPage() {
   const zoomImgs = new Set();
   document.querySelectorAll(".content img").forEach((img) => zoomImgs.add(img));
   mediumZoom([...zoomImgs], zoomOpts);
-  twikoo_handler();
+  initArticleCommentPopover();
 }
 
 document.addEventListener("DOMContentLoaded", initPage, { once: true });

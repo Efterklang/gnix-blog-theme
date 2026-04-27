@@ -25,6 +25,9 @@ module.exports = class extends Component {
     const cover = page.cover ? url_for(page.cover) : null;
     const wordCount = getWordCount(page._content);
     const readTime = Math.ceil(wordCount / 200); // 假设每分钟阅读200字
+    const hasComment = !index && config.comment && typeof config.comment.type === "string";
+    const translatedCommentsLabel = helper.__("article.comments");
+    const commentsLabel = translatedCommentsLabel === "article.comments" ? "Comments" : translatedCommentsLabel;
 
     return (
       <Fragment>
@@ -94,6 +97,26 @@ module.exports = class extends Component {
                     : null}
                 </div>
                 <div class="article-title-actions">
+                  {hasComment && (
+                    <button type="button" class="article-action-btn" popovertarget="article-comment-popover" aria-label={commentsLabel} title={commentsLabel}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        role="img"
+                        aria-label={commentsLabel}
+                      >
+                        <title>{commentsLabel}</title>
+                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
+                      </svg>
+                    </button>
+                  )}
                   <button type="button" class="article-action-btn" popovertarget="article-font-settings" aria-label={helper.__("article.font_settings")} title={helper.__("article.font_settings")}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-label={helper.__("article.font_settings")}>
                       <title>{helper.__("article.font_settings")}</title>
@@ -250,6 +273,36 @@ module.exports = class extends Component {
                     {page.excerpt && <p class="font-preview-excerpt" dangerouslySetInnerHTML={{ __html: `${page.excerpt.substring(0, 80)}...` }}></p>}
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {hasComment && (
+            <div id="article-comment-popover" popover="auto" class="article-popover article-comment-popover">
+              <div class="article-popover-header">
+                <h3>{commentsLabel}</h3>
+                <button type="button" class="article-popover-close" popovertarget="article-comment-popover" popovertargetaction="hide" aria-label={helper.__("article.close")}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    role="img"
+                    aria-label="Close"
+                  >
+                    <title>Close</title>
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div class="article-popover-body article-comment-popover-body">
+                <Comment config={config} page={page} helper={helper} embedded />
               </div>
             </div>
           )}
@@ -489,8 +542,6 @@ module.exports = class extends Component {
             </div>
           )}
         </div>
-        {/* Comment */}
-        {!index ? <Comment config={config} page={page} helper={helper} /> : null}
       </Fragment>
     );
   }

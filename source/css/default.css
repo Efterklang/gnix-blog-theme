@@ -387,6 +387,8 @@ html {
   overflow-x: hidden;
   overflow-y: scroll;
   /* scroll-behavior: smooth; */
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface0) transparent;
 }
 
 .card {
@@ -1655,6 +1657,28 @@ em,
   }
 }
 
+.article-comment-popover {
+  width: min(920px, 92vw);
+}
+
+.article-comment-popover-body {
+  width: min(920px, 92vw);
+  max-height: min(72vh, 760px);
+  padding: 0;
+}
+
+.article-comment-panel#comments {
+  border-top: 0;
+}
+
+.article-comment-panel {
+  padding: 1.25rem;
+
+  .twikoo {
+    margin: 0;
+  }
+}
+
 /* #endregion Article Meta */
 
 /* #region Search */
@@ -1861,6 +1885,11 @@ input.searchbox-input {
 
     &.article-font-popover {
       max-width: min(460px, 90vw);
+    }
+
+    &.article-comment-popover {
+      width: min(920px, 92vw);
+      max-width: min(920px, 92vw);
     }
   }
 
