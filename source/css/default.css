@@ -10,8 +10,8 @@
   --overlay1: color-mix(in oklch, var(--base) 45%, var(--text));
   --overlay2: color-mix(in oklch, var(--base) 34%, var(--text));
 
-  --font-serif: New York, Georgia, Noto Serif CJK, STFangsong, STSong, Songti SC, serif;
-  --font-sans-serif: system-ui, sans-serif;
+  --font-serif: Baskerville, New York, Georgia, Noto Serif CJK, STFangsong, STSong, Songti SC, serif;
+  --font-sans-serif: Avenir, system-ui, sans-serif;
   --font-mono: "SF Mono", "Maple Mono NF CN Local", "Maple Mono NF CN", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", cursive;
   --article-font-size: 1rem;
@@ -476,11 +476,10 @@ html {
   color: var(--text);
   padding: 0.75rem 1.25rem;
   cursor: pointer;
-  font-size: 2rem;
-  font-family: system-ui;
-  font-variation-settings:
-    "wght" 200,
-    "wdth" 400;
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  letter-spacing: clamp(0.1em, 0.3vw, 0.3em);
+  font-family: "Bradley Hand", var(--font-serif);
+  font-style: italic;
 
   &.is-focused,
   &:hover {

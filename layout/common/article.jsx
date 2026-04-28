@@ -191,7 +191,6 @@ module.exports = class extends Component {
               </div>
               <div class="article-popover-body">
                 <div class="font-setting-group font-size-group">
-                  <span class="font-setting-label">{helper.__("article.font_size")}</span>
                   <div class="font-size-selector">
                     <button type="button" class="font-size-btn" data-size="small" aria-label="Small">
                       <span class="font-size-preview">A</span>
@@ -215,7 +214,6 @@ module.exports = class extends Component {
                   </div>
                 </div>
                 <div class="font-setting-group font-line-height-group">
-                  <span class="font-setting-label">{helper.__("article.line_height")}</span>
                   <div class="font-line-height-control">
                     <span class="font-line-height-label">{helper.__("article.line_height_compact")}</span>
                     <input id="article-line-height-slider" class="font-line-height-slider" type="range" min="1.45" max="1.9" step="0.05" value="1.7" aria-label={helper.__("article.line_height")} />
