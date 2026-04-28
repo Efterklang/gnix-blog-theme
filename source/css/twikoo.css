@@ -9,127 +9,7 @@
   }
 }
 
-.tk-avatar {
-  flex-shrink: 0;
-  height: 2.5rem;
-  width: 2.5rem;
-  overflow: hidden;
-  text-align: center;
-  border-radius: 5px;
-  margin-right: 1rem;
-}
-
-.tk-comment .tk-submit .tk-avatar,
-.tk-replies .tk-avatar {
-  height: 2rem;
-  width: 2rem;
-}
-
-.tk-avatar .tk-avatar-img {
-  height: 2.5rem;
-  color: var(--subtext0);
-}
-
-.tk-comment .tk-submit .tk-avatar .tk-avatar-img,
-.tk-replies .tk-avatar .tk-avatar-img {
-  height: 2rem;
-}
-
-.tk-avatar.tk-clickable {
-  cursor: pointer;
-  transition: opacity 0.2s ease-out;
-  &:hover {
-    opacity: 0.8;
-  }
-}
-
-.tk-meta-input {
-  display: flex;
-  margin-bottom: 0.5rem;
-}
-
-.tk-meta-input .el-input {
-  width: calc((100% - 1rem) / 3);
-  flex: 1;
-}
-
-.tk-meta-input .el-input + .el-input {
-  margin-left: 0.5rem;
-}
-
-.tk-meta-input .el-input .el-input-group__prepend {
-  padding: 0 1rem;
-}
-
-.tk-meta-input .el-input input:invalid {
-  border: 1px solid var(--red);
-  box-shadow: none;
-}
-
-@media screen and (max-width: 767px) {
-  .tk-meta-input {
-    flex-direction: column;
-  }
-
-  .tk-meta-input .el-input {
-    width: auto;
-  }
-
-  .tk-meta-input .el-input + .el-input {
-    margin-left: 0;
-    margin-top: 0.5rem;
-  }
-}
-
-.tk-submit {
-  display: flex;
-  flex-direction: column;
-  margin-top: 1rem;
-}
-
-.tk-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.tk-row.actions {
-  position: relative;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  margin-left: 3.5rem;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.tk-row-actions-start {
-  flex: 1;
-  display: flex;
-  align-items: center;
-}
-
-.tk-submit-action-icon {
-  align-self: center;
-  display: inline-block;
-  width: 1.25em;
-  line-height: 0;
-  margin-right: 10px;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: opacity 0.15s ease-out;
-}
-
-.tk-submit-action-icon.__markdown {
-  color: var(--surface0);
-}
-
-.tk-error-message {
-  word-break: break-all;
-  color: var(--red);
-  font-size: 0.75em;
-  flex-shrink: 1;
-}
-
+/* Element UI primitives used by Twikoo. Keep these before component overrides. */
 .el-textarea__inner {
   display: block;
   resize: vertical;
@@ -154,885 +34,6 @@
   &:focus {
     outline: 0;
     border-color: var(--blue);
-  }
-}
-
-.tk-input-image {
-  display: none;
-}
-
-.tk-input {
-  flex: 1;
-}
-
-.tk-input .el-textarea__inner {
-  background-position: right bottom;
-  background-repeat: no-repeat;
-}
-
-.tk-turnstile-container {
-  position: absolute;
-  right: 0;
-  bottom: -75px;
-  z-index: 1;
-}
-
-.tk-turnstile {
-  display: flex;
-  flex-direction: column;
-}
-
-.tk-preview-container {
-  margin-left: 3rem;
-  margin-bottom: 1rem;
-  padding: 5px 15px;
-  border: 1px solid var(--surface0);
-  border-radius: 4px;
-  word-break: break-word;
-}
-
-.tk-fade-in {
-  animation: tkFadeIn 0.3s;
-}
-
-@keyframes tkFadeIn {
-  0% {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-.tk-action {
-  display: flex;
-  align-items: center;
-}
-
-.tk-action-link {
-  margin-left: 0.5rem;
-  color: var(--blue);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-}
-
-.tk-action-icon {
-  display: inline-block;
-  height: 1em;
-  width: 1em;
-  line-height: 0;
-  color: var(--blue);
-}
-
-.tk-action-link .tk-action-icon-solid,
-.tk-action-link.tk-liked .tk-action-icon,
-.tk-action-link:hover .tk-action-icon {
-  display: none;
-}
-
-.tk-action-link.tk-liked .tk-action-icon-solid,
-.tk-action-link:hover .tk-action-icon-solid {
-  display: block;
-}
-
-.tk-action-count {
-  margin-left: 0.25rem;
-  font-size: 0.75rem;
-  height: 1.5rem;
-  line-height: 1.5rem;
-}
-
-.tk-main {
-  flex: 1;
-  width: 0;
-}
-
-.tk-meta {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.tk-row {
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-.tk-nick-link {
-  color: inherit;
-  text-decoration: none;
-  transition: color 0.15s ease-out;
-}
-
-.tk-replies .tk-nick-link {
-  font-size: 0.9em;
-}
-
-.tk-nick-link:hover {
-  color: var(--blue);
-}
-
-.tk-actions {
-  display: none;
-  margin-left: 1em;
-}
-
-.tk-comment:hover .tk-actions {
-  display: inline;
-}
-
-.tk-extras {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  margin: 4px 0;
-}
-
-.tk-extra {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px;
-  color: var(--subtext1);
-  font-size: 0.75rem;
-  border-radius: 3px;
-  transition: background-color 0.15s ease-out;
-}
-
-.tk-extra:hover {
-  background: hsl(from var(--text) h s l / 0.06);
-}
-
-.tk-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 0.8rem;
-  height: 0.8rem;
-  flex-shrink: 0;
-}
-
-.tk-tag {
-  display: inline-block;
-  padding: 0 0.5em;
-  font-size: 0.75em;
-  background-color: hsl(from var(--blue) h s l / 0.1);
-  border-radius: 3px;
-}
-
-.tk-tag-green {
-  background-color: hsl(from var(--green) h s l / 0.1);
-  border: 1px solid hsl(from var(--green) h s l / 0.8);
-  border-radius: 3px;
-  color: var(--green);
-}
-
-.tk-time {
-  color: var(--subtext0);
-}
-
-.tk-comment {
-  margin-top: 1rem;
-  padding-bottom: 1rem;
-  display: flex;
-  flex-direction: row;
-  word-break: break-word;
-}
-
-.tk-comment:last-child {
-  padding-bottom: 0;
-}
-
-.tk-content {
-  margin-top: 0.5rem;
-  overflow: hidden;
-  max-height: 500px;
-  position: relative;
-  line-height: 1.75;
-}
-
-.tk-content-expand {
-  max-height: none;
-}
-
-.tk-replies .tk-content {
-  font-size: 0.9em;
-}
-
-.tk-comment .vemoji {
-  max-height: 2em;
-  vertical-align: middle;
-}
-
-.tk-replies {
-  max-height: 200px;
-  overflow: hidden;
-  position: relative;
-  margin-top: 0.65rem;
-  padding-left: 1rem;
-  border-left: 1px dashed var(--surface0);
-}
-
-.tk-replies .tk-comment {
-  margin-top: 0.75rem;
-  padding-bottom: 0;
-}
-
-.tk-replies .tk-comment:first-child {
-  margin-top: 0;
-}
-
-.tk-replies-expand {
-  max-height: none;
-  overflow: unset;
-}
-
-.tk-ruser {
-  color: var(--blue);
-  text-decoration: none;
-  transition: opacity 0.15s ease-out;
-}
-
-.tk-lightbox {
-  display: block;
-  position: fixed;
-  background-color: hsl(from var(--crust) h s l / 0.5);
-  inset: 0;
-  z-index: 999;
-  cursor: zoom-out;
-}
-
-.tk-lightbox-image {
-  min-width: 100px;
-  min-height: 30px;
-  width: auto;
-  height: auto;
-  max-width: 95%;
-  max-height: 95%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: linear-gradient(90deg, var(--surface0) 50%, var(--surface1) 0);
-  background-size: 40px 100%;
-}
-
-.tk-comments-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-}
-
-.tk-comments-count.__hidden {
-  visibility: hidden;
-}
-
-.tk-comments-container {
-  min-height: 10rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.tk-comments-no {
-  flex: 1;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.tk-comments-error {
-  font-size: 0.75em;
-  color: var(--red);
-}
-
-.tk-icon.__comments {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  vertical-align: sub;
-  margin-left: 0.5em;
-  height: 0.75em;
-  width: 0.75em;
-  line-height: 0;
-  cursor: pointer;
-  color: var(--blue);
-  transition: opacity 0.15s ease-out;
-}
-
-.twikoo div.code-toolbar {
-  position: relative;
-  border-radius: 0.3em;
-  > .toolbar {
-    position: absolute;
-    right: 4px;
-    top: 4px;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    display: flex;
-    > .toolbar-item {
-      margin-left: 0.3em;
-      > a,
-      > button,
-      > span {
-        padding: 2px 4px;
-        border-radius: 0.3em;
-      }
-
-      > button {
-        border: 1px solid hsl(from var(--surface1) h s l / 0.31);
-        &:hover {
-          cursor: pointer;
-        }
-      }
-    }
-  }
-}
-
-.tk-footer {
-  width: 100%;
-  text-align: end;
-  font-size: 0.75em;
-  color: var(--subtext0);
-  margin-top: 1em;
-}
-
-.tk-pagination,
-.tk-pagination-pagers {
-  display: flex;
-}
-
-.tk-pagination {
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
-
-.tk-pagination-options {
-  display: flex;
-  align-items: center;
-}
-
-.tk-pagination-pager {
-  width: 2em;
-  height: 2em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.15s ease-out;
-}
-
-.tk-pagination-pager.__current {
-  background-color: var(--blue);
-  color: var(--base);
-  pointer-events: none;
-}
-
-.tk-pagination .el-input {
-  width: 50px;
-}
-
-.tk-pagination .el-input .el-input__inner {
-  padding: 0;
-  height: 28px;
-  text-align: center;
-  appearance: textfield;
-}
-
-.tk-pagination .el-input .el-input__inner::-webkit-inner-spin-button,
-.tk-pagination .el-input .el-input__inner::-webkit-outer-spin-button {
-  appearance: none;
-  margin: 0;
-}
-
-.tk-admin-comment {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.tk-admin-comment a {
-  color: currentColor;
-  text-decoration: underline;
-}
-
-.tk-admin-warn {
-  margin-bottom: 1em;
-}
-
-.tk-admin-comment-filter {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.tk-admin-comment-filter-keyword {
-  flex: 1;
-}
-
-.tk-admin-comment-filter-type {
-  height: 32px;
-  width: 50px;
-  margin: 0 0.5em;
-  padding-left: 0.5em;
-  font-size: 1em;
-  color: var(--text);
-  background: var(--surface0);
-  border-radius: 4px;
-  position: relative;
-  appearance: none;
-}
-
-.tk-admin-comment-list {
-  margin-top: 1em;
-}
-
-.tk-admin-comment-list,
-.tk-admin-comment-item {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch;
-}
-
-.tk-admin-comment-meta {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 0.5em;
-}
-
-.tk-admin-comment .tk-avatar {
-  margin-right: 0.5em;
-}
-
-.tk-admin-comment .tk-content {
-  max-height: none;
-}
-
-.tk-admin-actions {
-  display: flex;
-  margin-bottom: 1em;
-  border-bottom: 1px solid hsl(from var(--surface0) h s l / 0.5);
-  button {
-    font-size: 1em;
-    padding: 0.25em 1em;
-    margin: 0.5em 0;
-  }
-}
-
-.tk-admin-config-groups {
-  overflow-y: auto;
-  padding-right: 0.5em;
-}
-
-.tk-admin-config-group-title {
-  margin-top: 1em;
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.tk-admin-config-groups .tk-admin-config-group,
-.tk-admin-config-groups .tk-admin-config-group-title {
-  background: transparent;
-}
-
-.tk-admin-config-item {
-  display: grid;
-  align-items: center;
-  grid-template-columns: 30% 70%;
-  margin-top: 1em;
-}
-
-.tk-admin-config-title {
-  text-align: right;
-  margin-right: 1em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tk-admin-config-desc {
-  margin-top: 0.5em;
-  font-size: 0.75em;
-  overflow-wrap: break-word;
-}
-
-.tk-admin-config-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 1em;
-}
-
-.tk-admin-config-message {
-  margin-top: 0.5em;
-  text-align: center;
-}
-
-.tk-admin-config-email-test-desc {
-  margin: 1em 0;
-}
-
-.tk-admin-import {
-  display: flex;
-  flex-direction: column;
-}
-
-.tk-admin-import-label {
-  margin-top: 1em;
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.tk-admin-import select,
-.tk-admin-import input,
-.tk-admin-import .el-button,
-.tk-admin-import .el-textarea {
-  margin-top: 1em;
-}
-
-.tk-admin-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.tk-admin {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  pointer-events: all;
-  background-color: var(--mantle);
-  visibility: hidden;
-}
-
-.tk-admin::-webkit-scrollbar {
-  width: 5px;
-  background-color: transparent;
-}
-
-.tk-admin::-webkit-scrollbar-track {
-  background-color: transparent;
-}
-
-.tk-admin::-webkit-scrollbar-thumb {
-  background-color: var(--overlay0);
-}
-
-.tk-admin.__show {
-  left: 0;
-  visibility: visible;
-}
-
-.tk-admin-close {
-  position: sticky;
-  float: right;
-  display: block;
-  top: 0;
-  right: 0;
-  width: 1rem;
-  height: 1rem;
-  padding: 1rem;
-  box-sizing: content-box;
-  color: var(--base);
-  cursor: pointer;
-  transition: opacity 0.15s ease-out;
-}
-
-.tk-login,
-.tk-regist {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  padding: 0 2rem;
-}
-
-.tk-login-title {
-  font-size: 1.25rem;
-  text-align: center;
-  margin-top: 10rem;
-}
-
-.tk-password,
-.tk-login-msg {
-  width: 80%;
-  text-align: center;
-  margin-top: 1rem;
-}
-
-.tk-password .el-input__inner {
-  min-width: 100px;
-}
-
-.tk-login-msg a {
-  color: var(--base);
-  margin-left: 1em;
-  text-decoration: underline;
-}
-
-.tk-regist-button {
-  margin-top: 1rem;
-}
-
-.tk-panel {
-  padding: 2rem;
-}
-
-.tk-panel-title {
-  font-size: 1.5rem;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-}
-
-.tk-panel-logout {
-  color: var(--red);
-  font-size: 1rem;
-  text-decoration: underline;
-}
-
-.tk-panel .tk-tabs {
-  display: flex;
-  margin-bottom: 1em;
-  border-bottom: 1px solid var(--surface0);
-}
-
-.tk-panel .tk-tab {
-  color: var(--subtext0);
-  cursor: pointer;
-  line-height: 2em;
-  margin-right: 2em;
-  margin-bottom: -2px;
-  transition: color 0.15s ease-out;
-  &:hover {
-    color: var(--text);
-  }
-}
-
-.tk-panel .tk-tab.__active {
-  color: var(--blue);
-}
-
-.twikoo {
-  position: relative;
-}
-
-.twikoo svg {
-  fill: var(--subtext1);
-}
-
-.tk-expand {
-  cursor: pointer;
-  padding: 0.75em;
-  text-align: center;
-  &:hover,
-  &:active {
-    background-color: var(--surfacevar(--surface0) 0);
-  }
-}
-
-.tk-content img {
-  max-width: 300px;
-  max-height: 300px;
-  vertical-align: middle;
-  cursor: zoom-in;
-}
-
-.tk-owo-emotion,
-.twikoo .OwO-item img {
-  width: 3em;
-  height: auto;
-}
-
-.twikoo .el-input__inner,
-.twikoo .el-textarea__inner {
-  color: currentColor;
-  background-color: transparent;
-  border-color: hsl(from var(--surface1) h s l / 0.31);
-
-  &:focus {
-    border-color: var(--blue);
-  }
-
-  &:focus-visible {
-    box-shadow: 0 0 0 2px hsl(from var(--blue) h s l / 0.25);
-  }
-}
-
-.twikoo .el-button:not(.el-button--primary):not(.el-button--text) {
-  color: currentColor;
-  background-color: hsl(from var(--surface1) h s l / 0.063);
-  border-color: hsl(from var(--surface1) h s l / 0.31);
-}
-
-.el-button:not(.el-button--primary):not(.el-button--text):active,
-.el-button:not(.el-button--primary):not(.el-button--text):focus,
-.el-button:not(.el-button--primary):not(.el-button--text):hover {
-  color: var(--blue);
-  background-color: hsl(from var(--blue) h s l / 0.063);
-  border-color: hsl(from var(--blue) h s l / 0.5);
-}
-
-.el-button--primary.is-disabled,
-.el-button--primary.is-disabled:active,
-.el-button--primary.is-disabled:focus,
-.el-button--primary.is-disabled:hover {
-  color: hsl(from var(--base) h s l / 0.63);
-  background-color: hsl(from var(--blue) h s l / 0.5);
-  border: 1px solid var(--surface0);
-}
-
-.twikoo .el-loading-mask {
-  background-color: transparent;
-  backdrop-filter: opacity(20%);
-}
-
-.twikoo .el-textarea .el-input__count {
-  color: currentColor;
-  background: transparent;
-}
-
-.tk-admin-warn {
-  padding: 1rem 1.5rem;
-  background-color: var(--base);
-  border-left: 0.5rem solid var(--peach);
-  color: var(--yellow);
-  align-self: stretch;
-}
-
-/*!
- * OwO v1.0.2
- * Source: https://github.com/DIYgod/OwO/blob/master/dist/OwO.min.css
- * Author: DIYgod
- * Modified by: iMaeGoo
- * Released under the MIT License.
- */
-.OwO {
-  user-select: none;
-  .OwO-logo {
-    width: 1.125em;
-    display: flex;
-  }
-
-  &.OwO-open .OwO-body {
-    display: block;
-  }
-}
-
-.OwO-body {
-  display: none;
-  position: absolute;
-  left: 0;
-  right: 0;
-  max-width: 500px;
-  color: var(--text);
-  background-color: var(--base);
-  border: 1px solid var(--surface0);
-  top: 2em;
-  border-radius: var(--radius);
-  z-index: 200;
-
-  .OwO-items {
-    padding: 10px 0 10px 10px;
-    margin: 0;
-    overflow: auto;
-    font-size: 0;
-  }
-
-  .OwO-item {
-    list-style-type: none;
-    padding: 5px 10px;
-    display: inline-block;
-    font-size: 16px;
-    cursor: pointer;
-    text-align: center;
-    &:hover {
-      background-color: var(--surface0);
-    }
-
-    &:focus-visible {
-      background-color: var(--surface0);
-      outline: none;
-    }
-  }
-
-  .OwO-items-image {
-    .OwO-item {
-      img {
-        max-width: 100%;
-      }
-    }
-  }
-
-  .OwO-bar {
-    width: 100%;
-    border-top: 1px solid var(--surface0);
-    .OwO-packages {
-      margin: 0;
-      padding: 0;
-      font-size: 0;
-      li {
-        list-style-type: none;
-        display: inline-block;
-        line-height: 30px;
-        font-size: 14px;
-        padding: 0 10px;
-        cursor: pointer;
-        margin-right: 3px;
-        &:nth-child(1) {
-          border-radius: 0 0 0 3px;
-        }
-      }
-
-      .OwO-package-active,
-      .OwO-packages:hover {
-        color: var(--lavender);
-      }
-    }
-  }
-}
-
-@media screen and (max-width: 600px) {
-  #twikoo .OwO-items > .OwO-item {
-    width: 16%;
-  }
-}
-
-@media screen and (max-width: 460px) {
-  #twikoo .OwO-items > .OwO-item {
-    width: 20%;
-  }
-}
-
-@media screen and (max-width: 400px) {
-  #twikoo .OwO-items > .OwO-item {
-    width: 25%;
-  }
-}
-
-@media screen and (max-width: 330px) {
-  #twikoo .OwO-items > .OwO-item {
-    width: 33%;
   }
 }
 
@@ -1484,6 +485,979 @@
   opacity: 0;
 }
 
+/* Twikoo comment form, thread, pagination, and admin views. */
+.tk-avatar {
+  flex-shrink: 0;
+  height: 2.5rem;
+  width: 2.5rem;
+  overflow: hidden;
+  text-align: center;
+  border-radius: 5px;
+  margin-right: 1rem;
+}
+
+.tk-comment .tk-submit .tk-avatar,
+.tk-replies .tk-avatar {
+  height: 2rem;
+  width: 2rem;
+}
+
+.tk-avatar .tk-avatar-img {
+  height: 2.5rem;
+  color: var(--subtext0);
+}
+
+.tk-comment .tk-submit .tk-avatar .tk-avatar-img,
+.tk-replies .tk-avatar .tk-avatar-img {
+  height: 2rem;
+}
+
+.tk-avatar.tk-clickable {
+  cursor: pointer;
+  transition: opacity 0.2s ease-out;
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.tk-meta-input {
+  display: flex;
+  margin-bottom: 0.5rem;
+}
+
+.tk-meta-input .el-input {
+  width: calc((100% - 1rem) / 3);
+  flex: 1;
+}
+
+.tk-meta-input .el-input + .el-input {
+  margin-left: 0.5rem;
+}
+
+.tk-meta-input .el-input .el-input-group__prepend {
+  padding: 0 1rem;
+}
+
+.tk-meta-input .el-input input:invalid {
+  border: 1px solid var(--red);
+  box-shadow: none;
+}
+
+@media screen and (max-width: 767px) {
+  .tk-meta-input {
+    flex-direction: column;
+  }
+
+  .tk-meta-input .el-input {
+    width: auto;
+  }
+
+  .tk-meta-input .el-input + .el-input {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+}
+
+.tk-submit {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+}
+
+.tk-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tk-row.actions {
+  position: relative;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  margin-left: 3.5rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.tk-row-actions-start {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.tk-submit-action-icon {
+  align-self: center;
+  display: inline-block;
+  width: 1.25em;
+  line-height: 0;
+  margin-right: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease-out;
+}
+
+.tk-submit-action-icon.__markdown {
+  color: var(--surface0);
+}
+
+.tk-error-message {
+  word-break: break-all;
+  color: var(--red);
+  font-size: 0.75em;
+  flex-shrink: 1;
+}
+
+.tk-input-image {
+  display: none;
+}
+
+.tk-input {
+  flex: 1;
+}
+
+.tk-input .el-textarea__inner {
+  background-position: right bottom;
+  background-repeat: no-repeat;
+}
+
+.tk-turnstile-container {
+  position: absolute;
+  right: 0;
+  bottom: -75px;
+  z-index: 1;
+}
+
+.tk-turnstile {
+  display: flex;
+  flex-direction: column;
+}
+
+.tk-preview-container {
+  margin-left: 3rem;
+  margin-bottom: 1rem;
+  padding: 5px 15px;
+  border: 1px solid var(--surface0);
+  border-radius: 4px;
+  word-break: break-word;
+}
+
+.tk-fade-in {
+  animation: tkFadeIn 0.3s;
+}
+
+@keyframes tkFadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.tk-action {
+  display: flex;
+  align-items: center;
+}
+
+.tk-action-link {
+  margin-left: 0.5rem;
+  color: var(--blue);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.tk-action-icon {
+  display: inline-block;
+  height: 1em;
+  width: 1em;
+  line-height: 0;
+  color: var(--blue);
+}
+
+.tk-action-link .tk-action-icon-solid,
+.tk-action-link.tk-liked .tk-action-icon,
+.tk-action-link:hover .tk-action-icon {
+  display: none;
+}
+
+.tk-action-link.tk-liked .tk-action-icon-solid,
+.tk-action-link:hover .tk-action-icon-solid {
+  display: block;
+}
+
+.tk-action-count {
+  margin-left: 0.25rem;
+  font-size: 0.75rem;
+  height: 1.5rem;
+  line-height: 1.5rem;
+}
+
+.tk-main {
+  flex: 1;
+  width: 0;
+}
+
+.tk-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tk-row {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.tk-nick-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease-out;
+}
+
+.tk-replies .tk-nick-link {
+  font-size: 0.9em;
+}
+
+.tk-nick-link:hover {
+  color: var(--blue);
+}
+
+.tk-actions {
+  display: none;
+  margin-left: 1em;
+}
+
+.tk-comment:hover .tk-actions {
+  display: inline;
+}
+
+.tk-extras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin: 4px 0;
+}
+
+.tk-extra {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  color: var(--subtext1);
+  font-size: 0.75rem;
+  border-radius: 3px;
+  transition: background-color 0.15s ease-out;
+}
+
+.tk-extra:hover {
+  background: hsl(from var(--text) h s l / 0.06);
+}
+
+.tk-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.8rem;
+  height: 0.8rem;
+  flex-shrink: 0;
+}
+
+.tk-tag {
+  display: inline-block;
+  padding: 0 0.5em;
+  font-size: 0.75em;
+  background-color: hsl(from var(--blue) h s l / 0.1);
+  border-radius: 3px;
+}
+
+.tk-tag-green {
+  background-color: hsl(from var(--green) h s l / 0.1);
+  border: 1px solid hsl(from var(--green) h s l / 0.8);
+  border-radius: 3px;
+  color: var(--green);
+}
+
+.tk-time {
+  color: var(--subtext0);
+}
+
+.tk-comment {
+  margin-top: 1rem;
+  padding-bottom: 1rem;
+  display: flex;
+  flex-direction: row;
+  word-break: break-word;
+}
+
+.tk-comment:last-child {
+  padding-bottom: 0;
+}
+
+.tk-content {
+  margin-top: 0.5rem;
+  overflow: hidden;
+  max-height: 500px;
+  position: relative;
+  line-height: 1.75;
+}
+
+.tk-content-expand {
+  max-height: none;
+}
+
+.tk-replies .tk-content {
+  font-size: 0.9em;
+}
+
+.tk-comment .vemoji {
+  max-height: 2em;
+  vertical-align: middle;
+}
+
+.tk-replies {
+  max-height: 200px;
+  overflow: hidden;
+  position: relative;
+  margin-top: 0.65rem;
+  padding-left: 1rem;
+  border-left: 1px dashed var(--surface0);
+}
+
+.tk-replies .tk-comment {
+  margin-top: 0.75rem;
+  padding-bottom: 0;
+}
+
+.tk-replies .tk-comment:first-child {
+  margin-top: 0;
+}
+
+.tk-replies-expand {
+  max-height: none;
+  overflow: unset;
+}
+
+.tk-ruser {
+  color: var(--blue);
+  text-decoration: none;
+  transition: opacity 0.15s ease-out;
+}
+
+.tk-lightbox {
+  display: block;
+  position: fixed;
+  background-color: hsl(from var(--crust) h s l / 0.5);
+  inset: 0;
+  z-index: 999;
+  cursor: zoom-out;
+}
+
+.tk-lightbox-image {
+  min-width: 100px;
+  min-height: 30px;
+  width: auto;
+  height: auto;
+  max-width: 95%;
+  max-height: 95%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(90deg, var(--surface0) 50%, var(--surface1) 0);
+  background-size: 40px 100%;
+}
+
+.tk-comments-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.tk-comments-count.__hidden {
+  visibility: hidden;
+}
+
+.tk-comments-container {
+  min-height: 10rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.tk-comments-no {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tk-comments-error {
+  font-size: 0.75em;
+  color: var(--red);
+}
+
+.tk-icon.__comments {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: sub;
+  margin-left: 0.5em;
+  height: 0.75em;
+  width: 0.75em;
+  line-height: 0;
+  cursor: pointer;
+  color: var(--blue);
+  transition: opacity 0.15s ease-out;
+}
+
+.tk-footer {
+  width: 100%;
+  text-align: end;
+  font-size: 0.75em;
+  color: var(--subtext0);
+  margin-top: 1em;
+}
+
+.tk-pagination,
+.tk-pagination-pagers {
+  display: flex;
+}
+
+.tk-pagination {
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.tk-pagination-options {
+  display: flex;
+  align-items: center;
+}
+
+.tk-pagination-pager {
+  width: 2em;
+  height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.15s ease-out;
+}
+
+.tk-pagination-pager.__current {
+  background-color: var(--blue);
+  color: var(--base);
+  pointer-events: none;
+}
+
+.tk-pagination .el-input {
+  width: 50px;
+}
+
+.tk-pagination .el-input .el-input__inner {
+  padding: 0;
+  height: 28px;
+  text-align: center;
+  appearance: textfield;
+}
+
+.tk-pagination .el-input .el-input__inner::-webkit-inner-spin-button,
+.tk-pagination .el-input .el-input__inner::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.tk-admin-comment {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tk-admin-comment a {
+  color: currentColor;
+  text-decoration: underline;
+}
+
+.tk-admin-warn {
+  margin-bottom: 1em;
+}
+
+.tk-admin-comment-filter {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.tk-admin-comment-filter-keyword {
+  flex: 1;
+}
+
+.tk-admin-comment-filter-type {
+  height: 32px;
+  width: 50px;
+  margin: 0 0.5em;
+  padding-left: 0.5em;
+  font-size: 1em;
+  color: var(--text);
+  background: var(--surface0);
+  border-radius: 4px;
+  position: relative;
+  appearance: none;
+}
+
+.tk-admin-comment-list {
+  margin-top: 1em;
+}
+
+.tk-admin-comment-list,
+.tk-admin-comment-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+}
+
+.tk-admin-comment-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.5em;
+}
+
+.tk-admin-comment .tk-avatar {
+  margin-right: 0.5em;
+}
+
+.tk-admin-comment .tk-content {
+  max-height: none;
+}
+
+.tk-admin-actions {
+  display: flex;
+  margin-bottom: 1em;
+  border-bottom: 1px solid hsl(from var(--surface0) h s l / 0.5);
+  button {
+    font-size: 1em;
+    padding: 0.25em 1em;
+    margin: 0.5em 0;
+  }
+}
+
+.tk-admin-config-groups {
+  overflow-y: auto;
+  padding-right: 0.5em;
+}
+
+.tk-admin-config-group-title {
+  margin-top: 1em;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.tk-admin-config-groups .tk-admin-config-group,
+.tk-admin-config-groups .tk-admin-config-group-title {
+  background: transparent;
+}
+
+.tk-admin-config-item {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 30% 70%;
+  margin-top: 1em;
+}
+
+.tk-admin-config-title {
+  text-align: right;
+  margin-right: 1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tk-admin-config-desc {
+  margin-top: 0.5em;
+  font-size: 0.75em;
+  overflow-wrap: break-word;
+}
+
+.tk-admin-config-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1em;
+}
+
+.tk-admin-config-message {
+  margin-top: 0.5em;
+  text-align: center;
+}
+
+.tk-admin-config-email-test-desc {
+  margin: 1em 0;
+}
+
+.tk-admin-import {
+  display: flex;
+  flex-direction: column;
+}
+
+.tk-admin-import-label {
+  margin-top: 1em;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.tk-admin-import select,
+.tk-admin-import input,
+.tk-admin-import .el-button,
+.tk-admin-import .el-textarea {
+  margin-top: 1em;
+}
+
+.tk-admin-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.tk-admin {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  pointer-events: all;
+  background-color: var(--mantle);
+  visibility: hidden;
+}
+
+.tk-admin::-webkit-scrollbar {
+  width: 5px;
+  background-color: transparent;
+}
+
+.tk-admin::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.tk-admin::-webkit-scrollbar-thumb {
+  background-color: var(--overlay0);
+}
+
+.tk-admin.__show {
+  left: 0;
+  visibility: visible;
+}
+
+.tk-admin-close {
+  position: sticky;
+  float: right;
+  display: block;
+  top: 0;
+  right: 0;
+  width: 1rem;
+  height: 1rem;
+  padding: 1rem;
+  box-sizing: content-box;
+  color: var(--base);
+  cursor: pointer;
+  transition: opacity 0.15s ease-out;
+}
+
+.tk-login,
+.tk-regist {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 0 2rem;
+}
+
+.tk-login-title {
+  font-size: 1.25rem;
+  text-align: center;
+  margin-top: 10rem;
+}
+
+.tk-password,
+.tk-login-msg {
+  width: 80%;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.tk-password .el-input__inner {
+  min-width: 100px;
+}
+
+.tk-login-msg a {
+  color: var(--base);
+  margin-left: 1em;
+  text-decoration: underline;
+}
+
+.tk-regist-button {
+  margin-top: 1rem;
+}
+
+.tk-panel {
+  padding: 2rem;
+}
+
+.tk-panel-title {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.tk-panel-logout {
+  color: var(--red);
+  font-size: 1rem;
+  text-decoration: underline;
+}
+
+.tk-panel .tk-tabs {
+  display: flex;
+  margin-bottom: 1em;
+  border-bottom: 1px solid var(--surface0);
+}
+
+.tk-panel .tk-tab {
+  color: var(--subtext0);
+  cursor: pointer;
+  line-height: 2em;
+  margin-right: 2em;
+  margin-bottom: -2px;
+  transition: color 0.15s ease-out;
+  &:hover {
+    color: var(--text);
+  }
+}
+
+.tk-panel .tk-tab.__active {
+  color: var(--blue);
+}
+
+.twikoo {
+  position: relative;
+}
+
+.twikoo svg {
+  fill: var(--subtext1);
+}
+
+.tk-expand {
+  cursor: pointer;
+  padding: 0.75em;
+  text-align: center;
+  &:hover,
+  &:active {
+    background-color: var(--surface0);
+  }
+}
+
+.tk-content img {
+  max-width: 300px;
+  max-height: 300px;
+  vertical-align: middle;
+  cursor: zoom-in;
+}
+
+.tk-owo-emotion,
+.twikoo .OwO-item img {
+  width: 3em;
+  height: auto;
+}
+
+/* Theme overrides that intentionally sit above the base Element UI styles. */
+.twikoo .el-input__inner,
+.twikoo .el-textarea__inner {
+  color: currentColor;
+  background-color: transparent;
+  border-color: hsl(from var(--surface1) h s l / 0.31);
+
+  &:focus {
+    border-color: var(--blue);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px hsl(from var(--blue) h s l / 0.25);
+  }
+}
+
+.twikoo .el-button:not(.el-button--primary):not(.el-button--text) {
+  color: currentColor;
+  background-color: hsl(from var(--surface1) h s l / 0.063);
+  border-color: hsl(from var(--surface1) h s l / 0.31);
+}
+
+.el-button:not(.el-button--primary):not(.el-button--text):active,
+.el-button:not(.el-button--primary):not(.el-button--text):focus,
+.el-button:not(.el-button--primary):not(.el-button--text):hover {
+  color: var(--blue);
+  background-color: hsl(from var(--blue) h s l / 0.063);
+  border-color: hsl(from var(--blue) h s l / 0.5);
+}
+
+.el-button--primary.is-disabled,
+.el-button--primary.is-disabled:active,
+.el-button--primary.is-disabled:focus,
+.el-button--primary.is-disabled:hover {
+  color: hsl(from var(--base) h s l / 0.63);
+  background-color: hsl(from var(--blue) h s l / 0.5);
+  border: 1px solid var(--surface0);
+}
+
+.twikoo .el-loading-mask {
+  background-color: transparent;
+  backdrop-filter: opacity(20%);
+}
+
+.twikoo .el-textarea .el-input__count {
+  color: currentColor;
+  background: transparent;
+}
+
+.tk-admin-warn {
+  padding: 1rem 1.5rem;
+  background-color: var(--base);
+  border-left: 0.5rem solid var(--peach);
+  color: var(--yellow);
+  align-self: stretch;
+}
+
+/*!
+ * OwO v1.0.2
+ * Source: https://github.com/DIYgod/OwO/blob/master/dist/OwO.min.css
+ * Author: DIYgod
+ * Modified by: iMaeGoo
+ * Released under the MIT License.
+ */
+.OwO {
+  user-select: none;
+  .OwO-logo {
+    width: 1.125em;
+    display: flex;
+  }
+}
+
+.OwO-body {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  max-width: 500px;
+  color: var(--text);
+  background-color: var(--base);
+  border: 1px solid var(--surface0);
+  top: 2em;
+  border-radius: var(--radius);
+  z-index: 200;
+
+  .OwO-items {
+    padding: 10px 0 10px 10px;
+    margin: 0;
+    overflow: auto;
+    font-size: 0;
+  }
+
+  .OwO-item {
+    list-style-type: none;
+    padding: 5px 10px;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    &:hover {
+      background-color: var(--surface0);
+    }
+
+    &:focus-visible {
+      background-color: var(--surface0);
+      outline: none;
+    }
+  }
+
+  .OwO-items-image {
+    .OwO-item {
+      img {
+        max-width: 100%;
+      }
+    }
+  }
+
+  .OwO-bar {
+    width: 100%;
+    border-top: 1px solid var(--surface0);
+    .OwO-packages {
+      margin: 0;
+      padding: 0;
+      font-size: 0;
+      li {
+        list-style-type: none;
+        display: inline-block;
+        line-height: 30px;
+        font-size: 14px;
+        padding: 0 10px;
+        cursor: pointer;
+        margin-right: 3px;
+        &:nth-child(1) {
+          border-radius: 0 0 0 3px;
+        }
+      }
+
+      .OwO-package-active,
+      .OwO-packages:hover {
+        color: var(--lavender);
+      }
+    }
+  }
+}
+
+.OwO.OwO-open .OwO-body {
+  display: block;
+}
+
+@media screen and (max-width: 600px) {
+  #twikoo .OwO-items > .OwO-item {
+    width: 16%;
+  }
+}
+
+@media screen and (max-width: 460px) {
+  #twikoo .OwO-items > .OwO-item {
+    width: 20%;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  #twikoo .OwO-items > .OwO-item {
+    width: 25%;
+  }
+}
+
+@media screen and (max-width: 330px) {
+  #twikoo .OwO-items > .OwO-item {
+    width: 33%;
+  }
+}
+
 @keyframes loading-rotate {
   to {
     transform: rotate(360deg);
@@ -1504,6 +1478,36 @@
   to {
     stroke-dasharray: 90, 150;
     stroke-dashoffset: -120px;
+  }
+}
+
+/* Prism toolbar styles need to come after generic anchor and button rules. */
+.twikoo div.code-toolbar {
+  position: relative;
+  border-radius: 0.3em;
+  > .toolbar {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    display: flex;
+    > .toolbar-item {
+      margin-left: 0.3em;
+      > a,
+      > button,
+      > span {
+        padding: 2px 4px;
+        border-radius: 0.3em;
+      }
+
+      > button {
+        border: 1px solid hsl(from var(--surface1) h s l / 0.31);
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
   }
 }
 
