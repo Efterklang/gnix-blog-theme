@@ -66,4 +66,27 @@ module.exports = (hexo) => {
 
     return locals;
   });
+
+  hexo.extend.filter.register("after_render:html", (data) => {
+    if (!data.includes("data-page-head") || !data.includes("</head>")) {
+      return data;
+    }
+
+    const seenHeadTags = new Set();
+    const headTags = [];
+    const html = data.replace(/<link\b(?=[^>]*\sdata-page-head(?:=(?:"[^"]*"|'[^']*'|[^\s>]+))?)[^>]*>/gi, (tag) => {
+      const cleanTag = tag.replace(/\sdata-page-head(?:=(?:"[^"]*"|'[^']*'|[^\s>]+))?/i, "");
+      if (!seenHeadTags.has(cleanTag)) {
+        seenHeadTags.add(cleanTag);
+        headTags.push(cleanTag);
+      }
+      return "";
+    });
+
+    if (!headTags.length) {
+      return data;
+    }
+
+    return html.replace("</head>", `${headTags.join("")}</head>`);
+  });
 };

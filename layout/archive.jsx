@@ -1,160 +1,162 @@
 const { Component, Fragment, isValidDate, parseISO, dateFormatters } = require("../include/util/common");
 const ArticleMedia = require("./common/article_media");
 
+function collectPosts(collection) {
+  const posts = [];
+  if (collection?.each) {
+    collection.each((post) => posts.push(post));
+  } else if (Array.isArray(collection)) {
+    posts.push(...collection);
+  }
+  return posts;
+}
+
+function getSeason(month) {
+  if (month >= 2 && month <= 4) return "Spring";
+  if (month >= 5 && month <= 7) return "Summer";
+  if (month >= 8 && month <= 10) return "Autumn";
+  return "Winter";
+}
+
+function getArchiveRangeLabel(year, month = null, season = null) {
+  if (!year) return "All Posts";
+  if (month) {
+    const time = parseISO(`${year}-${String(month).padStart(2, "0")}-01T00:00:00.000Z`);
+    return isValidDate(time) ? `${dateFormatters.longMonth.format(time)} ${year}` : String(year);
+  }
+  return season ? `${season} ${year}` : String(year);
+}
+
+function groupPostsBySeason(posts) {
+  return posts.reduce((groups, post) => {
+    const year = post.date.year();
+    const season = getSeason(post.date.month());
+    const lastGroup = groups[groups.length - 1];
+
+    if (lastGroup && lastGroup.year === year && lastGroup.season === season) {
+      lastGroup.posts.push(post);
+    } else {
+      groups.push({ year, season, posts: [post] });
+    }
+
+    return groups;
+  }, []);
+}
+
+function collectArchiveYears(posts) {
+  return Array.from(new Set(posts.map((post) => post.date.year()))).sort((a, b) => b - a);
+}
+
+function getPostDateParts(postDate, dateXml, date) {
+  const xml = dateXml(postDate);
+  const parsed = parseISO(xml);
+
+  return {
+    label: isValidDate(parsed) ? dateFormatters.shortDay.format(parsed) : date(postDate),
+    xml,
+  };
+}
+
 module.exports = class extends Component {
   render() {
     const { page, helper, site, config } = this.props;
     const { url_for, date_xml, date } = helper;
 
-    function getSeason(month) {
-      if (month >= 2 && month <= 4) return "Spring";
-      if (month >= 5 && month <= 7) return "Summer";
-      if (month >= 8 && month <= 10) return "Autumn";
-      return "Winter";
-    }
-
     function renderArticleList(posts, year, month = null, sectionTitle = null, season = null) {
-      let time = null;
-      if (page.year) {
-        const mm = page.month ? String(page.month).padStart(2, "0") : "01";
-        time = parseISO(`${page.year}-${mm}-01T00:00:00.000Z`);
-      }
-
-      let title = `'${String(year).slice(-2)}`;
-      if (sectionTitle) {
-        title = sectionTitle;
-      } else if (month !== null && isValidDate(time)) {
-        title = dateFormatters.longMonth.format(time);
-      }
+      const title = sectionTitle || getArchiveRangeLabel(year, month, season);
+      const kicker = year ? String(year) : "Archive";
+      const marker = season ? season.toLowerCase() : "all";
+      const countLabel = posts.length === 1 ? "1 entry" : `${posts.length} entries`;
+      const sectionId = `archive-${kicker}-${marker}-${month || "all"}`;
 
       return (
-        <div class="card">
-          <div class={["card-content", season ? season.toLowerCase() : null].filter(Boolean).join(" ")}>
-            <span class="year">{title}</span>
-            <div class="timeline">
-              {posts.map((post) => {
-                return <ArticleMedia url={url_for(post.link || post.path)} title={post.title} date={date(post.date)} dateXml={date_xml(post.date)} />;
-              })}
+        <section class={["archive-group", marker].filter(Boolean).join(" ")} aria-labelledby={sectionId}>
+          <header class="archive-group__header">
+            <div>
+              <h2 id={sectionId} class="archive-group__title">
+                {title}
+              </h2>
             </div>
+            <span class="archive-group__count">{countLabel}</span>
+          </header>
+          <div class="timeline">
+            {posts.map((post) => {
+              const postDate = getPostDateParts(post.date, date_xml, date);
+              return <ArticleMedia key={post.path} url={url_for(post.link || post.path)} title={post.title} date={postDate.label} dateXml={postDate.xml} />;
+            })}
           </div>
-        </div>
+        </section>
       );
     }
 
+    const visiblePosts = collectPosts(page.posts);
+    const totalVisiblePosts = visiblePosts.length;
+    const latestPost = visiblePosts[0];
+
+    const allPostsSource = site?.posts ? site.posts.sort("date", -1) : page.posts;
+    const allPosts = collectPosts(allPostsSource);
+    const years = collectArchiveYears(allPosts);
     let articleList;
     if (!page.year) {
-      const groups = [];
-      page.posts.each((p) => {
-        const year = p.date.year();
-        const month = p.date.month(); // 0-11
-        const season = getSeason(month);
-
-        const lastGroup = groups[groups.length - 1];
-        if (lastGroup && lastGroup.year === year && lastGroup.season === season) {
-          lastGroup.posts.push(p);
-        } else {
-          groups.push({
-            year,
-            season,
-            posts: [p],
-          });
-        }
-      });
-
-      articleList = groups.map((group) => {
-        const title = `'${String(group.year).slice(-2)} ${group.season}`;
-        return renderArticleList(group.posts, group.year, null, title, group.season);
+      articleList = groupPostsBySeason(visiblePosts).map((group) => {
+        const title = getArchiveRangeLabel(group.year, null, group.season);
+        return <Fragment key={`${group.year}-${group.season}`}>{renderArticleList(group.posts, group.year, null, title, group.season)}</Fragment>;
       });
     } else {
       const season = page.month ? getSeason(page.month - 1) : null;
-      articleList = renderArticleList(page.posts, page.year, page.month, null, season);
+      articleList = renderArticleList(visiblePosts, page.year, page.month, null, season);
     }
 
     const archiveDir = config?.archive_dir || "archives";
     const archiveBasePath = url_for(`/${archiveDir}/`);
     const currentYear = page.year ? Number(page.year) : null;
     const currentMonth = page.month ? Number(page.month) : null;
-
-    const yearToMonths = new Map();
-    const allPosts = site?.posts ? site.posts.sort("date", -1) : page.posts;
-    if (allPosts?.each) {
-      allPosts.each((p) => {
-        const y = p.date.year();
-        const m = p.date.month() + 1;
-        const existing = yearToMonths.get(y);
-        if (existing) {
-          existing.add(m);
-        } else {
-          yearToMonths.set(y, new Set([m]));
-        }
-      });
-    }
-    const years = Array.from(yearToMonths.keys()).sort((a, b) => b - a);
-    const monthsForCurrentYear = currentYear && yearToMonths.get(currentYear) ? Array.from(yearToMonths.get(currentYear)).sort((a, b) => a - b) : [];
+    const activeScope = getArchiveRangeLabel(currentYear, currentMonth);
+    const yearCountLabel = years.length === 1 ? "1 year" : `${years.length} years`;
+    const scopeSummaryLabel = currentYear ? `from ${activeScope}` : `across ${yearCountLabel}`;
+    const latestLabel = latestPost ? date(latestPost.date) : "No posts yet";
 
     return (
       <Fragment>
-        <script data-swup-reload-script defer src="/js/archive-breadcrumb.js"></script>
-        <link rel="stylesheet" href="/css/archive.css" />
-        <nav class="archive-breadcrumb" aria-label="archive breadcrumb" data-archive-breadcrumb data-archive-dir={archiveDir}>
-          <span class="prompt">$</span>{" "}
-          <span class="archive-breadcrumb__cmd" style="color: var(--blue)">
-            ls
-          </span>{" "}
-          <span class="archive-breadcrumb__cmd" style="color: var(--yellow)">
-            posts
-          </span>
-          <span class="archive-breadcrumb__cmd" style="padding: 0">
-            /
-          </span>
-          <span class="archive-breadcrumb__picker" data-picker="year">
-            <button type="button" class="archive-breadcrumb__trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Select year">
-              <span data-label="year">{currentYear ? String(currentYear) : "*"}</span>
-            </button>
-            <div class="archive-breadcrumb__menu" role="listbox" tabindex="-1" data-menu="year">
-              <button type="button" class="archive-breadcrumb__option" role="option" data-href={archiveBasePath} aria-selected={!currentYear ? "true" : "false"}>
-                *
-              </button>
-              {years.map((y) => (
-                <button type="button" class="archive-breadcrumb__option" role="option" data-href={url_for(`/${archiveDir}/${y}/`)} aria-selected={currentYear === y ? "true" : "false"}>
-                  {y}
-                </button>
-              ))}
+        <link rel="stylesheet" href={url_for("/css/archive.css")} data-page-head />
+        <main class="archive-page">
+          <header class="archive-hero">
+            <div class="archive-hero__copy">
+              <p class="archive-eyebrow">Archive Index</p>
+              <h1>{activeScope}</h1>
+              <p class="archive-hero__summary">
+                {totalVisiblePosts ? `Browsing ${totalVisiblePosts} ${totalVisiblePosts === 1 ? "post" : "posts"} ${scopeSummaryLabel}.` : "No posts are available in this archive yet."}
+              </p>
             </div>
-          </span>
-          <span class="archive-breadcrumb__cmd" style="padding: 0">
-            /
-          </span>
-          <span class="archive-breadcrumb__picker" data-picker="month">
-            <button type="button" class="archive-breadcrumb__trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Select month" disabled={!currentYear}>
-              <span data-label="month">{currentMonth ? String(String(currentMonth).padStart(2, "0")) : "*"}</span>
-            </button>
-            <div class="archive-breadcrumb__menu" role="listbox" tabindex="-1" data-menu="month">
-              <button
-                type="button"
-                class="archive-breadcrumb__option"
-                role="option"
-                data-href={currentYear ? url_for(`/${archiveDir}/${currentYear}/`) : archiveBasePath}
-                aria-selected={!currentMonth ? "true" : "false"}
-              >
-                *
-              </button>
-              {monthsForCurrentYear.map((m) => (
-                <button
-                  type="button"
-                  class="archive-breadcrumb__option"
-                  role="option"
-                  data-href={url_for(`/${archiveDir}/${currentYear}/${String(m).padStart(2, "0")}/`)}
-                  aria-selected={currentMonth === m ? "true" : "false"}
-                >
-                  {String(m).padStart(2, "0")}
-                </button>
-              ))}
-            </div>
-          </span>
-          <span class="cursor">_</span>
-        </nav>
-        {articleList}
+            <dl class="archive-stats" aria-label="Archive summary">
+              <div>
+                <dt>Posts</dt>
+                <dd>{totalVisiblePosts}</dd>
+              </div>
+              <div>
+                <dt>Years</dt>
+                <dd>{years.length}</dd>
+              </div>
+              <div>
+                <dt>Latest</dt>
+                <dd>{latestLabel}</dd>
+              </div>
+            </dl>
+          </header>
+
+          <nav class="archive-years" aria-label="Archive years">
+            <a href={archiveBasePath} class={!currentYear ? "is-active" : null} aria-current={!currentYear ? "page" : null}>
+              All
+            </a>
+            {years.map((year) => (
+              <a key={year} href={url_for(`/${archiveDir}/${year}/`)} class={currentYear === year ? "is-active" : null} aria-current={currentYear === year ? "page" : null}>
+                {year}
+              </a>
+            ))}
+          </nav>
+
+          <div class="archive-stack">{articleList}</div>
+        </main>
       </Fragment>
     );
   }

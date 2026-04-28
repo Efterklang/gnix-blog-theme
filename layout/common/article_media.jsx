@@ -1,18 +1,25 @@
 /**
  * Article media component, used in article lists such as archive page and recent posts widget
  */
-const { Component, dateFormatters, parseISO } = require("../../include/util/common");
+const { Component, dateFormatters, isValidDate, parseISO } = require("../../include/util/common");
+
+function formatDate(date, dateXml) {
+  if (date) return date;
+
+  const parsedDate = parseISO(dateXml);
+  return isValidDate(parsedDate) ? dateFormatters.shortDay.format(parsedDate) : "";
+}
 
 module.exports = class extends Component {
   render() {
-    const { url, title, date } = this.props;
-    const formattedDate = dateFormatters.shortDay.format(parseISO(date));
+    const { url, title, date, dateXml } = this.props;
+    const formattedDate = formatDate(date, dateXml);
 
     return (
       <article class="archive-item">
         <div>
           <p class="article-meta">
-            <span>{formattedDate}</span>
+            <time dateTime={dateXml || null}>{formattedDate}</time>
           </p>
           <a class="archive-title" href={url}>
             {title}

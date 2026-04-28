@@ -1,82 +1,63 @@
-const { Component, cacheComponent } = require("../include/util/common");
+const { Component, Fragment, cacheComponent } = require("../include/util/common");
+
+function getTagSize(count, maxCount) {
+  const ratio = maxCount ? count / maxCount : 0;
+  return `${(0.95 + ratio * 0.35).toFixed(3)}rem`;
+}
 
 class Tags extends Component {
   render() {
-    const { tags, showCount } = this.props;
-
-    const inlineCSS = `
-    .tags {
-      font-family: var(--font-mono);
-      flex-wrap: wrap;
-      justify-content: flex-start;
-      padding: 0.5rem 0.5rem;
-      display: inline-flex;
-      align-items: center;
-      transition: all 0.3s ease;
-    }
-
-    .tags:hover {
-      transform: translateY(-2px);
-    }
-
-    .tag {
-      color: var(--text);
-      border-color: var(--surface0);
-      padding: 0 0.75em;
-      transition: all 0.3s ease;
-      border-style: solid;
-      align-items: center;
-      border-radius: 5px;
-      display: inline-flex;
-      font-size: 0.75rem;
-      height: 2em;
-      white-space: nowrap;
-    }
-
-    .tag:first-child {
-      border-width: 1px 0 1px 1px;
-      border-radius: 5px 0 0 5px;
-      background: var(--base);
-    }
-
-    .tag:first-child::before {
-      content: "#";
-      opacity: 0.7;
-      margin-right: 0.25em;
-    }
-
-    .tag:last-child {
-      background: var(--mantle);
-      border-width: 1px 1px 1px 0;
-      border-radius: 0 5px 5px 0;
-    }
-    `;
+    const { cssUrl, tags, title, showCount, totalPosts, topTag } = this.props;
 
     return (
-      <div class="card widget" data-type="tags">
-        <style>{inlineCSS}</style>
-        <div class="card-content">
-          <div class="menu">
+      <Fragment>
+        <link rel="stylesheet" href={cssUrl} data-page-head />
+        <main class="tags-page">
+          <header class="tags-hero">
+            <div>
+              <p class="tags-eyebrow">Topic Index</p>
+              <h1>{title}</h1>
+              <p class="tags-hero__summary">
+                {tags.length ? `Browse ${tags.length} topics across ${totalPosts} tagged ${totalPosts === 1 ? "post" : "posts"}.` : "No tagged posts are available yet."}
+              </p>
+            </div>
+            <dl class="tags-stats" aria-label="Tags summary">
+              <div>
+                <dt>Tags</dt>
+                <dd>{tags.length}</dd>
+              </div>
+              <div>
+                <dt>Posts</dt>
+                <dd>{totalPosts}</dd>
+              </div>
+              <div>
+                <dt>Largest</dt>
+                <dd>{topTag ? topTag.name : "None"}</dd>
+              </div>
+            </dl>
+          </header>
+
+          <nav class="tags-index" aria-label={title}>
             {tags.map((tag) => (
-              <a class="tags" href={tag.url}>
-                <span class="tag">{tag.name}</span>
-                {showCount ? <span class="tag">{tag.count}</span> : null}
+              <a key={tag.url} class="tags-index__item" href={tag.url} style={`--tag-size:${tag.size};`}>
+                <span class="tags-index__name">{tag.name}</span>
+                {showCount ? <span class="tags-index__count">{tag.count}</span> : null}
               </a>
             ))}
-          </div>
-        </div>
-      </div>
+          </nav>
+        </main>
+      </Fragment>
     );
   }
 }
 
-Tags.Cacheable = cacheComponent(Tags, "widget.tags", (props) => {
+Tags.Cacheable = cacheComponent(Tags, "page.tags", (props) => {
   const { helper, widget = {} } = props;
   const { order_by = "name", amount, show_count = true } = widget;
   let tags = props.tags || props.site.tags;
   const { url_for, _p } = helper;
 
-  if (!tags || !tags.length) {
+  if (!tags?.length) {
     return null;
   }
 
@@ -85,16 +66,28 @@ Tags.Cacheable = cacheComponent(Tags, "widget.tags", (props) => {
     tags = tags.limit(amount);
   }
 
+  const mappedTags = tags.map((tag) => ({
+    name: tag.name,
+    count: tag.length,
+    url: url_for(tag.path),
+  }));
+  const maxCount = mappedTags.reduce((max, tag) => Math.max(max, tag.count), 0);
+  const totalPosts = mappedTags.reduce((total, tag) => total + tag.count, 0);
+  const topTag = mappedTags.reduce((top, tag) => (tag.count > top.count ? tag : top), mappedTags[0]);
+
   return {
+    cssUrl: url_for("/css/tags.css"),
     showCount: show_count,
     title: _p("common.tag", Infinity),
-    tags: tags.map((tag) => ({
-      name: tag.name,
-      count: tag.length,
-      url: url_for(tag.path),
+    totalPosts,
+    topTag,
+    tags: mappedTags.map((tag) => ({
+      ...tag,
+      size: getTagSize(tag.count, maxCount),
     })),
   };
 });
+
 module.exports = class extends Component {
   render() {
     const { site, helper } = this.props;
