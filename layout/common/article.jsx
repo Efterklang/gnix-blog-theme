@@ -71,11 +71,11 @@ module.exports = class extends Component {
             ) : null}
             {page.title !== "" && !index ? <h1 class="article-title">{page.title}</h1> : null}
 
-            {!index && page.excerpt && <div class="content article-excerpt" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div>}
+            {!index && page.excerpt && <div class="article-excerpt" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div>}
 
             {(index || !page.excerpt) && (
               <div
-                class={index && page.excerpt ? "content article-excerpt" : "content"}
+                class={index && page.excerpt ? "article-excerpt" : "content"}
                 dangerouslySetInnerHTML={{
                   __html: index && page.excerpt ? page.excerpt : page.content,
                 }}
