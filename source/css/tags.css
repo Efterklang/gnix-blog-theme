@@ -4,6 +4,7 @@
   --tags-accent: var(--lavender);
   display: grid;
   gap: 1.5rem;
+  padding: 1.25em 1.25rem 0;
 }
 
 .tags-hero {
@@ -162,8 +163,8 @@
 }
 
 @media (max-width: 480px) {
-  .tags-hero {
-    padding-inline: 0.5rem;
+  .tags-page {
+    padding: 1rem 0.875rem 0;
   }
 
   .tags-hero h1 {
@@ -172,7 +173,6 @@
 
   .tags-index {
     gap: 0.5rem 0.85rem;
-    padding-inline: 0.5rem;
   }
 }
 

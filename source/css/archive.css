@@ -4,6 +4,7 @@
   --archive-accent: var(--lavender);
   display: grid;
   gap: 1.5rem;
+  padding: 1.25em 1.25rem 0;
 }
 
 .archive-hero {
@@ -260,21 +261,16 @@ a.archive-title:focus-visible {
 }
 
 @media (max-width: 480px) {
-  .archive-hero {
-    padding-inline: 0.5rem;
+  .archive-page {
+    padding: 1rem 0.875rem 0;
   }
 
   .archive-hero h1 {
     font-size: 2rem;
   }
 
-  .archive-years {
-    padding-inline: 0.5rem;
-  }
-
   .archive-group__header {
     display: grid;
-    padding-inline: 0.25rem;
   }
 
   .archive-group__count {
