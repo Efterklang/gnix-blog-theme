@@ -1,5 +1,5 @@
 const { Component, isValidDate, parseISO } = require("../../include/util/common");
-const { encodeURL, stripHTML, escapeHTML } = require("hexo-util");
+const { encodeURL, stripHTML } = require("hexo-util");
 
 const localeMap = {
   en: "en_US",
@@ -17,17 +17,20 @@ const localeMap = {
   tr: "tr_TR",
   vi: "vi_VN",
 };
+
 const localeRegex = new RegExp(Object.keys(localeMap).join("|"), "i");
 
 module.exports = class extends Component {
   render() {
     const { type, title, date, updated, author, url, siteName, twitterCard, twitterSite, googlePlus, facebookAdmins, facebookAppId } = this.props;
+
     let { description, language, images, keywords, twitterId } = this.props;
 
     const htmlTags = [];
 
     if (description) {
-      description = escapeHTML(stripHTML(description).substring(0, 200).trim()).replace(/\n/g, " ");
+      description = stripHTML(description).substring(0, 200).trim().replace(/\s+/g, " ");
+
       htmlTags.push(<meta name="description" content={description} />);
       htmlTags.push(<meta property="og:description" content={description} />);
     }
@@ -44,35 +47,36 @@ module.exports = class extends Component {
       } else if (language.length === 5) {
         const territory = language.slice(-2);
         const territoryRegex = new RegExp(territory.concat("$"));
+
         language = language.replace("-", "_").replace(territoryRegex, territory.toUpperCase());
+
         htmlTags.push(<meta property="og:locale" content={language} />);
       }
     }
 
     if (!Array.isArray(images)) {
-      images = [images];
+      images = images ? [images] : [];
     }
-    images
-      .map((path) => {
-        const parsed = new URL(path, url);
-        return parsed.toString();
-      })
-      .forEach((path) => {
-        htmlTags.push(<meta property="og:image" content={path} />);
-      });
+
+    const imageUrls = images.filter(Boolean).map((path) => {
+      const parsed = new URL(path, url);
+      return parsed.toString();
+    });
+
+    imageUrls.forEach((path) => {
+      htmlTags.push(<meta property="og:image" content={path} />);
+    });
 
     if (date) {
       const d = typeof date === "string" ? parseISO(date) : date;
-      if (isValidDate(d)) {
-        htmlTags.push(<meta property="article:published_time" content={d.toISOString()} />);
-      }
+
+      if (isValidDate(d)) htmlTags.push(<meta property="article:published_time" content={d.toISOString()} />);
     }
 
     if (updated) {
       const u = typeof updated === "string" ? parseISO(updated) : updated;
-      if (isValidDate(u)) {
-        htmlTags.push(<meta property="article:modified_time" content={u.toISOString()} />);
-      }
+
+      if (isValidDate(u)) htmlTags.push(<meta property="article:modified_time" content={u.toISOString()} />);
     }
 
     if (author) htmlTags.push(<meta property="article:author" content={author} />);
@@ -92,16 +96,14 @@ module.exports = class extends Component {
         });
     }
 
-    htmlTags.push(<meta property="twitter:card" content={twitterCard || "summary"} />);
-
-    if (twitterId) htmlTags.push(<meta property="twitter:creator" content={twitterId} />);
-
-    if (twitterSite) htmlTags.push(<meta property="twitter:site" content={twitterSite} />);
-
+    htmlTags.push(<meta name="twitter:card" content={twitterCard || "summary_large_image"} />);
+    htmlTags.push(<meta name="twitter:title" content={title} />);
+    if (description) htmlTags.push(<meta name="twitter:description" content={description} />);
+    if (imageUrls.length > 0) htmlTags.push(<meta name="twitter:image" content={imageUrls[0]} />);
+    if (twitterId) htmlTags.push(<meta name="twitter:creator" content={twitterId} />);
+    if (twitterSite) htmlTags.push(<meta name="twitter:site" content={twitterSite} />);
     if (googlePlus) htmlTags.push(<link rel="publisher" href={googlePlus} />);
-
     if (facebookAdmins) htmlTags.push(<meta property="fb:admins" content={facebookAdmins} />);
-
     if (facebookAppId) htmlTags.push(<meta property="fb:app_id" content={facebookAppId} />);
 
     return <>{htmlTags}</>;
