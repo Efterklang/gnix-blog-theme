@@ -30,8 +30,6 @@ article:
   line_height_compact: "紧凑"
   line_height_normal: "标准"
   line_height_relaxed: "舒展"
-  font_type: "字体类型"
-  font_weight: "字体粗细"
   font_weight_light: "偏细"
   font_weight_regular: "常规"
   font_weight_medium: "偏粗"

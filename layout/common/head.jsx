@@ -116,10 +116,7 @@ module.exports = class extends Component {
         {canonical_url ? <link rel="canonical" href={canonical_url} /> : null}
         <link rel="icon" href="/img/favicon.svg" />
         <link rel="stylesheet" href={url_for("/css/default.css")} />
-        <link rel="stylesheet" href={url_for("/css/responsive/mobile.css")} media="screen and (max-width:768px)" />
-        <link rel="stylesheet" href={url_for("/css/responsive/tablet.css")} media="screen and (min-width:769px)" />
-        <link rel="stylesheet" href={url_for("/css/responsive/touch.css")} media="screen and (max-width:1023px)" />
-        <link rel="stylesheet" href={url_for("/css/responsive/desktop.css")} media="screen and (min-width:1024px)" />
+        <link rel="stylesheet" href={url_for("/css/responsive.css")} />
         <link rel="preload" as="style" href={url_for("/css/callout_blocks.css")} onload="this.onload=null;this.rel='stylesheet'" />
         <link rel="preload" href={url_for("/css/font/woff2/HomemadeApple.woff2")} as="font" type="font/woff2" crossorigin />
         <link rel="preconnect" href="https://fontsapi.zeoseven.com" />

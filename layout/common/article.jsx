@@ -224,7 +224,6 @@ module.exports = class extends Component {
                     </div>
                   </div>
                   <div class="font-setting-group font-type-group">
-                    <span class="font-setting-label">{helper.__("article.font_type")}</span>
                     <div class="font-type-selector">
                       <button type="button" class="font-type-btn is-active" data-font="serif">
                         <span class="font-type-preview">Aa</span>
@@ -245,7 +244,6 @@ module.exports = class extends Component {
                     </div>
                   </div>
                   <div class="font-setting-group font-weight-group">
-                    <span class="font-setting-label">{helper.__("article.font_weight")}</span>
                     <div class="font-weight-selector">
                       <button type="button" class="font-weight-btn" data-weight="light" aria-label={helper.__("article.font_weight_light")}>
                         <span class="font-option-name">{helper.__("article.font_weight_light")}</span>

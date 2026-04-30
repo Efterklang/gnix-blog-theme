@@ -30,8 +30,6 @@ article:
   line_height_compact: "Compact"
   line_height_normal: "Normal"
   line_height_relaxed: "Relaxed"
-  font_type: "Font Type"
-  font_weight: "Font Weight"
   font_weight_light: "Light"
   font_weight_regular: "Regular"
   font_weight_medium: "Medium"
