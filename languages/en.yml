@@ -26,8 +26,6 @@ article:
   article_info: "Article Info"
   display_settings: "Display Settings"
   font_size: "Font Size"
-  font_size_small: "Small"
-  font_size_large: "Large"
   line_height: "Line Height"
   line_height_compact: "Compact"
   line_height_normal: "Normal"

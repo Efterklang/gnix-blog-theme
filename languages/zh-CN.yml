@@ -26,8 +26,6 @@ article:
   article_info: "文章信息"
   display_settings: "显示设置"
   font_size: "字体大小"
-  font_size_small: "小"
-  font_size_large: "大"
   line_height: "行高"
   line_height_compact: "紧凑"
   line_height_normal: "标准"
