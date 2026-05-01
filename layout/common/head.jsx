@@ -24,6 +24,25 @@ function getPageTitle(page, siteTitle, helper) {
   return [title, siteTitle].filter((str) => typeof str !== "undefined" && str.trim() !== "").join(" - ");
 }
 
+function getTermName(term) {
+  if (!term) return undefined;
+  if (typeof term === "string") return term;
+
+  return term.name || term.slug || term.path;
+}
+
+function getArticleSection(page) {
+  if (page.category) return getTermName(page.category);
+
+  const categories = page.categories;
+  if (!categories) return undefined;
+  if (typeof categories.first === "function") return getTermName(categories.first());
+  if (Array.isArray(categories.data)) return getTermName(categories.data[0]);
+  if (Array.isArray(categories)) return getTermName(categories[0]);
+
+  return undefined;
+}
+
 module.exports = class extends Component {
   render() {
     const { site, config, helper, page } = this.props;
@@ -90,7 +109,11 @@ module.exports = class extends Component {
             keywords={(page.tags?.length ? page.tags : undefined) || config.keywords}
             url={open_graph.url || page.permalink || url}
             images={openGraphImages}
+            imageAlt={open_graph.image_alt || page.og_image_alt || page.cover_alt || page.title || config.title}
+            imageWidth={open_graph.image_width}
+            imageHeight={open_graph.image_height}
             siteName={open_graph.site_name || config.title}
+            section={open_graph.section || getArticleSection(page)}
             language={language}
             twitterId={open_graph.twitter_id}
             twitterCard={open_graph.twitter_card}
@@ -114,7 +137,7 @@ module.exports = class extends Component {
           />
         ) : null}
         {canonical_url ? <link rel="canonical" href={canonical_url} /> : null}
-        <link rel="icon" href="/img/favicon.svg" />
+        <link rel="icon" href={url_for(favicon || "/img/favicon.svg")} />
         <link rel="stylesheet" href={url_for("/css/default.css")} />
         <link rel="stylesheet" href={url_for("/css/responsive.css")} />
         <link rel="preload" as="style" href={url_for("/css/callout_blocks.css")} onload="this.onload=null;this.rel='stylesheet'" />
