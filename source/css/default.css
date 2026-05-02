@@ -255,7 +255,6 @@ body {
 .navbar-main,
 .navbar-menu {
   user-select: none;
-  background: var(--mantle);
 }
 
 .task-list-item-checkbox {
@@ -408,7 +407,21 @@ html {
   left: 0;
   right: 0;
   z-index: 100;
+  background: var(--mantle);
   border-bottom: 0.5px solid var(--surface0);
+}
+
+@media screen and (min-width: 1024px) {
+  .navbar {
+    -webkit-backdrop-filter: blur(18px) saturate(1.35);
+    backdrop-filter: blur(18px) saturate(1.35);
+  }
+
+  @supports (background: color-mix(in oklch, black 50%, transparent)) {
+    .navbar {
+      background: color-mix(in oklch, var(--mantle) 78%, transparent);
+    }
+  }
 }
 
 .navbar-container {
@@ -438,6 +451,24 @@ html {
   flex-grow: 0;
   flex-shrink: 0;
   letter-spacing: 0.05em;
+  transition: color 0.18s ease;
+}
+
+.navbar-start .navbar-item.is-active {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.navbar-start .navbar-item.is-active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0.875rem;
+  width: 1.45em;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.36;
+  transform: translateX(-50%);
 }
 
 .navbar-end {
@@ -1071,6 +1102,7 @@ section {
 .article-title {
   font-family: var(--article-font-family);
   font-size: 1.75em;
+  font-weight: 500;
   line-height: 1.2;
   margin-bottom: 0.3em;
   text-wrap: balance;

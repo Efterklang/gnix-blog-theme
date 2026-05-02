@@ -299,60 +299,71 @@ function handleMermaid() {
 
 // #endregion
 
+const articleFontConfig = window.__GNIX_ARTICLE_FONT_CONFIG__ || {};
+const ARTICLE_FONT_STORAGE_KEY = articleFontConfig.storageKey || "gnix-article-font";
+const ARTICLE_FONT_DEFAULT_SETTINGS = articleFontConfig.defaultSettings || { size: "medium", type: "serif", lineHeight: 1.7, weight: "regular" };
+const ARTICLE_SIZE_OPTIONS = new Set(articleFontConfig.sizeOptions || ["small", "medium-small", "medium", "medium-large", "large"]);
+const ARTICLE_FONT_OPTIONS = new Set(articleFontConfig.fontOptions || ["serif", "sans-serif", "mono", "handwriting"]);
+const ARTICLE_WEIGHT_OPTIONS = new Set(articleFontConfig.weightOptions || ["light", "regular", "medium"]);
+const ARTICLE_LINE_HEIGHT_MIN = articleFontConfig.lineHeight?.min ?? 1.45;
+const ARTICLE_LINE_HEIGHT_MAX = articleFontConfig.lineHeight?.max ?? 1.9;
+
+function normalizeArticleLineHeight(value) {
+  if (value === "compact") return 1.55;
+  if (value === "normal") return 1.7;
+  if (value === "relaxed") return 1.85;
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return ARTICLE_FONT_DEFAULT_SETTINGS.lineHeight;
+  return Math.min(ARTICLE_LINE_HEIGHT_MAX, Math.max(ARTICLE_LINE_HEIGHT_MIN, parsed));
+}
+
+function normalizeArticleFontSettings(value = {}) {
+  const candidate = value || {};
+  return {
+    size: ARTICLE_SIZE_OPTIONS.has(candidate.size) ? candidate.size : ARTICLE_FONT_DEFAULT_SETTINGS.size,
+    type: ARTICLE_FONT_OPTIONS.has(candidate.type) ? candidate.type : ARTICLE_FONT_DEFAULT_SETTINGS.type,
+    lineHeight: normalizeArticleLineHeight(candidate.lineHeight),
+    weight: ARTICLE_WEIGHT_OPTIONS.has(candidate.weight) ? candidate.weight : ARTICLE_FONT_DEFAULT_SETTINGS.weight,
+  };
+}
+
+function getArticleFontSettings() {
+  let settings = { ...ARTICLE_FONT_DEFAULT_SETTINGS };
+  try {
+    const stored = localStorage.getItem(ARTICLE_FONT_STORAGE_KEY);
+    if (stored) settings = normalizeArticleFontSettings({ ...ARTICLE_FONT_DEFAULT_SETTINGS, ...JSON.parse(stored) });
+  } catch {
+    settings = { ...ARTICLE_FONT_DEFAULT_SETTINGS };
+  }
+  return settings;
+}
+
+function applyArticleFontSettings(settings = getArticleFontSettings()) {
+  const normalized = normalizeArticleFontSettings(settings);
+  const html = document.documentElement;
+
+  html.dataset.articleFontSize = normalized.size;
+  html.dataset.articleFontFamily = normalized.type;
+  html.dataset.articleLineHeight = String(normalized.lineHeight);
+  html.dataset.articleFontWeight = normalized.weight;
+  html.style.setProperty("--article-line-height", String(normalized.lineHeight));
+}
+
+function saveArticleFontSettings(settings) {
+  try {
+    localStorage.setItem(ARTICLE_FONT_STORAGE_KEY, JSON.stringify(settings));
+  } catch {
+    // Keep the current page responsive even when storage is unavailable.
+  }
+}
+
 function initArticleSettings() {
+  const settings = getArticleFontSettings();
+  applyArticleFontSettings(settings);
+
   const fontSettingsPopover = document.getElementById("article-font-settings");
   if (!fontSettingsPopover) return;
-
-  const STORAGE_KEY = "gnix-article-font";
-  const DEFAULT_SETTINGS = { size: "medium", type: "serif", lineHeight: 1.7, weight: "regular" };
-  const SIZE_OPTIONS = new Set(["small", "medium-small", "medium", "medium-large", "large"]);
-  const FONT_OPTIONS = new Set(["serif", "sans-serif", "mono", "handwriting"]);
-  const WEIGHT_OPTIONS = new Set(["light", "regular", "medium"]);
-  const LINE_HEIGHT_MIN = 1.45;
-  const LINE_HEIGHT_MAX = 1.9;
-
-  function normalizeLineHeight(value) {
-    if (value === "compact") return 1.55;
-    if (value === "normal") return 1.7;
-    if (value === "relaxed") return 1.85;
-
-    const parsed = Number(value);
-    if (!Number.isFinite(parsed)) return DEFAULT_SETTINGS.lineHeight;
-    return Math.min(LINE_HEIGHT_MAX, Math.max(LINE_HEIGHT_MIN, parsed));
-  }
-
-  function normalizeSettings(value = {}) {
-    const candidate = value || {};
-    return {
-      size: SIZE_OPTIONS.has(candidate.size) ? candidate.size : DEFAULT_SETTINGS.size,
-      type: FONT_OPTIONS.has(candidate.type) ? candidate.type : DEFAULT_SETTINGS.type,
-      lineHeight: normalizeLineHeight(candidate.lineHeight),
-      weight: WEIGHT_OPTIONS.has(candidate.weight) ? candidate.weight : DEFAULT_SETTINGS.weight,
-    };
-  }
-
-  let settings = { ...DEFAULT_SETTINGS };
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) settings = normalizeSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(stored) });
-  } catch {
-    settings = { ...DEFAULT_SETTINGS };
-  }
-
-  function applySettings() {
-    document.documentElement.dataset.articleFontSize = settings.size;
-    document.documentElement.dataset.articleFontFamily = settings.type;
-    document.documentElement.dataset.articleFontWeight = settings.weight;
-    document.documentElement.style.setProperty("--article-line-height", String(settings.lineHeight));
-  }
-
-  function saveSettings() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    } catch {
-      // Keep the current page responsive even when storage is unavailable.
-    }
-  }
 
   function updateButtonStates(selector, isActive) {
     fontSettingsPopover.querySelectorAll(selector).forEach((btn) => {
@@ -383,48 +394,47 @@ function initArticleSettings() {
 
   fontSettingsPopover.querySelectorAll(".font-size-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      if (!SIZE_OPTIONS.has(btn.dataset.size)) return;
+      if (!ARTICLE_SIZE_OPTIONS.has(btn.dataset.size)) return;
       settings.size = btn.dataset.size;
-      saveSettings();
+      saveArticleFontSettings(settings);
       updateActiveStates();
-      applySettings();
+      applyArticleFontSettings(settings);
     });
   });
 
   fontSettingsPopover.querySelectorAll(".font-type-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      if (!FONT_OPTIONS.has(btn.dataset.font)) return;
+      if (!ARTICLE_FONT_OPTIONS.has(btn.dataset.font)) return;
       settings.type = btn.dataset.font;
-      saveSettings();
+      saveArticleFontSettings(settings);
       updateActiveStates();
-      applySettings();
+      applyArticleFontSettings(settings);
     });
   });
 
   if (lineHeightSlider) {
-    lineHeightSlider.min = String(LINE_HEIGHT_MIN);
-    lineHeightSlider.max = String(LINE_HEIGHT_MAX);
+    lineHeightSlider.min = String(ARTICLE_LINE_HEIGHT_MIN);
+    lineHeightSlider.max = String(ARTICLE_LINE_HEIGHT_MAX);
     lineHeightSlider.step = "0.05";
     lineHeightSlider.addEventListener("input", () => {
-      settings.lineHeight = normalizeLineHeight(lineHeightSlider.value);
-      saveSettings();
+      settings.lineHeight = normalizeArticleLineHeight(lineHeightSlider.value);
+      saveArticleFontSettings(settings);
       updateActiveStates();
-      applySettings();
+      applyArticleFontSettings(settings);
     });
   }
 
   fontSettingsPopover.querySelectorAll(".font-weight-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      if (!WEIGHT_OPTIONS.has(btn.dataset.weight)) return;
+      if (!ARTICLE_WEIGHT_OPTIONS.has(btn.dataset.weight)) return;
       settings.weight = btn.dataset.weight;
-      saveSettings();
+      saveArticleFontSettings(settings);
       updateActiveStates();
-      applySettings();
+      applyArticleFontSettings(settings);
     });
   });
 
   updateActiveStates();
-  applySettings();
 }
 
 function initArticleCommentPopover() {
@@ -446,6 +456,26 @@ function initArticleCommentPopover() {
   });
 }
 
+function getComparablePath(url) {
+  const path = new URL(url, window.location.href).pathname.replace(/\/index\.html$/, "/").replace(/\/+$/, "");
+  return path || "/";
+}
+
+function updateNavbarCurrentPage() {
+  const currentPath = getComparablePath(window.location.href);
+  document.querySelectorAll(".navbar-start .navbar-item").forEach((item) => {
+    const itemPath = getComparablePath(item.href);
+    const active = itemPath === currentPath || (itemPath !== "/" && currentPath.startsWith(`${itemPath}/`));
+
+    item.classList.toggle("is-active", active);
+    if (active) {
+      item.setAttribute("aria-current", "page");
+    } else {
+      item.removeAttribute("aria-current");
+    }
+  });
+}
+
 function initPage() {
   tableWrapFix();
   initializeTabs();
@@ -457,6 +487,7 @@ function initPage() {
   document.querySelectorAll(".content img").forEach((img) => zoomImgs.add(img));
   mediumZoom([...zoomImgs], zoomOpts);
   initArticleCommentPopover();
+  updateNavbarCurrentPage();
 }
 
 document.addEventListener("DOMContentLoaded", initPage, { once: true });
@@ -485,3 +516,5 @@ function toggleNav(event) {
     menu.classList.remove("is-active");
   }
 }
+
+window.toggleNav = toggleNav;

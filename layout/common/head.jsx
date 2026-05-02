@@ -3,6 +3,7 @@ const MetaTags = require("../../layout/misc/meta");
 const OpenGraph = require("../../layout/misc/open_graph");
 const StructuredData = require("../../layout/misc/structured_data");
 const Plugins = require("./plugins");
+const { getArticleFontInitScript } = require("../../include/util/article_font");
 const { getThemeInitScript } = require("../../include/util/theme");
 
 function getPageTitle(page, siteTitle, helper) {
@@ -89,10 +90,12 @@ module.exports = class extends Component {
     }
 
     const themeInitScript = getThemeInitScript();
+    const articleFontInitScript = getArticleFontInitScript();
 
     return (
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }}></script>
+        <script dangerouslySetInnerHTML={{ __html: articleFontInitScript }}></script>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {noIndex ? <meta name="robots" content="noindex" /> : null}

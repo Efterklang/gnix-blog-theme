@@ -1,18 +1,23 @@
 const { Component, Fragment, cacheComponent } = require("../../include/util/common");
 
-function isSameLink(a, b) {
-  function santize(url) {
-    let paths = url
-      .replace(/(^\w+:|^)\/\//, "")
-      .split("#")[0]
-      .split("/")
-      .filter((p) => p.trim() !== "");
-    if (paths.length > 0 && paths[paths.length - 1].trim() === "index.html") {
-      paths = paths.slice(0, paths.length - 1);
-    }
-    return paths.join("/");
+function isActiveMenuLink(menuUrl, pageUrl) {
+  const menuPath = sanitizeLink(menuUrl);
+  const pagePath = sanitizeLink(pageUrl);
+  if (menuPath === pagePath) return true;
+  if (!menuPath) return false;
+  return pagePath.startsWith(`${menuPath}/`);
+}
+
+function sanitizeLink(url) {
+  let paths = url
+    .replace(/(^\w+:|^)\/\//, "")
+    .split("#")[0]
+    .split("/")
+    .filter((p) => p.trim() !== "");
+  if (paths.length > 0 && paths[paths.length - 1].trim() === "index.html") {
+    paths = paths.slice(0, paths.length - 1);
   }
-  return santize(a) === santize(b);
+  return paths.join("/");
 }
 
 const renderLinkIcon = (link) => {
@@ -47,7 +52,7 @@ class Navbar extends Component {
                   const item = menu[name];
                   const navbar_item_class = `navbar-item ${item.active ? "is-active" : ""}`;
                   return (
-                    <a class={navbar_item_class} href={item.url}>
+                    <a class={navbar_item_class} href={item.url} aria-current={item.active ? "page" : null}>
                       {name}
                     </a>
                   );
@@ -109,7 +114,7 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
     const pageUrl = typeof page.path !== "undefined" ? url_for(page.path) : "";
     Object.keys(navbar.menu).forEach((name) => {
       const url = url_for(navbar.menu[name]);
-      const active = isSameLink(url, pageUrl);
+      const active = isActiveMenuLink(url, pageUrl);
       menu[name] = { url, active };
     });
   }

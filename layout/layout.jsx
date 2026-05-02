@@ -5,6 +5,7 @@ const Footer = require("./common/footer");
 const Scripts = require("./common/scripts");
 const Search = require("./common/search");
 const ThemeSelector = require("./common/theme_selector");
+const { DEFAULT_SETTINGS: ARTICLE_FONT_DEFAULT_SETTINGS } = require("../include/util/article_font");
 
 module.exports = class extends Component {
   render() {
@@ -13,7 +14,13 @@ module.exports = class extends Component {
     const language = page.lang || page.language || config.language || "en";
 
     return (
-      <html lang={language ? language : ""}>
+      <html
+        lang={language ? language : ""}
+        data-article-font-size={ARTICLE_FONT_DEFAULT_SETTINGS.size}
+        data-article-font-family={ARTICLE_FONT_DEFAULT_SETTINGS.type}
+        data-article-line-height={String(ARTICLE_FONT_DEFAULT_SETTINGS.lineHeight)}
+        data-article-font-weight={ARTICLE_FONT_DEFAULT_SETTINGS.weight}
+      >
         <Head site={site} config={config} helper={helper} page={page} />
         <body>
           <Navbar config={config} helper={helper} page={page} />
