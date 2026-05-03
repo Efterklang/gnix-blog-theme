@@ -314,7 +314,6 @@ const ARTICLE_CUSTOM_FONT_OPTIONS = articleFontConfig.customFonts?.familyOptions
 };
 const ARTICLE_CUSTOM_FONT_IMPORT_LIMIT = articleFontConfig.customFonts?.importLimit ?? 6;
 const ARTICLE_CUSTOM_FONT_LINK_SELECTOR = 'link[data-gnix-custom-font="true"]';
-let appliedCustomFontImportSignature = "";
 
 function getCssVariableValue(name, fallback = "") {
   if (typeof document === "undefined") return fallback;
@@ -331,97 +330,31 @@ function getDefaultCustomFontFamilies() {
   };
 }
 
-function normalizeCustomFontImport(value) {
-  if (typeof value !== "string") return null;
-
-  const href = value.trim();
-  if (!href || /[\s<>"']/.test(href) || /^javascript:/i.test(href)) return null;
-  if (!/^(https?:)?\/\//i.test(href) && !href.startsWith("/")) return null;
-
-  return href;
-}
-
-function parseCustomFontImports(value) {
-  const values = Array.isArray(value) ? value : typeof value === "string" ? value.split(/\r?\n/) : [];
-  const imports = [];
-  let limit = Number(ARTICLE_CUSTOM_FONT_IMPORT_LIMIT);
-
-  if (!Number.isFinite(limit) || limit < 1) limit = 6;
-
-  values.forEach((item) => {
-    const href = normalizeCustomFontImport(item);
-    if (href && !imports.includes(href) && imports.length < limit) {
-      imports.push(href);
-    }
-  });
-
-  return imports;
-}
-
-function normalizeCustomFontFamily(value) {
-  if (typeof value !== "string") return null;
-
-  const family = value.trim();
-  if (!family || /[{};<>]/.test(family)) return null;
-
-  return family;
-}
+const ARTICLE_FONT_UTILS = window.__GNIX_ARTICLE_FONT_UTILS__ || {};
 
 function normalizeCustomFonts(value = {}) {
-  const customFonts = value && typeof value === "object" ? value : {};
-  const sourceFamilies = customFonts.families && typeof customFonts.families === "object" ? customFonts.families : {};
+  const normalized = ARTICLE_FONT_UTILS.normalizeCustomFonts
+    ? ARTICLE_FONT_UTILS.normalizeCustomFonts(value, ARTICLE_CUSTOM_FONT_OPTIONS, ARTICLE_CUSTOM_FONT_IMPORT_LIMIT)
+    : { imports: [], families: {} };
   const defaultFamilies = getDefaultCustomFontFamilies();
-  const families = {};
 
   Object.keys(ARTICLE_CUSTOM_FONT_OPTIONS).forEach((key) => {
-    families[key] = normalizeCustomFontFamily(sourceFamilies[key]) || defaultFamilies[key] || "";
-  });
-
-  return {
-    imports: parseCustomFontImports(customFonts.imports),
-    families,
-  };
-}
-
-function applyCustomFontImports(imports = []) {
-  const signature = imports.join("\n");
-  const currentLinks = [...document.querySelectorAll(ARTICLE_CUSTOM_FONT_LINK_SELECTOR)];
-  const currentHrefs = currentLinks.map((link) => link.getAttribute("href") || link.href);
-
-  if (signature === appliedCustomFontImportSignature && currentHrefs.length === imports.length && imports.every((href) => currentHrefs.includes(href))) {
-    return;
-  }
-
-  document.querySelectorAll(ARTICLE_CUSTOM_FONT_LINK_SELECTOR).forEach((link) => link.remove());
-  appliedCustomFontImportSignature = signature;
-  if (!document.head) return;
-
-  imports.forEach((href, index) => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = href;
-    link.dataset.gnixCustomFont = "true";
-    link.dataset.gnixCustomFontIndex = String(index);
-    document.head.appendChild(link);
-  });
-}
-
-function applyCustomFontFamilies(families = {}) {
-  const html = document.documentElement;
-
-  Object.entries(ARTICLE_CUSTOM_FONT_OPTIONS).forEach(([key, cssVar]) => {
-    if (families[key]) {
-      html.style.setProperty(cssVar, families[key]);
-    } else {
-      html.style.removeProperty(cssVar);
+    if (!normalized.families[key]) {
+      normalized.families[key] = defaultFamilies[key] || "";
     }
   });
+
+  return normalized;
 }
 
 function applyCustomFonts(customFonts = {}) {
   const normalized = normalizeCustomFonts(customFonts);
-  applyCustomFontImports(normalized.imports);
-  applyCustomFontFamilies(normalized.families);
+  if (ARTICLE_FONT_UTILS.applyCustomFontImports) {
+    ARTICLE_FONT_UTILS.applyCustomFontImports(normalized.imports, ARTICLE_CUSTOM_FONT_LINK_SELECTOR);
+  }
+  if (ARTICLE_FONT_UTILS.applyCustomFontFamilies) {
+    ARTICLE_FONT_UTILS.applyCustomFontFamilies(document.documentElement, normalized.families, ARTICLE_CUSTOM_FONT_OPTIONS);
+  }
   return normalized;
 }
 

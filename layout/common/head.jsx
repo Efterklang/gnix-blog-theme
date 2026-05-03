@@ -5,6 +5,8 @@ const StructuredData = require("../../layout/misc/structured_data");
 const Plugins = require("./plugins");
 const { getArticleFontInitScript } = require("../../include/util/article_font");
 const { getThemeInitScript } = require("../../include/util/theme");
+const fs = require("fs");
+const path = require("path");
 
 function getPageTitle(page, siteTitle, helper) {
   let title = page.title;
@@ -91,10 +93,15 @@ module.exports = class extends Component {
 
     const themeInitScript = getThemeInitScript();
     const articleFontInitScript = getArticleFontInitScript();
+    const articleFontUtilsScript = fs.readFileSync(
+      path.join(__dirname, "../../source/js/article-font-utils.js"),
+      "utf8"
+    );
 
     return (
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }}></script>
+        <script dangerouslySetInnerHTML={{ __html: articleFontUtilsScript }}></script>
         <script dangerouslySetInnerHTML={{ __html: articleFontInitScript }}></script>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
