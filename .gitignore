@@ -6,3 +6,4 @@ icarus.code-workspace
 /.agents/skills
 /skills-lock.json
 /.claude/skills
+/.playwright-mcp
