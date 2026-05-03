@@ -37,9 +37,7 @@ article:
   web_font_css: "字体 CSS URL"
   web_font_css_help: "字体 CSS 说明"
   web_font_css_help_text: "每行填写一个 Web Font CSS 地址。一个 CSS 可以同时加载多个字体族。"
-  serif_font: "衬线字体"
-  sans_serif_font: "无衬线字体"
-  handwriting_font: "手写字体"
+  
   apply_fonts: "应用"
   reset_fonts: "重置"
   preview: "预览效果"

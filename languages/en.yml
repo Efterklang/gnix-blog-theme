@@ -37,9 +37,7 @@ article:
   web_font_css: "Web Font CSS URL"
   web_font_css_help: "Font CSS help"
   web_font_css_help_text: "Paste one web font CSS URL per line. Each URL can load one or more font families."
-  serif_font: "Serif"
-  sans_serif_font: "Sans Serif"
-  handwriting_font: "Handwriting"
+  
   apply_fonts: "Apply"
   reset_fonts: "Reset"
   preview: "Preview"

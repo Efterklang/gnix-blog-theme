@@ -280,20 +280,44 @@ module.exports = class extends Component {
                                 </svg>
                               </button>
                             </span>
-                            <textarea class="font-custom-imports" rows="2" placeholder="https://fonts.googleapis.com/css2?family=..." aria-label={helper.__("article.web_font_css")}></textarea>
+                            <textarea
+                              class="font-custom-imports"
+                              name="font-custom-imports"
+                              rows="3"
+                              placeholder="https://fonts.googleapis.com/css2?family=..."
+                              aria-label={helper.__("article.web_font_css")}
+                            ></textarea>
                           </label>
                           <div class="font-custom-family-grid">
                             <label class="font-custom-field">
-                              <span>{helper.__("article.serif_font")}</span>
-                              <input class="font-custom-family-input" type="text" data-font-family="serif" placeholder={'"Noto Serif SC", serif'} autocomplete="off" />
+                              <span>Serif</span>
+                              <input class="font-custom-family-input" name="font-custom-family-serif" type="text" data-font-family="serif" placeholder={'"Noto Serif SC", serif'} autocomplete="off" />
                             </label>
                             <label class="font-custom-field">
-                              <span>{helper.__("article.sans_serif_font")}</span>
-                              <input class="font-custom-family-input" type="text" data-font-family="sans-serif" placeholder={'"Inter", sans-serif'} autocomplete="off" />
+                              <span>Sans Serif</span>
+                              <input
+                                class="font-custom-family-input"
+                                name="font-custom-family-sans-serif"
+                                type="text"
+                                data-font-family="sans-serif"
+                                placeholder={'"Inter", sans-serif'}
+                                autocomplete="off"
+                              />
                             </label>
                             <label class="font-custom-field">
-                              <span>{helper.__("article.handwriting_font")}</span>
-                              <input class="font-custom-family-input" type="text" data-font-family="handwriting" placeholder={'"LXGW WenKai", cursive'} autocomplete="off" />
+                              <span>Monospace</span>
+                              <input class="font-custom-family-input" name="font-custom-family-mono" type="text" data-font-family="mono" placeholder={'"Fira Code", monospace'} autocomplete="off" />
+                            </label>
+                            <label class="font-custom-field">
+                              <span>Handwriting</span>
+                              <input
+                                class="font-custom-family-input"
+                                name="font-custom-family-handwriting"
+                                type="text"
+                                data-font-family="handwriting"
+                                placeholder={'"LXGW WenKai", cursive'}
+                                autocomplete="off"
+                              />
                             </label>
                           </div>
                           <div class="font-custom-actions">

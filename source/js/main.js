@@ -310,6 +310,7 @@ const ARTICLE_LINE_HEIGHT_MAX = articleFontConfig.lineHeight?.max ?? 1.9;
 const ARTICLE_CUSTOM_FONT_OPTIONS = articleFontConfig.customFonts?.familyOptions || {
   serif: "--font-serif",
   "sans-serif": "--font-sans-serif",
+  mono: "--font-mono",
   handwriting: "--font-handwriting",
 };
 const ARTICLE_CUSTOM_FONT_IMPORT_LIMIT = articleFontConfig.customFonts?.importLimit ?? 6;
@@ -326,6 +327,7 @@ function getDefaultCustomFontFamilies() {
   return {
     serif: getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS.serif),
     "sans-serif": getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS["sans-serif"]),
+    mono: getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS.mono),
     handwriting: getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS.handwriting),
   };
 }
