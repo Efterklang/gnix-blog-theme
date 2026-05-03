@@ -307,6 +307,175 @@ const ARTICLE_FONT_OPTIONS = new Set(articleFontConfig.fontOptions || ["serif", 
 const ARTICLE_WEIGHT_OPTIONS = new Set(articleFontConfig.weightOptions || ["light", "regular", "medium"]);
 const ARTICLE_LINE_HEIGHT_MIN = articleFontConfig.lineHeight?.min ?? 1.45;
 const ARTICLE_LINE_HEIGHT_MAX = articleFontConfig.lineHeight?.max ?? 1.9;
+const ARTICLE_CUSTOM_FONT_OPTIONS = articleFontConfig.customFonts?.familyOptions || {
+  serif: "--font-serif",
+  "sans-serif": "--font-sans-serif",
+  handwriting: "--font-handwriting",
+};
+const ARTICLE_CUSTOM_FONT_IMPORT_LIMIT = articleFontConfig.customFonts?.importLimit ?? 6;
+const ARTICLE_CUSTOM_FONT_LINK_SELECTOR = 'link[data-gnix-custom-font="true"]';
+let appliedCustomFontImportSignature = "";
+
+function getCssVariableValue(name, fallback = "") {
+  if (typeof document === "undefined") return fallback;
+
+  const value = window.getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return value || fallback;
+}
+
+function getDefaultCustomFontFamilies() {
+  return {
+    serif: getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS.serif),
+    "sans-serif": getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS["sans-serif"]),
+    handwriting: getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS.handwriting),
+  };
+}
+
+function normalizeCustomFontImport(value) {
+  if (typeof value !== "string") return null;
+
+  const href = value.trim();
+  if (!href || /[\s<>"']/.test(href) || /^javascript:/i.test(href)) return null;
+  if (!/^(https?:)?\/\//i.test(href) && !href.startsWith("/")) return null;
+
+  return href;
+}
+
+function parseCustomFontImports(value) {
+  const values = Array.isArray(value) ? value : typeof value === "string" ? value.split(/\r?\n/) : [];
+  const imports = [];
+  let limit = Number(ARTICLE_CUSTOM_FONT_IMPORT_LIMIT);
+
+  if (!Number.isFinite(limit) || limit < 1) limit = 6;
+
+  values.forEach((item) => {
+    const href = normalizeCustomFontImport(item);
+    if (href && !imports.includes(href) && imports.length < limit) {
+      imports.push(href);
+    }
+  });
+
+  return imports;
+}
+
+function normalizeCustomFontFamily(value) {
+  if (typeof value !== "string") return null;
+
+  const family = value.trim();
+  if (!family || /[{};<>]/.test(family)) return null;
+
+  return family;
+}
+
+function normalizeCustomFonts(value = {}) {
+  const customFonts = value && typeof value === "object" ? value : {};
+  const sourceFamilies = customFonts.families && typeof customFonts.families === "object" ? customFonts.families : {};
+  const defaultFamilies = getDefaultCustomFontFamilies();
+  const families = {};
+
+  Object.keys(ARTICLE_CUSTOM_FONT_OPTIONS).forEach((key) => {
+    families[key] = normalizeCustomFontFamily(sourceFamilies[key]) || defaultFamilies[key] || "";
+  });
+
+  return {
+    imports: parseCustomFontImports(customFonts.imports),
+    families,
+  };
+}
+
+function applyCustomFontImports(imports = []) {
+  const signature = imports.join("\n");
+  const currentLinks = [...document.querySelectorAll(ARTICLE_CUSTOM_FONT_LINK_SELECTOR)];
+  const currentHrefs = currentLinks.map((link) => link.getAttribute("href") || link.href);
+
+  if (signature === appliedCustomFontImportSignature && currentHrefs.length === imports.length && imports.every((href) => currentHrefs.includes(href))) {
+    return;
+  }
+
+  document.querySelectorAll(ARTICLE_CUSTOM_FONT_LINK_SELECTOR).forEach((link) => link.remove());
+  appliedCustomFontImportSignature = signature;
+  if (!document.head) return;
+
+  imports.forEach((href, index) => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = href;
+    link.dataset.gnixCustomFont = "true";
+    link.dataset.gnixCustomFontIndex = String(index);
+    document.head.appendChild(link);
+  });
+}
+
+function applyCustomFontFamilies(families = {}) {
+  const html = document.documentElement;
+
+  Object.entries(ARTICLE_CUSTOM_FONT_OPTIONS).forEach(([key, cssVar]) => {
+    if (families[key]) {
+      html.style.setProperty(cssVar, families[key]);
+    } else {
+      html.style.removeProperty(cssVar);
+    }
+  });
+}
+
+function applyCustomFonts(customFonts = {}) {
+  const normalized = normalizeCustomFonts(customFonts);
+  applyCustomFontImports(normalized.imports);
+  applyCustomFontFamilies(normalized.families);
+  return normalized;
+}
+
+function initHoverPopover(trigger, popover) {
+  if (!trigger || !popover || typeof popover.showPopover !== "function" || typeof popover.hidePopover !== "function") {
+    return;
+  }
+
+  let hideTimer = null;
+
+  function clearHideTimer() {
+    if (hideTimer) {
+      clearTimeout(hideTimer);
+      hideTimer = null;
+    }
+  }
+
+  function openPopover() {
+    clearHideTimer();
+    if (!popover.matches(":popover-open")) {
+      popover.showPopover();
+    }
+    const rect = trigger.getBoundingClientRect();
+    const popoverWidth = popover.offsetWidth || 0;
+    const left = Math.min(Math.max(16, rect.left), Math.max(16, window.innerWidth - popoverWidth - 16));
+    popover.style.left = `${left}px`;
+    popover.style.top = `${rect.bottom + 8}px`;
+  }
+
+  function scheduleClose() {
+    clearHideTimer();
+    hideTimer = window.setTimeout(() => {
+      const hasPointer = trigger.matches(":hover") || popover.matches(":hover");
+      const hasFocus = trigger.matches(":focus-visible") || popover.contains(document.activeElement);
+      if (!hasPointer && !hasFocus && popover.matches(":popover-open")) {
+        popover.hidePopover();
+      }
+    }, 80);
+  }
+
+  trigger.addEventListener("pointerenter", openPopover);
+  trigger.addEventListener("focus", openPopover);
+  trigger.addEventListener("pointerleave", scheduleClose);
+  trigger.addEventListener("blur", scheduleClose);
+  trigger.addEventListener("click", openPopover);
+
+  popover.addEventListener("pointerenter", openPopover);
+  popover.addEventListener("pointerleave", scheduleClose);
+  popover.addEventListener("focusin", openPopover);
+  popover.addEventListener("focusout", scheduleClose);
+  popover.addEventListener("toggle", (event) => {
+    if (event.newState === "closed") clearHideTimer();
+  });
+}
 
 function normalizeArticleLineHeight(value) {
   if (value === "compact") return 1.55;
@@ -325,6 +494,7 @@ function normalizeArticleFontSettings(value = {}) {
     type: ARTICLE_FONT_OPTIONS.has(candidate.type) ? candidate.type : ARTICLE_FONT_DEFAULT_SETTINGS.type,
     lineHeight: normalizeArticleLineHeight(candidate.lineHeight),
     weight: ARTICLE_WEIGHT_OPTIONS.has(candidate.weight) ? candidate.weight : ARTICLE_FONT_DEFAULT_SETTINGS.weight,
+    customFonts: normalizeCustomFonts(candidate.customFonts),
   };
 }
 
@@ -343,6 +513,7 @@ function applyArticleFontSettings(settings = getArticleFontSettings()) {
   const normalized = normalizeArticleFontSettings(settings);
   const html = document.documentElement;
 
+  applyCustomFonts(normalized.customFonts);
   html.dataset.articleFontSize = normalized.size;
   html.dataset.articleFontFamily = normalized.type;
   html.dataset.articleLineHeight = String(normalized.lineHeight);
@@ -352,7 +523,7 @@ function applyArticleFontSettings(settings = getArticleFontSettings()) {
 
 function saveArticleFontSettings(settings) {
   try {
-    localStorage.setItem(ARTICLE_FONT_STORAGE_KEY, JSON.stringify(settings));
+    localStorage.setItem(ARTICLE_FONT_STORAGE_KEY, JSON.stringify(normalizeArticleFontSettings(settings)));
   } catch {
     // Keep the current page responsive even when storage is unavailable.
   }
@@ -375,6 +546,30 @@ function initArticleSettings() {
 
   const lineHeightSlider = fontSettingsPopover.querySelector(".font-line-height-slider");
   const lineHeightValue = fontSettingsPopover.querySelector(".font-line-height-value");
+  const customFontForm = fontSettingsPopover.querySelector(".font-custom-form");
+  const customFontImportInput = fontSettingsPopover.querySelector(".font-custom-imports");
+  const customFontResetButton = fontSettingsPopover.querySelector(".font-custom-reset");
+  const customFontFamilyInputs = fontSettingsPopover.querySelectorAll(".font-custom-family-input");
+  const customFontHelpButton = fontSettingsPopover.querySelector(".font-custom-help-btn");
+  const customFontHelpPopover = document.getElementById("font-custom-help-popover");
+  const customFontToggleButton = fontSettingsPopover.querySelector(".font-custom-toggle");
+  const customFontPanel = fontSettingsPopover.querySelector(".font-custom-panel");
+
+  initHoverPopover(customFontHelpButton, customFontHelpPopover);
+
+  if (customFontToggleButton && customFontPanel) {
+    const syncCustomFontPanelState = (expanded) => {
+      customFontToggleButton.setAttribute("aria-expanded", String(expanded));
+      customFontPanel.dataset.expanded = String(expanded);
+      customFontPanel.setAttribute("aria-hidden", String(!expanded));
+    };
+
+    syncCustomFontPanelState(false);
+    customFontToggleButton.addEventListener("click", () => {
+      const expanded = customFontToggleButton.getAttribute("aria-expanded") === "true";
+      syncCustomFontPanelState(!expanded);
+    });
+  }
 
   function updateLineHeightUI() {
     if (lineHeightSlider) {
@@ -390,6 +585,30 @@ function initArticleSettings() {
     updateButtonStates(".font-type-btn", (btn) => btn.dataset.font === settings.type);
     updateButtonStates(".font-weight-btn", (btn) => btn.dataset.weight === settings.weight);
     updateLineHeightUI();
+  }
+
+  function updateCustomFontUI() {
+    const customFonts = normalizeCustomFonts(settings.customFonts);
+    if (customFontImportInput) {
+      customFontImportInput.value = customFonts.imports.join("\n");
+    }
+
+    customFontFamilyInputs.forEach((input) => {
+      input.value = customFonts.families[input.dataset.fontFamily] || "";
+    });
+  }
+
+  function readCustomFontsFromUI() {
+    const families = {};
+
+    customFontFamilyInputs.forEach((input) => {
+      families[input.dataset.fontFamily] = input.value;
+    });
+
+    return normalizeCustomFonts({
+      imports: customFontImportInput?.value || "",
+      families,
+    });
   }
 
   fontSettingsPopover.querySelectorAll(".font-size-btn").forEach((btn) => {
@@ -434,7 +653,27 @@ function initArticleSettings() {
     });
   });
 
+  if (customFontForm) {
+    customFontForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      settings.customFonts = readCustomFontsFromUI();
+      saveArticleFontSettings(settings);
+      applyArticleFontSettings(settings);
+      updateCustomFontUI();
+    });
+  }
+
+  if (customFontResetButton) {
+    customFontResetButton.addEventListener("click", () => {
+      settings.customFonts = normalizeCustomFonts();
+      saveArticleFontSettings(settings);
+      applyArticleFontSettings(settings);
+      updateCustomFontUI();
+    });
+  }
+
   updateActiveStates();
+  updateCustomFontUI();
 }
 
 function initArticleCommentPopover() {

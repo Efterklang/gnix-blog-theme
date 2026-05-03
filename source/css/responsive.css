@@ -16,8 +16,6 @@
       gap: 0;
       align-items: start;
       padding: 0;
-      max-height: min(72vh, 680px);
-      overflow-x: hidden;
     }
 
     .font-settings-column {
@@ -30,7 +28,6 @@
       min-width: 0;
       padding: 1.5rem;
       background: linear-gradient(180deg, hsl(from var(--base) h s calc(l + 0.02) / 0.72), hsl(from var(--mantle) h s l / 0.94));
-      overflow: hidden;
     }
 
     .font-setting-group {

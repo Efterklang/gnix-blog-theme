@@ -15,6 +15,14 @@ const LINE_HEIGHT = Object.freeze({
   max: 1.9,
 });
 
+const CUSTOM_FONT_FAMILY_OPTIONS = Object.freeze({
+  serif: "--font-serif",
+  "sans-serif": "--font-sans-serif",
+  handwriting: "--font-handwriting",
+});
+
+const CUSTOM_FONT_IMPORT_LIMIT = 6;
+
 function getClientArticleFontConfig() {
   return {
     storageKey: STORAGE_KEY,
@@ -23,6 +31,10 @@ function getClientArticleFontConfig() {
     fontOptions: FONT_OPTIONS,
     weightOptions: WEIGHT_OPTIONS,
     lineHeight: LINE_HEIGHT,
+    customFonts: {
+      familyOptions: CUSTOM_FONT_FAMILY_OPTIONS,
+      importLimit: CUSTOM_FONT_IMPORT_LIMIT,
+    },
   };
 }
 
@@ -59,6 +71,84 @@ function getArticleFontInitScript() {
     return Array.isArray(options) && options.indexOf(value) !== -1;
   }
 
+  function normalizeCustomFontImport(value) {
+    if (typeof value !== "string") return null;
+
+    var href = value.trim();
+    if (!href || /[\\s<>"']/.test(href) || /^javascript:/i.test(href)) return null;
+    if (!/^(https?:)?\\/\\//i.test(href) && href.charAt(0) !== "/") return null;
+
+    return href;
+  }
+
+  function normalizeCustomFontFamily(value) {
+    if (typeof value !== "string") return null;
+
+    var family = value.trim();
+    if (!family || /[{};<>]/.test(family)) return null;
+
+    return family;
+  }
+
+  function normalizeCustomFonts(value) {
+    var customFonts = value && typeof value === "object" ? value : {};
+    var familyOptions = config.customFonts && config.customFonts.familyOptions ? config.customFonts.familyOptions : {};
+    var importLimit = Number(config.customFonts && config.customFonts.importLimit);
+    var importSource = customFonts.imports;
+    var importValues = Array.isArray(importSource)
+      ? importSource
+      : typeof importSource === "string"
+        ? importSource.split(/\\r?\\n/)
+        : [];
+    var imports = [];
+    var families = {};
+
+    if (!Number.isFinite(importLimit) || importLimit < 1) importLimit = 6;
+
+    importValues.forEach(function(value) {
+      var href = normalizeCustomFontImport(value);
+      if (href && imports.indexOf(href) === -1 && imports.length < importLimit) {
+        imports.push(href);
+      }
+    });
+
+    Object.keys(familyOptions).forEach(function(key) {
+      var family = normalizeCustomFontFamily(customFonts.families && customFonts.families[key]);
+      if (family) families[key] = family;
+    });
+
+    return {
+      imports: imports,
+      families: families
+    };
+  }
+
+  function applyCustomFontImports(imports) {
+    var head = document.head;
+    if (!head || !Array.isArray(imports)) return;
+
+    imports.forEach(function(href, index) {
+      var existing = Array.prototype.some.call(document.querySelectorAll('link[data-gnix-custom-font="true"]'), function(link) {
+        return link.href === href || link.getAttribute("href") === href;
+      });
+      if (existing) return;
+
+      var link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = href;
+      link.setAttribute("data-gnix-custom-font", "true");
+      link.setAttribute("data-gnix-custom-font-index", String(index));
+      head.appendChild(link);
+    });
+  }
+
+  function applyCustomFontFamilies(html, families) {
+    var familyOptions = config.customFonts && config.customFonts.familyOptions ? config.customFonts.familyOptions : {};
+    Object.keys(familyOptions).forEach(function(key) {
+      if (families[key]) html.style.setProperty(familyOptions[key], families[key]);
+    });
+  }
+
   function normalizeLineHeight(value) {
     if (value === "compact") return 1.55;
     if (value === "normal") return 1.7;
@@ -81,10 +171,13 @@ function getArticleFontInitScript() {
     size: hasOption(config.sizeOptions, candidate.size) ? candidate.size : defaults.size,
     type: hasOption(config.fontOptions, candidate.type) ? candidate.type : defaults.type,
     lineHeight: normalizeLineHeight(candidate.lineHeight),
-    weight: hasOption(config.weightOptions, candidate.weight) ? candidate.weight : defaults.weight
+    weight: hasOption(config.weightOptions, candidate.weight) ? candidate.weight : defaults.weight,
+    customFonts: normalizeCustomFonts(candidate.customFonts)
   };
   var html = document.documentElement;
 
+  applyCustomFontImports(settings.customFonts.imports);
+  applyCustomFontFamilies(html, settings.customFonts.families);
   html.setAttribute("data-article-font-size", settings.size);
   html.setAttribute("data-article-font-family", settings.type);
   html.setAttribute("data-article-line-height", String(settings.lineHeight));
@@ -95,6 +188,8 @@ function getArticleFontInitScript() {
 }
 
 module.exports = {
+  CUSTOM_FONT_FAMILY_OPTIONS,
+  CUSTOM_FONT_IMPORT_LIMIT,
   DEFAULT_SETTINGS,
   FONT_OPTIONS,
   LINE_HEIGHT,

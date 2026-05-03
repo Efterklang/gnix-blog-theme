@@ -256,6 +256,61 @@ module.exports = class extends Component {
                       </button>
                     </div>
                   </div>
+                  <div class="font-setting-group font-custom-group">
+                    <button type="button" class="font-custom-toggle" aria-expanded="false" aria-controls="font-custom-panel" aria-label={helper.__("article.custom_fonts")}>
+                      <span>{helper.__("article.custom_fonts")}</span>
+                      <span class="font-custom-toggle-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">
+                          <path d="M7 2.25v9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+                          <path d="M2.25 7h9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+                        </svg>
+                      </span>
+                    </button>
+                    <div id="font-custom-panel" class="font-custom-panel" data-expanded="false" aria-hidden="true">
+                      <div class="font-custom-panel-inner">
+                        <form class="font-custom-form">
+                          <label class="font-custom-field font-custom-import-field">
+                            <span class="font-custom-label-row">
+                              <span>{helper.__("article.web_font_css")}</span>
+                              <button type="button" class="font-custom-help-btn" popovertarget="font-custom-help-popover" aria-label={helper.__("article.web_font_css_help")}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" role="img" aria-hidden="true">
+                                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+                                  <path d="M12 10.25v5.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                                  <circle cx="12" cy="7.9" r="1" fill="currentColor" />
+                                </svg>
+                              </button>
+                            </span>
+                            <textarea class="font-custom-imports" rows="2" placeholder="https://fonts.googleapis.com/css2?family=..." aria-label={helper.__("article.web_font_css")}></textarea>
+                          </label>
+                          <div class="font-custom-family-grid">
+                            <label class="font-custom-field">
+                              <span>{helper.__("article.serif_font")}</span>
+                              <input class="font-custom-family-input" type="text" data-font-family="serif" placeholder={'"Noto Serif SC", serif'} autocomplete="off" />
+                            </label>
+                            <label class="font-custom-field">
+                              <span>{helper.__("article.sans_serif_font")}</span>
+                              <input class="font-custom-family-input" type="text" data-font-family="sans-serif" placeholder={'"Inter", sans-serif'} autocomplete="off" />
+                            </label>
+                            <label class="font-custom-field">
+                              <span>{helper.__("article.handwriting_font")}</span>
+                              <input class="font-custom-family-input" type="text" data-font-family="handwriting" placeholder={'"LXGW WenKai", cursive'} autocomplete="off" />
+                            </label>
+                          </div>
+                          <div class="font-custom-actions">
+                            <button type="submit" class="font-custom-apply">
+                              {helper.__("article.apply_fonts")}
+                            </button>
+                            <button type="button" class="font-custom-reset">
+                              {helper.__("article.reset_fonts")}
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="font-custom-help-popover" popover="manual" class="font-custom-help-popover" role="tooltip">
+                    {helper.__("article.web_font_css_help_text")}
+                  </div>
                 </div>
                 <aside class="font-preview-column">
                   <div class="font-setting-group font-preview-group">
