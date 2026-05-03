@@ -415,12 +415,7 @@ html {
   .navbar {
     -webkit-backdrop-filter: blur(18px) saturate(1.35);
     backdrop-filter: blur(18px) saturate(1.35);
-  }
-
-  @supports (background: color-mix(in oklch, black 50%, transparent)) {
-    .navbar {
-      background: color-mix(in oklch, var(--mantle) 78%, transparent);
-    }
+    background: hsl(from var(--mantle) h s l / 0.75);
   }
 }
 
@@ -1157,9 +1152,7 @@ section {
   }
 }
 
-/* .article-title, */
 em,
-.article-title,
 .article-excerpt,
 .footnotes {
   font-family: var(--font-serif);
