@@ -120,15 +120,15 @@ module.exports = (hexo) => {
     const currentYear = new Date().getFullYear();
 
     return {
-      title: context.title,
-      description: context.subtitle || context.description,
+      title: context.config.title,
+      description: context.config.subtitle || context.config.description,
       url,
       feedUrl,
       icon,
       hub,
-      language: context.language,
-      author: { name: context.author, email: context.email },
-      copyright: context.author && `All rights reserved ${currentYear}, ${context.author}`,
+      language: context.config.language,
+      author: { name: context.config.author, email: context.config.email },
+      copyright: context.config.author && `All rights reserved ${currentYear}, ${context.config.author}`,
       updated: latestPost.updated ? latestPost.updated.toDate() : latestPost.date.toDate(),
     };
   }
