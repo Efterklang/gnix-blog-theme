@@ -93,10 +93,7 @@ module.exports = class extends Component {
 
     const themeInitScript = getThemeInitScript();
     const articleFontInitScript = getArticleFontInitScript();
-    const articleFontUtilsScript = fs.readFileSync(
-      path.join(__dirname, "../../source/js/article-font-utils.js"),
-      "utf8"
-    );
+    const articleFontUtilsScript = fs.readFileSync(path.join(__dirname, "../../source/js/article-font-utils.js"), "utf8");
 
     return (
       <head>
@@ -150,11 +147,11 @@ module.exports = class extends Component {
         <link rel="icon" href={url_for(favicon || "/img/favicon.svg")} />
         <link rel="stylesheet" href={url_for("/css/default.css")} />
         <link rel="stylesheet" href={url_for("/css/responsive.css")} />
-        <link rel="preload" as="style" href={url_for("/css/callout_blocks.css")} onload="this.onload=null;this.rel='stylesheet'" />
+        <link rel="stylesheet" href={url_for("/css/callout_blocks.css")} media="print" onload="this.media='all'" />
         <link rel="preload" href={url_for("/css/font/woff2/HomemadeApple.woff2")} as="font" type="font/woff2" crossorigin />
         <link rel="preconnect" href="https://fontsapi.zeoseven.com" />
-        <link rel="preload" as="style" href="https://fontsapi.zeoseven.com/285/main/result.css" onload="this.onload=null;this.rel='stylesheet'" />
-        <link rel="preload" as="style" href="https://fontsapi.zeoseven.com/442/main/result.css" onload="this.onload=null;this.rel='stylesheet'" />
+        <link rel="stylesheet" href="https://fontsapi.zeoseven.com/285/main/result.css" media="print" onload="this.media='all'" />
+        <link rel="stylesheet" href="https://fontsapi.zeoseven.com/442/main/result.css" media="print" onload="this.media='all'" />
         <link rel="preload" as="style" href="/css/shiki/shiki.css" onload="this.onload=null;this.rel='stylesheet'" />
         {page.encrypt ? <link rel="stylesheet" href={url_for("/css/encrypt.css")} /> : null}
         <Plugins site={site} config={config} helper={helper} page={page} head={true} />
