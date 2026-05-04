@@ -66,7 +66,7 @@ class Footer extends Component {
 
     const footer_subdomains = (
       <div class="footer-column footer-subdomains">
-        <p class="footer-heading">Sub Domains</p>
+        <p class="footer-heading">Quick Links</p>
         <div class="footer-links">
           {Object.keys(subdomains).length
             ? Object.keys(subdomains).map((name) => {
