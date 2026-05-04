@@ -706,7 +706,7 @@ html {
 
   a.header-anchor {
     color: var(--text);
-    font-family: var(--font-serif);
+    font-family: var(--article-font-family);
     text-decoration: none;
     &::after {
       margin-left: 0.4em;
@@ -924,11 +924,10 @@ html {
 
   a {
     text-decoration: underline;
-    text-decoration-color: var(--subtext1);
+    text-underline-offset: 3.5px;
+    text-decoration-thickness: 1px;
+    text-decoration-color: hsl(from var(--lavender) h s l / 0.8);
     color: var(--text);
-    &:hover {
-      text-decoration-thickness: 2px;
-    }
   }
 }
 
