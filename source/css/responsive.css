@@ -158,26 +158,9 @@
     padding: 1rem 1.75rem;
   }
 
-  :popover-open.article-popover {
-    width: calc(100vw);
-    max-width: calc(100vw);
-    max-height: 90dvh;
-    margin: auto;
-    border-radius: 18px;
-  }
-
   :popover-open.article-comment-popover {
     width: calc(100vw - 1rem);
     max-width: calc(100vw - 1rem);
-  }
-
-  .article-popover-header {
-    padding: 0.875rem 1rem;
-  }
-
-  .article-popover-body {
-    padding: 1rem;
-    max-height: calc(90dvh - 4.25rem);
   }
 
   .article-comment-popover-body {
