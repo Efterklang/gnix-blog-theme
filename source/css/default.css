@@ -10,7 +10,7 @@
   --overlay1: color-mix(in oklch, var(--base) 45%, var(--text));
   --overlay2: color-mix(in oklch, var(--base) 34%, var(--text));
 
-  --font-serif: Baskerville, New York, Georgia, Noto Serif CJK, STFangsong, STSong, Songti SC, serif;
+  --font-serif: Gentium, ChillKai, Baskerville, New York, Georgia, Noto Serif CJK, STFangsong, STSong, Songti SC, serif;
   --font-sans-serif: Avenir, system-ui, sans-serif;
   --font-mono: "SF Mono", "Maple Mono NF CN Local", "Maple Mono NF CN", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", XingKai SC, cursive;
@@ -302,6 +302,133 @@ hr {
 /* #endregion Color */
 
 /* #region Font */
+
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/bold-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/book.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 450;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/book-bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 450;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/book-bold-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 450;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/book-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 450;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/book-medium.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/book-medium-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/book-semi-bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/book-semi-bold-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/extra-bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/extra-bold-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/medium.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/medium-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/main.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/semi-bold-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gentium";
+  src: url("https://fontsapi.zeoseven.com/2105/semi-bold.ttf.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
 
 @font-face {
   font-family: "Maple Mono NF CN Local";
@@ -928,6 +1055,10 @@ html {
     text-decoration-thickness: 1px;
     text-decoration-color: hsl(from var(--lavender) h s l / 0.8);
     color: var(--text);
+    &:hover {
+      text-decoration-color: var(--blue);
+      text-decoration-thickness: 2px;
+    }
   }
 }
 

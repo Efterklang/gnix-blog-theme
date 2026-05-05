@@ -150,7 +150,7 @@ module.exports = class extends Component {
         <link rel="stylesheet" href={url_for("/css/callout_blocks.css")} media="print" onload="this.media='all'" />
         <link rel="preload" href={url_for("/css/font/woff2/HomemadeApple.woff2")} as="font" type="font/woff2" crossorigin />
         <link rel="preconnect" href="https://fontsapi.zeoseven.com" />
-        <link rel="stylesheet" href="https://fontsapi.zeoseven.com/285/main/result.css" media="print" onload="this.media='all'" />
+        <link rel="stylesheet" href="https://fontsapi.zeoseven.com/5/main/result.css" media="print" onload="this.media='all'" />
         <link rel="stylesheet" href="https://fontsapi.zeoseven.com/442/main/result.css" media="print" onload="this.media='all'" />
         <link rel="preload" as="style" href="/css/shiki/shiki.css" onload="this.onload=null;this.rel='stylesheet'" />
         {page.encrypt ? <link rel="stylesheet" href={url_for("/css/encrypt.css")} /> : null}
