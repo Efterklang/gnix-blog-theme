@@ -11,11 +11,16 @@
  * Attributes:
  * - autoplay: Enable automatic slide advancement
  * - interval: Autoplay interval in ms (default: 3000)
- * - ratio: Aspect ratio as CSS value (default: 3/2)
+ * - ratio: Aspect ratio as CSS value (default: derived from first image,
+ *   falls back to 3/2 while loading or if dimensions are unknown)
  */
 
 // Shared stylesheet — parsed once, reused across all carousel instances
 let _sheet;
+
+const DEFAULT_INTERVAL = 3000;
+const FALLBACK_RATIO = "3 / 2";
+const SWIPE_THRESHOLD_PX = 40;
 
 const STYLES = `
   :host {
@@ -43,7 +48,7 @@ const STYLES = `
   .slides {
     position: relative;
     width: 100%;
-    aspect-ratio: var(--carousel-ratio, 3/2);
+    aspect-ratio: var(--carousel-ratio, 3 / 2);
   }
 
   .slide {
@@ -174,6 +179,9 @@ const STYLES = `
   }
 `;
 
+const CHEVRON_LEFT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>`;
+const CHEVRON_RIGHT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>`;
+
 class ImageCarousel extends HTMLElement {
   constructor() {
     super();
@@ -188,19 +196,21 @@ class ImageCarousel extends HTMLElement {
     this._isVisible = true;
     this._handleVisibility = () => {
       if (document.hidden) this._stopAutoplay();
-      else if (this._isVisible && this.hasAttribute("autoplay")) this._startAutoplay();
+      else if (this._isVisible) this._maybeStartAutoplay();
     };
   }
 
   connectedCallback() {
     this._images = this._collectImages();
-    this.render();
+    if (!this._images.length) return;
+
+    this._resolveRatio();
+    this._render();
+
     if (this._images.length > 1) {
       this._setupListeners();
       this._observeVisibility();
-    }
-    if (this.hasAttribute("autoplay") && this._images.length > 1) {
-      this._startAutoplay();
+      this._maybeStartAutoplay();
     }
   }
 
@@ -210,6 +220,23 @@ class ImageCarousel extends HTMLElement {
     document.removeEventListener("visibilitychange", this._handleVisibility);
   }
 
+  static get observedAttributes() {
+    return ["autoplay", "interval", "ratio"];
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue || !this._images.length) return;
+    if (name === "autoplay") {
+      newValue !== null ? this._startAutoplay() : this._stopAutoplay();
+    } else if (name === "interval" && this._timer) {
+      this._startAutoplay();
+    } else if (name === "ratio") {
+      this._resolveRatio();
+    }
+  }
+
+  // ─── content & layout ──────────────────────────────────────────────
+
   _collectImages() {
     return Array.from(this.querySelectorAll("img")).map((img) => ({
       src: img.src || img.getAttribute("src"),
@@ -218,57 +245,53 @@ class ImageCarousel extends HTMLElement {
     }));
   }
 
-  _getInterval() {
-    return parseInt(this.getAttribute("interval") || "3000", 10);
-  }
-
-  _startAutoplay() {
-    this._stopAutoplay();
-    this._timer = setInterval(() => {
-      this._goTo((this._currentIndex + 1) % this._images.length);
-    }, this._getInterval());
-  }
-
-  _stopAutoplay() {
-    if (this._timer) {
-      clearInterval(this._timer);
-      this._timer = null;
-    }
-  }
-
-  _goTo(index) {
-    const prev = this._currentIndex;
-    this._currentIndex = index;
-    this._toggleSlide(prev, false);
-    this._toggleSlide(index, true);
-  }
-
-  _toggleSlide(i, active) {
-    this._slides[i]?.classList.toggle("active", active);
-    const dot = this._dots[i];
-    if (dot) {
-      dot.classList.toggle("active", active);
-      dot.setAttribute("aria-selected", String(active));
-    }
-  }
-
-  render() {
-    const images = this._images;
-    const ratio = this.getAttribute("ratio") || "3/2";
-
-    if (images.length === 0) {
-      this.shadowRoot.innerHTML = "";
+  /**
+   * Resolve the carousel aspect ratio.
+   * Priority: explicit `ratio` attribute → first image's natural
+   * dimensions → fallback constant. The first image is probed via a
+   * detached Image() if the light-DOM <img> hasn't loaded yet.
+   */
+  _resolveRatio() {
+    const explicit = this.getAttribute("ratio");
+    if (explicit) {
+      this.style.setProperty("--carousel-ratio", explicit);
       return;
     }
 
+    // Set fallback first so the stage has dimensions while we wait.
+    this.style.setProperty("--carousel-ratio", FALLBACK_RATIO);
+
+    const first = this._images[0];
+    if (!first?.src) return;
+
+    const apply = (w, h) => {
+      if (w && h) this.style.setProperty("--carousel-ratio", `${w} / ${h}`);
+    };
+
+    // Reuse the light-DOM <img> if it's already decoded — avoids a
+    // second network request when the browser cached the image.
+    const lightImg = this.querySelector("img");
+    if (lightImg?.complete && lightImg.naturalWidth) {
+      apply(lightImg.naturalWidth, lightImg.naturalHeight);
+      return;
+    }
+
+    const probe = new Image();
+    probe.onload = () => apply(probe.naturalWidth, probe.naturalHeight);
+    if (first.srcset) probe.srcset = first.srcset;
+    probe.src = first.src;
+  }
+
+  _render() {
     if (!_sheet) {
       _sheet = new CSSStyleSheet();
       _sheet.replaceSync(STYLES);
     }
     this.shadowRoot.adoptedStyleSheets = [_sheet];
-    this.style.setProperty("--carousel-ratio", ratio);
 
-    const slidesHTML = images
+    const multiSlide = this._images.length > 1;
+
+    const slidesHTML = this._images
       .map(
         (img, i) => `
       <div class="slide${i === 0 ? " active" : ""}" role="tabpanel" aria-label="${img.alt || `Slide ${i + 1}`}">
@@ -281,18 +304,21 @@ class ImageCarousel extends HTMLElement {
       )
       .join("");
 
-    const navHTML =
-      images.length > 1
-        ? `<button class="nav prev" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></button>
-           <button class="nav next" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></button>`
-        : "";
+    const navHTML = multiSlide
+      ? `<button class="nav prev" aria-label="Previous slide">${CHEVRON_LEFT}</button>
+         <button class="nav next" aria-label="Next slide">${CHEVRON_RIGHT}</button>`
+      : "";
 
-    const dotsHTML =
-      images.length > 1
-        ? `<div class="dots" role="tablist" aria-label="Slide navigation">
-        ${images.map((_img, i) => `<button class="dot${i === 0 ? " active" : ""}" data-index="${i}" role="tab" aria-label="Slide ${i + 1}" aria-selected="${i === 0}"></button>`).join("")}
-      </div>`
-        : "";
+    const dotsHTML = multiSlide
+      ? `<div class="dots" role="tablist" aria-label="Slide navigation">
+          ${this._images
+            .map(
+              (_img, i) =>
+                `<button class="dot${i === 0 ? " active" : ""}" data-index="${i}" role="tab" aria-label="Slide ${i + 1}" aria-selected="${i === 0}"></button>`,
+            )
+            .join("")}
+        </div>`
+      : "";
 
     this.shadowRoot.innerHTML = `
       <div class="carousel" role="region" aria-label="Image carousel" tabindex="0">
@@ -309,46 +335,89 @@ class ImageCarousel extends HTMLElement {
     this._dots = Array.from(this.shadowRoot.querySelectorAll(".dot"));
   }
 
+  // ─── navigation ────────────────────────────────────────────────────
+
+  _next() {
+    this._goTo((this._currentIndex + 1) % this._images.length);
+  }
+
+  _prev() {
+    const n = this._images.length;
+    this._goTo((this._currentIndex - 1 + n) % n);
+  }
+
+  _goTo(index) {
+    const prev = this._currentIndex;
+    if (prev === index) return;
+    this._currentIndex = index;
+    this._toggleSlide(prev, false);
+    this._toggleSlide(index, true);
+  }
+
+  _toggleSlide(i, active) {
+    this._slides[i]?.classList.toggle("active", active);
+    const dot = this._dots[i];
+    if (dot) {
+      dot.classList.toggle("active", active);
+      dot.setAttribute("aria-selected", String(active));
+    }
+  }
+
+  /** User triggered a navigation — restart the autoplay clock so the
+   *  next auto-advance doesn't fire immediately after their action. */
+  _userNav(direction) {
+    direction === "next" ? this._next() : this._prev();
+    this._maybeStartAutoplay();
+  }
+
+  // ─── autoplay ──────────────────────────────────────────────────────
+
+  _maybeStartAutoplay() {
+    if (this.hasAttribute("autoplay") && this._images.length > 1) {
+      this._startAutoplay();
+    }
+  }
+
+  _startAutoplay() {
+    this._stopAutoplay();
+    const interval = parseInt(this.getAttribute("interval") || "", 10) || DEFAULT_INTERVAL;
+    this._timer = setInterval(() => this._next(), interval);
+  }
+
+  _stopAutoplay() {
+    if (this._timer) {
+      clearInterval(this._timer);
+      this._timer = null;
+    }
+  }
+
+  // ─── listeners ─────────────────────────────────────────────────────
+
   _setupListeners() {
     const root = this.shadowRoot;
     const carousel = root.querySelector(".carousel");
-    const n = this._images.length;
 
-    root.querySelector(".prev")?.addEventListener("click", () => {
-      this._resetAutoplay();
-      this._goTo((this._currentIndex - 1 + n) % n);
-    });
-
-    root.querySelector(".next")?.addEventListener("click", () => {
-      this._resetAutoplay();
-      this._goTo((this._currentIndex + 1) % n);
-    });
+    root.querySelector(".prev")?.addEventListener("click", () => this._userNav("prev"));
+    root.querySelector(".next")?.addEventListener("click", () => this._userNav("next"));
 
     root.querySelector(".dots")?.addEventListener("click", (e) => {
       const dot = e.target.closest(".dot");
       if (!dot) return;
-      this._resetAutoplay();
       this._goTo(parseInt(dot.dataset.index, 10));
+      this._maybeStartAutoplay();
     });
 
-    // Pause autoplay on hover
+    // Pause autoplay while the cursor sits on the carousel
     carousel.addEventListener("mouseenter", () => this._stopAutoplay());
-    carousel.addEventListener("mouseleave", () => {
-      if (this.hasAttribute("autoplay")) this._startAutoplay();
-    });
+    carousel.addEventListener("mouseleave", () => this._maybeStartAutoplay());
 
     // Keyboard navigation
     carousel.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") {
-        this._resetAutoplay();
-        this._goTo((this._currentIndex - 1 + n) % n);
-      } else if (e.key === "ArrowRight") {
-        this._resetAutoplay();
-        this._goTo((this._currentIndex + 1) % n);
-      }
+      if (e.key === "ArrowLeft") this._userNav("prev");
+      else if (e.key === "ArrowRight") this._userNav("next");
     });
 
-    // Touch/swipe support
+    // Touch / swipe
     carousel.addEventListener(
       "touchstart",
       (e) => {
@@ -361,9 +430,8 @@ class ImageCarousel extends HTMLElement {
       "touchend",
       (e) => {
         const dx = e.changedTouches[0].clientX - this._touchStartX;
-        if (Math.abs(dx) > 40) {
-          this._resetAutoplay();
-          this._goTo(dx < 0 ? (this._currentIndex + 1) % n : (this._currentIndex - 1 + n) % n);
+        if (Math.abs(dx) > SWIPE_THRESHOLD_PX) {
+          this._userNav(dx < 0 ? "next" : "prev");
         }
       },
       { passive: true },
@@ -373,35 +441,11 @@ class ImageCarousel extends HTMLElement {
   _observeVisibility() {
     this._observer = new IntersectionObserver(([entry]) => {
       this._isVisible = entry.isIntersecting;
-      if (!entry.isIntersecting) {
-        this._stopAutoplay();
-      } else if (this.hasAttribute("autoplay")) {
-        this._startAutoplay();
-      }
+      if (entry.isIntersecting) this._maybeStartAutoplay();
+      else this._stopAutoplay();
     });
     this._observer.observe(this);
     document.addEventListener("visibilitychange", this._handleVisibility);
-  }
-
-  _resetAutoplay() {
-    if (this.hasAttribute("autoplay")) {
-      this._stopAutoplay();
-      this._startAutoplay();
-    }
-  }
-
-  static get observedAttributes() {
-    return ["autoplay", "interval"];
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue === newValue || !this._images.length) return;
-    if (name === "autoplay") {
-      newValue !== null ? this._startAutoplay() : this._stopAutoplay();
-    }
-    if (name === "interval" && this._timer) {
-      this._startAutoplay();
-    }
   }
 }
 
