@@ -13,7 +13,7 @@
  *
  * Attributes:
  * - image: Image URL (required)
- * - alt: Image alt text
+ * - alt: Image alt text (also used as figcaption)
  * - width: Image width (default: 300px)
  * - left: Put image on left (default: image on right)
  * - font-family: Text font family
@@ -37,7 +37,7 @@ class TextImageSection extends HTMLElement {
 
   initZoom() {
     if (typeof mediumZoom !== "function") return;
-    const img = this.querySelector(".ti-image img");
+    const img = this.querySelector(".ti-figure img");
     if (img) {
       mediumZoom(img, { background: "hsla(from var(--mantle) / 0.9)" });
     }
@@ -48,71 +48,66 @@ class TextImageSection extends HTMLElement {
 
     const style = `
       text-image-section {
-        display: block;
+        /* flow-root establishes a BFC so floats are contained
+           and parent block formatting (e.g. blockquote borders)
+           don't visually bleed into the image area */
+        display: flow-root;
         margin: 1em 0;
-      }
-
-      .ti-container {
-        overflow: hidden;
-
-        &::after {
-          content: "";
-          display: table;
-          clear: both;
-        }
-      }
-
-      .ti-text {
-        line-height: 1.8;
         font-family: var(--ti-font-family, inherit);
         font-size: var(--ti-font-size);
         color: var(--ti-color, inherit);
+        line-height: 1.8;
       }
 
-      .ti-image {
-        position: relative;
-        z-index: 1;
+      text-image-section > .ti-figure {
+        float: right;
         width: var(--ti-image-width, 300px);
-        margin-bottom: 12px;
+        margin: 0 0 12px 24px;
+      }
 
-        .ti-container > & {
-          float: right;
-          margin-left: 24px;
-        }
+      text-image-section[left] > .ti-figure {
+        float: left;
+        margin: 0 24px 12px 0;
+      }
 
-        .image-left > & {
-          float: left;
-          margin-left: 0;
-          margin-right: 24px;
-        }
+      text-image-section .ti-figure img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
 
-        img {
-          width: 100%;
-          height: auto;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
+      text-image-section .ti-figure figcaption {
+        font-family: var(--font-serif);
+        font-size: 0.875em;
+        color: var(--subtext0);
+        text-align: center;
+        margin-top: 8px;
+        font-style: italic;
+      }
 
-        figure {
-          margin: 0;
-        }
-
-        figcaption {
-          font-family: var(--font-serif);
-          font-size: 0.875em;
-          color: var(--subtext0);
-          text-align: center;
-          margin-top: 8px;
-          font-style: italic;
-        }
+      /* Tame nested blockquotes inside the text area so they
+         don't fight the image's float/stacked layout. */
+      text-image-section > blockquote {
+        margin: 0;
       }
 
       @media (max-width: 640px) {
-        .ti-image {
+        text-image-section > .ti-figure,
+        text-image-section[left] > .ti-figure {
           float: none;
-          width: 100%;
-          margin: 0 0 16px 0;
-          --ti-image-width: 100%;
+          width: auto;
+          /* Bottom margin separates the figure from any following
+             blockquote so its left border doesn't visually align
+             with the image edge */
+          margin: 0 0 20px 0;
+        }
+
+        /* When a blockquote follows the figure on mobile, give it
+           a touch more breathing room from the image above */
+        text-image-section > .ti-figure + blockquote {
+          margin-top: 4px;
         }
       }
     `;
@@ -130,48 +125,41 @@ class TextImageSection extends HTMLElement {
     const image = this.getAttribute("image");
     const alt = this.getAttribute("alt") || "";
     const imageWidth = this.getAttribute("width") || "300px";
-    const imageLeft = this.hasAttribute("left");
     const fontFamily = this.getAttribute("font-family");
     const fontSize = this.getAttribute("font-size");
     const color = this.getAttribute("color");
-    const contentNodes = Array.from(this.childNodes).filter((node) => {
-      return node.nodeType !== Node.ELEMENT_NODE || node.tagName.toLowerCase() !== "text-image-section";
-    });
 
-    const content = contentNodes
-      .map((node) => {
-        return node.nodeType === Node.TEXT_NODE ? node.textContent : node.outerHTML;
-      })
-      .join("")
-      .trim();
+    // Apply CSS variables directly to the host element so we no
+    // longer need a wrapping <div> just to hold inline styles.
+    this.style.setProperty("--ti-image-width", imageWidth);
+    if (fontFamily) this.style.setProperty("--ti-font-family", fontFamily);
+    if (fontSize) this.style.setProperty("--ti-font-size", fontSize);
+    if (color) this.style.setProperty("--ti-color", color);
 
-    if (!image) {
-      this.innerHTML = `<div class="ti-container"><div class="ti-text">${content}</div></div>`;
-      return;
+    // Without an image we have nothing extra to inject — leave the
+    // user's original markdown/HTML content in place.
+    if (!image) return;
+
+    const figure = document.createElement("figure");
+    figure.className = "ti-figure";
+
+    const img = document.createElement("img");
+    img.src = image;
+    img.alt = alt;
+    img.loading = "lazy";
+    figure.appendChild(img);
+
+    if (alt) {
+      const figcaption = document.createElement("figcaption");
+      figcaption.textContent = alt;
+      figure.appendChild(figcaption);
     }
 
-    const containerClass = imageLeft ? "ti-container image-left" : "ti-container";
-
-    const figureHtml = alt
-      ? `<figure>
-          <img src="${image}" alt="${alt}" loading="lazy">
-          <figcaption>${alt}</figcaption>
-        </figure>`
-      : `<img src="${image}" alt="${alt}" loading="lazy">`;
-
-    const styleAttrs = [];
-    styleAttrs.push(`--ti-image-width: ${imageWidth};`);
-    if (fontFamily) styleAttrs.push(`--ti-font-family: ${fontFamily};`);
-    if (fontSize) styleAttrs.push(`--ti-font-size: ${fontSize};`);
-    if (color) styleAttrs.push(`--ti-color: ${color};`);
-    this.innerHTML = `
-      <div class="${containerClass}" style="${styleAttrs.join(" ")}">
-        <div class="ti-image">
-          ${figureHtml}
-        </div>
-        <div class="ti-text">${content}</div>
-      </div>
-    `;
+    // Prepend the <figure> so the existing user content (text,
+    // blockquotes, paragraphs, etc.) stays as direct children of
+    // the host element. This preserves semantic structure and
+    // avoids re-parsing innerHTML.
+    this.insertBefore(figure, this.firstChild);
   }
 }
 
