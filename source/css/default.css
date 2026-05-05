@@ -2229,6 +2229,7 @@ input.searchbox-input {
     overflow-y: auto;
     padding: 0;
     list-style: none;
+    font-family: var(--article-font-family);
   }
 
   .toc-item {

@@ -69,6 +69,39 @@
 }
 
 @media screen and (max-width: 768px) {
+  #icarus-toc-container {
+    .toc {
+      max-height: 70vh;
+      width: min(86vw, 420px);
+    }
+
+    .toc-item {
+      margin-bottom: 0.35rem;
+    }
+
+    .toc-child {
+      padding-left: 1rem;
+    }
+
+    .toc-text {
+      .toc-level-2 & {
+        font-size: 1.25rem;
+      }
+      .toc-level-3 & {
+        font-size: 1.15rem;
+      }
+      .toc-level-4 & {
+        font-size: 1rem;
+      }
+      .toc-level-5 & {
+        font-size: 0.9rem;
+      }
+      .toc-level-6 & {
+        font-size: 0.8rem;
+      }
+    }
+  }
+
   span.year {
     font-size: 3em !important;
   }
