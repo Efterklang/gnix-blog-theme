@@ -323,13 +323,34 @@ function getCssVariableValue(name, fallback = "") {
   return value || fallback;
 }
 
+// Reads `--font-*` from default.css. Custom fonts are applied as inline
+// styles on <html>, which would override the stylesheet value; we strip
+// those overrides while reading and restore them after.
 function getDefaultCustomFontFamilies() {
-  return {
+  if (typeof document === "undefined") return {};
+
+  const html = document.documentElement;
+  const saved = {};
+  Object.values(ARTICLE_CUSTOM_FONT_OPTIONS).forEach((cssVar) => {
+    const inline = html.style.getPropertyValue(cssVar);
+    if (inline) {
+      saved[cssVar] = inline;
+      html.style.removeProperty(cssVar);
+    }
+  });
+
+  const defaults = {
     serif: getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS.serif),
     "sans-serif": getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS["sans-serif"]),
     mono: getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS.mono),
     handwriting: getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS.handwriting),
   };
+
+  Object.keys(saved).forEach((cssVar) => {
+    html.style.setProperty(cssVar, saved[cssVar]);
+  });
+
+  return defaults;
 }
 
 const ARTICLE_FONT_UTILS = window.__GNIX_ARTICLE_FONT_UTILS__ || {};
@@ -603,7 +624,15 @@ function initArticleSettings() {
       settings.customFonts = normalizeCustomFonts();
       saveArticleFontSettings(settings);
       applyArticleFontSettings(settings);
-      updateCustomFontUI();
+
+      const defaults = getDefaultCustomFontFamilies();
+      if (customFontImportInput) {
+        customFontImportInput.value = "";
+      }
+      customFontFamilyInputs.forEach((input) => {
+        const key = input.dataset.fontFamily;
+        input.value = defaults[key] || "";
+      });
     });
   }
 

@@ -168,8 +168,8 @@ module.exports = class extends Component {
           {!index && (
             <div id="article-font-settings" popover="auto" class="article-popover article-font-popover">
               <div class="article-popover-header">
-                <h3>{helper.__("article.display_settings")}</h3>
-                <button type="button" class="article-popover-close" popovertarget="article-font-settings" popovertargetaction="hide" aria-label={helper.__("article.close")}>
+                <h3>Display Settings</h3>
+                <button type="button" class="article-popover-close" popovertarget="article-font-settings" popovertargetaction="hide" aria-label="Close">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="18"
@@ -212,12 +212,12 @@ module.exports = class extends Component {
                   </div>
                   <div class="font-setting-group font-line-height-group">
                     <div class="font-line-height-control">
-                      <span class="font-line-height-label">{helper.__("article.line_height_compact")}</span>
-                      <input id="article-line-height-slider" class="font-line-height-slider" type="range" min="1.45" max="1.9" step="0.05" value="1.7" aria-label={helper.__("article.line_height")} />
-                      <span class="font-line-height-label">{helper.__("article.line_height_relaxed")}</span>
+                      <span class="font-line-height-label">Compact</span>
+                      <input id="article-line-height-slider" class="font-line-height-slider" type="range" min="1.45" max="1.9" step="0.05" value="1.7" aria-label="Line Height" />
+                      <span class="font-line-height-label">Relaxed</span>
                     </div>
                     <div class="font-line-height-meta">
-                      <span>{helper.__("article.line_height_normal")}</span>
+                      <span>Normal</span>
                       <output class="font-line-height-value" for="article-line-height-slider">
                         1.70
                       </output>
@@ -245,20 +245,20 @@ module.exports = class extends Component {
                   </div>
                   <div class="font-setting-group font-weight-group">
                     <div class="font-weight-selector">
-                      <button type="button" class="font-weight-btn" data-weight="light" aria-label={helper.__("article.font_weight_light")}>
-                        <span class="font-option-name">{helper.__("article.font_weight_light")}</span>
+                      <button type="button" class="font-weight-btn" data-weight="light" aria-label="Light">
+                        <span class="font-option-name">Light</span>
                       </button>
-                      <button type="button" class="font-weight-btn is-active" data-weight="regular" aria-label={helper.__("article.font_weight_regular")}>
-                        <span class="font-option-name">{helper.__("article.font_weight_regular")}</span>
+                      <button type="button" class="font-weight-btn is-active" data-weight="regular" aria-label="Regular">
+                        <span class="font-option-name">Regular</span>
                       </button>
-                      <button type="button" class="font-weight-btn" data-weight="medium" aria-label={helper.__("article.font_weight_medium")}>
-                        <span class="font-option-name">{helper.__("article.font_weight_medium")}</span>
+                      <button type="button" class="font-weight-btn" data-weight="medium" aria-label="Medium">
+                        <span class="font-option-name">Medium</span>
                       </button>
                     </div>
                   </div>
                   <div class="font-setting-group font-custom-group">
-                    <button type="button" class="font-custom-toggle" aria-expanded="false" aria-controls="font-custom-panel" aria-label={helper.__("article.custom_fonts")}>
-                      <span>{helper.__("article.custom_fonts")}</span>
+                    <button type="button" class="font-custom-toggle" aria-expanded="false" aria-controls="font-custom-panel" aria-label="Custom Fonts">
+                      <span>Custom Fonts</span>
                       <span class="font-custom-toggle-icon" aria-hidden="true">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">
                           <path d="M7 2.25v9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
@@ -271,8 +271,8 @@ module.exports = class extends Component {
                         <form class="font-custom-form">
                           <label class="font-custom-field font-custom-import-field">
                             <span class="font-custom-label-row">
-                              <span>{helper.__("article.web_font_css")}</span>
-                              <button type="button" class="font-custom-help-btn" popovertarget="font-custom-help-popover" aria-label={helper.__("article.web_font_css_help")}>
+                              <span>Web Font CSS URL</span>
+                              <button type="button" class="font-custom-help-btn" popovertarget="font-custom-help-popover" aria-label="Font CSS help">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" role="img" aria-hidden="true">
                                   <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
                                   <path d="M12 10.25v5.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
@@ -285,7 +285,7 @@ module.exports = class extends Component {
                               name="font-custom-imports"
                               rows="3"
                               placeholder="https://fonts.googleapis.com/css2?family=..."
-                              aria-label={helper.__("article.web_font_css")}
+                              aria-label="Web Font CSS URL"
                             ></textarea>
                           </label>
                           <div class="font-custom-family-grid">
@@ -322,10 +322,10 @@ module.exports = class extends Component {
                           </div>
                           <div class="font-custom-actions">
                             <button type="submit" class="font-custom-apply">
-                              {helper.__("article.apply_fonts")}
+                              Apply
                             </button>
                             <button type="button" class="font-custom-reset">
-                              {helper.__("article.reset_fonts")}
+                              Reset
                             </button>
                           </div>
                         </form>
@@ -333,12 +333,12 @@ module.exports = class extends Component {
                     </div>
                   </div>
                   <div id="font-custom-help-popover" popover="manual" class="font-custom-help-popover" role="tooltip">
-                    {helper.__("article.web_font_css_help_text")}
+                    Paste one web font CSS URL per line. Each URL can load one or more font families.
                   </div>
                 </div>
                 <aside class="font-preview-column">
                   <div class="font-setting-group font-preview-group">
-                    <span class="font-setting-label">{helper.__("article.preview")}</span>
+                    <span class="font-setting-label">Preview</span>
                     <div class="font-preview-box">
                       <p class="font-preview-title">{page.title}</p>
                       {page.excerpt && <p class="font-preview-excerpt" dangerouslySetInnerHTML={{ __html: `${page.excerpt.substring(0, 80)}...` }}></p>}
