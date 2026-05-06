@@ -1017,15 +1017,23 @@ html {
     margin-bottom: 1rem;
   }
 
-  /* RaTeX math SVG sizing */
   .ratex {
     max-width: 100%;
     line-height: 0;
+    color: var(--text);
 
     svg {
       display: block;
       flex: 0 0 auto;
-      max-width: 100%;
+      fill: currentColor;
+
+      [fill] {
+        fill: currentColor !important;
+      }
+
+      [stroke] {
+        stroke: currentColor !important;
+      }
     }
   }
 
@@ -1043,6 +1051,13 @@ html {
       max-width: none;
       height: 1.42em;
     }
+    /* 分数 */
+    &:has(rect) {
+      vertical-align: -0.45em;
+      svg {
+        height: 2em;
+      }
+    }
   }
 
   .ratex-display {
@@ -1056,12 +1071,11 @@ html {
 
     svg {
       width: auto;
-      max-width: min(100%, 100vw - 2.5rem);
       height: auto;
-      max-height: min(8.5em, 42vh);
+      max-width: min(100%, calc(100vw - 2.5rem));
+      max-height: min(4.5em, 20vh);
     }
   }
-  /* End RaTeX math SVG sizing */
 
   pre {
     overflow-x: auto;
