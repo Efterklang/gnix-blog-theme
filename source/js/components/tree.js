@@ -10,7 +10,7 @@
  *   - components
  *     - accordion.js
  *     - tree.js
- *   - styles
+ *   - styles/
  *     - main.css
  * - package.json
  * - README.md
@@ -285,11 +285,7 @@ class XTree extends HTMLElement {
       const childUL = li.querySelector(":scope > ul");
       const children = childUL ? this.parseUL(childUL) : [];
 
-      result.push({
-        label: text,
-        children,
-        hasChildren: children.length > 0,
-      });
+      result.push(this.createNode(text, children));
     });
 
     return result;
@@ -313,7 +309,7 @@ class XTree extends HTMLElement {
     `;
 
     this.shadowRoot.querySelectorAll(".tree-children").forEach((el) => {
-      el.style.maxHeight = el.scrollHeight + "px";
+      el.style.maxHeight = `${el.scrollHeight}px`;
     });
 
     this.shadowRoot.querySelectorAll(".tree-toggle:not(.collapsed)").forEach((btn) => {
@@ -333,23 +329,40 @@ class XTree extends HTMLElement {
     return ICON_FILE;
   }
 
+  createNode(label, children = []) {
+    const normalizedLabel = label.trim();
+    const isExplicitFolder = /\/+$/.test(normalizedLabel);
+    const displayLabel = isExplicitFolder ? normalizedLabel.replace(/\/+$/, "") : normalizedLabel;
+    const hasChildren = children.length > 0;
+
+    return {
+      label: normalizedLabel,
+      displayLabel: displayLabel || normalizedLabel,
+      children,
+      hasChildren,
+      isFolder: isExplicitFolder || hasChildren,
+    };
+  }
+
   renderTreeItems(items) {
     return items
       .map((item) => {
-        const isFolder = item.hasChildren;
-        const icon = this.getIcon(item.label, isFolder);
-        const extClass = isFolder ? "folder" : this.getExtClass(item.label);
+        const isFolder = item.isFolder || item.hasChildren;
+        const canToggle = item.hasChildren;
+        const label = item.displayLabel || item.label;
+        const icon = this.getIcon(label, isFolder);
+        const extClass = isFolder ? "folder" : this.getExtClass(label);
 
-        const toggleHTML = isFolder ? `<button class="tree-toggle" aria-expanded="true">${ICON_CHEVRON}</button>` : `<span class="tree-toggle-placeholder"></span>`;
+        const toggleHTML = canToggle ? `<button class="tree-toggle" aria-expanded="true">${ICON_CHEVRON}</button>` : `<span class="tree-toggle-placeholder"></span>`;
 
-        const childrenHTML = isFolder ? `<ul class="tree-children">${this.renderTreeItems(item.children)}</ul>` : "";
+        const childrenHTML = canToggle ? `<ul class="tree-children">${this.renderTreeItems(item.children)}</ul>` : "";
 
         return `
           <li class="tree-item">
             <div class="tree-row">
               ${toggleHTML}
               <span class="tree-icon ${extClass}">${icon}</span>
-              <span class="tree-label">${this.escapeHTML(item.label)}</span>
+              <span class="tree-label">${this.escapeHTML(label)}</span>
             </div>
             ${childrenHTML}
           </li>
@@ -374,11 +387,11 @@ class XTree extends HTMLElement {
       btn.classList.remove("collapsed");
       btn.setAttribute("aria-expanded", "true");
       children.classList.remove("collapsed");
-      children.style.maxHeight = children.scrollHeight + "px";
+      children.style.maxHeight = `${children.scrollHeight}px`;
     } else {
       btn.classList.add("collapsed");
       btn.setAttribute("aria-expanded", "false");
-      children.style.maxHeight = children.scrollHeight + "px";
+      children.style.maxHeight = `${children.scrollHeight}px`;
       children.offsetHeight;
       children.classList.add("collapsed");
     }
@@ -413,7 +426,7 @@ class XTree extends HTMLElement {
       const indent = match[1].length;
       const label = match[2].trim();
 
-      const node = { label, children: [], hasChildren: false };
+      const node = this.createNode(label);
 
       while (stack.length > 1 && stack[stack.length - 1].indent >= indent) {
         stack.pop();
@@ -422,6 +435,7 @@ class XTree extends HTMLElement {
       const parent = stack[stack.length - 1].node;
       parent.children.push(node);
       parent.hasChildren = true;
+      parent.isFolder = true;
 
       stack.push({ indent, node });
     }
