@@ -64,3 +64,5 @@ bun i hexo-renderer-markdown-exit
 - [ppoffice/hexo-theme-icarus: A simple, delicate, and modern theme for the static site generator Hexo.](https://github.com/ppoffice/hexo-theme-icarus)
 - [D0n9X1n/hexo-blog-encrypt: Yet, just another hexo plugin for security.](https://github.com/D0n9X1n/hexo-blog-encrypt)
 - [hexojs/hexo-generator-feed: Feed generator for Hexo.](https://github.com/hexojs/hexo-generator-feed)
+- [hexojs/hexo-generator-tag: Tag generator for Hexo.](https://github.com/hexojs/hexo-generator-tag)
+- [hexojs/hexo-generator-archive: Archive generator for Hexo.](https://github.com/hexojs/hexo-generator-archive)
