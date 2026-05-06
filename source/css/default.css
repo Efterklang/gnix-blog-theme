@@ -1017,6 +1017,52 @@ html {
     margin-bottom: 1rem;
   }
 
+  /* RaTeX math SVG sizing */
+  .ratex {
+    max-width: 100%;
+    line-height: 0;
+
+    svg {
+      display: block;
+      flex: 0 0 auto;
+      max-width: 100%;
+    }
+  }
+
+  .ratex-inline {
+    display: inline-flex;
+    align-items: center;
+    max-width: min(100%, 22em);
+    margin: 0 0.08em;
+    overflow-x: auto;
+    overflow-y: hidden;
+    vertical-align: -0.32em;
+
+    svg {
+      width: auto;
+      max-width: none;
+      height: 1.42em;
+    }
+  }
+
+  .ratex-display {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    svg {
+      width: auto;
+      max-width: min(100%, 100vw - 2.5rem);
+      height: auto;
+      max-height: min(8.5em, 42vh);
+    }
+  }
+  /* End RaTeX math SVG sizing */
+
   pre {
     overflow-x: auto;
     font-size: 0.85em;
@@ -1058,6 +1104,24 @@ html {
     &:hover {
       text-decoration-color: var(--blue);
       text-decoration-thickness: 2px;
+    }
+  }
+
+  aside {
+    display: block;
+    margin: 1.5rem 0;
+    padding: 0.4rem 0 0.4rem 1rem;
+    color: var(--subtext0);
+    font-size: 0.875em;
+    line-height: 1.55;
+    border-left: 2px solid var(--surface1);
+
+    > :first-child {
+      margin-top: 0;
+    }
+
+    > :last-child {
+      margin-bottom: 0;
     }
   }
 }

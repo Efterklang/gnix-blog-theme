@@ -404,3 +404,43 @@
     margin-left: auto;
   }
 }
+
+@media screen and (min-width: 1280px) {
+  /* Side note: float aside into the right margin so it doesn't squeeze .content */
+  .content {
+    overflow: visible;
+    display: flow-root;
+  }
+
+  .content aside {
+    float: right;
+    clear: right;
+    width: 11rem;
+    /* margin-right: -(width + gap) so the aside box pulls itself past .content's right edge */
+    margin: 0 -12.5rem 1rem 1.5rem;
+    padding: 0 0 0 0.875rem;
+    font-size: 0.8em;
+  }
+
+  /* When CSS anchor positioning is supported, anchor each aside to the
+     immediately preceding block so the two tops line up. <aside> is taken
+     out of normal flow, so the next paragraph keeps following its real
+     predecessor instead of being pushed down. */
+  @supports (top: anchor(top)) {
+    .content {
+      position: relative;
+    }
+
+    .content > :not(aside):has(+ aside) {
+      anchor-name: --side-note;
+    }
+
+    .content aside {
+      position: absolute;
+      position-anchor: --side-note;
+      top: anchor(top);
+      right: -12.5rem;
+      margin: 0;
+    }
+  }
+}
