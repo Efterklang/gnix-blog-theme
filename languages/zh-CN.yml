@@ -32,6 +32,7 @@ article:
   author: "作者"
   article_title: "标题"
   url: "链接"
+  markdown_source: "Markdown 源码"
   licensing:
     author: "Author"
     created_at: "Posted"

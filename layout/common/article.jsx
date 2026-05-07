@@ -26,6 +26,9 @@ module.exports = class extends Component {
     const wordCount = getWordCount(page._content);
     const readTime = Math.ceil(wordCount / 200); // 假设每分钟阅读200字
     const hasComment = !index && config.comment && typeof config.comment.type === "string";
+    const markdownSourceUrl = !index && page.markdown_path ? url_for(page.markdown_path) : null;
+    const markdownSourceLabel = helper.__("article.markdown_source");
+    const markdownSourceType = "text/markdown; charset=utf-8";
     const translatedCommentsLabel = helper.__("article.comments");
     const commentsLabel = translatedCommentsLabel === "article.comments" ? "Comments" : translatedCommentsLabel;
 
@@ -487,6 +490,40 @@ module.exports = class extends Component {
                         <span class="article-info-value">
                           <a href={page.permalink} target="_blank" rel="noopener">
                             {decodeURI(page.permalink)}
+                          </a>
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {markdownSourceUrl && (
+                    <div class="article-info-item">
+                      <div class="article-info-icon">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          role="img"
+                          aria-label={markdownSourceLabel}
+                        >
+                          <title>{markdownSourceLabel}</title>
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <path d="M8 13h8" />
+                          <path d="M8 17h5" />
+                          <path d="M8 9h2" />
+                        </svg>
+                      </div>
+                      <div class="article-info-content">
+                        <span class="article-info-label">{markdownSourceLabel}</span>
+                        <span class="article-info-value">
+                          <a href={markdownSourceUrl} target="_blank" rel="noopener" type={markdownSourceType}>
+                            {decodeURI(markdownSourceUrl)}
                           </a>
                         </span>
                       </div>

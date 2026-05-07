@@ -5,8 +5,8 @@ const StructuredData = require("../../layout/misc/structured_data");
 const Plugins = require("./plugins");
 const { getArticleFontInitScript } = require("../../include/util/article_font");
 const { getThemeInitScript } = require("../../include/util/theme");
-const fs = require("fs");
-const path = require("path");
+const fs = require("node:fs");
+const path = require("node:path");
 
 function getPageTitle(page, siteTitle, helper) {
   let title = page.title;
@@ -52,6 +52,8 @@ module.exports = class extends Component {
     const { url_for, is_post } = helper;
     const { url, head = {}, article } = config;
     const { meta = [], open_graph = {}, structured_data = {}, canonical_url = page.permalink, favicon } = head;
+    const markdownSourceUrl = page.markdown_path ? url_for(page.markdown_path) : null;
+    const markdownSourceType = "text/markdown; charset=utf-8";
 
     const noIndex = helper.is_archive() || helper.is_tag();
 
@@ -144,6 +146,7 @@ module.exports = class extends Component {
           />
         ) : null}
         {canonical_url ? <link rel="canonical" href={canonical_url} /> : null}
+        {is_post(page) && markdownSourceUrl ? <link rel="alternate" type={markdownSourceType} title={helper.__("article.markdown_source")} href={markdownSourceUrl} /> : null}
         <link rel="icon" href={url_for(favicon || "/img/favicon.svg")} />
         <link rel="stylesheet" href={url_for("/css/default.css")} />
         <link rel="stylesheet" href={url_for("/css/responsive.css")} />

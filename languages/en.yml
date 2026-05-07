@@ -32,6 +32,7 @@ article:
   author: "Author"
   article_title: "Title"
   url: "URL"
+  markdown_source: "Markdown source"
   licensing:
     author: "Author"
     created_at: "Posted on"

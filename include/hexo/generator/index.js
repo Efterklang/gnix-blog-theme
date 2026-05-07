@@ -27,6 +27,11 @@ function mapTag(tag, url_for) {
 }
 
 module.exports = (hexo) => {
+  const mdConfig = hexo.theme.config.md_generator || {};
+  if (mdConfig.enabled !== false) {
+    require("./md_generator")(hexo);
+  }
+
   hexo.extend.generator.register("insight", function (locals) {
     const url_for = hexo.extend.helper.get("url_for").bind(this);
     const site = {
