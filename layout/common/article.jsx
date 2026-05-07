@@ -1,6 +1,7 @@
 const { Component, Fragment, dateFormatters } = require("../../include/util/common");
 const Comment = require("./comment");
 const ArticleCover = require("./article_cover");
+const ArticleInfo = require("./article_info");
 
 /**
  * Get the word count of text.
@@ -19,16 +20,12 @@ module.exports = class extends Component {
     // index: true if in article list, false if in article page
     const { config, helper, page, index } = this.props;
 
-    const { article } = config;
     const { url_for } = helper;
 
     const cover = page.cover ? url_for(page.cover) : null;
     const wordCount = getWordCount(page._content);
     const readTime = Math.ceil(wordCount / 200); // 假设每分钟阅读200字
     const hasComment = !index && config.comment && typeof config.comment.type === "string";
-    const markdownSourceUrl = !index && page.markdown_path ? url_for(page.markdown_path) : null;
-    const markdownSourceLabel = helper.__("article.markdown_source");
-    const markdownSourceType = "text/markdown; charset=utf-8";
     const translatedCommentsLabel = helper.__("article.comments");
     const commentsLabel = translatedCommentsLabel === "article.comments" ? "Comments" : translatedCommentsLabel;
 
@@ -102,21 +99,15 @@ module.exports = class extends Component {
                 <div class="article-title-actions">
                   {hasComment && (
                     <button type="button" class="article-action-btn" popovertarget="article-comment-popover" aria-label={commentsLabel} title={commentsLabel}>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        role="img"
-                        aria-label={commentsLabel}
-                      >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-label={commentsLabel}>
                         <title>{commentsLabel}</title>
-                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
+                        <g fill="none">
+                          <path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" />
+                          <path
+                            fill="currentColor"
+                            d="M16 4a3 3 0 0 1 2.995 2.824L19 7v2a3 3 0 0 1 2.995 2.824L22 12v4a3 3 0 0 1-2.824 2.995L19 19v.966c0 1.02-1.143 1.594-1.954 1.033l-.096-.072L14.638 19H11a3 3 0 0 1-1.998-.762l-.14-.134L7 19.5c-.791.593-1.906.075-1.994-.879L5 18.5V17a3 3 0 0 1-2.995-2.824L2 14V7a3 3 0 0 1 2.824-2.995L5 4zm3 7h-8a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h3.638a2 2 0 0 1 1.28.464l1.088.906A1.5 1.5 0 0 1 18.5 17h.5a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1m-3-5H5a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h.5A1.5 1.5 0 0 1 7 16.5v.5l1.01-.757A3 3 0 0 1 8 16v-4a3 3 0 0 1 3-3h6V7a1 1 0 0 0-1-1"
+                          />
+                        </g>
                       </svg>
                     </button>
                   )}
@@ -382,274 +373,7 @@ module.exports = class extends Component {
             </div>
           )}
 
-          {!index && (
-            <div id="article-info-popover" popover="auto" class="article-popover article-info-popover">
-              <div class="article-popover-header">
-                <h3>{helper.__("article.article_info")}</h3>
-                <button type="button" class="article-popover-close" popovertarget="article-info-popover" popovertargetaction="hide" aria-label={helper.__("article.close")}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    role="img"
-                    aria-label="Close"
-                  >
-                    <title>Close</title>
-                    <path d="M18 6 6 18" />
-                    <path d="m6 6 12 12" />
-                  </svg>
-                </button>
-              </div>
-              <div class="article-popover-body">
-                <div class="article-info-list">
-                  {(page.author || config.author) && (
-                    <div class="article-info-item">
-                      <div class="article-info-icon">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          role="img"
-                          aria-label="Author"
-                        >
-                          <title>Author</title>
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                          <circle cx="12" cy="7" r="4" />
-                        </svg>
-                      </div>
-                      <div class="article-info-content">
-                        <span class="article-info-label">{helper.__("article.author")}</span>
-                        <span class="article-info-value">{page.author || config.author}</span>
-                      </div>
-                    </div>
-                  )}
-                  {page.title && (
-                    <div class="article-info-item">
-                      <div class="article-info-icon">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          role="img"
-                          aria-label="Title"
-                        >
-                          <title>Title</title>
-                          <path d="M4 20h16" />
-                          <path d="M6 16h6" />
-                          <path d="M6 12h12" />
-                          <path d="M6 8h10" />
-                        </svg>
-                      </div>
-                      <div class="article-info-content">
-                        <span class="article-info-label">{helper.__("article.article_title")}</span>
-                        <span class="article-info-value">{page.title}</span>
-                      </div>
-                    </div>
-                  )}
-                  {page.permalink && (
-                    <div class="article-info-item">
-                      <div class="article-info-icon">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          role="img"
-                          aria-label="URL"
-                        >
-                          <title>URL</title>
-                          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                        </svg>
-                      </div>
-                      <div class="article-info-content">
-                        <span class="article-info-label">{helper.__("article.url")}</span>
-                        <span class="article-info-value">
-                          <a href={page.permalink} target="_blank" rel="noopener">
-                            {decodeURI(page.permalink)}
-                          </a>
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  {markdownSourceUrl && (
-                    <div class="article-info-item">
-                      <div class="article-info-icon">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          role="img"
-                          aria-label={markdownSourceLabel}
-                        >
-                          <title>{markdownSourceLabel}</title>
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                          <polyline points="14 2 14 8 20 8" />
-                          <path d="M8 13h8" />
-                          <path d="M8 17h5" />
-                          <path d="M8 9h2" />
-                        </svg>
-                      </div>
-                      <div class="article-info-content">
-                        <span class="article-info-label">{markdownSourceLabel}</span>
-                        <span class="article-info-value">
-                          <a href={markdownSourceUrl} target="_blank" rel="noopener" type={markdownSourceType}>
-                            {decodeURI(markdownSourceUrl)}
-                          </a>
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  {page.date && (
-                    <div class="article-info-item">
-                      <div class="article-info-icon">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          role="img"
-                          aria-label="Created time"
-                        >
-                          <title>Created time</title>
-                          <circle cx="12" cy="12" r="10" />
-                          <polyline points="12 6 12 12 16 14" />
-                        </svg>
-                      </div>
-                      <div class="article-info-content">
-                        <span class="article-info-label">{helper.__("article.created_time")}</span>
-                        <span class="article-info-value">{helper.date(page.date, "YYYY-MM-DD HH:mm")}</span>
-                      </div>
-                    </div>
-                  )}
-                  {page.updated && (
-                    <div class="article-info-item">
-                      <div class="article-info-icon">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          role="img"
-                          aria-label="Updated time"
-                        >
-                          <title>Updated time</title>
-                          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                          <path d="M3 3v5h5" />
-                        </svg>
-                      </div>
-                      <div class="article-info-content">
-                        <span class="article-info-label">{helper.__("article.updated_time")}</span>
-                        <span class="article-info-value">{helper.date(page.updated, "YYYY-MM-DD HH:mm")}</span>
-                      </div>
-                    </div>
-                  )}
-                  {article?.licenses && Object.keys(article.licenses).length > 0 && (
-                    <div class="article-info-item">
-                      <div class="article-info-icon">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          role="img"
-                          aria-label="License"
-                        >
-                          <title>License</title>
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                          <polyline points="14 2 14 8 20 8" />
-                        </svg>
-                      </div>
-                      <div class="article-info-content">
-                        <span class="article-info-label">{helper.__("article.license")}</span>
-                        <span class="article-info-value">
-                          {Object.keys(article.licenses).map((name, i) => (
-                            <span key={name}>
-                              {i > 0 && <span>, </span>}
-                              <a href={article.licenses[name]} target="_blank" rel="noopener">
-                                {name}
-                              </a>
-                            </span>
-                          ))}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  {page.location && (
-                    <div class="article-info-item">
-                      <div class="article-info-icon">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          role="img"
-                          aria-label="Location"
-                        >
-                          <title>Location</title>
-                          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                          <circle cx="12" cy="10" r="3" />
-                        </svg>
-                      </div>
-                      <div class="article-info-content">
-                        <span class="article-info-label">{helper.__("article.location")}</span>
-                        <span class="article-info-value">{page.location}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+          {!index && <ArticleInfo page={page} config={config} helper={helper} />}
         </div>
       </Fragment>
     );
