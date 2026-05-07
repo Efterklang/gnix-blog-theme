@@ -647,6 +647,17 @@ function initArticleCommentPopover() {
     return;
   }
 
+  // Preload twikoo JS during idle time so comments render faster on click
+  const tko = document.getElementById("tko");
+  if (tko && tko.dataset.jsUrl) {
+    const preload = () => loadScriptOnce(tko.dataset.jsUrl, () => {});
+    if (typeof requestIdleCallback === "function") {
+      requestIdleCallback(preload, { timeout: 3000 });
+    } else {
+      setTimeout(preload, 200);
+    }
+  }
+
   const initializeComments = () => twikoo_handler();
   if (commentPopover.matches(":popover-open")) {
     initializeComments();
