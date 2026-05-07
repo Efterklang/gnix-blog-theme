@@ -1,40 +1,57 @@
 const fs = require("node:fs");
-const { PassThrough } = require("node:stream");
-const { getMarkdownOutputPath } = require("../../util/markdown_source");
+const path = require("node:path");
+const { Readable } = require("node:stream");
 
 const UTF8_BOM = Buffer.from([0xef, 0xbb, 0xbf]);
+const MARKDOWN_EXTENSIONS = new Set([".md", ".markdown", ".mdown", ".mkd", ".mkdn"]);
 
 function getPosts(posts) {
   if (typeof posts?.toArray === "function") return posts.toArray();
   if (Array.isArray(posts?.data)) return posts.data;
   if (Array.isArray(posts)) return posts;
-
   return [];
 }
 
-function hasUtf8Bom(sourcePath) {
-  const fd = fs.openSync(sourcePath, "r");
-
-  try {
-    const buffer = Buffer.alloc(UTF8_BOM.length);
-    const bytesRead = fs.readSync(fd, buffer, 0, UTF8_BOM.length, 0);
-
-    return bytesRead === UTF8_BOM.length && buffer.equals(UTF8_BOM);
-  } finally {
-    fs.closeSync(fd);
-  }
+function hasPassword(post) {
+  return Boolean(post?.password || post?.password === 0);
 }
 
-function createMarkdownSourceStream(sourcePath) {
-  const sourceStream = fs.createReadStream(sourcePath);
-  if (hasUtf8Bom(sourcePath)) return sourceStream;
+function isMarkdownSource(post) {
+  const source = post?.source || post?.full_source;
+  if (typeof source !== "string") return false;
+  return MARKDOWN_EXTENSIONS.has(path.extname(source).toLowerCase());
+}
 
-  const output = new PassThrough();
-  output.write(UTF8_BOM);
-  sourceStream.on("error", (error) => output.destroy(error));
-  sourceStream.pipe(output);
+function getHtmlRoutePath(routePath) {
+  if (typeof routePath !== "string") return null;
+  const normalized = routePath.replace(/^\/+/, "").replace(/\\/g, "/").replace(/\?.*$/, "");
+  if (!normalized || normalized.endsWith("/")) {
+    return `${normalized}index.html`;
+  }
+  return normalized;
+}
 
-  return output;
+function getMarkdownOutputPath(post) {
+  if (hasPassword(post) || !isMarkdownSource(post)) return null;
+
+  const htmlPath = getHtmlRoutePath(post?.path);
+  if (!htmlPath) return null;
+
+  const ext = path.posix.extname(htmlPath);
+  if (!ext) return `${htmlPath}.md`;
+  return `${htmlPath.slice(0, -ext.length)}.md`;
+}
+
+function readMarkdownFile(sourcePath) {
+  let content;
+  try {
+    content = fs.readFileSync(sourcePath);
+  } catch {
+    return null;
+  }
+
+  const hasBom = content.length >= 3 && content.subarray(0, 3).equals(UTF8_BOM);
+  return hasBom ? content : Buffer.concat([UTF8_BOM, content]);
 }
 
 module.exports = (hexo) => {
@@ -44,7 +61,13 @@ module.exports = (hexo) => {
         const markdownPath = getMarkdownOutputPath(post);
         const sourcePath = post?.full_source;
 
-        if (!markdownPath || typeof sourcePath !== "string" || !fs.existsSync(sourcePath)) {
+        if (!markdownPath || typeof sourcePath !== "string") {
+          delete post.markdown_path;
+          return null;
+        }
+
+        const data = readMarkdownFile(sourcePath);
+        if (!data) {
           delete post.markdown_path;
           return null;
         }
@@ -54,7 +77,7 @@ module.exports = (hexo) => {
         return {
           path: markdownPath,
           data: {
-            data: () => createMarkdownSourceStream(sourcePath),
+            data: () => Readable.from(data),
             modified: true,
           },
         };
