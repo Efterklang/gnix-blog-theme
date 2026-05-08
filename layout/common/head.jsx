@@ -5,7 +5,7 @@ const StructuredData = require("../../layout/misc/structured_data");
 const Plugins = require("./plugins");
 const { getArticleFontInitScript } = require("../../include/util/article_font");
 const { getThemeInitScript } = require("../../include/util/theme");
-const { getDefaultLanguageKey, getI18nKey, getLanguage, getPageLanguageKey, getPageLocale, isI18nEnabled, normalizeLocale, toArray } = require("../../include/util/i18n");
+const { getDefaultLanguageKey, getLanguage, getPageLanguageKey, getPageLocale, isI18nEnabled, normalizeLocale } = require("../../include/util/i18n");
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -82,27 +82,15 @@ function addExplicitAlternates(links, alternates, helper, config) {
   });
 }
 
-function collectDocuments(site) {
-  return [...toArray(site?.posts), ...toArray(site?.pages)];
-}
-
 function getHreflangLinks(site, page, config, helper) {
   if (!isI18nEnabled(config)) return [];
 
   const links = new Map();
-  const pageKey = getI18nKey(page);
   const langKey = getPageLanguageKey(page, config);
   const locale = getPageLocale(page, config);
 
   addAlternateLink(links, locale, page.permalink || page.path, helper, config);
-  addExplicitAlternates(links, page.i18n?.alternates || page.alternates || page.hreflang, helper, config);
-
-  if (pageKey) {
-    collectDocuments(site).forEach((item) => {
-      if (!item || getI18nKey(item) !== pageKey) return;
-      addAlternateLink(links, getPageLocale(item, config), item.permalink || item.path, helper, config);
-    });
-  }
+  addExplicitAlternates(links, page.i18n, helper, config);
 
   if (links.size > 1 && !links.has("x-default")) {
     const defaultLanguage = getLanguage(config, getDefaultLanguageKey(config));

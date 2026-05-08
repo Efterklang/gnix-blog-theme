@@ -1,5 +1,5 @@
 const { Component, Fragment, cacheComponent } = require("../../include/util/common");
-const { getI18nKey, getLanguage, getLanguageKeys, getPageLanguageKey, isExternalUrl, isI18nEnabled, toArray } = require("../../include/util/i18n");
+const { getLanguage, getLanguageKeys, getPageLanguageKey, isExternalUrl, isI18nEnabled } = require("../../include/util/i18n");
 
 function isActiveMenuLink(menuUrl, pageUrl) {
   const menuPath = sanitizeLink(menuUrl);
@@ -36,16 +36,6 @@ const renderLinkIcon = (link) => {
   return <iconify-icon icon={link.icon}></iconify-icon>;
 };
 
-function collectDocuments(site) {
-  return [...toArray(site?.posts), ...toArray(site?.pages)];
-}
-
-function getDocumentUrl(helper, document) {
-  const href = document?.path || document?.permalink;
-  if (!href) return null;
-  return isExternalUrl(href) ? href : helper.url_for(href);
-}
-
 function getTargetLanguageKey(config, currentLanguageKey) {
   const languageKeys = getLanguageKeys(config);
   if (currentLanguageKey === "en" && languageKeys.includes("cn")) return "cn";
@@ -71,12 +61,13 @@ function getLanguageSwitch(site, page, config, helper) {
   if (!targetLanguage || targetLanguageKey === currentLanguageKey) return null;
   const targetLanguageName = getTargetLanguageDisplayName(currentLanguageKey, targetLanguageKey, targetLanguage);
 
-  const pageKey = getI18nKey(page);
   let url = null;
-
-  if (pageKey) {
-    const alternate = collectDocuments(site).find((item) => getI18nKey(item) === pageKey && getPageLanguageKey(item, config) === targetLanguageKey);
-    url = getDocumentUrl(helper, alternate);
+  const pageI18n = page.i18n;
+  if (pageI18n && typeof pageI18n === "object" && targetLanguageKey) {
+    const altUrl = pageI18n[targetLanguageKey] || (targetLanguage ? pageI18n[targetLanguage.locale] : null);
+    if (altUrl) {
+      url = isExternalUrl(altUrl) ? altUrl : helper.url_for(altUrl);
+    }
   }
 
   const isDocumentPage = ["page", "post"].includes(page?.layout);

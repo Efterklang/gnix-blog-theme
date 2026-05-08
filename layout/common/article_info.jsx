@@ -1,36 +1,11 @@
 const { Component } = require("../../include/util/common");
 
-function getTranslatedValue(helper, key, fallback) {
-  const translated = helper.__(key);
-  return translated === key ? fallback : translated;
-}
-
-function getTranslationMethodLabel(method, helper) {
-  if (!method) return "";
-  const key = `article.translation_methods.${method}`;
-  return getTranslatedValue(helper, key, method);
-}
-
-function getOriginalWorkValue(page, helper) {
-  const value = page.i18n?.original ?? page.original;
-  if (typeof value !== "boolean") return null;
-  return value ? helper.__("article.yes") : helper.__("article.no");
-}
-
-function getTranslationNote(page, helper) {
-  const translation = page.i18n?.translation || page.translation;
-  if (!translation) return null;
-  if (typeof translation === "string") return translation;
-
-  const parts = [];
-  const method = getTranslationMethodLabel(translation.method, helper);
-  if (method) parts.push(method);
-  if (typeof translation.reviewed === "boolean") {
-    parts.push(helper.__(translation.reviewed ? "article.translation_reviewed" : "article.translation_not_reviewed"));
-  }
-  if (translation.note) parts.push(translation.note);
-
-  return parts.length ? parts.join(" · ") : null;
+function getTranslationInfo(page, helper) {
+  if (!page.i18n) return null;
+  const t = page.i18n.translation;
+  if (t === 1) return helper.__("article.translation_llm_reviewed");
+  if (t === 2) return helper.__("article.translation_llm_unreviewed");
+  return helper.__("article.translation_original");
 }
 
 function LanguageIcon({ title }) {
@@ -51,8 +26,7 @@ module.exports = class extends Component {
   render() {
     const { page, config, helper } = this.props;
     const { article } = config;
-    const originalWorkValue = getOriginalWorkValue(page, helper);
-    const translationNote = getTranslationNote(page, helper);
+    const translationInfo = getTranslationInfo(page, helper);
 
     const markdownSourceUrl = page.markdown_path ? helper.url_for(page.markdown_path) : null;
     const markdownSourceLabel = helper.__("article.markdown_source");
@@ -171,25 +145,14 @@ module.exports = class extends Component {
                 </div>
               </div>
             )}
-            {originalWorkValue && (
+            {translationInfo && (
               <div class="article-info-item">
                 <div class="article-info-icon">
-                  <LanguageIcon title={helper.__("article.original_work")} />
+                  <LanguageIcon title={helper.__("article.translation_info")} />
                 </div>
                 <div class="article-info-content">
-                  <span class="article-info-label">{helper.__("article.original_work")}</span>
-                  <span class="article-info-value">{originalWorkValue}</span>
-                </div>
-              </div>
-            )}
-            {translationNote && (
-              <div class="article-info-item">
-                <div class="article-info-icon">
-                  <LanguageIcon title={helper.__("article.translation_note")} />
-                </div>
-                <div class="article-info-content">
-                  <span class="article-info-label">{helper.__("article.translation_note")}</span>
-                  <span class="article-info-value">{translationNote}</span>
+                  <span class="article-info-label">{helper.__("article.translation_info")}</span>
+                  <span class="article-info-value">{translationInfo}</span>
                 </div>
               </div>
             )}
