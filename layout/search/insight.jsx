@@ -52,7 +52,7 @@ Insight.Cacheable = cacheComponent(Insight, "search.insight", (props) => {
       pages: helper._p("common.page", Infinity),
       tags: helper._p("common.tag", Infinity),
     },
-    contentUrl: helper.url_for("/content.json"),
+    contentUrl: helper.is_i18n_enabled() ? helper.localized_url_for("/content.json") : helper.url_for("/content.json"),
     jsUrl: helper.url_for("/js/insight.js"),
   };
 });

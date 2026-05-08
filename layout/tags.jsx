@@ -1,4 +1,5 @@
 const { Component, Fragment, cacheComponent } = require("../include/util/common");
+const { filterByLanguage } = require("../include/util/i18n");
 
 function getTagSize(count, maxCount) {
   const ratio = maxCount ? count / maxCount : 0;
@@ -52,31 +53,45 @@ class Tags extends Component {
 }
 
 Tags.Cacheable = cacheComponent(Tags, "page.tags", (props) => {
-  const { helper, widget = {} } = props;
+  const { helper, page, widget = {} } = props;
   const { order_by = "name", amount, show_count = true } = widget;
-  let tags = props.tags || props.site.tags;
-  const { url_for, _p } = helper;
+  let tags = props.tags || page?.tags || props.site.tags;
+  const { _p } = helper;
 
   if (!tags?.length) {
     return null;
   }
 
-  tags = tags.sort(order_by).filter((tag) => tag.length);
+  if (Array.isArray(tags)) {
+    tags = tags
+      .filter((tag) => tag.length)
+      .sort((a, b) => {
+        const aValue = a[order_by] || a.name || "";
+        const bValue = b[order_by] || b.name || "";
+        return String(aValue).localeCompare(String(bValue));
+      });
+  } else {
+    tags = tags.sort(order_by).filter((tag) => tag.length);
+  }
   if (amount) {
-    tags = tags.limit(amount);
+    tags = typeof tags.limit === "function" ? tags.limit(amount) : tags.slice(0, amount);
   }
 
-  const mappedTags = tags.map((tag) => ({
-    name: tag.name,
-    count: tag.length,
-    url: url_for(tag.path),
-  }));
+  const langKey = helper.language_key(page);
+  const mappedTags = tags.map((tag) => {
+    const posts = helper.is_i18n_enabled() ? filterByLanguage(tag.posts, langKey, props.config || {}, helper) : tag.posts;
+    return {
+      name: tag.name,
+      count: posts.length,
+      url: helper.localized_tag_url(tag, langKey),
+    };
+  });
   const maxCount = mappedTags.reduce((max, tag) => Math.max(max, tag.count), 0);
   const totalPosts = mappedTags.reduce((total, tag) => total + tag.count, 0);
   const topTag = mappedTags.reduce((top, tag) => (tag.count > top.count ? tag : top), mappedTags[0]);
 
   return {
-    cssUrl: url_for("/css/tags.css"),
+    cssUrl: helper.url_for("/css/tags.css"),
     showCount: show_count,
     title: _p("common.tag", Infinity),
     totalPosts,
@@ -90,8 +105,8 @@ Tags.Cacheable = cacheComponent(Tags, "page.tags", (props) => {
 
 module.exports = class extends Component {
   render() {
-    const { site, helper } = this.props;
+    const { config, page, site, helper } = this.props;
 
-    return <Tags.Cacheable site={site} helper={helper} />;
+    return <Tags.Cacheable config={config} page={page} site={site} helper={helper} />;
   }
 };

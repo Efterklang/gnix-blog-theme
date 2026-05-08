@@ -95,9 +95,10 @@ class Footer extends Component {
 }
 
 module.exports = cacheComponent(Footer, "common.footer", (props) => {
-  const { config, helper, site } = props;
+  const { config, helper, page, site } = props;
   const { url_for, _p, date } = helper;
   const { title, author, footer, plugins } = config;
+  const langKey = helper.language_key(page);
 
   const links = {};
   if (footer?.links) {
@@ -116,7 +117,7 @@ module.exports = cacheComponent(Footer, "common.footer", (props) => {
       const link = footer.subdomains[name];
       const targetUrl = typeof link === "string" ? link : link.url;
       subdomains[name] = {
-        url: url_for(targetUrl),
+        url: helper.localized_url_for(targetUrl, langKey),
       };
     });
   }
@@ -139,11 +140,11 @@ module.exports = cacheComponent(Footer, "common.footer", (props) => {
 
     archives = Object.keys(byYear)
       .sort((a, b) => Number(b) - Number(a))
-      .map((year) => ({ year, url: url_for(`${archiveDir}/${year}/`) }));
+      .map((year) => ({ year, url: helper.localized_url_for(`${archiveDir}/${year}/`, langKey) }));
   }
 
   return {
-    siteUrl: url_for("/"),
+    siteUrl: helper.localized_url_for("/", langKey),
     siteTitle: title,
     siteYear: date(new Date(), "YYYY"),
     author,

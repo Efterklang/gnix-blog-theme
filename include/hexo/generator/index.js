@@ -1,4 +1,5 @@
 const util = require("hexo-util");
+const { filterByLanguage, getLanguageBasePath, getLanguageKeys, getLocalizedTagPath, isI18nEnabled } = require("../../util/i18n");
 
 function minify(str) {
   return util
@@ -18,11 +19,11 @@ function mapPost(post, url_for) {
   };
 }
 
-function mapTag(tag, url_for) {
+function mapTag(tag, url_for, langKey = null, config = {}) {
   return {
     name: util.escapeHTML(tag.name).trim(),
     slug: minify(tag.slug),
-    link: url_for(tag.path),
+    link: url_for(langKey ? `/${getLocalizedTagPath(tag, langKey, config)}` : tag.path),
   };
 }
 
@@ -34,14 +35,31 @@ module.exports = (hexo) => {
 
   hexo.extend.generator.register("insight", function (locals) {
     const url_for = hexo.extend.helper.get("url_for").bind(this);
-    const site = {
-      posts: locals.posts.map((post) => mapPost(post, url_for)),
-      tags: locals.tags.map((tag) => mapTag(tag, url_for)),
-    };
+    const fullConfig = Object.assign({}, this.config, this.config.theme_config, hexo.theme.config);
+
+    if (isI18nEnabled(fullConfig)) {
+      return getLanguageKeys(fullConfig).map((langKey) => {
+        const posts = filterByLanguage(locals.posts, langKey, fullConfig);
+        const tags = locals.tags
+          .filter((tag) => filterByLanguage(tag.posts, langKey, fullConfig).length)
+          .map((tag) => mapTag(tag, url_for, langKey, fullConfig));
+
+        return {
+          path: `${getLanguageBasePath(fullConfig, langKey)}content.json`,
+          data: JSON.stringify({
+            posts: posts.map((post) => mapPost(post, url_for)),
+            tags,
+          }),
+        };
+      });
+    }
 
     return {
       path: "/content.json",
-      data: JSON.stringify(site),
+      data: JSON.stringify({
+        posts: locals.posts.map((post) => mapPost(post, url_for)),
+        tags: locals.tags.map((tag) => mapTag(tag, url_for)),
+      }),
     };
   });
 
@@ -59,4 +77,6 @@ module.exports = (hexo) => {
   if (indexConfig.enabled !== false) {
     require("./home")(hexo);
   }
+
+  require("./page")(hexo);
 };

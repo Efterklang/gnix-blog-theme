@@ -11,7 +11,7 @@ module.exports = class extends Component {
   render() {
     const { site, config, page, helper, body } = this.props;
 
-    const language = page.lang || page.language || config.language || "en";
+    const language = helper.language_locale ? helper.language_locale(page) : page.lang || page.language || config.language || "en";
 
     return (
       <html
@@ -23,12 +23,12 @@ module.exports = class extends Component {
       >
         <Head site={site} config={config} helper={helper} page={page} />
         <body>
-          <Navbar config={config} helper={helper} page={page} />
+          <Navbar site={site} config={config} helper={helper} page={page} />
           <ThemeSelector />
           <section class="section">
             <div class="main-content transition-fade" id="swup" dangerouslySetInnerHTML={{ __html: body }}></div>
           </section>
-          <Footer site={site} config={config} helper={helper} />
+          <Footer site={site} config={config} helper={helper} page={page} />
           <Scripts site={site} config={config} helper={helper} page={page} />
           <Search config={config} helper={helper} />
         </body>

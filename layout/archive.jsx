@@ -1,4 +1,5 @@
 const { Component, Fragment, isValidDate, parseISO, dateFormatters } = require("../include/util/common");
+const { filterByLanguage } = require("../include/util/i18n");
 const ArticleMedia = require("./common/article_media");
 
 function collectPosts(collection) {
@@ -61,6 +62,7 @@ module.exports = class extends Component {
   render() {
     const { page, helper, site, config } = this.props;
     const { url_for, date_xml, date } = helper;
+    const langKey = helper.language_key(page);
 
     function renderArticleList(posts, year, month = null, sectionTitle = null, season = null) {
       const title = sectionTitle || getArchiveRangeLabel(year, month, season);
@@ -93,7 +95,7 @@ module.exports = class extends Component {
     const totalVisiblePosts = visiblePosts.length;
     const latestPost = visiblePosts[0];
 
-    const allPostsSource = site?.posts ? site.posts.sort("date", -1) : page.posts;
+    const allPostsSource = site?.posts ? filterByLanguage(site.posts.sort("date", -1), langKey, config) : page.posts;
     const allPosts = collectPosts(allPostsSource);
     const years = collectArchiveYears(allPosts);
     let articleList;
@@ -108,7 +110,7 @@ module.exports = class extends Component {
     }
 
     const archiveDir = config?.archive_dir || "archives";
-    const archiveBasePath = url_for(`/${archiveDir}/`);
+    const archiveBasePath = helper.localized_url_for(`/${archiveDir}/`, langKey);
     const currentYear = page.year ? Number(page.year) : null;
     const currentMonth = page.month ? Number(page.month) : null;
     const activeScope = getArchiveRangeLabel(currentYear, currentMonth);
@@ -149,7 +151,7 @@ module.exports = class extends Component {
               All
             </a>
             {years.map((year) => (
-              <a key={year} href={url_for(`/${archiveDir}/${year}/`)} class={currentYear === year ? "is-active" : null} aria-current={currentYear === year ? "page" : null}>
+              <a key={year} href={helper.localized_url_for(`/${archiveDir}/${year}/`, langKey)} class={currentYear === year ? "is-active" : null} aria-current={currentYear === year ? "page" : null}>
                 {year}
               </a>
             ))}

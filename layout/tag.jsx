@@ -48,7 +48,8 @@ const breadcrumb_css = `
 module.exports = class extends Component {
   render() {
     const { config, page, helper } = this.props;
-    const { url_for, _p } = helper;
+    const { _p } = helper;
+    const langKey = helper.language_key(page);
 
     return (
       <Fragment>
@@ -57,7 +58,7 @@ module.exports = class extends Component {
           <ul>
             <li>
               <font style="color: var(--green)">$</font>&nbsp;ls&nbsp;
-              <a href={url_for("/tags/")}>{_p("common.tag", Infinity)}/</a>
+              <a href={helper.localized_url_for("/tags/", langKey)}>{_p("common.tag", Infinity)}/</a>
             </li>
             <li>
               <a href="#" aria-current="page" style="cursor: default; pointer-events: none; color: var(--mauve);">

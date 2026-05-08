@@ -26,9 +26,10 @@ module.exports = (hexo) => {
   };
 
   function stripConfig(source, reservedKeys) {
+    const localOnlyKeys = ["i18n"];
     const result = {};
     Object.keys(source)
-      .filter((key) => !key.startsWith("_") && !reservedKeys.includes(key) && typeof source[key] !== "function")
+      .filter((key) => !key.startsWith("_") && !reservedKeys.includes(key) && !localOnlyKeys.includes(key) && typeof source[key] !== "function")
       .forEach((key) => {
         result[key] = source[key];
       });

@@ -5,6 +5,7 @@ const StructuredData = require("../../layout/misc/structured_data");
 const Plugins = require("./plugins");
 const { getArticleFontInitScript } = require("../../include/util/article_font");
 const { getThemeInitScript } = require("../../include/util/theme");
+const { getDefaultLanguageKey, getI18nKey, getLanguage, getPageLanguageKey, getPageLocale, isI18nEnabled, normalizeLocale, toArray } = require("../../include/util/i18n");
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -46,18 +47,92 @@ function getArticleSection(page) {
   return undefined;
 }
 
+function toAbsoluteUrl(href, helper, config) {
+  if (!href || typeof href !== "string") return null;
+  if (/^https?:\/\//i.test(href)) return href;
+  if (typeof helper.full_url_for === "function") return helper.full_url_for(href);
+
+  const localUrl = typeof helper.url_for === "function" ? helper.url_for(href) : href;
+  if (/^https?:\/\//i.test(localUrl)) return localUrl;
+
+  const siteUrl = String(config.url || "").replace(/\/+$/, "");
+  const path = localUrl.startsWith("/") ? localUrl : `/${localUrl}`;
+  return `${siteUrl}${path}`;
+}
+
+function addAlternateLink(links, hreflang, href, helper, config) {
+  const normalizedHreflang = hreflang === "x-default" ? "x-default" : normalizeLocale(hreflang);
+  const absoluteHref = toAbsoluteUrl(href, helper, config);
+  if (!normalizedHreflang || !absoluteHref) return;
+  links.set(normalizedHreflang.toLowerCase(), {
+    hreflang: normalizedHreflang,
+    href: absoluteHref,
+  });
+}
+
+function addExplicitAlternates(links, alternates, helper, config) {
+  if (!alternates || typeof alternates !== "object") return;
+
+  Object.keys(alternates).forEach((key) => {
+    const value = alternates[key];
+    const href = typeof value === "string" ? value : value?.href || value?.url;
+    const language = getLanguage(config, key);
+    const hreflang = key === "x-default" ? "x-default" : language?.key === key ? language.locale : key;
+    addAlternateLink(links, hreflang, href, helper, config);
+  });
+}
+
+function collectDocuments(site) {
+  return [...toArray(site?.posts), ...toArray(site?.pages)];
+}
+
+function getHreflangLinks(site, page, config, helper) {
+  if (!isI18nEnabled(config)) return [];
+
+  const links = new Map();
+  const pageKey = getI18nKey(page);
+  const langKey = getPageLanguageKey(page, config);
+  const locale = getPageLocale(page, config);
+
+  addAlternateLink(links, locale, page.permalink || page.path, helper, config);
+  addExplicitAlternates(links, page.i18n?.alternates || page.alternates || page.hreflang, helper, config);
+
+  if (pageKey) {
+    collectDocuments(site).forEach((item) => {
+      if (!item || getI18nKey(item) !== pageKey) return;
+      addAlternateLink(links, getPageLocale(item, config), item.permalink || item.path, helper, config);
+    });
+  }
+
+  if (links.size > 1 && !links.has("x-default")) {
+    const defaultLanguage = getLanguage(config, getDefaultLanguageKey(config));
+    const defaultLink = Array.from(links.values()).find((link) => link.hreflang.toLowerCase() === defaultLanguage.locale.toLowerCase());
+    if (defaultLink) addAlternateLink(links, "x-default", defaultLink.href, helper, config);
+  }
+
+  return Array.from(links.values()).sort((a, b) => {
+    if (a.hreflang === "x-default") return 1;
+    if (b.hreflang === "x-default") return -1;
+    if (a.hreflang === getLanguage(config, langKey).locale) return -1;
+    if (b.hreflang === getLanguage(config, langKey).locale) return 1;
+    return a.hreflang.localeCompare(b.hreflang);
+  });
+}
+
 module.exports = class extends Component {
   render() {
     const { site, config, helper, page } = this.props;
     const { url_for, is_post } = helper;
     const { url, head = {}, article } = config;
-    const { meta = [], open_graph = {}, structured_data = {}, canonical_url = page.permalink, favicon } = head;
+    const { meta = [], open_graph = {}, structured_data = {}, canonical_url: headCanonicalUrl = page.permalink, favicon } = head;
     const markdownSourceUrl = page.markdown_path ? url_for(page.markdown_path) : null;
     const markdownSourceType = "text/markdown; charset=utf-8";
 
     const noIndex = helper.is_archive() || helper.is_tag();
 
-    const language = page.lang || page.language || config.language;
+    const language = getPageLocale(page, config) || page.lang || page.language || config.language;
+    const canonicalUrl = toAbsoluteUrl(page.canonical_url || page.canonical || page.i18n?.canonical || headCanonicalUrl, helper, config);
+    const hreflangLinks = getHreflangLinks(site, page, config, helper);
 
     let images;
     if (typeof page.og_image === "string") {
@@ -145,7 +220,10 @@ module.exports = class extends Component {
             images={structuredImages}
           />
         ) : null}
-        {canonical_url ? <link rel="canonical" href={canonical_url} /> : null}
+        {canonicalUrl ? <link rel="canonical" href={canonicalUrl} /> : null}
+        {hreflangLinks.map((link) => (
+          <link rel="alternate" hreflang={link.hreflang} href={link.href} />
+        ))}
         {is_post(page) && markdownSourceUrl ? <link rel="alternate" type={markdownSourceType} title={helper.__("article.markdown_source")} href={markdownSourceUrl} /> : null}
         <link rel="icon" href={url_for(favicon || "/img/favicon.svg")} />
         <link rel="stylesheet" href={url_for("/css/default.css")} />

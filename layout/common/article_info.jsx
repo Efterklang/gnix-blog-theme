@@ -1,9 +1,58 @@
 const { Component } = require("../../include/util/common");
 
+function getTranslatedValue(helper, key, fallback) {
+  const translated = helper.__(key);
+  return translated === key ? fallback : translated;
+}
+
+function getTranslationMethodLabel(method, helper) {
+  if (!method) return "";
+  const key = `article.translation_methods.${method}`;
+  return getTranslatedValue(helper, key, method);
+}
+
+function getOriginalWorkValue(page, helper) {
+  const value = page.i18n?.original ?? page.original;
+  if (typeof value !== "boolean") return null;
+  return value ? helper.__("article.yes") : helper.__("article.no");
+}
+
+function getTranslationNote(page, helper) {
+  const translation = page.i18n?.translation || page.translation;
+  if (!translation) return null;
+  if (typeof translation === "string") return translation;
+
+  const parts = [];
+  const method = getTranslationMethodLabel(translation.method, helper);
+  if (method) parts.push(method);
+  if (typeof translation.reviewed === "boolean") {
+    parts.push(helper.__(translation.reviewed ? "article.translation_reviewed" : "article.translation_not_reviewed"));
+  }
+  if (translation.note) parts.push(translation.note);
+
+  return parts.length ? parts.join(" · ") : null;
+}
+
+function LanguageIcon({ title }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label={title}>
+      <title>{title}</title>
+      <path d="m5 8 6 6" />
+      <path d="m4 14 6-6 2-3" />
+      <path d="M2 5h12" />
+      <path d="M7 2h1" />
+      <path d="m22 22-5-10-5 10" />
+      <path d="M14 18h6" />
+    </svg>
+  );
+}
+
 module.exports = class extends Component {
   render() {
     const { page, config, helper } = this.props;
     const { article } = config;
+    const originalWorkValue = getOriginalWorkValue(page, helper);
+    const translationNote = getTranslationNote(page, helper);
 
     const markdownSourceUrl = page.markdown_path ? helper.url_for(page.markdown_path) : null;
     const markdownSourceLabel = helper.__("article.markdown_source");
@@ -119,6 +168,28 @@ module.exports = class extends Component {
                       {decodeURI(page.permalink)}
                     </a>
                   </span>
+                </div>
+              </div>
+            )}
+            {originalWorkValue && (
+              <div class="article-info-item">
+                <div class="article-info-icon">
+                  <LanguageIcon title={helper.__("article.original_work")} />
+                </div>
+                <div class="article-info-content">
+                  <span class="article-info-label">{helper.__("article.original_work")}</span>
+                  <span class="article-info-value">{originalWorkValue}</span>
+                </div>
+              </div>
+            )}
+            {translationNote && (
+              <div class="article-info-item">
+                <div class="article-info-icon">
+                  <LanguageIcon title={helper.__("article.translation_note")} />
+                </div>
+                <div class="article-info-content">
+                  <span class="article-info-label">{helper.__("article.translation_note")}</span>
+                  <span class="article-info-value">{translationNote}</span>
                 </div>
               </div>
             )}

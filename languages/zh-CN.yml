@@ -14,6 +14,13 @@ common:
   page:
     one: "PAGE"
     other: "PAGE"
+navbar:
+  language_switch: "切换到%s"
+  language_unavailable_title: "暂无对应翻译"
+  language_unavailable: "此页面暂未提供%s版本。"
+  language_stay: "留在此页"
+  language_home: "回到主页"
+  language_close: "关闭"
 article:
   created_at: "%s"
   more: "Read"
@@ -33,6 +40,16 @@ article:
   article_title: "标题"
   url: "链接"
   markdown_source: "Markdown 源码"
+  original_work: "原语言作品"
+  translation_note: "翻译说明"
+  translation_reviewed: "已人工审阅"
+  translation_not_reviewed: "未人工审阅"
+  yes: "是"
+  no: "否"
+  translation_methods:
+    llm: "LLM 翻译"
+    machine: "机器翻译"
+    human: "人工翻译"
   licensing:
     author: "Author"
     created_at: "Posted"

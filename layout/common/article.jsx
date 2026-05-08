@@ -89,7 +89,7 @@ module.exports = class extends Component {
                     ? page.tags.map((tag, i) => (
                         <Fragment>
                           {i > 0 && <span class="meta-separator">·</span>}
-                          <a class="article-tag" rel="tag" href={url_for(tag.path)}>
+                          <a class="article-tag" rel="tag" href={helper.localized_tag_url(tag, helper.language_key(page))}>
                             {tag.name}
                           </a>
                         </Fragment>
@@ -144,7 +144,7 @@ module.exports = class extends Component {
                   {page.tags.map((tag, i) => (
                     <Fragment>
                       {i > 0 && <span class="meta-separator">·</span>}
-                      <a class="article-tag" rel="tag" href={url_for(tag.path)}>
+                      <a class="article-tag" rel="tag" href={helper.localized_tag_url(tag, helper.language_key(page))}>
                         {tag.name}
                       </a>
                     </Fragment>
