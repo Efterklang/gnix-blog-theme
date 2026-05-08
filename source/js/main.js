@@ -690,6 +690,18 @@ function updateNavbarCurrentPage() {
   });
 }
 
+function refreshNavbarIcons() {
+  document.querySelectorAll(".navbar-end iconify-icon").forEach((el) => {
+    if (!el.getAttribute("icon")) return;
+    if (el.shadowRoot?.querySelector("svg")) return;
+    const parent = el.parentNode;
+    if (!parent) return;
+    const next = el.nextSibling;
+    parent.removeChild(el);
+    parent.insertBefore(el, next);
+  });
+}
+
 function initPage() {
   tableWrapFix();
   initializeTabs();
@@ -702,6 +714,7 @@ function initPage() {
   mediumZoom([...zoomImgs], zoomOpts);
   initArticleCommentPopover();
   updateNavbarCurrentPage();
+  refreshNavbarIcons();
 }
 
 document.addEventListener("DOMContentLoaded", initPage, { once: true });

@@ -81,32 +81,31 @@ function getLanguageSwitch(site, page, config, helper) {
 
   const isDocumentPage = ["page", "post"].includes(page?.layout);
   const title = helper.__("navbar.language_switch", targetLanguageName);
+  const homeUrl = helper.localized_url_for("/", currentLanguageKey);
+  const unavailableTitle = helper.__("navbar.language_unavailable_title");
+  const unavailableMessage = helper.__("navbar.language_unavailable", targetLanguageName);
+  const stayLabel = helper.__("navbar.language_stay");
+  const homeLabel = helper.__("navbar.language_home");
+  const closeLabel = helper.__("navbar.language_close");
 
-  if (!url && isDocumentPage) {
-    return {
-      mode: "missing",
-      homeUrl: helper.localized_url_for("/", targetLanguageKey),
-      locale: targetLanguage.locale,
-      label: targetLanguageName,
-      title,
-      unavailableTitle: helper.__("navbar.language_unavailable_title"),
-      unavailableMessage: helper.__("navbar.language_unavailable", targetLanguageName),
-      stayLabel: helper.__("navbar.language_stay"),
-      homeLabel: helper.__("navbar.language_home"),
-      closeLabel: helper.__("navbar.language_close"),
-    };
-  }
+  const mode = !url && isDocumentPage ? "missing" : "link";
 
-  if (!url) {
+  if (!url && mode === "link") {
     url = helper.localized_url_for(page?.path || "/", targetLanguageKey);
   }
 
   return {
-    mode: "link",
-    url,
+    mode,
+    url: url || null,
     locale: targetLanguage.locale,
     label: targetLanguageName,
     title,
+    homeUrl,
+    unavailableTitle,
+    unavailableMessage,
+    stayLabel,
+    homeLabel,
+    closeLabel,
   };
 }
 
@@ -158,15 +157,15 @@ class Navbar extends Component {
                     })}
                   </Fragment>
                 ) : null}
-                {languageSwitch?.mode === "link" ? (
-                  <a class="navbar-item" href={languageSwitch.url} title={languageSwitch.title} aria-label={languageSwitch.title} lang={languageSwitch.locale} hreflang={languageSwitch.locale}>
-                    {languageIcon}
-                  </a>
-                ) : null}
-                {languageSwitch?.mode === "missing" ? (
-                  <button type="button" class="navbar-item" title={languageSwitch.title} aria-label={languageSwitch.title} lang={languageSwitch.locale} popovertarget="language-switch-popover">
-                    {languageIcon}
-                  </button>
+                {languageSwitch ? (
+                  <Fragment>
+                    <a id="language-switch-link" class="navbar-item" href={languageSwitch.url || '#'} title={languageSwitch.title} aria-label={languageSwitch.title} lang={languageSwitch.locale} hreflang={languageSwitch.locale} style={languageSwitch.mode === 'link' ? '' : 'display:none'}>
+                      {languageIcon}
+                    </a>
+                    <button id="language-switch-button" type="button" class="navbar-item" title={languageSwitch.title} aria-label={languageSwitch.title} lang={languageSwitch.locale} popovertarget="language-switch-popover" style={languageSwitch.mode === 'missing' ? '' : 'display:none'}>
+                      {languageIcon}
+                    </button>
+                  </Fragment>
                 ) : null}
                 <button type="button" class="navbar-item" title="Choose Theme" popovertarget="theme-selector-popover">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -193,7 +192,7 @@ class Navbar extends Component {
             </button>
           </div>
         </nav>
-        {languageSwitch?.mode === "missing" ? (
+        {languageSwitch ? (
           <div id="language-switch-popover" class="article-popover language-switch-popover" popover="auto" tabindex="-1">
             <div class="article-popover-header">
               <h3>{languageSwitch.unavailableTitle}</h3>
@@ -211,7 +210,7 @@ class Navbar extends Component {
                 <button type="button" class="language-switch-popover-action" popovertarget="language-switch-popover" popovertargetaction="hide">
                   {languageSwitch.stayLabel}
                 </button>
-                <a class="language-switch-popover-action is-primary" href={languageSwitch.homeUrl}>
+                <a id="language-switch-home-link" class="language-switch-popover-action is-primary" href={languageSwitch.homeUrl} onclick="document.getElementById('language-switch-popover')?.hidePopover()">
                   {languageSwitch.homeLabel}
                 </a>
               </div>
@@ -265,3 +264,5 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
     searchTitle: __("search.search"),
   };
 });
+
+module.exports.getLanguageSwitch = getLanguageSwitch;
