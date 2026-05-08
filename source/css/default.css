@@ -1,15 +1,16 @@
 @charset "UTF-8";
 
 :root {
-  --subtext1: color-mix(in oklch, var(--text) 90%, var(--mantle));
-  --subtext0: color-mix(in oklch, var(--text) 80%, var(--mantle));
+  /* color */
+  --subtext1: color-mix(in oklch, var(--text) 90%, var(--base));
+  --subtext0: color-mix(in oklch, var(--text) 80%, var(--base));
   --surface0: color-mix(in oklch, var(--base) 80%, var(--text));
   --surface1: color-mix(in oklch, var(--base) 78%, var(--text));
   --surface2: color-mix(in oklch, var(--base) 67%, var(--text));
   --overlay0: color-mix(in oklch, var(--base) 56%, var(--text));
   --overlay1: color-mix(in oklch, var(--base) 45%, var(--text));
   --overlay2: color-mix(in oklch, var(--base) 34%, var(--text));
-
+  /* font */
   --font-serif: Gentium, ChillKai, Baskerville, New York, Georgia, Noto Serif CJK, STFangsong, STSong, Songti SC, serif;
   --font-sans-serif: Avenir, system-ui, sans-serif;
   --font-mono: "SF Mono", "Maple Mono NF CN Local", "Maple Mono NF CN", Monaco, Consolas, monospace;
@@ -19,6 +20,7 @@
   --article-line-height: 1.7;
   --article-font-weight: 400;
   --article-bold-font-weight: 700;
+  /* misc */
   --radius: 12px;
 }
 
