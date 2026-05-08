@@ -719,10 +719,14 @@ function initPage() {
 
 document.addEventListener("DOMContentLoaded", initPage, { once: true });
 
-// Re-initialize on page changes when using swup
-if (typeof swup !== "undefined") {
-  swup.hooks.on("page:view", initPage);
+function bindSwupPageHook(swupInstance) {
+  if (!swupInstance || swupInstance.gnixMainPageHookBound) return;
+  swupInstance.gnixMainPageHookBound = true;
+  swupInstance.hooks.on("page:view", initPage);
 }
+
+bindSwupPageHook(window.swup);
+document.addEventListener("gnix:swup-ready", (event) => bindSwupPageHook(event.detail?.swup), { once: true });
 
 document.addEventListener("keydown", handleKeyDown, {
   capture: true, // 捕获阶段监听，优先于浏览器默认处理

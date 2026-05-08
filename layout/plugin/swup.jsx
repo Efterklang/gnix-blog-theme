@@ -6,7 +6,7 @@ class Swup extends Component {
       return null;
     }
 
-    return <script defer src="/js/swup.bundle.js"></script>;
+    return <script type="module" data-swup-ignore-script src="/js/swup.js"></script>;
   }
 }
 

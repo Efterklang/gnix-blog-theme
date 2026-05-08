@@ -107,6 +107,11 @@ function init() {
 
 init();
 
-if (typeof swup !== "undefined") {
-  swup.hooks.on("page:view", init);
+function bindSwupDecryptHook(swupInstance) {
+  if (!swupInstance || swupInstance.gnixDecryptPageHookBound) return;
+  swupInstance.gnixDecryptPageHookBound = true;
+  swupInstance.hooks.on("page:view", init);
 }
+
+bindSwupDecryptHook(window.swup);
+document.addEventListener("gnix:swup-ready", (event) => bindSwupDecryptHook(event.detail?.swup), { once: true });

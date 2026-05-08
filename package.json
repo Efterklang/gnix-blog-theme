@@ -22,7 +22,7 @@
     "format": "biome format .",
     "check": "biome check",
     "test": "node test/md_generator.test.js",
-    "build:swup": "bun build src/swup.js --outfile source/js/swup.bundle.js --minify"
+    "build:swup": "cp src/swup.js source/js/swup.js"
   },
   "files": [
     "include",
