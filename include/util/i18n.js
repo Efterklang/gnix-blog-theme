@@ -34,7 +34,13 @@ function isExternalUrl(value) {
   return /^(?:[a-z][a-z\d+.-]*:)?\/\//i.test(value) || /^(?:mailto|tel|data):/i.test(value) || value.startsWith("#");
 }
 
+const i18nConfigCache = new WeakMap();
+
 function getI18nConfig(config = {}) {
+  if (i18nConfigCache.has(config)) {
+    return i18nConfigCache.get(config);
+  }
+
   const configI18n = config.i18n || {};
   const themeI18n = config.theme_config?.i18n || {};
   const raw = configI18n.enabled === true || configI18n.languages ? configI18n : themeI18n.enabled === true || themeI18n.languages ? themeI18n : configI18n;
@@ -58,11 +64,14 @@ function getI18nConfig(config = {}) {
   const configuredDefault = normalizeLanguageKey(raw.default || raw.default_language || raw.defaultLanguage || keys[0]);
   const defaultLanguage = languages[configuredDefault] ? configuredDefault : keys[0];
 
-  return {
+  const result = {
     enabled: raw.enabled === true,
     defaultLanguage,
     languages,
   };
+
+  i18nConfigCache.set(config, result);
+  return result;
 }
 
 function isI18nEnabled(config = {}) {
