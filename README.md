@@ -25,10 +25,6 @@ Support multiple light and dark themes:
 
 ## Components
 
-```shell
-bun i hexo-renderer-markdown-exit
-```
-
 ### Table, Math, Quote, Callout & Tabs, Highlight
 
 <table>

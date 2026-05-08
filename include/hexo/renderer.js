@@ -1,3 +1,129 @@
+const path = require("node:path");
+const { tab } = require("@mdit/plugin-tab");
+const { createMarkdownExit } = require("markdown-exit");
+const mermaidDiagram = require("markdown-exit-mermaid");
+const ratex = require("markdown-exit-ratex");
+const code = require("markdown-exit-shiki");
+const abbr = require("markdown-it-abbr");
+const anchor = require("markdown-it-anchor");
+const footnote = require("markdown-it-footnote");
+const ins = require("markdown-it-ins");
+const mark = require("markdown-it-mark");
+const sub = require("markdown-it-sub");
+const sup = require("markdown-it-sup");
+const taskLists = require("markdown-it-task-lists");
+
+function resolveDefault(module) {
+  return module && typeof module === "object" && "default" in module ? module.default : module;
+}
+
+class MarkdownRenderer {
+  constructor(hexo) {
+    this.hexo = hexo;
+    this.config = {
+      render_options: {
+        breaks: true,
+        html: true,
+        langPrefix: "language-",
+        linkify: true,
+        quotes: "“”‘’",
+        typographer: true,
+        xhtmlOut: false,
+      },
+      code_options: {
+        themes: {
+          light: "catppuccin-latte",
+        },
+      },
+      mermaid_options: {
+        theme: "default",
+      },
+      ...(hexo.config.markdown_exit || {}),
+    };
+
+    this.md = createMarkdownExit(this.config.render_options);
+    this.initPlugins();
+  }
+
+  initPlugins() {
+    console.time("MarkdownExit: Load Default Plugins");
+    if (this.config.defaultPlugins !== false) {
+      this.md
+        .use(resolveDefault(footnote))
+        .use(resolveDefault(mark))
+        .use(resolveDefault(sub))
+        .use(resolveDefault(sup))
+        .use(resolveDefault(abbr))
+        .use(resolveDefault(ins))
+        .use(resolveDefault(taskLists))
+        .use(resolveDefault(code), this.config.code_options)
+        .use(resolveDefault(mermaidDiagram), this.config.mermaid_options)
+        .use(resolveDefault(ratex), this.config.ratex_options)
+        .use(tab)
+        .use(resolveDefault(anchor), {
+          permalink: resolveDefault(anchor).permalink.headerLink(),
+        });
+    }
+    console.timeEnd("MarkdownExit: Load Default Plugins");
+
+    console.time("MarkdownExit: Load User Plugins");
+    this.loadUserPlugins();
+    console.timeEnd("MarkdownExit: Load User Plugins");
+  }
+
+  resolvePluginFunction(plugin) {
+    if (plugin && typeof plugin.default === "function") return plugin.default;
+    if (typeof plugin === "function") return plugin;
+
+    if (plugin && typeof plugin === "object") {
+      for (const key in plugin) {
+        if (typeof plugin[key] === "function") return plugin[key];
+      }
+    }
+
+    return plugin;
+  }
+
+  loadUserPlugins() {
+    const plugins = this.config.plugins || [];
+    for (const pluginConfig of plugins) {
+      const isString = typeof pluginConfig === "string";
+      const pluginName = isString ? pluginConfig : pluginConfig.name;
+      const pluginOptions = isString ? {} : pluginConfig.options || {};
+
+      try {
+        const pluginPath = path.join(this.hexo.base_dir, "node_modules", pluginName);
+        const plugin = require(pluginPath);
+        const pluginFn = this.resolvePluginFunction(plugin);
+
+        this.md.use(pluginFn, pluginOptions);
+        if (process.env.DEBUG) {
+          console.log(`Successfully loaded plugin: ${pluginName}`);
+        }
+      } catch (error) {
+        console.warn(`Failed to load plugin: ${pluginName}`);
+        if (process.env.DEBUG) {
+          console.warn(`   Error: ${error}`);
+        }
+      }
+    }
+  }
+
+  async render(data) {
+    if (!data.text) return "";
+    return this.md.renderAsync(data.text);
+  }
+}
+
+const markdownRendererInstances = new WeakMap();
+
+function getMarkdownRenderer(hexo) {
+  if (!markdownRendererInstances.has(hexo)) {
+    markdownRendererInstances.set(hexo, new MarkdownRenderer(hexo));
+  }
+  return markdownRendererInstances.get(hexo);
+}
+
 const { transformSync } = require("esbuild");
 const { createElement } = require("inferno-create-element");
 const { renderToStaticMarkup } = require("inferno-server");
@@ -50,5 +176,10 @@ function renderer(data, locals) {
 renderer.compile = compile;
 
 module.exports = (hexo) => {
+  const markdownConfig = hexo.config.markdown_exit || {};
+  const markdownRenderer = async (data) => getMarkdownRenderer(hexo).render(data);
+  markdownRenderer.disableNunjucks = Boolean(markdownConfig.disableNunjucks);
+
+  hexo.extend.renderer.register("md", "html", markdownRenderer);
   hexo.extend.renderer.register("jsx", "html", renderer, true);
 };
