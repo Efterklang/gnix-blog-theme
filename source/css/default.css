@@ -688,56 +688,6 @@ html {
 
 /* #endregion Pagination */
 
-/* #region Tabs */
-
-.tabs-tabs-wrapper {
-  overflow: hidden;
-  margin: 10px auto;
-}
-
-.tabs-tabs-header {
-  padding: 0 0.5rem;
-  white-space: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
-.tabs-tab-button {
-  padding: 0.5em 1rem;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: 0 0;
-  font-size: 1em;
-  cursor: pointer;
-  position: relative;
-  transition: color 0.3s ease;
-  outline: 0;
-  color: var(--subtext0);
-  flex: 0 0 auto;
-  white-space: nowrap;
-
-  &:hover,
-  &.active {
-    color: var(--text);
-    border-color: var(--text);
-  }
-}
-
-.tabs-tabs-container {
-  padding: 0.8em 0 10px 0;
-}
-
-.tabs-tab-content {
-  display: none;
-}
-
-.tabs-tab-content.active,
-.tabs-tab-content[data-active] {
-  display: block;
-}
-
-/* #endregion Tabs */
-
 .section {
   padding: 3rem 1.5rem;
   flex-grow: 1;
@@ -940,8 +890,7 @@ html {
     margin-bottom: 0.5rem;
   }
 
-  p:last-child,
-  .tabs-tabs-wrapper:last-child {
+  p:last-child {
     margin-bottom: 0;
   }
 

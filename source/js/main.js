@@ -26,87 +26,6 @@ function twikoo_handler() {
     delete el.dataset.initializing;
   });
 }
-// #region mdit@tab-plugin
-/**
- * 初始化页面上所有的 Tab 组件
- */
-
-function initializeTabs() {
-  document.querySelectorAll(".tabs-tabs-wrapper").forEach((container) => {
-    const buttons = container.querySelectorAll(".tabs-tab-button");
-    buttons.forEach((button) => {
-      button.removeEventListener("click", handleTabClick);
-      button.addEventListener("click", handleTabClick);
-    });
-  });
-}
-
-function handleTabClick() {
-  const tabContainer = this.closest(".tabs-tabs-wrapper");
-  const targetIndex = this.getAttribute("data-tab");
-  const syncId = this.getAttribute("data-id");
-  activateTab(tabContainer, targetIndex);
-  if (syncId) {
-    syncRelatedTabs(syncId);
-  }
-}
-
-/**
- * 激活指定容器中的特定 Tab
- * @param {HTMLElement} container - Tab 容器元素
- * @param {string} targetIndex - 要激活的 Tab 的 data-tab 值
- */
-function activateTab(container, targetIndex) {
-  // 先重置该容器内所有 Tab 的状态
-  resetTabsState(container);
-
-  const buttonToActivate = container.querySelector(`.tabs-tab-button[data-tab="${targetIndex}"]`);
-  const contentToActivate = container.querySelector(`.tabs-tab-content[data-index="${targetIndex}"]`);
-
-  if (buttonToActivate) {
-    buttonToActivate.classList.add("active");
-    buttonToActivate.setAttribute("data-active", "");
-  }
-  if (contentToActivate) {
-    contentToActivate.classList.add("active");
-    contentToActivate.setAttribute("data-active", "");
-  }
-}
-
-/**
- * 重置指定容器内所有 Tab 按钮和内容面板的状态
- * @param {HTMLElement} container - Tab 容器元素
- */
-function resetTabsState(container) {
-  const buttons = container.querySelectorAll(".tabs-tab-button");
-  const contents = container.querySelectorAll(".tabs-tab-content");
-
-  buttons.forEach((btn) => {
-    btn.classList.remove("active");
-    btn.removeAttribute("data-active");
-  });
-  contents.forEach((content) => {
-    content.classList.remove("active");
-    content.removeAttribute("data-active");
-  });
-}
-
-/**
- * 同步所有具有相同 data-id 的关联 Tab
- * @param {string} syncId - 用于同步的 data-id
- */
-function syncRelatedTabs(syncId) {
-  const relatedButtons = document.querySelectorAll(`.tabs-tab-button[data-id="${syncId}"]`);
-
-  relatedButtons.forEach((button) => {
-    const container = button.closest(".tabs-tabs-wrapper");
-    const targetIndex = button.getAttribute("data-tab");
-    activateTab(container, targetIndex);
-  });
-}
-
-// #endregion
-
 // #region markdown-exit shiki
 const SELECTORS = {
   figure: "figure.shiki",
@@ -687,7 +606,6 @@ function refreshNavbarIcons() {
 }
 
 function initPage() {
-  initializeTabs();
   handleMermaid();
   addHighlightTool();
   initArticleSettings();

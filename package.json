@@ -34,7 +34,6 @@
     "README.md"
   ],
   "dependencies": {
-    "@mdit/plugin-tab": "^0.24.2",
     "@swup/head-plugin": "^2.3.1",
     "@swup/scripts-plugin": "^2.1.0",
     "esbuild": "^0.28.0",
