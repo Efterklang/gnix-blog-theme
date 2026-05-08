@@ -1,19 +1,3 @@
-function tableWrapFix() {
-  document.querySelectorAll(".content table").forEach((table) => {
-    if (table.hasAttribute("data-nowrap") || table.parentElement.classList.contains("table-wrapper")) {
-      return;
-    }
-    // if width exceeds container, wrap it
-    const wrapper = document.createElement("div");
-    Object.assign(wrapper.style, {
-      width: "100%",
-      overflowX: "auto",
-    });
-    table.parentNode.insertBefore(wrapper, table);
-    wrapper.appendChild(table);
-  });
-}
-
 function twikoo_handler() {
   const el = document.getElementById("tko");
   if (!el) return;
@@ -649,7 +633,7 @@ function initArticleCommentPopover() {
 
   // Preload twikoo JS during idle time so comments render faster on click
   const tko = document.getElementById("tko");
-  if (tko && tko.dataset.jsUrl) {
+  if (tko?.dataset.jsUrl) {
     const preload = () => loadScriptOnce(tko.dataset.jsUrl, () => {});
     if (typeof requestIdleCallback === "function") {
       requestIdleCallback(preload, { timeout: 3000 });
@@ -703,7 +687,6 @@ function refreshNavbarIcons() {
 }
 
 function initPage() {
-  tableWrapFix();
   initializeTabs();
   handleMermaid();
   addHighlightTool();

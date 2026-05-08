@@ -17,6 +17,28 @@ function resolveDefault(module) {
   return module && typeof module === "object" && "default" in module ? module.default : module;
 }
 
+function wrapMarkdownItTable(md, options = {}) {
+  const { figureClass = "table-wrapper", tableClass = "" } = options;
+
+  const defaultTableOpen = md.renderer.rules.table_open || ((tokens, idx, opts, env, self) => self.renderToken(tokens, idx, opts));
+
+  const defaultTableClose = md.renderer.rules.table_close || ((tokens, idx, opts, env, self) => self.renderToken(tokens, idx, opts));
+
+  md.renderer.rules.table_open = (tokens, idx, opts, env, self) => {
+    if (tableClass) {
+      tokens[idx].attrJoin("class", tableClass);
+    }
+
+    return `<figure class="${figureClass}">\n${defaultTableOpen(tokens, idx, opts, env, self)}`;
+  };
+
+  md.renderer.rules.table_close = (tokens, idx, opts, env, self) => {
+    return `${defaultTableClose(tokens, idx, opts, env, self)}\n</figure>`;
+  };
+
+  return md;
+}
+
 class MarkdownRenderer {
   constructor(hexo) {
     this.hexo = hexo;
@@ -60,6 +82,7 @@ class MarkdownRenderer {
         .use(resolveDefault(mermaidDiagram), this.config.mermaid_options)
         .use(resolveDefault(ratex), this.config.ratex_options)
         .use(tab)
+        .use(wrapMarkdownItTable)
         .use(resolveDefault(anchor), {
           permalink: resolveDefault(anchor).permalink.headerLink(),
         });
