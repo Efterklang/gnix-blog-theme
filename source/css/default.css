@@ -532,7 +532,7 @@ html {
 .navbar {
   min-height: 4rem;
   position: sticky;
-  top: env(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top);
   left: 0;
   right: 0;
   z-index: 100;
