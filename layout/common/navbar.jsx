@@ -72,12 +72,7 @@ function getLanguageSwitch(site, page, config, helper) {
 
   const isDocumentPage = ["page", "post"].includes(page?.layout);
   const title = helper.__("navbar.language_switch", targetLanguageName);
-  const homeUrl = helper.localized_url_for("/", currentLanguageKey);
-  const unavailableTitle = helper.__("navbar.language_unavailable_title");
   const unavailableMessage = helper.__("navbar.language_unavailable", targetLanguageName);
-  const stayLabel = helper.__("navbar.language_stay");
-  const homeLabel = helper.__("navbar.language_home");
-  const closeLabel = helper.__("navbar.language_close");
 
   const mode = !url && isDocumentPage ? "missing" : "link";
 
@@ -91,12 +86,7 @@ function getLanguageSwitch(site, page, config, helper) {
     locale: targetLanguage.locale,
     label: targetLanguageName,
     title,
-    homeUrl,
-    unavailableTitle,
     unavailableMessage,
-    stayLabel,
-    homeLabel,
-    closeLabel,
   };
 }
 
@@ -153,7 +143,7 @@ class Navbar extends Component {
                     <a id="language-switch-link" class="navbar-item" href={languageSwitch.url || '#'} title={languageSwitch.title} aria-label={languageSwitch.title} lang={languageSwitch.locale} hreflang={languageSwitch.locale} style={languageSwitch.mode === 'link' ? '' : 'display:none'}>
                       {languageIcon}
                     </a>
-                    <button id="language-switch-button" type="button" class="navbar-item" title={languageSwitch.title} aria-label={languageSwitch.title} lang={languageSwitch.locale} popovertarget="language-switch-popover" style={languageSwitch.mode === 'missing' ? '' : 'display:none'}>
+                    <button id="language-switch-button" type="button" class="navbar-item" title={languageSwitch.title} aria-label={languageSwitch.title} lang={languageSwitch.locale} data-toast-message={languageSwitch.unavailableMessage} onclick="window.showSiteToast?.(this.dataset.toastMessage); return false;" style={languageSwitch.mode === 'missing' ? '' : 'display:none'}>
                       {languageIcon}
                     </button>
                   </Fragment>
@@ -183,31 +173,6 @@ class Navbar extends Component {
             </button>
           </div>
         </nav>
-        {languageSwitch ? (
-          <div id="language-switch-popover" class="article-popover language-switch-popover" popover="auto" tabindex="-1">
-            <div class="article-popover-header">
-              <h3>{languageSwitch.unavailableTitle}</h3>
-              <button type="button" class="article-popover-close" popovertarget="language-switch-popover" popovertargetaction="hide" aria-label={languageSwitch.closeLabel}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label={languageSwitch.closeLabel}>
-                  <title>{languageSwitch.closeLabel}</title>
-                  <path d="M18 6 6 18" />
-                  <path d="m6 6 12 12" />
-                </svg>
-              </button>
-            </div>
-            <div class="article-popover-body language-switch-popover-body">
-              <p>{languageSwitch.unavailableMessage}</p>
-              <div class="language-switch-popover-actions">
-                <button type="button" class="language-switch-popover-action" popovertarget="language-switch-popover" popovertargetaction="hide">
-                  {languageSwitch.stayLabel}
-                </button>
-                <a id="language-switch-home-link" class="language-switch-popover-action is-primary" href={languageSwitch.homeUrl} onclick="document.getElementById('language-switch-popover')?.hidePopover()">
-                  {languageSwitch.homeLabel}
-                </a>
-              </div>
-            </div>
-          </div>
-        ) : null}
       </Fragment>
     );
   }

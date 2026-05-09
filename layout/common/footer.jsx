@@ -2,7 +2,7 @@ const { Component, cacheComponent } = require("../../include/util/common");
 
 class Footer extends Component {
   render() {
-    const { siteTitle, siteYear, author, links, subdomains, copyright, showVisitorCounter, visitorCounterTitle, ICPRecord } = this.props;
+    const { siteTitle, siteYear, author, links, quicklinks, copyright, showVisitorCounter, visitorCounterTitle, ICPRecord } = this.props;
 
     const svg_line = (
       <svg aria-hidden="true" width="100%" height="8" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -64,13 +64,13 @@ class Footer extends Component {
       </div>
     );
 
-    const footer_subdomains = (
-      <div class="footer-column footer-subdomains">
+    const footer_quicklinks = (
+      <div class="footer-column footer-quicklinks">
         <p class="footer-heading">Quick Links</p>
-        <div class="footer-links">
-          {Object.keys(subdomains).length
-            ? Object.keys(subdomains).map((name) => {
-                const link = subdomains[name];
+        <div class="footer-links" id="footer-quicklinks">
+          {Object.keys(quicklinks).length
+            ? Object.keys(quicklinks).map((name) => {
+                const link = quicklinks[name];
                 return (
                   <a class="footer-link" target="_self" rel="noopener" title={name} href={link.url}>
                     {name}
@@ -86,12 +86,40 @@ class Footer extends Component {
       <footer class="footer">
         <div class="footer-grid">
           {footer_brand}
-          {footer_subdomains}
+          {footer_quicklinks}
           {footer_social}
         </div>
       </footer>
     );
   }
+}
+
+function getFooterI18n(site, page, config, helper) {
+  const { footer } = config;
+  const langKey = helper.language_key(page);
+
+  const quicklinks = {};
+  if (footer?.quicklinks) {
+    Object.keys(footer.quicklinks).forEach((name) => {
+      const link = footer.quicklinks[name];
+      let url;
+      if (typeof link === "string") {
+        url = helper.url_for(link);
+      } else if (link && typeof link === "object") {
+        const langValue = link[langKey];
+        if (langValue != null) {
+          const targetUrl = typeof langValue === "string" ? langValue : langValue.url;
+          url = helper.localized_url_for(targetUrl, langKey);
+        } else if (link.url) {
+          url = helper.url_for(link.url);
+        }
+      }
+      if (!url) return;
+      quicklinks[name] = { url };
+    });
+  }
+
+  return { quicklinks };
 }
 
 module.exports = cacheComponent(Footer, "common.footer", (props) => {
@@ -111,14 +139,24 @@ module.exports = cacheComponent(Footer, "common.footer", (props) => {
     });
   }
 
-  const subdomains = {};
-  if (footer?.subdomains) {
-    Object.keys(footer.subdomains).forEach((name) => {
-      const link = footer.subdomains[name];
-      const targetUrl = typeof link === "string" ? link : link.url;
-      subdomains[name] = {
-        url: helper.localized_url_for(targetUrl, langKey),
-      };
+  const quicklinks = {};
+  if (footer?.quicklinks) {
+    Object.keys(footer.quicklinks).forEach((name) => {
+      const link = footer.quicklinks[name];
+      let url;
+      if (typeof link === "string") {
+        url = url_for(link);
+      } else if (link && typeof link === "object") {
+        const langValue = link[langKey];
+        if (langValue != null) {
+          const targetUrl = typeof langValue === "string" ? langValue : langValue.url;
+          url = helper.localized_url_for(targetUrl, langKey);
+        } else if (link.url) {
+          url = url_for(link.url);
+        }
+      }
+      if (!url) return;
+      quicklinks[name] = { url };
     });
   }
 
@@ -149,7 +187,7 @@ module.exports = cacheComponent(Footer, "common.footer", (props) => {
     siteYear: date(new Date(), "YYYY"),
     author,
     links,
-    subdomains,
+    quicklinks,
     archives,
     copyright: footer?.copyright ?? "",
     showVisitorCounter: plugins && plugins.busuanzi === true,
@@ -157,3 +195,5 @@ module.exports = cacheComponent(Footer, "common.footer", (props) => {
     ICPRecord: footer?.ICPRecord || "",
   };
 });
+
+module.exports.getFooterI18n = getFooterI18n;
