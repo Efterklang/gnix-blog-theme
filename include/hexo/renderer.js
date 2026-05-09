@@ -2,7 +2,7 @@ const path = require("node:path");
 const { createMarkdownExit } = require("markdown-exit");
 const mermaidDiagram = require("markdown-exit-mermaid");
 const ratex = require("markdown-exit-ratex");
-const code = require("markdown-exit-shiki");
+const code = require("../../vendor/markdown-exit-shiki");
 const abbr = require("markdown-it-abbr");
 const anchor = require("markdown-it-anchor");
 const footnote = require("markdown-it-footnote");
@@ -11,6 +11,9 @@ const mark = require("markdown-it-mark");
 const sub = require("markdown-it-sub");
 const sup = require("markdown-it-sup");
 const taskLists = require("markdown-it-task-lists");
+const { createProfiler } = require("../util/profiler");
+
+const profile = createProfiler("renderer");
 
 function resolveDefault(module) {
   return module && typeof module === "object" && "default" in module ? module.default : module;
@@ -36,6 +39,29 @@ function wrapMarkdownItTable(md, options = {}) {
   };
 
   return md;
+}
+
+function bucketLength(length) {
+  if (length < 200) return "xs";
+  if (length < 1000) return "sm";
+  if (length < 4000) return "md";
+  if (length < 12000) return "lg";
+  return "xl";
+}
+
+function wrapRendererRule(md, ruleName, label, getDetail = () => "") {
+  const original = md.renderer.rules[ruleName];
+  if (typeof original !== "function") return;
+
+  md.renderer.rules[ruleName] = async function (...args) {
+    const resolvedLabel = typeof label === "function" ? label(...args) : label;
+    const stop = profile.start(resolvedLabel);
+    try {
+      return await original.apply(this, args);
+    } finally {
+      stop(getDetail(...args));
+    }
+  };
 }
 
 function parseTabsMarker(state, line, name) {
@@ -238,30 +264,71 @@ class MarkdownRenderer {
   }
 
   initPlugins() {
-    console.time("MarkdownExit: Load Default Plugins");
-    if (this.config.defaultPlugins !== false) {
-      this.md
-        .use(resolveDefault(footnote))
-        .use(resolveDefault(mark))
-        .use(resolveDefault(sub))
-        .use(resolveDefault(sup))
-        .use(resolveDefault(abbr))
-        .use(resolveDefault(ins))
-        .use(resolveDefault(taskLists))
-        .use(resolveDefault(code), this.config.code_options)
-        .use(resolveDefault(mermaidDiagram), this.config.mermaid_options)
-        .use(resolveDefault(ratex), this.config.ratex_options)
-        .use(customTabs)
-        .use(wrapMarkdownItTable)
-        .use(resolveDefault(anchor), {
-          permalink: resolveDefault(anchor).permalink.headerLink(),
-        });
-    }
-    console.timeEnd("MarkdownExit: Load Default Plugins");
+    const stop = profile.start("markdownExit.initPlugins");
+    try {
+      if (this.config.defaultPlugins !== false) {
+        const defaultsStop = profile.start("markdownExit.defaultPlugins");
+        try {
+          this.md
+            .use(resolveDefault(footnote))
+            .use(resolveDefault(mark))
+            .use(resolveDefault(sub))
+            .use(resolveDefault(sup))
+            .use(resolveDefault(abbr))
+            .use(resolveDefault(ins))
+            .use(resolveDefault(taskLists))
+            .use(resolveDefault(code), this.config.code_options)
+            .use(resolveDefault(mermaidDiagram), this.config.mermaid_options)
+            .use(resolveDefault(ratex), this.config.ratex_options)
+            .use(customTabs)
+            .use(wrapMarkdownItTable)
+            .use(resolveDefault(anchor), {
+              permalink: resolveDefault(anchor).permalink.headerLink(),
+            });
+        } finally {
+          defaultsStop();
+        }
+      }
 
-    console.time("MarkdownExit: Load User Plugins");
-    this.loadUserPlugins();
-    console.timeEnd("MarkdownExit: Load User Plugins");
+      this.loadUserPlugins();
+      wrapRendererRule(this.md, "fence", (tokens, idx) => {
+        const token = tokens?.[idx];
+        const lang = String(token?.info || "").split(/\s+/)[0] || "plain";
+        const size = bucketLength(String(token?.content || "").length);
+        return `markdownExit.rule.fence.${lang}.${size}`;
+      }, (tokens, idx) => {
+        const token = tokens?.[idx];
+        const lang = String(token?.info || "").split(/\s+/)[0] || "plain";
+        const size = bucketLength(String(token?.content || "").length);
+        return `${lang} ${size}`;
+      });
+      wrapRendererRule(this.md, "code_inline", (tokens, idx) => {
+        const token = tokens?.[idx];
+        const content = String(token?.content || "").trim();
+        const match = content.match(/^\{(\w+)\}\s+/);
+        const lang = match?.[1] || "plain";
+        const size = bucketLength(content.length);
+        return `markdownExit.rule.code_inline.${lang}.${size}`;
+      }, (tokens, idx) => {
+        const token = tokens?.[idx];
+        const content = String(token?.content || "").trim();
+        const match = content.match(/^\{(\w+)\}\s+/);
+        const lang = match?.[1] || "plain";
+        const size = bucketLength(content.length);
+        return `${lang} ${size}`;
+      });
+      wrapRendererRule(this.md, "image", (tokens, idx) => {
+        const token = tokens?.[idx];
+        const src = String(token?.attrGet?.("src") || token?.attrs?.find?.(([name]) => name === "src")?.[1] || "");
+        const kind = src.startsWith("http://") || src.startsWith("https://") ? "remote" : src.startsWith("data:") ? "data" : "local";
+        return `markdownExit.rule.image.${kind}`;
+      }, (tokens, idx) => {
+        const token = tokens?.[idx];
+        return String(token?.attrGet?.("src") || token?.attrs?.find?.(([name]) => name === "src")?.[1] || "");
+      });
+    } finally {
+      stop();
+    }
   }
 
   resolvePluginFunction(plugin) {
@@ -279,33 +346,61 @@ class MarkdownRenderer {
 
   loadUserPlugins() {
     const plugins = this.config.plugins || [];
-    for (const pluginConfig of plugins) {
-      const isString = typeof pluginConfig === "string";
-      const pluginName = isString ? pluginConfig : pluginConfig.name;
-      const pluginOptions = isString ? {} : pluginConfig.options || {};
+    const stop = profile.start("markdownExit.userPlugins");
+    try {
+      for (const pluginConfig of plugins) {
+        const isString = typeof pluginConfig === "string";
+        const pluginName = isString ? pluginConfig : pluginConfig.name;
+        const pluginOptions = isString ? {} : pluginConfig.options || {};
 
-      try {
-        const pluginPath = path.join(this.hexo.base_dir, "node_modules", pluginName);
-        const plugin = require(pluginPath);
-        const pluginFn = this.resolvePluginFunction(plugin);
+        try {
+          const pluginPath = path.join(this.hexo.base_dir, "node_modules", pluginName);
+          const plugin = require(pluginPath);
+          const pluginFn = this.resolvePluginFunction(plugin);
 
-        this.md.use(pluginFn, pluginOptions);
-        if (process.env.DEBUG) {
-          console.log(`Successfully loaded plugin: ${pluginName}`);
-        }
-      } catch (error) {
-        console.warn(`Failed to load plugin: ${pluginName}`);
-        if (process.env.DEBUG) {
-          console.warn(`   Error: ${error}`);
+          const pluginStop = profile.start(`markdownExit.plugin.${pluginName}`);
+          try {
+            this.md.use(pluginFn, pluginOptions);
+          } finally {
+            pluginStop();
+          }
+
+          if (process.env.DEBUG) {
+            console.log(`Successfully loaded plugin: ${pluginName}`);
+          }
+        } catch (error) {
+          console.warn(`Failed to load plugin: ${pluginName}`);
+          if (process.env.DEBUG) {
+            console.warn(`   Error: ${error}`);
+          }
         }
       }
+    } finally {
+      stop();
     }
   }
 
   async render(data) {
     if (!data.text) return "";
-    return this.md.renderAsync(data.text);
+    const label = getRenderLabel(data);
+    const stop = profile.start(label);
+    try {
+      return await this.md.renderAsync(data.text);
+    } finally {
+      stop(String(data?.path || ""));
+    }
   }
+}
+
+function getRenderLabel(data) {
+  const sourcePath = String(data?.path || "");
+  const normalized = sourcePath.replace(/\\/g, "/");
+  const isMd = /\.mdx?$/i.test(normalized) || normalized.endsWith(".md");
+  const langMatch = normalized.match(/\/source\/([^/]+)\//);
+  const langKey = langMatch ? langMatch[1] : "";
+  const bucket = normalized.includes("/_posts/") ? "post" : normalized.includes("/_drafts/") ? "draft" : normalized.includes("/source/") ? "asset" : "other";
+  const size = bucketLength(String(data?.text || "").length);
+  return `render.${isMd ? "md" : "text"}.${langKey || "default"}.${bucket}.${size}`;
 }
 
 const markdownRendererInstances = new WeakMap();

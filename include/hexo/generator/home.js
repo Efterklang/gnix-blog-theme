@@ -1,5 +1,7 @@
 const pagination = require("hexo-pagination");
+const { createProfiler } = require("../../util/profiler");
 const { filterByLanguage, getDefaultLanguageKey, getLanguage, getLanguageBasePath, getLanguageKeys, isI18nEnabled } = require("../../util/i18n");
+const profile = createProfiler("i18n");
 
 function redirectTo(path) {
   const target = path.startsWith("/") ? path : `/${path}`;
@@ -8,57 +10,64 @@ function redirectTo(path) {
 
 module.exports = (hexo) => {
   hexo.extend.generator.register("index", function (locals) {
-    const config = this.config;
-    const fullConfig = Object.assign({}, config, config.theme_config, hexo.theme.config);
-    const themeConfig = hexo.theme.config.index_generator || {};
-    const orderBy = themeConfig.order_by ?? "-date";
-    const perPage = themeConfig.per_page ?? config.per_page ?? 16;
-    const layout = themeConfig.layout ?? ["index", "archive"];
-    const paginationDir = themeConfig.pagination_dir ?? config.pagination_dir ?? "page";
-    const path = themeConfig.path ?? "";
+    return profile.wrap("generator.index", () => {
+      const config = this.config;
+      const fullConfig = Object.assign({}, config, config.theme_config, hexo.theme.config);
+      const themeConfig = hexo.theme.config.index_generator || {};
+      const orderBy = themeConfig.order_by ?? "-date";
+      const perPage = themeConfig.per_page ?? config.per_page ?? 16;
+      const layout = themeConfig.layout ?? ["index", "archive"];
+      const paginationDir = themeConfig.pagination_dir ?? config.pagination_dir ?? "page";
+      const path = themeConfig.path ?? "";
 
-    if (!isI18nEnabled(fullConfig)) {
-      const posts = locals.posts.sort(orderBy);
-      posts.data.sort((a, b) => (b.sticky || 0) - (a.sticky || 0));
+      if (!isI18nEnabled(fullConfig)) {
+        const posts = locals.posts.sort(orderBy);
+        posts.data.sort((a, b) => (b.sticky || 0) - (a.sticky || 0));
 
-      return pagination(path, posts, {
-        perPage,
-        layout,
-        format: `${paginationDir}/%d/`,
-        data: {
-          __index: true,
-        },
-      });
-    }
-
-    const result = [];
-    const defaultLanguageBase = getLanguageBasePath(fullConfig, getDefaultLanguageKey(fullConfig));
-
-    if (defaultLanguageBase) {
-      result.push({
-        path: "index.html",
-        data: redirectTo(defaultLanguageBase),
-      });
-    }
-
-    getLanguageKeys(fullConfig).forEach((langKey) => {
-      const posts = filterByLanguage(locals.posts.sort(orderBy), langKey, fullConfig);
-      posts.data.sort((a, b) => (b.sticky || 0) - (a.sticky || 0));
-
-      result.push(
-        ...pagination(getLanguageBasePath(fullConfig, langKey) + path, posts, {
+        return pagination(path, posts, {
           perPage,
           layout,
           format: `${paginationDir}/%d/`,
           data: {
             __index: true,
-            i18n_lang: langKey,
-            lang: getLanguage(fullConfig, langKey).locale,
           },
-        }),
-      );
-    });
+        });
+      }
 
-    return result;
+      const result = [];
+      const defaultLanguageBase = getLanguageBasePath(fullConfig, getDefaultLanguageKey(fullConfig));
+
+      if (defaultLanguageBase) {
+        result.push({
+          path: "index.html",
+          data: redirectTo(defaultLanguageBase),
+        });
+      }
+
+      getLanguageKeys(fullConfig).forEach((langKey) => {
+        const langStop = profile.start("generator.index.language");
+        try {
+          const posts = filterByLanguage(locals.posts.sort(orderBy), langKey, fullConfig);
+          posts.data.sort((a, b) => (b.sticky || 0) - (a.sticky || 0));
+
+          result.push(
+            ...pagination(getLanguageBasePath(fullConfig, langKey) + path, posts, {
+              perPage,
+              layout,
+              format: `${paginationDir}/%d/`,
+              data: {
+                __index: true,
+                i18n_lang: langKey,
+                lang: getLanguage(fullConfig, langKey).locale,
+              },
+            }),
+          );
+        } finally {
+          langStop();
+        }
+      });
+
+      return result;
+    });
   });
 };

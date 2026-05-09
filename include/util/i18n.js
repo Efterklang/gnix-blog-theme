@@ -1,4 +1,5 @@
 const path = require("node:path");
+const { createProfiler } = require("./profiler");
 
 const DEFAULT_LANGUAGES = {
   cn: {
@@ -35,43 +36,49 @@ function isExternalUrl(value) {
 }
 
 const i18nConfigCache = new WeakMap();
+const profile = createProfiler("i18n");
 
 function getI18nConfig(config = {}) {
-  if (i18nConfigCache.has(config)) {
-    return i18nConfigCache.get(config);
-  }
+  const stop = profile.start("getI18nConfig");
+  try {
+    if (i18nConfigCache.has(config)) {
+      return i18nConfigCache.get(config);
+    }
 
-  const configI18n = config.i18n || {};
-  const themeI18n = config.theme_config?.i18n || {};
-  const raw = configI18n.enabled === true || configI18n.languages ? configI18n : themeI18n.enabled === true || themeI18n.languages ? themeI18n : configI18n;
-  const rawLanguages = raw.languages || DEFAULT_LANGUAGES;
-  const languages = {};
+    const configI18n = config.i18n || {};
+    const themeI18n = config.theme_config?.i18n || {};
+    const raw = configI18n.enabled === true || configI18n.languages ? configI18n : themeI18n.enabled === true || themeI18n.languages ? themeI18n : configI18n;
+    const rawLanguages = raw.languages || DEFAULT_LANGUAGES;
+    const languages = {};
 
-  Object.keys(rawLanguages).forEach((key) => {
-    const normalizedKey = normalizeLanguageKey(key);
-    const value = typeof rawLanguages[key] === "string" ? { locale: rawLanguages[key] } : rawLanguages[key] || {};
-    const locale = normalizeLocale(value.locale || value.lang || value.language || normalizedKey);
-    const prefix = value.prefix ?? value.path ?? value.url_prefix;
-    languages[normalizedKey] = {
-      key: normalizedKey,
-      label: value.label || value.name || locale || normalizedKey,
-      locale,
-      prefix: normalizePrefix(prefix, normalizedKey),
+    Object.keys(rawLanguages).forEach((key) => {
+      const normalizedKey = normalizeLanguageKey(key);
+      const value = typeof rawLanguages[key] === "string" ? { locale: rawLanguages[key] } : rawLanguages[key] || {};
+      const locale = normalizeLocale(value.locale || value.lang || value.language || normalizedKey);
+      const prefix = value.prefix ?? value.path ?? value.url_prefix;
+      languages[normalizedKey] = {
+        key: normalizedKey,
+        label: value.label || value.name || locale || normalizedKey,
+        locale,
+        prefix: normalizePrefix(prefix, normalizedKey),
+      };
+    });
+
+    const keys = Object.keys(languages);
+    const configuredDefault = normalizeLanguageKey(raw.default || raw.default_language || raw.defaultLanguage || keys[0]);
+    const defaultLanguage = languages[configuredDefault] ? configuredDefault : keys[0];
+
+    const result = {
+      enabled: raw.enabled === true,
+      defaultLanguage,
+      languages,
     };
-  });
 
-  const keys = Object.keys(languages);
-  const configuredDefault = normalizeLanguageKey(raw.default || raw.default_language || raw.defaultLanguage || keys[0]);
-  const defaultLanguage = languages[configuredDefault] ? configuredDefault : keys[0];
-
-  const result = {
-    enabled: raw.enabled === true,
-    defaultLanguage,
-    languages,
-  };
-
-  i18nConfigCache.set(config, result);
-  return result;
+    i18nConfigCache.set(config, result);
+    return result;
+  } finally {
+    stop();
+  }
 }
 
 function isI18nEnabled(config = {}) {
@@ -130,26 +137,31 @@ function getLanguageKeyFromSource(value, config = {}) {
 }
 
 function getPageLanguageKey(page = {}, config = {}) {
-  if (!isI18nEnabled(config)) {
-    const configuredLanguage = Array.isArray(config.language) ? config.language[0] : config.language;
-    return getLanguageKeyFromLocale(config, page.lang || page.language || configuredLanguage) || normalizeLanguageKey(page.lang || page.language || configuredLanguage) || getDefaultLanguageKey(config);
+  const stop = profile.start("getPageLanguageKey");
+  try {
+    if (!isI18nEnabled(config)) {
+      const configuredLanguage = Array.isArray(config.language) ? config.language[0] : config.language;
+      return getLanguageKeyFromLocale(config, page.lang || page.language || configuredLanguage) || normalizeLanguageKey(page.lang || page.language || configuredLanguage) || getDefaultLanguageKey(config);
+    }
+
+    const explicit = normalizeLanguageKey(page.i18n_lang || page.i18n?.lang || page.i18n?.language);
+    if (explicit && getLanguage(config, explicit)?.key === explicit) return explicit;
+
+    const fromSource = getLanguageKeyFromSource(page.source || page.full_source || "", config);
+    if (fromSource) return fromSource;
+
+    const pathDescriptor = Object.getOwnPropertyDescriptor(page, "path");
+    const pathValue = pathDescriptor && typeof pathDescriptor.get !== "function" ? pathDescriptor.value : "";
+    const fromPath = getLanguageKeyFromPath(pathValue || page.canonical_path || "", config);
+    if (fromPath) return fromPath;
+
+    const fromLocale = getLanguageKeyFromLocale(config, page.lang || page.language);
+    if (fromLocale) return fromLocale;
+
+    return getDefaultLanguageKey(config);
+  } finally {
+    stop();
   }
-
-  const explicit = normalizeLanguageKey(page.i18n_lang || page.i18n?.lang || page.i18n?.language);
-  if (explicit && getLanguage(config, explicit)?.key === explicit) return explicit;
-
-  const fromSource = getLanguageKeyFromSource(page.source || page.full_source || "", config);
-  if (fromSource) return fromSource;
-
-  const pathDescriptor = Object.getOwnPropertyDescriptor(page, "path");
-  const pathValue = pathDescriptor && typeof pathDescriptor.get !== "function" ? pathDescriptor.value : "";
-  const fromPath = getLanguageKeyFromPath(pathValue || page.canonical_path || "", config);
-  if (fromPath) return fromPath;
-
-  const fromLocale = getLanguageKeyFromLocale(config, page.lang || page.language);
-  if (fromLocale) return fromLocale;
-
-  return getDefaultLanguageKey(config);
 }
 
 function getPageLocale(page = {}, config = {}) {
@@ -213,11 +225,16 @@ function toArray(collection) {
 }
 
 function filterByLanguage(collection, key, config = {}) {
-  if (!isI18nEnabled(config)) return collection;
-  if (typeof collection?.filter === "function" && !Array.isArray(collection)) {
-    return collection.filter((item) => getPageLanguageKey(item, config) === key);
+  const stop = profile.start("filterByLanguage");
+  try {
+    if (!isI18nEnabled(config)) return collection;
+    if (typeof collection?.filter === "function" && !Array.isArray(collection)) {
+      return collection.filter((item) => getPageLanguageKey(item, config) === key);
+    }
+    return toArray(collection).filter((item) => getPageLanguageKey(item, config) === key);
+  } finally {
+    stop();
   }
-  return toArray(collection).filter((item) => getPageLanguageKey(item, config) === key);
 }
 
 function getI18nKey(item = {}) {
