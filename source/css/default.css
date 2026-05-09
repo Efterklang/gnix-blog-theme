@@ -254,6 +254,33 @@ body {
   font-family: var(--font-sans-serif);
 }
 
+.site-toast {
+  position: fixed;
+  top: 10rem;
+  left: 50%;
+  z-index: 102;
+  max-width: min(90vw, 32rem);
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--surface2);
+  border-radius: 0.75rem;
+  background: var(--surface1);
+  color: var(--text);
+  box-shadow: 0 0.75rem 2rem -1rem hsl(from var(--text) h s l / 0.35);
+  font-size: 0.875rem;
+  line-height: 1.35;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%) translateY(-2rem);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.site-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 .navbar-main,
 .navbar-menu {
   user-select: none;
@@ -533,6 +560,7 @@ html {
   min-height: 4rem;
   position: sticky;
   padding-top: env(safe-area-inset-top);
+  top: 0;
   left: 0;
   right: 0;
   z-index: 100;
