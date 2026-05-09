@@ -13,8 +13,18 @@ const {
   trimSlashes,
 } = require("../util/i18n");
 
+let cachedConfig = null;
+let cachedHexo = null;
+
 function getConfig(hexo, locals = {}) {
-  return Object.assign({}, hexo.config, hexo.config.theme_config, hexo.theme.config, locals.theme);
+  if (hexo !== cachedHexo || !cachedConfig) {
+    cachedHexo = hexo;
+    cachedConfig = Object.assign({}, hexo.config, hexo.config.theme_config, hexo.theme.config);
+  }
+  if (locals.theme) {
+    return Object.assign({}, cachedConfig, locals.theme);
+  }
+  return cachedConfig;
 }
 
 function getLocalizedPostParams(hexo, sourcePath) {
