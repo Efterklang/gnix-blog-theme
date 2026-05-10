@@ -21,8 +21,7 @@
     "lint": "biome check --write .",
     "format": "biome format .",
     "check": "biome check",
-    "test": "node test/md_generator.test.js",
-    "build:swup": "cp src/swup.js source/js/swup.js"
+    "test": "node test/md_generator.test.js"
   },
   "files": [
     "include",
@@ -53,7 +52,7 @@
     "markdown-it-task-lists": "^2.1.1"
   },
   "peerDependencies": {
-    "hexo": "^8.1.1",
+    "hexo": "^8.1.2",
     "hexo-util": "^4.0.0"
   }
 }
