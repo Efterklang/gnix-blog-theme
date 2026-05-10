@@ -735,61 +735,75 @@ html {
 
 .footer {
   user-select: none;
-  padding: 3rem 1.5rem 6rem;
   position: relative;
-  border-top: 0.5px solid var(--surface0);
-
-  iconify-icon {
-    font-size: 1.2rem;
-  }
+  padding: 4rem 1.5rem 3rem;
+  text-align: center;
+  color: var(--overlay0);
+  font-family: var(--font-mono);
 }
 
-.footer-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  grid-gap: 1.5rem;
-  align-items: start;
-}
-
-.footer-column {
+.footer-brand {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.5rem;
 }
 
-.footer-title {
-  font-family: homemade-apple, var(--font-handwriting);
-  font-weight: bolder;
-  font-size: 1.1rem;
-  margin-bottom: 0.25rem;
+.footer-credit {
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin: 0;
+  letter-spacing: 0.06em;
 }
 
-.footer-heading {
-  font-weight: bolder;
-  font-family: var(--font-serif);
+.footer-author {
+  font-size: 0.8125rem;
   font-style: italic;
-  font-size: 1.1rem;
-  margin-bottom: 0.25rem;
+  font-family: homemade-apple, var(--font-handwriting);
+  color: var(--subtext0);
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .footer-meta {
-  font-size: 0.75rem;
-  color: var(--subtext0);
-  line-height: 1.6;
+  font-size: 0.65rem;
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
 }
 
-.footer-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  align-items: center;
+.footer-icp {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
-.footer-link {
+.footer-icp:hover {
+  color: var(--lavender);
+}
+
+.footer-top {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  color: var(--subtext0);
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin-top: 1.5rem;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--overlay0);
+  border: 1px solid var(--surface0);
+  text-decoration: none;
+  transition:
+    color 0.25s ease,
+    background 0.25s ease;
+}
+
+.footer-top:hover {
+  color: var(--lavender);
+  background: color-mix(in oklch, var(--lavender) 12%, transparent);
 }
 
 /* #endregion Footer */
@@ -2365,7 +2379,7 @@ input.searchbox-input {
       font-size: 1.8rem;
     }
     .toc-level-3 & {
-      color: var(--subtext1);
+      color: var(--overlay1);
       font-size: 1.5rem;
     }
     .toc-level-4 & {

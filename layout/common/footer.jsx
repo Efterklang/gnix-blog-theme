@@ -2,124 +2,32 @@ const { Component, cacheComponent } = require("../../include/util/common");
 
 class Footer extends Component {
   render() {
-    const { siteTitle, siteYear, author, links, quicklinks, copyright, showVisitorCounter, visitorCounterTitle, ICPRecord } = this.props;
-
-    const svg_line = (
-      <svg aria-hidden="true" width="100%" height="8" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <pattern id="a" width="91" height="8" patternUnits="userSpaceOnUse">
-          <g clip-path="url(#clip0_2426_11367)">
-            <path
-              d="M114 4c-5.067 4.667-10.133 4.667-15.2 0S88.667-.667 83.6 4 73.467 8.667 68.4 4 58.267-.667 53.2 4 43.067 8.667 38 4 27.867-.667 22.8 4 12.667 8.667 7.6 4-2.533-.667-7.6 4s-10.133 4.667-15.2 0S-32.933-.667-38 4s-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0"
-              stroke="var(--lavender)"
-              stroke-linecap="square"
-            ></path>
-          </g>
-        </pattern>
-        <rect width="100%" height="100%" fill="url(#a)"></rect>
-      </svg>
-    );
-
-    const footer_brand = (
-      <div class="footer-column footer-brand">
-        <p class="footer-title">{author || siteTitle}</p>
-        <p class="footer-meta">
-          <span
-            dangerouslySetInnerHTML={{
-              __html: `&copy; 2022 - ${siteYear}`,
-            }}
-          ></span>
-          &nbsp;Powered by Hexo
-          {showVisitorCounter ? (
-            <>
-              <br />
-              <span id="busuanzi_container_site_uv" dangerouslySetInnerHTML={{ __html: visitorCounterTitle }}></span>
-            </>
-          ) : null}
-          {ICPRecord ? (
-            <>
-              <br />
-              <a href="https://beian.miit.gov.cn/" style={"color: inherit"} target="_blank" rel="noopener" dangerouslySetInnerHTML={{ __html: ICPRecord }}></a>
-            </>
-          ) : null}
-        </p>
-        {copyright ? <p class="footer-meta" dangerouslySetInnerHTML={{ __html: copyright }}></p> : null}
-      </div>
-    );
-
-    const footer_social = (
-      <div class="footer-column footer-social">
-        <p class="footer-heading">Social Media</p>
-        <div class="footer-links">
-          {Object.keys(links).length
-            ? Object.keys(links).map((name) => {
-                const link = links[name];
-                return (
-                  <a class="footer-link" target="_blank" rel="noopener" title={name} href={link.url}>
-                    {link.icon ? <iconify-icon icon={link.icon}></iconify-icon> : name}
-                  </a>
-                );
-              })
-            : null}
-        </div>
-      </div>
-    );
-
-    const footer_quicklinks = (
-      <div class="footer-column footer-quicklinks">
-        <p class="footer-heading">Quick Links</p>
-        <div class="footer-links" id="footer-quicklinks">
-          {Object.keys(quicklinks).length
-            ? Object.keys(quicklinks).map((name) => {
-                const link = quicklinks[name];
-                return (
-                  <a class="footer-link" target="_self" rel="noopener" title={name} href={link.url}>
-                    {name}
-                  </a>
-                );
-              })
-            : null}
-        </div>
-      </div>
-    );
+    const { copyright, showVisitorCounter, visitorCounterTitle, ICPRecord } = this.props;
 
     return (
       <footer class="footer">
-        <div class="footer-grid">
-          {footer_brand}
-          {footer_quicklinks}
-          {footer_social}
+        <div class="footer-brand">
+          <p class="footer-credit">
+            2022&ndash;PRESENT&ensp;<span class="footer-author">© GnixAij Oag</span> CC BY-NC-SA 4.0
+          </p>
+          {showVisitorCounter ? (
+            <p class="footer-meta">
+              <span id="busuanzi_container_site_uv" dangerouslySetInnerHTML={{ __html: visitorCounterTitle }}></span>
+            </p>
+          ) : null}
+          {ICPRecord ? (
+            <p class="footer-meta">
+              <a href="https://beian.miit.gov.cn/" class="footer-icp" target="_blank" rel="noopener" dangerouslySetInnerHTML={{ __html: ICPRecord }}></a>
+            </p>
+          ) : null}
+          {copyright ? <p class="footer-meta" dangerouslySetInnerHTML={{ __html: copyright }}></p> : null}
         </div>
+        <a class="footer-top" href="#" title="Back to top">
+          &uarr;
+        </a>
       </footer>
     );
   }
-}
-
-function getFooterI18n(site, page, config, helper) {
-  const { footer } = config;
-  const langKey = helper.language_key(page);
-
-  const quicklinks = {};
-  if (footer?.quicklinks) {
-    Object.keys(footer.quicklinks).forEach((name) => {
-      const link = footer.quicklinks[name];
-      let url;
-      if (typeof link === "string") {
-        url = helper.url_for(link);
-      } else if (link && typeof link === "object") {
-        const langValue = link[langKey];
-        if (langValue != null) {
-          const targetUrl = typeof langValue === "string" ? langValue : langValue.url;
-          url = helper.localized_url_for(targetUrl, langKey);
-        } else if (link.url) {
-          url = helper.url_for(link.url);
-        }
-      }
-      if (!url) return;
-      quicklinks[name] = { url };
-    });
-  }
-
-  return { quicklinks };
 }
 
 module.exports = cacheComponent(Footer, "common.footer", (props) => {
@@ -128,39 +36,6 @@ module.exports = cacheComponent(Footer, "common.footer", (props) => {
   const { title, author, footer, plugins } = config;
   const langKey = helper.language_key(page);
 
-  const links = {};
-  if (footer?.links) {
-    Object.keys(footer.links).forEach((name) => {
-      const link = footer.links[name];
-      links[name] = {
-        url: url_for(typeof link === "string" ? link : link.url),
-        icon: link.icon,
-      };
-    });
-  }
-
-  const quicklinks = {};
-  if (footer?.quicklinks) {
-    Object.keys(footer.quicklinks).forEach((name) => {
-      const link = footer.quicklinks[name];
-      let url;
-      if (typeof link === "string") {
-        url = url_for(link);
-      } else if (link && typeof link === "object") {
-        const langValue = link[langKey];
-        if (langValue != null) {
-          const targetUrl = typeof langValue === "string" ? langValue : langValue.url;
-          url = helper.localized_url_for(targetUrl, langKey);
-        } else if (link.url) {
-          url = url_for(link.url);
-        }
-      }
-      if (!url) return;
-      quicklinks[name] = { url };
-    });
-  }
-
-  // Build archives grouped by year from site posts
   let archives = [];
   if (site?.posts?.length) {
     const archiveDir = config.archive_dir || "archives";
@@ -186,8 +61,6 @@ module.exports = cacheComponent(Footer, "common.footer", (props) => {
     siteTitle: title,
     siteYear: date(new Date(), "YYYY"),
     author,
-    links,
-    quicklinks,
     archives,
     copyright: footer?.copyright ?? "",
     showVisitorCounter: plugins && plugins.busuanzi === true,
@@ -195,5 +68,3 @@ module.exports = cacheComponent(Footer, "common.footer", (props) => {
     ICPRecord: footer?.ICPRecord || "",
   };
 });
-
-module.exports.getFooterI18n = getFooterI18n;

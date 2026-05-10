@@ -31,24 +31,6 @@ function buildLangSwitchScript(site, page, config, helper) {
         if (b) { b.style.display = ''; b.setAttribute('lang', d.locale); }
       }
     })();
-  </script>`;
-}
-
-function buildFooterI18nScript(site, page, config, helper) {
-  const data = Footer.getFooterI18n(site, page, config, helper);
-  const payload = JSON.stringify(data);
-
-  return `<script data-swup-reload-script>
-    (function() {
-      var d = ${payload};
-      var container = document.getElementById('footer-quicklinks');
-      if (!container || !d.quicklinks) return;
-      var names = Object.keys(d.quicklinks);
-      var links = container.querySelectorAll('.footer-link');
-      for (var i = 0; i < links.length; i++) {
-        if (names[i]) links[i].href = d.quicklinks[names[i]].url;
-      }
-    })();
   <\/script>`;
 }
 
@@ -58,7 +40,6 @@ module.exports = class extends Component {
 
     const language = helper.language_locale ? helper.language_locale(page) : page.lang || page.language || config.language || "en";
     const langSwitchScript = buildLangSwitchScript(site, page, config, helper);
-    const footerI18nScript = buildFooterI18nScript(site, page, config, helper);
 
     return (
       <html
@@ -73,7 +54,7 @@ module.exports = class extends Component {
           <Navbar site={site} config={config} helper={helper} page={page} />
           <ThemeSelector />
           <section class="section">
-            <div class="main-content transition-fade" id="swup" dangerouslySetInnerHTML={{ __html: body + langSwitchScript + footerI18nScript }}></div>
+            <div class="main-content transition-fade" id="swup" dangerouslySetInnerHTML={{ __html: body + langSwitchScript }}></div>
           </section>
           <Footer site={site} config={config} helper={helper} page={page} />
           <Scripts site={site} config={config} helper={helper} page={page} />
