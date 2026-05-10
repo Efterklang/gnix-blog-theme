@@ -44,10 +44,8 @@
     "markdown-exit-mermaid": "^2.2.3",
     "markdown-exit-ratex": "^0.2.2",
     "markdown-exit-shiki": "^0.3.2",
-    "markdown-it-abbr": "^2.0.0",
     "markdown-it-anchor": "^9.2.0",
     "markdown-it-footnote": "^4.0.0",
-    "markdown-it-ins": "^4.0.0",
     "markdown-it-mark": "^4.0.0",
     "markdown-it-task-lists": "^2.1.1"
   },

@@ -3,10 +3,8 @@ const { createMarkdownExit } = require("markdown-exit");
 const mermaidDiagram = require("markdown-exit-mermaid");
 const ratex = require("markdown-exit-ratex");
 const code = require("markdown-exit-shiki");
-const abbr = require("markdown-it-abbr");
 const anchor = require("markdown-it-anchor");
 const footnote = require("markdown-it-footnote");
-const ins = require("markdown-it-ins");
 const mark = require("markdown-it-mark");
 const taskLists = require("markdown-it-task-lists");
 
@@ -241,8 +239,6 @@ class MarkdownRenderer {
       this.md
         .use(resolveDefault(footnote))
         .use(resolveDefault(mark))
-        .use(resolveDefault(abbr))
-        .use(resolveDefault(ins))
         .use(resolveDefault(taskLists))
         .use(resolveDefault(code), this.config.code_options)
         .use(resolveDefault(mermaidDiagram), this.config.mermaid_options)
