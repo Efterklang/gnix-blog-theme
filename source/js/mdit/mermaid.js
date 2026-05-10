@@ -60,6 +60,7 @@
       this.isDragging = false;
       this.startX = 0;
       this.startY = 0;
+      this.wrapper = container.querySelector(".mermaid-wrapper");
       this.initEvents();
     }
 
@@ -70,6 +71,15 @@
     }
 
     initEvents() {
+      this.container.addEventListener("pointerdown", () => {
+        this.wrapper?.classList.add("is-controls-visible");
+      });
+
+      document.addEventListener("pointerdown", (e) => {
+        if (this.container.contains(e.target)) return;
+        this.wrapper?.classList.remove("is-controls-visible");
+      });
+
       // Toolbar & Grid Panel
       this.container.addEventListener("click", (e) => {
         const btn = e.target.closest("button");

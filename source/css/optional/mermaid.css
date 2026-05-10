@@ -19,7 +19,12 @@
   opacity: 0;
   transition: opacity 0.2s ease;
 }
-.mermaid-wrapper:hover .mermaid-toolbar {
+@media (hover: hover) and (pointer: fine) {
+  .mermaid-wrapper:hover .mermaid-toolbar {
+    opacity: 1;
+  }
+}
+.mermaid-wrapper.is-controls-visible .mermaid-toolbar {
   opacity: 1;
 }
 .mermaid-view-container {
@@ -57,7 +62,12 @@
   grid-template-rows: repeat(3, 1fr);
   gap: 4px;
 }
-.mermaid-wrapper:hover .mermaid-viewer-grid-panel {
+@media (hover: hover) and (pointer: fine) {
+  .mermaid-wrapper:hover .mermaid-viewer-grid-panel {
+    opacity: 1;
+  }
+}
+.mermaid-wrapper.is-controls-visible .mermaid-viewer-grid-panel {
   opacity: 1;
 }
 .mermaid-viewer-grid-panel .grid-row {
@@ -111,10 +121,6 @@
 @media (max-width: 768px) {
   .mermaid-wrapper {
     border-radius: 3px;
-  }
-  .mermaid-toolbar,
-  .mermaid-viewer-grid-panel {
-    opacity: 1;
   }
   .btn {
     width: 28px;
