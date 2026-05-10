@@ -8,8 +8,6 @@ const anchor = require("markdown-it-anchor");
 const footnote = require("markdown-it-footnote");
 const ins = require("markdown-it-ins");
 const mark = require("markdown-it-mark");
-const sub = require("markdown-it-sub");
-const sup = require("markdown-it-sup");
 const taskLists = require("markdown-it-task-lists");
 
 function resolveDefault(module) {
@@ -243,8 +241,6 @@ class MarkdownRenderer {
       this.md
         .use(resolveDefault(footnote))
         .use(resolveDefault(mark))
-        .use(resolveDefault(sub))
-        .use(resolveDefault(sup))
         .use(resolveDefault(abbr))
         .use(resolveDefault(ins))
         .use(resolveDefault(taskLists))

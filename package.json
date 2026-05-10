@@ -34,8 +34,6 @@
     "README.md"
   ],
   "dependencies": {
-    "@swup/head-plugin": "^2.3.1",
-    "@swup/scripts-plugin": "^2.1.0",
     "esbuild": "^0.28.0",
     "feedsmith": "^2.9.4",
     "hexo-pagination": "^4.0.0",
@@ -52,10 +50,7 @@
     "markdown-it-footnote": "^4.0.0",
     "markdown-it-ins": "^4.0.0",
     "markdown-it-mark": "^4.0.0",
-    "markdown-it-sub": "^2.0.0",
-    "markdown-it-sup": "^2.0.0",
-    "markdown-it-task-lists": "^2.1.1",
-    "swup": "^4.8.3"
+    "markdown-it-task-lists": "^2.1.1"
   },
   "peerDependencies": {
     "hexo": "^8.1.1",
