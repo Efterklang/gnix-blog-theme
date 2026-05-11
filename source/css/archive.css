@@ -167,16 +167,14 @@
 
 .archive-item::before {
   position: absolute;
-  top: 0.86rem;
-  left: -1.18rem;
+  top: 1em;
+  left: -1rem;
   width: 0.55rem;
   height: 0.55rem;
   border-radius: 999px;
   background: transparent;
   content: "";
-  transition:
-    background 140ms ease,
-    transform 140ms ease;
+  transition: background 500ms ease;
 }
 
 .archive-item:hover::before,
