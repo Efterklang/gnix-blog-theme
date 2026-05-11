@@ -72,7 +72,6 @@ class InfoCard extends HTMLElement {
         position: absolute;
         inset: auto -20% -45% 35%;
         height: 70%;
-        background: radial-gradient(circle, hsl(from var(--lavender) h s l / 0.16), transparent 62%);
         pointer-events: none;
       }
 
@@ -187,7 +186,6 @@ class InfoCard extends HTMLElement {
 
       .x-info-link--icon:hover {
         color: var(--lavender);
-        background: hsl(from var(--lavender) h s l / 0.08);
       }
 
       .x-info-link--icon iconify-icon {
@@ -229,9 +227,15 @@ class InfoCard extends HTMLElement {
     const quicklinks = parseJsonAttribute(this, "quicklinks");
 
     const details = [
-      website ? `<div class="x-info-item"><span class="x-info-label">Website</span><a href="${escapeAttribute(website)}" class="x-info-value" target="_blank" rel="noopener noreferrer">${escapeHtml(website.replace(/^https?:\/\//, ""))}</a></div>` : "",
-      feed ? `<div class="x-info-item"><span class="x-info-label">Feed</span><a href="${escapeAttribute(feed)}" class="x-info-value" target="_blank" rel="noopener noreferrer">${escapeHtml(feed.replace(/^https?:\/\//, ""))}</a></div>` : "",
-      avatarLink ? `<div class="x-info-item"><span class="x-info-label">Avatar</span><a href="${escapeAttribute(avatarLink)}" class="x-info-value" target="_blank" rel="noopener noreferrer">${escapeHtml(avatarLink.replace(/^https?:\/\//, ""))}</a></div>` : "",
+      website
+        ? `<div class="x-info-item"><span class="x-info-label">Website</span><a href="${escapeAttribute(website)}" class="x-info-value" target="_blank" rel="noopener noreferrer">${escapeHtml(website.replace(/^https?:\/\//, ""))}</a></div>`
+        : "",
+      feed
+        ? `<div class="x-info-item"><span class="x-info-label">Feed</span><a href="${escapeAttribute(feed)}" class="x-info-value" target="_blank" rel="noopener noreferrer">${escapeHtml(feed.replace(/^https?:\/\//, ""))}</a></div>`
+        : "",
+      avatarLink
+        ? `<div class="x-info-item"><span class="x-info-label">Avatar</span><a href="${escapeAttribute(avatarLink)}" class="x-info-value" target="_blank" rel="noopener noreferrer">${escapeHtml(avatarLink.replace(/^https?:\/\//, ""))}</a></div>`
+        : "",
     ]
       .filter(Boolean)
       .join("");
@@ -254,9 +258,7 @@ class InfoCard extends HTMLElement {
       .filter(Boolean);
 
     const hasDivider = quicklinkItems.length > 0 && socialItems.length > 0;
-    const linksHtml = [...quicklinkItems, hasDivider ? `<span class="x-info-sep" aria-hidden="true"></span>` : "", ...socialItems]
-      .filter(Boolean)
-      .join("");
+    const linksHtml = [...quicklinkItems, hasDivider ? `<span class="x-info-sep" aria-hidden="true"></span>` : "", ...socialItems].filter(Boolean).join("");
 
     this.innerHTML = `
       <div class="x-info-card">
