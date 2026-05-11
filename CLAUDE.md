@@ -1,4 +1,8 @@
-# CLAUDE.md - Project Guidelines
+Important Paths:
 
-- Changelog: After completing IMPORTANT feature development/bug fix, always update the changelog(`/Users/gjx/Projects/vluv/source/_posts/change.md`)
-- Test: run `just dev`, and you can visit site on localhost:4000; or you can run `just gen`, and visit the generated products in `/Users/gjx/Projects/vluv/public`
+外部文件夹
+
+- ~/Projects/vluv: 使用该主题的项目文件夹，包含:
+  - `_config.yml` `_config.gnix.yml`: Hexo以及本主题各自的配置文件
+  - `source/cn/_posts`, `source/en/_posts`: 中英文文章存放地
+  - `source/cn/_posts/test_components.md` 可在该md内测试 `./source/js/components/` 内的各组件
