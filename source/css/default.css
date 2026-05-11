@@ -739,14 +739,13 @@ html {
   padding: 4rem 1.5rem 3rem;
   text-align: center;
   color: var(--overlay0);
-  font-family: var(--font-mono);
 }
 
 .footer-brand {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 .footer-credit {
@@ -789,7 +788,7 @@ html {
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   border-radius: 50%;
   font-family: var(--font-mono);
   font-size: 1rem;
