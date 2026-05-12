@@ -604,16 +604,16 @@ function getComparablePath(url) {
 
 function updateNavbarCurrentPage() {
   const currentPath = getComparablePath(window.location.href);
-  document.querySelectorAll(".navbar-start .navbar-item").forEach((item) => {
-    const itemPath = getComparablePath(item.href);
-    const active = itemPath === currentPath || (itemPath !== "/" && currentPath.startsWith(`${itemPath}/`));
+  const items = [...document.querySelectorAll(".navbar-start .navbar-item")];
+  const paths = items.map((item) => getComparablePath(item.href));
+  const isSectionMatch = (p) => p !== "/" && (p === currentPath || currentPath.startsWith(`${p}/`));
+  const hasSectionMatch = paths.some(isSectionMatch);
 
+  items.forEach((item, i) => {
+    const p = paths[i];
+    const active = p === "/" ? !hasSectionMatch : isSectionMatch(p);
     item.classList.toggle("is-active", active);
-    if (active) {
-      item.setAttribute("aria-current", "page");
-    } else {
-      item.removeAttribute("aria-current");
-    }
+    item.ariaCurrent = active ? "page" : null;
   });
 }
 

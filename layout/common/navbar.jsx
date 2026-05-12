@@ -77,7 +77,8 @@ function getLanguageSwitch(site, page, config, helper) {
   const mode = !url && isDocumentPage ? "missing" : "link";
 
   if (!url && mode === "link") {
-    url = helper.localized_url_for(page?.path || "/", targetLanguageKey);
+    const targetPath = page?.current > 1 ? "/" : (page?.path || "/");
+    url = helper.localized_url_for(targetPath, targetLanguageKey);
   }
 
   return {
@@ -108,7 +109,7 @@ class Navbar extends Component {
       <Fragment>
         <nav class="navbar navbar-main">
           <div class="navbar-container" onclick="toggleNav(event)">
-            <a href={siteUrl} style={"font-family: homemade-apple; color: var(--text); display: flex; align-items: center; padding: 0 1em;"}>
+            <a id="navbar-logo-link" href={siteUrl} style={"font-family: homemade-apple; color: var(--text); display: flex; align-items: center; padding: 0 1em;"}>
               GnixAij
             </a>
             <div class="navbar-menu">
@@ -118,7 +119,7 @@ class Navbar extends Component {
                     const item = menu[name];
                     const navbar_item_class = `navbar-item ${item.active ? "is-active" : ""}`;
                     return (
-                      <a class={navbar_item_class} href={item.url} aria-current={item.active ? "page" : null}>
+                      <a class={navbar_item_class} href={item.url} data-navbar-menu={name} aria-current={item.active ? "page" : null}>
                         {name}
                       </a>
                     );
@@ -190,9 +191,19 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
   const menu = {};
   if (navbar?.menu) {
     const pageUrl = typeof page.path !== "undefined" ? url_for(page.path) : "";
+    const menuMeta = {};
     Object.keys(navbar.menu).forEach((name) => {
-      const url = helper.localized_url_for(navbar.menu[name], langKey);
-      const active = isActiveMenuLink(url, pageUrl);
+      const rawValue = navbar.menu[name];
+      const url = helper.localized_url_for(rawValue, langKey);
+      const isRootMenu = rawValue === "/" || rawValue === "" || rawValue === "./";
+      menuMeta[name] = { url, isRootMenu };
+    });
+    const anySectionActive = Object.keys(menuMeta).some(
+      (name) => !menuMeta[name].isRootMenu && isActiveMenuLink(menuMeta[name].url, pageUrl)
+    );
+    Object.keys(menuMeta).forEach((name) => {
+      const { url, isRootMenu } = menuMeta[name];
+      const active = isRootMenu ? !anySectionActive : isActiveMenuLink(url, pageUrl);
       menu[name] = { url, active };
     });
   }
@@ -222,3 +233,5 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
 });
 
 module.exports.getLanguageSwitch = getLanguageSwitch;
+module.exports.isActiveMenuLink = isActiveMenuLink;
+module.exports.sanitizeLink = sanitizeLink;
