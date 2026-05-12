@@ -56,7 +56,8 @@ figure.shiki {
   overflow: auto;
   background: var(--mantle);
   color: var(--text);
-  iconify-icon {
+  svg {
+    width: 1em;
     color: transparent;
     cursor: pointer;
     transition:
@@ -65,7 +66,7 @@ figure.shiki {
   }
 
   &:hover {
-    iconify-icon {
+    svg {
       color: var(--text);
       &:hover {
         color: var(--blue);
@@ -165,13 +166,13 @@ figure.shiki {
   align-items: center;
   font-size: 1em;
   cursor: pointer;
-  > iconify-icon {
+  > svg {
     padding: 6px 0;
     animation: code-expand-pulse 1.2s infinite;
     transition: transform 0.3s ease;
   }
 
-  &.expand-done > iconify-icon {
+  &.expand-done > svg {
     transform: rotate(180deg);
   }
 }

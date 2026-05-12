@@ -15,7 +15,7 @@
         "markdown-exit": "^1.0.0-beta.9",
         "markdown-exit-mermaid": "^2.2.3",
         "markdown-exit-ratex": "^0.2.2",
-        "markdown-exit-shiki": "^0.3.2",
+        "markdown-exit-shiki": "^0.4.0",
         "markdown-it-anchor": "^9.2.0",
         "markdown-it-footnote": "^4.0.0",
         "markdown-it-mark": "^4.0.0",
@@ -264,7 +264,7 @@
 
     "markdown-exit-ratex": ["markdown-exit-ratex@0.2.2", "", { "peerDependencies": { "markdown-exit": ">=1.0.0-beta.9" }, "bin": { "ratex-render-svg": "bin/ratex-render-svg.mjs" } }, "sha512-0ofoSzQZLuAJjnXx3uTPSMMoHQBqfsWOZ4463tvsQt2mlDVUXFECAnCJyTshwFWjcd0nhdIfjtG/50GW+Y8QGQ=="],
 
-    "markdown-exit-shiki": ["markdown-exit-shiki@0.3.2", "", { "peerDependencies": { "@shikijs/colorized-brackets": "^4.0.2", "@shikijs/transformers": "^4.0.2", "markdown-exit": "^1.0.0-beta.9", "shiki": "^4.0.2" } }, "sha512-00d9V7+X9IeqDCaZ9j5tcFHiSG7vBvaocGNZZjqAovWG1IExVLjn6i1QksAAFjJwPBBZaQfi/0YIk/Ityu9Cgg=="],
+    "markdown-exit-shiki": ["markdown-exit-shiki@0.4.0", "", { "peerDependencies": { "@shikijs/colorized-brackets": "^4.0.2", "@shikijs/transformers": "^4.0.2", "markdown-exit": "^1.0.0-beta.9", "shiki": "^4.0.2" } }, "sha512-p/LMwTcWA41n3sLKWYEIGSCrqa0VNRZ6XHu+OuefYKZXOgdQR6r1a/+rVy+xP7GrXEnB4V6JDNzXR5eyoDusPA=="],
 
     "markdown-it": ["markdown-it@14.1.1", "", { "dependencies": { "argparse": "^2.0.1", "entities": "^4.4.0", "linkify-it": "^5.0.0", "mdurl": "^2.0.0", "punycode.js": "^2.3.1", "uc.micro": "^2.1.0" }, "bin": { "markdown-it": "bin/markdown-it.mjs" } }, "sha512-BuU2qnTti9YKgK5N+IeMubp14ZUKUUw7yeJbkjtosvHiP0AZ5c8IAgEMk79D0eC8F23r4Ac/q8cAIFdm2FtyoA=="],
 
