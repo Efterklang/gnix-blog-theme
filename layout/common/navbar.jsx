@@ -1,26 +1,6 @@
 const { Component, Fragment, cacheComponent } = require("../../include/util/common");
 const { getLanguage, getLanguageKeys, getPageLanguageKey, isExternalUrl, isI18nEnabled } = require("../../include/util/i18n");
 
-function isActiveMenuLink(menuUrl, pageUrl) {
-  const menuPath = sanitizeLink(menuUrl);
-  const pagePath = sanitizeLink(pageUrl);
-  if (menuPath === pagePath) return true;
-  if (!menuPath) return false;
-  return pagePath.startsWith(`${menuPath}/`);
-}
-
-function sanitizeLink(url) {
-  let paths = url
-    .replace(/(^\w+:|^)\/\//, "")
-    .split("#")[0]
-    .split("/")
-    .filter((p) => p.trim() !== "");
-  if (paths.length > 0 && paths[paths.length - 1].trim() === "index.html") {
-    paths = paths.slice(0, paths.length - 1);
-  }
-  return paths.join("/");
-}
-
 const renderLinkIcon = (link) => {
   if (!link.icon) return null;
   if (link.icon === "travellings") {
@@ -117,9 +97,8 @@ class Navbar extends Component {
                 <div class="navbar-start">
                   {Object.keys(menu).map((name) => {
                     const item = menu[name];
-                    const navbar_item_class = `navbar-item ${item.active ? "is-active" : ""}`;
                     return (
-                      <a class={navbar_item_class} href={item.url} data-navbar-menu={name} aria-current={item.active ? "page" : null}>
+                      <a class="navbar-item" href={item.url} data-navbar-menu={name}>
                         {name}
                       </a>
                     );
@@ -190,21 +169,9 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
 
   const menu = {};
   if (navbar?.menu) {
-    const pageUrl = typeof page.path !== "undefined" ? url_for(page.path) : "";
-    const menuMeta = {};
     Object.keys(navbar.menu).forEach((name) => {
       const rawValue = navbar.menu[name];
-      const url = helper.localized_url_for(rawValue, langKey);
-      const isRootMenu = rawValue === "/" || rawValue === "" || rawValue === "./";
-      menuMeta[name] = { url, isRootMenu };
-    });
-    const anySectionActive = Object.keys(menuMeta).some(
-      (name) => !menuMeta[name].isRootMenu && isActiveMenuLink(menuMeta[name].url, pageUrl)
-    );
-    Object.keys(menuMeta).forEach((name) => {
-      const { url, isRootMenu } = menuMeta[name];
-      const active = isRootMenu ? !anySectionActive : isActiveMenuLink(url, pageUrl);
-      menu[name] = { url, active };
+      menu[name] = { url: helper.localized_url_for(rawValue, langKey) };
     });
   }
 
@@ -233,5 +200,3 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
 });
 
 module.exports.getLanguageSwitch = getLanguageSwitch;
-module.exports.isActiveMenuLink = isActiveMenuLink;
-module.exports.sanitizeLink = sanitizeLink;

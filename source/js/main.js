@@ -597,26 +597,6 @@ function initArticleCommentPopover() {
   });
 }
 
-function getComparablePath(url) {
-  const path = new URL(url, window.location.href).pathname.replace(/\/index\.html$/, "/").replace(/\/+$/, "");
-  return path || "/";
-}
-
-function updateNavbarCurrentPage() {
-  const currentPath = getComparablePath(window.location.href);
-  const items = [...document.querySelectorAll(".navbar-start .navbar-item")];
-  const paths = items.map((item) => getComparablePath(item.href));
-  const isSectionMatch = (p) => p !== "/" && (p === currentPath || currentPath.startsWith(`${p}/`));
-  const hasSectionMatch = paths.some(isSectionMatch);
-
-  items.forEach((item, i) => {
-    const p = paths[i];
-    const active = p === "/" ? !hasSectionMatch : isSectionMatch(p);
-    item.classList.toggle("is-active", active);
-    item.ariaCurrent = active ? "page" : null;
-  });
-}
-
 function refreshNavbarIcons() {
   document.querySelectorAll(".navbar-end iconify-icon").forEach((el) => {
     if (!el.getAttribute("icon")) return;
@@ -638,7 +618,6 @@ function initPage() {
   document.querySelectorAll(".content img").forEach((img) => zoomImgs.add(img));
   mediumZoom([...zoomImgs], zoomOpts);
   initArticleCommentPopover();
-  updateNavbarCurrentPage();
   refreshNavbarIcons();
 }
 

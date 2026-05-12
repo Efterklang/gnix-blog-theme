@@ -11,23 +11,11 @@ function buildLangSwitchScript(site, page, config, helper) {
   const lswitch = Navbar.getLanguageSwitch(site, page, config, helper);
 
   const langKey = helper.language_key(page);
-  const pageUrl = typeof page.path !== "undefined" ? helper.url_for(page.path) : "";
   const menu = {};
   if (config.navbar?.menu) {
-    const menuMeta = {};
     Object.keys(config.navbar.menu).forEach((name) => {
       const rawValue = config.navbar.menu[name];
-      const url = helper.localized_url_for(rawValue, langKey);
-      const isRootMenu = rawValue === "/" || rawValue === "" || rawValue === "./";
-      menuMeta[name] = { url, isRootMenu };
-    });
-    const anySectionActive = Object.keys(menuMeta).some(
-      (name) => !menuMeta[name].isRootMenu && Navbar.isActiveMenuLink(menuMeta[name].url, pageUrl)
-    );
-    Object.keys(menuMeta).forEach((name) => {
-      const { url, isRootMenu } = menuMeta[name];
-      const active = isRootMenu ? !anySectionActive : Navbar.isActiveMenuLink(url, pageUrl);
-      menu[name] = { url, active };
+      menu[name] = { url: helper.localized_url_for(rawValue, langKey) };
     });
   }
   const siteUrl = helper.localized_url_for("/", langKey);
@@ -58,14 +46,7 @@ function buildLangSwitchScript(site, page, config, helper) {
       Object.keys(menu).forEach(function(name) {
         var link = document.querySelector('a[data-navbar-menu="' + name + '"]');
         if (!link) return;
-        var item = menu[name];
-        link.href = item.url;
-        link.setAttribute('aria-current', item.active ? 'page' : null);
-        if (item.active) {
-          link.classList.add('is-active');
-        } else {
-          link.classList.remove('is-active');
-        }
+        link.href = menu[name].url;
       });
       var logo = document.getElementById('navbar-logo-link');
       if (logo) logo.href = ${JSON.stringify(siteUrl)};

@@ -606,23 +606,6 @@ html {
   transition: color 0.18s ease;
 }
 
-.navbar-start .navbar-item.is-active {
-  color: var(--text);
-  font-weight: 500;
-}
-
-.navbar-start .navbar-item.is-active::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: 0.875rem;
-  width: 1.45em;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.36;
-  transform: translateX(-50%);
-}
-
 .navbar-end {
   svg {
     width: 1.2em;
