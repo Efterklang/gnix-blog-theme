@@ -2,7 +2,7 @@ const path = require("node:path");
 const { createMarkdownExit } = require("markdown-exit");
 const mermaidDiagram = require("markdown-exit-mermaid");
 const ratex = require("markdown-exit-ratex");
-const code = require("markdown-exit-shiki");
+const code = require("./shiki");
 const anchor = require("markdown-it-anchor");
 const footnote = require("markdown-it-footnote");
 const mark = require("markdown-it-mark");
@@ -218,11 +218,7 @@ class MarkdownRenderer {
         typographer: true,
         xhtmlOut: false,
       },
-      code_options: {
-        themes: {
-          light: "catppuccin-latte",
-        },
-      },
+      
       mermaid_options: {
         theme: "default",
       },
