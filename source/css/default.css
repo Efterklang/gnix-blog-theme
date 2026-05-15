@@ -765,29 +765,6 @@ html {
   color: var(--lavender);
 }
 
-.footer-top {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  margin-top: 1rem;
-  border-radius: 50%;
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  color: var(--overlay0);
-  border: 1px solid var(--surface0);
-  text-decoration: none;
-  transition:
-    color 0.25s ease,
-    background 0.25s ease;
-}
-
-.footer-top:hover {
-  color: var(--lavender);
-  background: color-mix(in oklch, var(--lavender) 12%, transparent);
-}
-
 /* #endregion Footer */
 
 ::-webkit-scrollbar {
@@ -1272,7 +1249,6 @@ small {
 /* #endregion Content */
 
 article,
-aside,
 figure,
 footer,
 header,

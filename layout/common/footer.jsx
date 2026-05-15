@@ -22,9 +22,6 @@ class Footer extends Component {
           ) : null}
           {copyright ? <p class="footer-meta" dangerouslySetInnerHTML={{ __html: copyright }}></p> : null}
         </div>
-        <a class="footer-top" href="#" title="Back to top">
-          &uarr;
-        </a>
       </footer>
     );
   }
@@ -32,7 +29,7 @@ class Footer extends Component {
 
 module.exports = cacheComponent(Footer, "common.footer", (props) => {
   const { config, helper, page, site } = props;
-  const { url_for, _p, date } = helper;
+  const { _p, date } = helper;
   const { title, author, footer, plugins } = config;
   const langKey = helper.language_key(page);
 
