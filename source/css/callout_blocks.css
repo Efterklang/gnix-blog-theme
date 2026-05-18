@@ -1,14 +1,13 @@
 .callout {
   --callout-color: var(--blue);
-  --callout-icon: lucide-pencil;
   --callout-collapse-icon: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iY3VycmVudENvbG9yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgZD0ibTkgMThsNi02bC02LTYiLz48L3N2Zz4=);
-  background-color: hsl(from var(--callout-color) h s l / 0.2);
+  background-color: hsl(from var(--callout-color) h s l / 0.15);
   border-color: hsl(from var(--callout-color) h s l / 0.5);
   border-radius: 8px;
   border-style: solid;
   border-width: 1.5px;
   margin: 1.5em 0 !important;
-  padding: 10px 12px 10px 15px;
+  padding: 10px 15px;
 
   svg {
     color: var(--callout-color);
@@ -18,19 +17,44 @@
 .callout-title {
   align-items: center;
   color: var(--callout-color);
-  cursor: pointer;
   display: flex;
   font-size: inherit;
   font-weight: bold;
   gap: 7px;
   line-height: 1.3;
   padding: 0;
+  list-style: none;
 }
 
-.callout-icon {
+.callout-title::-webkit-details-marker,
+.callout-title::marker {
+  display: none;
+}
+
+details.callout > .callout-title {
+  cursor: pointer;
+  user-select: none;
+}
+
+details.callout > .callout-title:hover {
+  color: hsl(from var(--callout-color) h s calc(l + 5));
+}
+
+.callout-icon,
+.callout-title-icon {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
+
+  svg {
+    width: 1.1em;
+    height: 1.1em;
+  }
+}
+
+.callout-title-inner {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .callout-fold {
@@ -39,47 +63,48 @@
   mask-size: 100%;
   -webkit-mask-image: var(--callout-collapse-icon);
   -webkit-mask-size: 100%;
-  height: 20px;
-  width: 20px;
-  transition: 0.1s ease-in-out;
-}
-
-.callout-content {
-  padding: 0;
-}
-
-details[close].callout > .callout-title > .callout-fold {
-  transform: rotate(-90deg);
+  height: 1em;
+  width: 1em;
+  flex: 0 0 auto;
+  transition: transform 0.15s ease-in-out;
 }
 
 details[open].callout > .callout-title > .callout-fold {
   transform: rotate(90deg);
 }
 
+.callout-content {
+  padding: 0;
+}
+
+.callout-content > :first-child {
+  margin-top: 0.5em;
+}
+
+.callout-content > :last-child {
+  margin-bottom: 0;
+}
+
 .callout[data-callout="info"],
 .callout[data-callout="todo"] {
-  --callout-icon: lucide-check-circle-2;
   --callout-color: var(--sapphire);
 }
 
 .callout[data-callout="success"],
 .callout[data-callout="check"],
 .callout[data-callout="done"] {
-  --callout-icon: lucide-check;
   --callout-color: var(--green);
 }
 
 .callout[data-callout="warning"],
 .callout[data-callout="caution"],
 .callout[data-callout="attention"] {
-  --callout-icon: lucide-alert-triangle;
   --callout-color: var(--peach);
 }
 
 .callout[data-callout="question"],
 .callout[data-callout="help"],
 .callout[data-callout="faq"] {
-  --callout-icon: lucide-alert-mark;
   --callout-color: var(--yellow);
 }
 
@@ -89,31 +114,26 @@ details[open].callout > .callout-title > .callout-fold {
 .callout[data-callout="failure"],
 .callout[data-callout="fail"],
 .callout[data-callout="missing"] {
-  --callout-icon: lucide-zap;
   --callout-color: var(--red);
 }
 
 .callout[data-callout="tip"],
 .callout[data-callout="hint"],
 .callout[data-callout="important"] {
-  --callout-icon: lucide-flame;
   --callout-color: var(--pink);
 }
 
 .callout[data-callout="example"] {
-  --callout-icon: lucide-list;
   --callout-color: var(--mauve);
 }
 
 .callout[data-callout="abstract"],
 .callout[data-callout="summary"],
 .callout[data-callout="tldr"] {
-  --callout-icon: lucide-clipboard-list;
   --callout-color: var(--teal);
 }
 
 .callout[data-callout="quote"],
 .callout[data-callout="cite"] {
-  --callout-icon: quote-glyph;
   --callout-color: var(--lavender);
 }

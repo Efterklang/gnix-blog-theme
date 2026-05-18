@@ -3,6 +3,7 @@ const { createMarkdownExit } = require("markdown-exit");
 const mermaidDiagram = require("markdown-exit-mermaid");
 const ratex = require("markdown-exit-ratex");
 const code = require("./shiki");
+const obsidianCallouts = require("./obsidian-callouts");
 const anchor = require("markdown-it-anchor");
 const footnote = require("markdown-it-footnote");
 const mark = require("markdown-it-mark");
@@ -239,6 +240,7 @@ class MarkdownRenderer {
         .use(resolveDefault(code), this.config.code_options)
         .use(resolveDefault(mermaidDiagram), this.config.mermaid_options)
         .use(resolveDefault(ratex), this.config.ratex_options)
+        .use(obsidianCallouts, this.config.callout_options)
         .use(customTabs)
         .use(wrapMarkdownItTable)
         .use(resolveDefault(anchor), {
