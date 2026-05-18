@@ -2,6 +2,7 @@ require("../include/hexo/i18n")(hexo);
 require("../include/hexo/filter")(hexo);
 require("../include/hexo/generator")(hexo);
 require("../include/hexo/feed")(hexo);
+require("../include/hexo/sitemap")(hexo);
 require("../include/hexo/encrypt")(hexo);
 require("../include/hexo/view").init(hexo);
 require("../include/hexo/helper")(hexo);

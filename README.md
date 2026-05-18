@@ -60,5 +60,7 @@ Support multiple light and dark themes:
 - [ppoffice/hexo-theme-icarus: A simple, delicate, and modern theme for the static site generator Hexo.](https://github.com/ppoffice/hexo-theme-icarus)
 - [D0n9X1n/hexo-blog-encrypt: Yet, just another hexo plugin for security.](https://github.com/D0n9X1n/hexo-blog-encrypt)
 - [hexojs/hexo-generator-feed: Feed generator for Hexo.](https://github.com/hexojs/hexo-generator-feed)
+- [hexojs/hexo-generator-sitemap: Sitemap generator for Hexo.](https://github.com/hexojs/hexo-generator-sitemap)
 - [hexojs/hexo-generator-tag: Tag generator for Hexo.](https://github.com/hexojs/hexo-generator-tag)
 - [hexojs/hexo-generator-archive: Archive generator for Hexo.](https://github.com/hexojs/hexo-generator-archive)
+- [ebullient/markdown-it-obsidian-callouts: markdown-it plugin for GitHub and Obsidian callouts.](https://github.com/ebullient/markdown-it-obsidian-callouts?tab=Apache-2.0-1-ov-file)
