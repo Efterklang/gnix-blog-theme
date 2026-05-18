@@ -132,11 +132,21 @@ function renderCode(md, renderOptions) {
     }
     const normalizedCode = code.replace(/\r?\n$/, "");
     const mappedLang = cfg.aliases[lang] || lang;
-    let codeHtml = await codeToHtml(normalizedCode, {
-      lang: mappedLang,
-      themes: cfg.themes,
-      transformers: cfg.transformers,
-    });
+    let codeHtml;
+    try {
+      codeHtml = await codeToHtml(normalizedCode, {
+        lang: mappedLang,
+        themes: cfg.themes,
+        transformers: cfg.transformers,
+      });
+    } catch (err) {
+      console.warn(`[shiki] Language \`${mappedLang}\` is not supported, falling back to \`txt\`.`);
+      codeHtml = await codeToHtml(normalizedCode, {
+        lang: "txt",
+        themes: cfg.themes,
+        transformers: cfg.transformers,
+      });
+    }
     await writeCssAsync(cfg.styleToClass.cssGetter, cfg.styleToClass.css_output_path);
     codeHtml = codeHtml.replace(/<pre[^>]*>/, (match) => match.replace(/\s*style\s*=\s*"[^"]*"\s*tabindex="0"/, ""));
 
@@ -157,11 +167,21 @@ function renderCode(md, renderOptions) {
     }
     const [, lang, code] = match;
     if (!lang || !code) return `<code>${content}</code>`;
-    const highlighted = await codeToHtml(code, {
-      lang: lang,
-      themes: cfg.themes,
-      structure: "inline",
-    });
+    let highlighted;
+    try {
+      highlighted = await codeToHtml(code, {
+        lang: lang,
+        themes: cfg.themes,
+        structure: "inline",
+      });
+    } catch (err) {
+      console.warn(`[shiki] Language \`${lang}\` is not supported, falling back to \`txt\`.`);
+      highlighted = await codeToHtml(code, {
+        lang: "txt",
+        themes: cfg.themes,
+        structure: "inline",
+      });
+    }
     return `<code${self.renderAttrs(token)}>${highlighted}</code>`;
   };
 }
