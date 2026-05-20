@@ -610,11 +610,10 @@ html {
 
 .navbar-logo {
   font-family: homemade-apple, var(--font-handwriting);
-  color: var(--text);
+  color: var(--subtext1);
   display: flex;
   align-items: center;
   padding: 0 1.25rem;
-  font-size: 1.4rem;
   letter-spacing: 0.01em;
   line-height: 1;
   transition: color 240ms ease;
@@ -732,49 +731,6 @@ html {
 }
 
 /* #endregion Theme Selector */
-
-/* #region Pagination */
-
-.pagination,
-.pagination-list {
-  align-items: center;
-  display: flex;
-  text-align: center;
-  font-family: var(--font-serif);
-  font-style: italic;
-}
-
-.pagination-link.is-current {
-  color: var(--text);
-  font-weight: bold;
-}
-
-.pagination-ellipsis,
-.pagination-link,
-.pagination-next,
-.pagination-previous {
-  user-select: none;
-  color: var(--subtext0);
-  padding: 0 1rem;
-  display: inline-flex;
-  min-width: 1.5em;
-}
-
-.pagination-previous {
-  margin-right: auto;
-  margin-left: 0.5rem;
-}
-
-.pagination-next {
-  margin-left: auto;
-  margin-right: 0.5rem;
-}
-
-.pagination-list {
-  flex-wrap: wrap;
-}
-
-/* #endregion Pagination */
 
 .section {
   padding: 3rem 1.5rem;
@@ -1383,11 +1339,12 @@ section {
   color: var(--overlay0);
 }
 
-.article-footer {
+.article-meta-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 1rem;
+  margin-bottom: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px dashed var(--surface0);
   font-family: var(--font-mono);
@@ -1410,20 +1367,6 @@ em,
   align-items: center;
   flex-wrap: wrap;
   gap: 0.2rem;
-}
-
-.article-read-more {
-  color: var(--subtext0);
-  text-decoration: none;
-  white-space: nowrap;
-
-  &:hover {
-    color: var(--blue);
-  }
-}
-
-.article-footer.article-meta-bar {
-  margin-bottom: 1rem;
 }
 
 .article-title-actions {

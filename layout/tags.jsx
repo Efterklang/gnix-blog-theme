@@ -1,6 +1,23 @@
 const { Component, Fragment, cacheComponent } = require("../include/util/common");
 const { filterByLanguage } = require("../include/util/i18n");
 
+function toRoman(num) {
+  const map = [
+    [1000, "M"], [900, "CM"], [500, "D"], [400, "CD"],
+    [100, "C"], [90, "XC"], [50, "L"], [40, "XL"],
+    [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"],
+  ];
+  let n = num;
+  let out = "";
+  for (const [value, sym] of map) {
+    while (n >= value) {
+      out += sym;
+      n -= value;
+    }
+  }
+  return out;
+}
+
 function getTagSize(count, maxCount) {
   const ratio = maxCount ? count / maxCount : 0;
   return `${(0.95 + ratio * 0.35).toFixed(3)}rem`;
@@ -8,7 +25,7 @@ function getTagSize(count, maxCount) {
 
 class Tags extends Component {
   render() {
-    const { cssUrl, tags, title, showCount, totalPosts, topTag } = this.props;
+    const { cssUrl, tags, title, showCount } = this.props;
 
     return (
       <Fragment>
@@ -16,26 +33,16 @@ class Tags extends Component {
         <main class="tags-page">
           <header class="tags-hero">
             <div>
-              <p class="tags-eyebrow">Topic Index</p>
-              <h1>{title}</h1>
-              <p class="tags-hero__summary">
-                {tags.length ? `Browse ${tags.length} topics across ${totalPosts} tagged ${totalPosts === 1 ? "post" : "posts"}.` : "No tagged posts are available yet."}
+              <p class="tags-eyebrow">
+                <span>Topic Index</span>
+                <span class="tags-hero__sep" aria-hidden="true">·</span>
+                <span>{tags.length} {tags.length === 1 ? "topic" : "topics"}</span>
               </p>
+              <h1>{title}</h1>
             </div>
-            <dl class="tags-stats" aria-label="Tags summary">
-              <div>
-                <dt>Tags</dt>
-                <dd>{tags.length}</dd>
-              </div>
-              <div>
-                <dt>Posts</dt>
-                <dd>{totalPosts}</dd>
-              </div>
-              <div>
-                <dt>Largest</dt>
-                <dd>{topTag ? topTag.name : "None"}</dd>
-              </div>
-            </dl>
+            {tags.length > 0 && (
+              <span class="tags-hero__roman" aria-hidden="true">{toRoman(tags.length)}</span>
+            )}
           </header>
 
           <nav class="tags-index" aria-label={title}>
@@ -87,15 +94,11 @@ Tags.Cacheable = cacheComponent(Tags, "page.tags", (props) => {
     };
   });
   const maxCount = mappedTags.reduce((max, tag) => Math.max(max, tag.count), 0);
-  const totalPosts = mappedTags.reduce((total, tag) => total + tag.count, 0);
-  const topTag = mappedTags.reduce((top, tag) => (tag.count > top.count ? tag : top), mappedTags[0]);
 
   return {
     cssUrl: helper.url_for("/css/tags.css"),
     showCount: show_count,
     title: _p("common.tag", Infinity),
-    totalPosts,
-    topTag,
     tags: mappedTags.map((tag) => ({
       ...tag,
       size: getTagSize(tag.count, maxCount),

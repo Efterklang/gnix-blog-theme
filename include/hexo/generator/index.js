@@ -73,10 +73,5 @@ module.exports = (hexo) => {
     require("./archive")(hexo);
   }
 
-  const indexConfig = hexo.theme.config.index_generator || {};
-  if (indexConfig.enabled !== false) {
-    require("./home")(hexo);
-  }
-
   require("./page")(hexo);
 };

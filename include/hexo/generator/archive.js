@@ -1,7 +1,12 @@
 const pagination = require("hexo-pagination");
-const { filterByLanguage, getLanguage, getLanguageBasePath, getLanguageKeys, isI18nEnabled } = require("../../util/i18n");
+const { filterByLanguage, getDefaultLanguageKey, getLanguage, getLanguageBasePath, getLanguageKeys, isI18nEnabled } = require("../../util/i18n");
 
 const fmtNum = (num) => num.toString().padStart(2, "0");
+
+function redirectTo(path) {
+  const target = path.startsWith("/") ? path : `/${path}`;
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=${target}"><link rel="canonical" href="${target}"></head><body><a href="${target}">Continue</a></body></html>`;
+}
 
 module.exports = (hexo) => {
   hexo.extend.generator.register("archive", function (locals) {
@@ -44,6 +49,7 @@ module.exports = (hexo) => {
         : {};
 
       generate(baseArchiveDir, allPosts, languageData);
+      generate(languageBase || "", allPosts, languageData);
 
       const yearly = themeConfig.yearly ?? true;
       const monthly = themeConfig.monthly ?? true;
@@ -106,6 +112,13 @@ module.exports = (hexo) => {
     }
 
     if (isI18nEnabled(fullConfig)) {
+      const defaultLanguageBase = getLanguageBasePath(fullConfig, getDefaultLanguageKey(fullConfig));
+      if (defaultLanguageBase) {
+        result.push({
+          path: "index.html",
+          data: redirectTo(defaultLanguageBase),
+        });
+      }
       getLanguageKeys(fullConfig).forEach((langKey) => generateLanguageArchives(langKey));
       return result;
     }

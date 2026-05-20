@@ -12,11 +12,15 @@ function formatDate(date, dateXml) {
 
 module.exports = class extends Component {
   render() {
-    const { url, title, date, dateXml } = this.props;
+    const { url, title, date, dateXml, excerpt, readTime } = this.props;
     const formattedDate = formatDate(date, dateXml);
+    const hasPreview = excerpt || readTime;
 
     return (
-      <article class="archive-item">
+      <article
+        class={hasPreview ? "archive-item has-preview" : "archive-item"}
+        data-read-time={readTime || null}
+      >
         <div>
           <p class="article-meta">
             <time dateTime={dateXml || null}>{formattedDate}</time>
@@ -25,6 +29,9 @@ module.exports = class extends Component {
             {title}
           </a>
         </div>
+        {excerpt && (
+          <template class="archive-item__excerpt" dangerouslySetInnerHTML={{ __html: excerpt }}></template>
+        )}
       </article>
     );
   }
