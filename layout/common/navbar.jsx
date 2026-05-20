@@ -13,7 +13,6 @@ const renderLinkIcon = (link) => {
       </svg>
     );
   }
-  return <iconify-icon icon={link.icon}></iconify-icon>;
 };
 
 function getTargetLanguageKey(config, currentLanguageKey) {
@@ -57,7 +56,7 @@ function getLanguageSwitch(site, page, config, helper) {
   const mode = !url && isDocumentPage ? "missing" : "link";
 
   if (!url && mode === "link") {
-    const targetPath = page?.current > 1 ? "/" : (page?.path || "/");
+    const targetPath = page?.current > 1 ? "/" : page?.path || "/";
     url = helper.localized_url_for(targetPath, targetLanguageKey);
   }
 
@@ -120,10 +119,29 @@ class Navbar extends Component {
                 ) : null}
                 {languageSwitch ? (
                   <Fragment>
-                    <a id="language-switch-link" class="navbar-item" href={languageSwitch.url || '#'} title={languageSwitch.title} aria-label={languageSwitch.title} lang={languageSwitch.locale} hreflang={languageSwitch.locale} style={languageSwitch.mode === 'link' ? '' : 'display:none'}>
+                    <a
+                      id="language-switch-link"
+                      class="navbar-item"
+                      href={languageSwitch.url || "#"}
+                      title={languageSwitch.title}
+                      aria-label={languageSwitch.title}
+                      lang={languageSwitch.locale}
+                      hreflang={languageSwitch.locale}
+                      style={languageSwitch.mode === "link" ? "" : "display:none"}
+                    >
                       {languageIcon}
                     </a>
-                    <button id="language-switch-button" type="button" class="navbar-item" title={languageSwitch.title} aria-label={languageSwitch.title} lang={languageSwitch.locale} data-toast-message={languageSwitch.unavailableMessage} onclick="window.showSiteToast?.(this.dataset.toastMessage); return false;" style={languageSwitch.mode === 'missing' ? '' : 'display:none'}>
+                    <button
+                      id="language-switch-button"
+                      type="button"
+                      class="navbar-item"
+                      title={languageSwitch.title}
+                      aria-label={languageSwitch.title}
+                      lang={languageSwitch.locale}
+                      data-toast-message={languageSwitch.unavailableMessage}
+                      onclick="window.showSiteToast?.(this.dataset.toastMessage); return false;"
+                      style={languageSwitch.mode === "missing" ? "" : "display:none"}
+                    >
                       {languageIcon}
                     </button>
                   </Fragment>
