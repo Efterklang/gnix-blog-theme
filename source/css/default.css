@@ -1412,16 +1412,6 @@ em,
   gap: 0.2rem;
 }
 
-.article-read-more {
-  color: var(--subtext0);
-  text-decoration: none;
-  white-space: nowrap;
-
-  &:hover {
-    color: var(--blue);
-  }
-}
-
 .article-footer.article-meta-bar {
   margin-bottom: 1rem;
 }

@@ -256,16 +256,11 @@
 }
 
 .archive-popup__cover {
-  display: none;
   margin: 0 0 0.65rem;
   overflow: hidden;
   border-radius: 0.25rem;
   aspect-ratio: 16 / 9;
   background: var(--surface0);
-}
-
-.archive-popup__cover:not([hidden]) {
-  display: block;
 }
 
 .archive-popup__cover img {
@@ -290,10 +285,6 @@
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.02em;
-}
-
-.archive-popup__meta[hidden] {
-  display: none;
 }
 
 .archive-popup__excerpt {

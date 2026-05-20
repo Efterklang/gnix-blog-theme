@@ -65,12 +65,8 @@ function escapeHtml(value) {
 
 function parseTags(raw) {
   if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((t) => t && t.name) : [];
-  } catch {
-    return raw.split(",").map((name) => ({ name: name.trim(), url: null })).filter((t) => t.name);
-  }
+  const parsed = JSON.parse(raw);
+  return Array.isArray(parsed) ? parsed.filter((t) => t && t.name) : [];
 }
 
 function populate(item) {

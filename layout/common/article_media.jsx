@@ -20,7 +20,6 @@ module.exports = class extends Component {
     return (
       <article
         class={hasPreview ? "archive-item has-preview" : "archive-item"}
-        data-archive-item={hasPreview ? "" : null}
         data-cover={cover || null}
         data-tags={tagsJson}
         data-read-time={readTime || null}
