@@ -722,6 +722,7 @@ html {
   padding: 4rem 1.5rem 3rem;
   text-align: center;
   color: var(--overlay0);
+  font-family: var(--font-mono);
 }
 
 .footer-brand {
@@ -731,11 +732,13 @@ html {
   gap: 0.25rem;
 }
 
-.footer-credit {
+.footer-credit,
+.footer-credit > a {
   font-size: 0.75rem;
   font-weight: 400;
   margin: 0;
   letter-spacing: 0.06em;
+  color: inherit;
 }
 
 .footer-author {

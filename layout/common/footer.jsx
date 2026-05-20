@@ -8,7 +8,10 @@ class Footer extends Component {
       <footer class="footer">
         <div class="footer-brand">
           <p class="footer-credit">
-            2022&ndash;PRESENT&ensp;<span class="footer-author">© GnixAij Oag</span> CC BY-NC-SA 4.0
+            2022&ndash;PRESENT&ensp;<span class="footer-author">© GnixAij Oag</span>&ensp;
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener noreferrer">
+              CC BY-NC-SA 4.0
+            </a>
           </p>
           {showVisitorCounter ? (
             <p class="footer-meta">
