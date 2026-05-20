@@ -60,8 +60,12 @@ function escapeHtml(value) {
 
 function parseTags(raw) {
   if (!raw) return [];
-  const parsed = JSON.parse(raw);
-  return Array.isArray(parsed) ? parsed.filter((t) => t && t.name) : [];
+  return raw.split(",").map((name) => name.trim()).filter(Boolean);
+}
+
+function buildTagUrl(base, name) {
+  if (!base) return null;
+  return `${base}${encodeURIComponent(name)}/`;
 }
 
 function readArchiveIndex(item) {
@@ -122,10 +126,12 @@ function populate(item) {
   excerptEl.innerHTML = excerptTemplate ? excerptTemplate.innerHTML : "";
 
   if (tags.length) {
+    const tagBase = item.closest(".archive-page")?.dataset.tagBase || "";
     tagsEl.innerHTML = tags
-      .map((tag) => {
-        const name = escapeHtml(tag.name);
-        const node = tag.url ? `<a href="${escapeHtml(tag.url)}">${name}</a>` : `<span>${name}</span>`;
+      .map((name) => {
+        const safeName = escapeHtml(name);
+        const url = buildTagUrl(tagBase, name);
+        const node = url ? `<a href="${escapeHtml(url)}">${safeName}</a>` : `<span>${safeName}</span>`;
         return `<span class="archive-popup__tag">${node}</span>`;
       })
       .join("");
@@ -169,16 +175,12 @@ function open(item) {
   popupEl.classList.add("is-open");
   popupEl.setAttribute("aria-hidden", "false");
   position(item);
-  item.querySelector(".archive-item__info")?.setAttribute("aria-expanded", "true");
 }
 
 function close() {
   if (!popupEl) return;
   popupEl.classList.remove("is-open");
   popupEl.setAttribute("aria-hidden", "true");
-  if (activeItem) {
-    activeItem.querySelector(".archive-item__info")?.setAttribute("aria-expanded", "false");
-  }
   activeItem = null;
 }
 
@@ -215,20 +217,6 @@ function handlePointerLeave(event) {
     openTimer = null;
   }
   scheduleClose();
-}
-
-function handleInfoClick(event) {
-  const btn = event.target.closest(".archive-item__info");
-  if (!btn) return;
-  event.preventDefault();
-  event.stopPropagation();
-  const item = btn.closest(".archive-item.has-preview");
-  if (!item) return;
-  if (activeItem === item && popupEl?.classList.contains("is-open")) {
-    close();
-  } else {
-    open(item);
-  }
 }
 
 function handleDocumentClick(event) {

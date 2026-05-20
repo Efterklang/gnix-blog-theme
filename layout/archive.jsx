@@ -103,14 +103,7 @@ module.exports = class extends Component {
                   excerpt={post.excerpt || null}
                   cover={post.cover ? url_for(post.cover) : null}
                   readTime={readMinutes ? `${readMinutes} min` : null}
-                  tags={
-                    post.tags?.length
-                      ? post.tags.map((tag) => ({
-                          name: tag.name,
-                          url: helper.localized_tag_url(tag, langKey),
-                        }))
-                      : null
-                  }
+                  tags={post.tags?.length ? post.tags.map((tag) => tag.name) : null}
                 />
               );
             })}
@@ -139,6 +132,8 @@ module.exports = class extends Component {
 
     const archiveDir = config?.archive_dir || "archives";
     const archiveBasePath = helper.localized_url_for(`/${archiveDir}/`, langKey);
+    const tagDir = config?.tag_dir || "tags";
+    const tagBasePath = helper.localized_url_for(`/${tagDir}/`, langKey);
     const currentYear = page.year ? Number(page.year) : null;
     const currentMonth = page.month ? Number(page.month) : null;
     const activeScope = getArchiveRangeLabel(currentYear, currentMonth);
@@ -149,7 +144,7 @@ module.exports = class extends Component {
     return (
       <Fragment>
         <link rel="stylesheet" href={url_for("/css/archive.css")} data-page-head />
-        <main class="archive-page">
+        <main class="archive-page" data-tag-base={tagBasePath}>
           <header class="archive-hero">
             <div class="archive-hero__copy">
               <p class="archive-eyebrow">Archive Index</p>

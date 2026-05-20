@@ -1383,11 +1383,12 @@ section {
   color: var(--overlay0);
 }
 
-.article-footer {
+.article-meta-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 1rem;
+  margin-bottom: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px dashed var(--surface0);
   font-family: var(--font-mono);
@@ -1410,10 +1411,6 @@ em,
   align-items: center;
   flex-wrap: wrap;
   gap: 0.2rem;
-}
-
-.article-footer.article-meta-bar {
-  margin-bottom: 1rem;
 }
 
 .article-title-actions {

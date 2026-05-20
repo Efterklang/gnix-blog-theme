@@ -63,9 +63,7 @@ module.exports = class extends Component {
 
             {page.excerpt && <div class="article-excerpt" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div>}
 
-            <div class="content" dangerouslySetInnerHTML={{ __html: page.content }}></div>
-
-            <div class="article-footer article-meta-bar">
+            <div class="article-meta-bar">
               <div class="article-tags">
                 {page.tags?.length
                   ? page.tags.map((tag, i) => (
@@ -144,6 +142,8 @@ module.exports = class extends Component {
                 </button>
               </div>
             </div>
+
+            <div class="content" dangerouslySetInnerHTML={{ __html: page.content }}></div>
 
           </article>
 

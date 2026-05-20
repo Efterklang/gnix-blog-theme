@@ -185,7 +185,7 @@
 
 .archive-item > div {
   display: grid;
-  grid-template-columns: 4.9rem minmax(0, 1fr) auto;
+  grid-template-columns: 4.9rem minmax(0, 1fr);
   gap: 0.85rem;
   align-items: baseline;
   padding: 0.55rem 0.35rem 0.55rem 0;
@@ -195,46 +195,9 @@
   border-top: 1px solid color-mix(in oklch, var(--archive-line) 52%, transparent);
 }
 
-.archive-item__info {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.4rem;
-  height: 1.4rem;
-  padding: 0;
-  border: none;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--archive-muted);
-  cursor: pointer;
-  opacity: 0;
-  transition:
-    opacity 140ms ease,
-    color 140ms ease,
-    background 140ms ease;
-}
-
-.archive-item:hover .archive-item__info,
-.archive-item:focus-within .archive-item__info,
-.archive-item__info:focus-visible {
-  opacity: 1;
-}
-
-.archive-item__info:hover,
-.archive-item__info:focus-visible {
-  color: var(--archive-accent);
-  background: color-mix(in oklch, var(--archive-accent) 12%, transparent);
-}
-
-@media (hover: none) {
-  .archive-item__info {
-    opacity: 1;
-  }
-}
-
 .archive-popup {
   --popup-accent: var(--archive-accent);
-  --popup-radius: 0.6rem;
+  --popup-radius: 12px;
   position: absolute;
   z-index: 100;
   width: min(22rem, calc(100vw - 2rem));
@@ -242,6 +205,8 @@
   opacity: 0;
   pointer-events: none;
   transform: translateY(-2px);
+  border-radius: var(--popup-radius);
+  overflow: hidden;
   transition:
     opacity 140ms ease,
     transform 140ms ease;
@@ -249,16 +214,22 @@
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
-    background-color: var(--mantle);
-    border: 1px solid var(--popup-accent);
-    border-radius: 12px;
+    background:
+      linear-gradient(var(--mantle), var(--mantle)) padding-box,
+      linear-gradient(
+        135deg,
+        color-mix(in oklch, var(--popup-accent) 55%, transparent),
+        color-mix(in oklch, var(--popup-accent) 12%, transparent) 45%,
+        color-mix(in oklch, var(--mauve) 35%, transparent)
+      ) border-box;
+    border: 1px solid transparent;
   }
 }
 
 .archive-popup__cover {
-  margin: 0 0 0.85rem;
+  margin: -1rem -1.1rem 0.85rem;
   overflow: hidden;
-  border-radius: calc(var(--popup-radius) - 0.3rem);
+  border-radius: 0;
   aspect-ratio: 16 / 9;
   background: var(--surface0);
   filter: grayscale(0.15);
@@ -277,47 +248,27 @@
 }
 
 .archive-popup__eyebrow {
-  margin: 0 0 0.55rem;
+  margin: 0 0 0.5rem;
   color: var(--archive-muted);
   font-family: var(--font-mono);
   font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.archive-popup__index {
-  color: var(--popup-accent);
-}
-
 .archive-popup__sep {
-  opacity: 0.5;
+  margin: 0 0.4em;
+  opacity: 0.4;
 }
 
 .archive-popup__excerpt {
-  position: relative;
   margin: 0;
-  padding-left: 0.85rem;
   color: var(--archive-muted);
   font-family: var(--font-serif);
-  font-size: 0.78rem;
-  font-style: italic;
+  font-size: 0.9rem;
   line-height: 1.6;
   max-height: 4.8em;
   overflow: hidden;
-  mask-image: linear-gradient(to bottom, #000 60%, transparent);
-}
-
-.archive-popup__excerpt::before {
-  position: absolute;
-  top: -0.2em;
-  left: 0;
-  color: var(--popup-accent);
-  font-family: var(--font-serif);
-  font-size: 1.6rem;
-  line-height: 1;
-  content: "\201C";
-  opacity: 0.7;
 }
 
 .archive-popup__excerpt :where(p, ul, ol) {
@@ -335,14 +286,12 @@
 .archive-popup__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 0.85rem;
-  margin: 0.7rem 0 0;
-  padding-top: 0.55rem;
-  border-top: 1px solid color-mix(in oklch, var(--archive-line) 60%, transparent);
+  gap: 0.3rem 0.7rem;
+  margin: 0.75rem 0 0;
   color: var(--archive-muted);
   font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.05em;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
 }
 
 .archive-popup__tag a,
@@ -350,12 +299,6 @@
   color: inherit;
   text-decoration: none;
   transition: color 120ms ease;
-}
-
-.archive-popup__tag a::before {
-  margin-right: 0.08em;
-  color: var(--popup-accent);
-  content: "#";
 }
 
 .archive-popup__tag a:hover,
@@ -453,15 +396,9 @@ a.archive-title:focus-visible {
   }
 
   .archive-item > div {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr;
     gap: 0.1rem;
     padding: 0.7rem 0.5rem 0.7rem 0;
-  }
-
-  .archive-item__info {
-    align-self: center;
-    grid-row: 1 / span 2;
-    grid-column: 2;
   }
 
   .article-meta {
