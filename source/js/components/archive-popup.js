@@ -5,8 +5,6 @@ let popupEl = null;
 let coverEl = null;
 let excerptEl = null;
 let tagsEl = null;
-let titleEl = null;
-let metaEl = null;
 let openTimer = null;
 let closeTimer = null;
 let activeItem = null;
@@ -19,21 +17,18 @@ function ensurePopup() {
   popupEl.setAttribute("role", "dialog");
   popupEl.setAttribute("aria-hidden", "true");
   popupEl.innerHTML = `
-    <figure class="archive-popup__cover" hidden>
+    <div class="archive-popup__cover" hidden>
       <img alt="" decoding="async" loading="lazy" referrerpolicy="no-referrer" />
-    </figure>
-    <h3 class="archive-popup__title"></h3>
-    <p class="archive-popup__meta" hidden></p>
+    </div>
+    <p class="archive-popup__eyebrow"><span class="archive-popup__index"></span><span class="archive-popup__sep" hidden> · </span><span class="archive-popup__read" hidden></span></p>
     <div class="archive-popup__excerpt"></div>
-    <ul class="archive-popup__tags" hidden></ul>
+    <p class="archive-popup__tags" hidden></p>
   `;
   document.body.appendChild(popupEl);
 
   coverEl = popupEl.querySelector(".archive-popup__cover");
   excerptEl = popupEl.querySelector(".archive-popup__excerpt");
   tagsEl = popupEl.querySelector(".archive-popup__tags");
-  titleEl = popupEl.querySelector(".archive-popup__title");
-  metaEl = popupEl.querySelector(".archive-popup__meta");
 
   popupEl.addEventListener("pointerenter", clearCloseTimer);
   popupEl.addEventListener("pointerleave", scheduleClose);
@@ -69,6 +64,17 @@ function parseTags(raw) {
   return Array.isArray(parsed) ? parsed.filter((t) => t && t.name) : [];
 }
 
+function readArchiveIndex(item) {
+  const items = document.querySelectorAll(".archive-item.has-preview, .archive-item");
+  let total = 0;
+  let found = -1;
+  for (const el of items) {
+    total += 1;
+    if (el === item) found = total;
+  }
+  return found > 0 ? String(found).padStart(3, "0") : null;
+}
+
 function populate(item) {
   ensurePopup();
   const title = item.querySelector(".archive-title")?.textContent || "";
@@ -77,7 +83,26 @@ function populate(item) {
   const readTime = item.dataset.readTime || "";
   const excerptTemplate = item.querySelector(".archive-item__excerpt");
 
-  titleEl.textContent = title;
+  const group = item.closest(".archive-group");
+  if (group) {
+    const accent = getComputedStyle(group).getPropertyValue("--archive-accent").trim();
+    if (accent) popupEl.style.setProperty("--popup-accent", accent);
+  }
+
+  const indexEl = popupEl.querySelector(".archive-popup__index");
+  const sepEl = popupEl.querySelector(".archive-popup__sep");
+  const readEl = popupEl.querySelector(".archive-popup__read");
+  const idx = readArchiveIndex(item);
+  indexEl.textContent = idx ? `N° ${idx}` : "";
+  if (readTime) {
+    readEl.textContent = readTime.replace(/min$/i, "min read").toUpperCase();
+    readEl.hidden = false;
+    sepEl.hidden = !idx;
+  } else {
+    readEl.textContent = "";
+    readEl.hidden = true;
+    sepEl.hidden = true;
+  }
 
   const img = coverEl.querySelector("img");
   if (cover) {
@@ -89,15 +114,9 @@ function populate(item) {
     coverEl.hidden = false;
   } else {
     img.removeAttribute("src");
+    img.removeAttribute("alt");
+    delete img.dataset.src;
     coverEl.hidden = true;
-  }
-
-  if (readTime) {
-    metaEl.textContent = readTime;
-    metaEl.hidden = false;
-  } else {
-    metaEl.textContent = "";
-    metaEl.hidden = true;
   }
 
   excerptEl.innerHTML = excerptTemplate ? excerptTemplate.innerHTML : "";
@@ -106,7 +125,8 @@ function populate(item) {
     tagsEl.innerHTML = tags
       .map((tag) => {
         const name = escapeHtml(tag.name);
-        return tag.url ? `<li><a href="${escapeHtml(tag.url)}">${name}</a></li>` : `<li>${name}</li>`;
+        const node = tag.url ? `<a href="${escapeHtml(tag.url)}">${name}</a>` : `<span>${name}</span>`;
+        return `<span class="archive-popup__tag">${node}</span>`;
       })
       .join("");
     tagsEl.hidden = false;
