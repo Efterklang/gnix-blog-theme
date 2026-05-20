@@ -574,13 +574,7 @@ html {
   right: 8%;
   bottom: 0;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    hsl(from var(--surface0) h s l / 0.75) 22%,
-    hsl(from var(--surface0) h s l / 0.75) 78%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg, transparent 0%, hsl(from var(--surface0) h s l / 0.75) 22%, hsl(from var(--surface0) h s l / 0.75) 78%, transparent 100%);
   pointer-events: none;
 }
 
@@ -2300,8 +2294,8 @@ input.searchbox-input {
 
 .toc-button {
   position: fixed;
-  top: 7rem;
-  left: 2rem;
+  top: 10rem;
+  left: max(2rem, calc(50% - 25em - 10rem));
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
