@@ -118,33 +118,19 @@ class Navbar extends Component {
                   </Fragment>
                 ) : null}
                 {languageSwitch ? (
-                  <Fragment>
-                    <a
-                      id="language-switch-link"
-                      class="navbar-item"
-                      href={languageSwitch.url || "#"}
-                      title={languageSwitch.title}
-                      aria-label={languageSwitch.title}
-                      lang={languageSwitch.locale}
-                      hreflang={languageSwitch.locale}
-                      style={languageSwitch.mode === "link" ? "" : "display:none"}
-                    >
-                      {languageIcon}
-                    </a>
-                    <button
-                      id="language-switch-button"
-                      type="button"
-                      class="navbar-item"
-                      title={languageSwitch.title}
-                      aria-label={languageSwitch.title}
-                      lang={languageSwitch.locale}
-                      data-toast-message={languageSwitch.unavailableMessage}
-                      onclick="window.showSiteToast?.(this.dataset.toastMessage); return false;"
-                      style={languageSwitch.mode === "missing" ? "" : "display:none"}
-                    >
-                      {languageIcon}
-                    </button>
-                  </Fragment>
+                  <a
+                    id="language-switch"
+                    class="navbar-item"
+                    href={languageSwitch.url || "#"}
+                    title={languageSwitch.title}
+                    aria-label={languageSwitch.title}
+                    lang={languageSwitch.locale}
+                    hreflang={languageSwitch.locale}
+                    data-mode={languageSwitch.mode}
+                    data-toast-message={languageSwitch.unavailableMessage}
+                  >
+                    {languageIcon}
+                  </a>
                 ) : null}
                 <button type="button" class="navbar-item" title="Choose Theme" popovertarget="theme-selector-popover">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

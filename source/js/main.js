@@ -624,6 +624,19 @@ document.addEventListener("keydown", handleKeyDown, {
   passive: false, // 允许调用 preventDefault
 });
 
+document.addEventListener(
+  "click",
+  (e) => {
+    const el = e.target.closest("#language-switch");
+    if (el && el.dataset.mode === "missing") {
+      e.preventDefault();
+      e.stopPropagation();
+      window.showSiteToast?.(el.dataset.toastMessage);
+    }
+  },
+  { capture: true },
+);
+
 function toggleNav(event) {
   const container = event.currentTarget;
   const burger = container.querySelector(".navbar-burger");

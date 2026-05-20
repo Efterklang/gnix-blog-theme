@@ -25,22 +25,23 @@ function buildLangSwitchScript(site, page, config, helper) {
         mode: lswitch.mode,
         url: lswitch.url || "",
         locale: lswitch.locale,
+        title: lswitch.title,
+        unavailableMessage: lswitch.unavailableMessage,
       })
     : "null";
 
   return `<script data-swup-reload-script>
     (function() {
       var d = ${payload};
-      var l = document.getElementById('language-switch-link');
-      var b = document.getElementById('language-switch-button');
-      if (l || b) {
-        if (d && d.mode === 'link' && d.url) {
-          if (l) { l.href = d.url; l.style.display = ''; l.setAttribute('lang', d.locale); l.setAttribute('hreflang', d.locale); }
-          if (b) b.style.display = 'none';
-        } else {
-          if (l) l.style.display = 'none';
-          if (b) { b.style.display = ''; b.setAttribute('lang', d.locale); }
-        }
+      var el = document.getElementById('language-switch');
+      if (el && d) {
+        el.href = d.mode === 'link' && d.url ? d.url : '#';
+        el.title = d.title;
+        el.setAttribute('aria-label', d.title);
+        el.setAttribute('lang', d.locale);
+        el.setAttribute('hreflang', d.locale);
+        el.dataset.mode = d.mode;
+        el.dataset.toastMessage = d.unavailableMessage;
       }
       var menu = ${JSON.stringify(menu)};
       Object.keys(menu).forEach(function(name) {
@@ -51,7 +52,7 @@ function buildLangSwitchScript(site, page, config, helper) {
       var logo = document.getElementById('navbar-logo-link');
       if (logo) logo.href = ${JSON.stringify(siteUrl)};
     })();
-  <\/script>`;
+  </script>`;
 }
 
 module.exports = class extends Component {

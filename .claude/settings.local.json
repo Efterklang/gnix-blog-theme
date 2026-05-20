@@ -10,7 +10,11 @@
       "Bash(git commit:*)",
       "Bash(git add:*)",
       "Bash(git *)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Read(//Users/gjx/Projects/vluv/**)",
+      "Bash(hexo clean *)",
+      "Bash(hexo g *)",
+      "Bash(awk '/data-swup-reload-script/,/<\\\\/script>/' ~/Projects/vluv/public/WSL/index.html)"
     ]
   }
 }
