@@ -1,5 +1,5 @@
 const { Component, Fragment } = require("../include/util/common");
-const Index = require("./index");
+const Archive = require("./archive");
 
 const breadcrumb_css = `
   /* 定义闪烁动画 */
@@ -47,7 +47,7 @@ const breadcrumb_css = `
 
 module.exports = class extends Component {
   render() {
-    const { config, page, helper } = this.props;
+    const { config, page, helper, site } = this.props;
     const { _p } = helper;
     const langKey = helper.language_key(page);
 
@@ -68,7 +68,7 @@ module.exports = class extends Component {
             </li>
           </ul>
         </nav>
-        <Index config={config} page={page} helper={helper} />
+        <Archive config={config} page={page} site={site} helper={helper} />
       </Fragment>
     );
   }

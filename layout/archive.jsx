@@ -12,6 +12,14 @@ function collectPosts(collection) {
   return posts;
 }
 
+function estimateReadMinutes(content) {
+  if (typeof content !== "string" || !content) return 0;
+  const stripped = content.replace(/<\/?[a-z][^>]*>/gi, "").trim();
+  if (!stripped) return 0;
+  const tokens = stripped.match(/[\u00ff-\uffff]|[a-zA-Z]+/g);
+  return tokens ? Math.max(1, Math.ceil(tokens.length / 200)) : 0;
+}
+
 function getSeason(month) {
   if (month >= 2 && month <= 4) return "Spring";
   if (month >= 5 && month <= 7) return "Summer";
@@ -84,7 +92,27 @@ module.exports = class extends Component {
           <div class="timeline">
             {posts.map((post) => {
               const postDate = getPostDateParts(post.date, date_xml, date);
-              return <ArticleMedia key={post.path} url={url_for(post.link || post.path)} title={post.title} date={postDate.label} dateXml={postDate.xml} />;
+              const readMinutes = estimateReadMinutes(post._content);
+              return (
+                <ArticleMedia
+                  key={post.path}
+                  url={url_for(post.link || post.path)}
+                  title={post.title}
+                  date={postDate.label}
+                  dateXml={postDate.xml}
+                  excerpt={post.excerpt || null}
+                  cover={post.cover ? url_for(post.cover) : null}
+                  readTime={readMinutes ? `${readMinutes} min` : null}
+                  tags={
+                    post.tags?.length
+                      ? post.tags.map((tag) => ({
+                          name: tag.name,
+                          url: helper.localized_tag_url(tag, langKey),
+                        }))
+                      : null
+                  }
+                />
+              );
             })}
           </div>
         </section>
