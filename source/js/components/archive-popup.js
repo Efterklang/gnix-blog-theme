@@ -246,7 +246,6 @@ function initArchivePopup() {
 
   document.addEventListener("pointerover", handlePointerEnter);
   document.addEventListener("pointerout", handlePointerLeave);
-  document.addEventListener("click", handleInfoClick, true);
   document.addEventListener("click", handleDocumentClick);
   window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener("resize", handleScroll);
