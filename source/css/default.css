@@ -557,7 +557,7 @@ html {
 /* #region Navbar */
 
 .navbar {
-  min-height: 4rem;
+  min-height: 3.5rem;
   position: sticky;
   padding-top: env(safe-area-inset-top);
   top: 0;
@@ -565,14 +565,24 @@ html {
   right: 0;
   z-index: 100;
   background: var(--mantle);
-  border-bottom: 0.5px solid var(--surface0);
+}
+
+.navbar::after {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, hsl(from var(--surface0) h s l / 0.75) 22%, hsl(from var(--surface0) h s l / 0.75) 78%, transparent 100%);
+  pointer-events: none;
 }
 
 @media screen and (min-width: 1024px) {
   .navbar {
-    -webkit-backdrop-filter: blur(18px) saturate(1.35);
-    backdrop-filter: blur(18px) saturate(1.35);
-    background: hsl(from var(--mantle) h s l / 0.75);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    backdrop-filter: blur(20px) saturate(1.4);
+    background: hsl(from var(--mantle) h s l / 0.72);
   }
 }
 
@@ -581,7 +591,7 @@ html {
   margin: 0 auto;
   width: auto;
   display: flex;
-  min-height: 4rem;
+  min-height: 3.5rem;
 
   button {
     background: none;
@@ -590,8 +600,27 @@ html {
   }
 }
 
+.navbar-main {
+  transition: transform 240ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .navbar-main.navbar--hidden {
   transform: translateY(-100%);
+}
+
+.navbar-logo {
+  font-family: homemade-apple, var(--font-handwriting);
+  color: var(--subtext1);
+  display: flex;
+  align-items: center;
+  padding: 0 1.25rem;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  transition: color 240ms ease;
+}
+
+.navbar-logo:hover {
+  color: var(--rosewater);
 }
 
 .navbar-item {
@@ -603,16 +632,63 @@ html {
   flex-grow: 0;
   flex-shrink: 0;
   letter-spacing: 0.05em;
-  transition: color 0.18s ease;
+  transition: color 220ms ease;
+}
+
+@media screen and (min-width: 1024px) {
+  .navbar-start .navbar-item {
+    font-family: var(--font-sans-serif);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0 0.9rem;
+    color: var(--subtext0);
+  }
+
+  .navbar-start .navbar-item::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0.95rem;
+    width: 55%;
+    height: 1px;
+    background: var(--rosewater);
+    transform: translateX(-50%) scaleX(0);
+    transform-origin: center;
+    transition: transform 320ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .navbar-start .navbar-item:hover {
+    color: var(--text);
+  }
+
+  .navbar-start .navbar-item:hover::after {
+    transform: translateX(-50%) scaleX(1);
+  }
 }
 
 .navbar-end {
   svg {
-    width: 1.2em;
+    width: 1.1em;
+    opacity: 0.78;
+    transition:
+      opacity 220ms ease,
+      transform 220ms ease;
+  }
+
+  .navbar-item {
+    padding: 0 0.6rem;
+    transition: color 220ms ease;
   }
 
   .navbar-item:hover {
-    color: var(--lavender);
+    color: var(--text);
+  }
+
+  .navbar-item:hover svg {
+    opacity: 1;
+    transform: translateY(-1px);
   }
 }
 
@@ -655,49 +731,6 @@ html {
 }
 
 /* #endregion Theme Selector */
-
-/* #region Pagination */
-
-.pagination,
-.pagination-list {
-  align-items: center;
-  display: flex;
-  text-align: center;
-  font-family: var(--font-serif);
-  font-style: italic;
-}
-
-.pagination-link.is-current {
-  color: var(--text);
-  font-weight: bold;
-}
-
-.pagination-ellipsis,
-.pagination-link,
-.pagination-next,
-.pagination-previous {
-  user-select: none;
-  color: var(--subtext0);
-  padding: 0 1rem;
-  display: inline-flex;
-  min-width: 1.5em;
-}
-
-.pagination-previous {
-  margin-right: auto;
-  margin-left: 0.5rem;
-}
-
-.pagination-next {
-  margin-left: auto;
-  margin-right: 0.5rem;
-}
-
-.pagination-list {
-  flex-wrap: wrap;
-}
-
-/* #endregion Pagination */
 
 .section {
   padding: 3rem 1.5rem;
@@ -1306,11 +1339,12 @@ section {
   color: var(--overlay0);
 }
 
-.article-footer {
+.article-meta-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 1rem;
+  margin-bottom: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px dashed var(--surface0);
   font-family: var(--font-mono);
@@ -1333,20 +1367,6 @@ em,
   align-items: center;
   flex-wrap: wrap;
   gap: 0.2rem;
-}
-
-.article-read-more {
-  color: var(--subtext0);
-  text-decoration: none;
-  white-space: nowrap;
-
-  &:hover {
-    color: var(--blue);
-  }
-}
-
-.article-footer.article-meta-bar {
-  margin-bottom: 1rem;
 }
 
 .article-title-actions {
@@ -2217,8 +2237,8 @@ input.searchbox-input {
 
 .toc-button {
   position: fixed;
-  top: 7rem;
-  left: 2rem;
+  top: 10rem;
+  left: max(2rem, calc(50% - 25em - 10rem));
   width: 3rem;
   height: 3rem;
   border-radius: 50%;

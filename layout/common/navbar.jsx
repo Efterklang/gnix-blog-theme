@@ -56,8 +56,7 @@ function getLanguageSwitch(site, page, config, helper) {
   const mode = !url && isDocumentPage ? "missing" : "link";
 
   if (!url && mode === "link") {
-    const targetPath = page?.current > 1 ? "/" : page?.path || "/";
-    url = helper.localized_url_for(targetPath, targetLanguageKey);
+    url = helper.localized_url_for(page?.path || "/", targetLanguageKey);
   }
 
   return {
@@ -88,7 +87,7 @@ class Navbar extends Component {
       <Fragment>
         <nav class="navbar navbar-main">
           <div class="navbar-container" onclick="toggleNav(event)">
-            <a id="navbar-logo-link" href={siteUrl} style={"font-family: homemade-apple; color: var(--text); display: flex; align-items: center; padding: 0 1em;"}>
+            <a id="navbar-logo-link" class="navbar-logo" href={siteUrl}>
               GnixAij
             </a>
             <div class="navbar-menu">
