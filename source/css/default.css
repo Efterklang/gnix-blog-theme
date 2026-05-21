@@ -732,49 +732,6 @@ html {
 
 /* #endregion Theme Selector */
 
-/* #region Pagination */
-
-.pagination,
-.pagination-list {
-  align-items: center;
-  display: flex;
-  text-align: center;
-  font-family: var(--font-serif);
-  font-style: italic;
-}
-
-.pagination-link.is-current {
-  color: var(--text);
-  font-weight: bold;
-}
-
-.pagination-ellipsis,
-.pagination-link,
-.pagination-next,
-.pagination-previous {
-  user-select: none;
-  color: var(--subtext0);
-  padding: 0 1rem;
-  display: inline-flex;
-  min-width: 1.5em;
-}
-
-.pagination-previous {
-  margin-right: auto;
-  margin-left: 0.5rem;
-}
-
-.pagination-next {
-  margin-left: auto;
-  margin-right: 0.5rem;
-}
-
-.pagination-list {
-  flex-wrap: wrap;
-}
-
-/* #endregion Pagination */
-
 .section {
   padding: 3rem 1.5rem;
   flex-grow: 1;

@@ -6,7 +6,7 @@ module.exports = (hexo) => {
     const config = this.config;
     const fullConfig = Object.assign({}, config, config.theme_config, hexo.theme.config);
     const themeConfig = hexo.theme.config.tag_generator || {};
-    const perPage = themeConfig.per_page ?? 10;
+    const perPage = themeConfig.per_page ?? 0;
     const orderBy = themeConfig.order_by ?? "-date";
     const paginationDir = config.pagination_dir || "page";
     const tags = locals.tags;
