@@ -10,48 +10,6 @@
 
 /* #region Hero */
 
-.archive-breadcrumb {
-  --archive-muted: color-mix(in oklch, var(--subtext1) 78%, var(--base));
-  --archive-accent: var(--lavender);
-  display: flex;
-  align-items: baseline;
-  gap: 0.55rem;
-  padding: 1.25rem 1.25rem 0;
-  margin-bottom: -0.5rem;
-  color: var(--archive-muted);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.archive-breadcrumb__link {
-  color: inherit;
-  text-decoration: none;
-  transition: color 140ms ease;
-}
-
-.archive-breadcrumb__link:hover,
-.archive-breadcrumb__link:focus-visible {
-  color: var(--text);
-}
-
-.archive-breadcrumb__link:focus-visible {
-  outline: 2px solid color-mix(in oklch, var(--archive-accent) 70%, transparent);
-  outline-offset: 3px;
-  border-radius: 2px;
-}
-
-.archive-breadcrumb__sep {
-  opacity: 0.45;
-}
-
-.archive-breadcrumb__current {
-  color: var(--text);
-  font-style: normal;
-}
-
 .archive-hero {
   display: grid;
   gap: 0.65rem;
