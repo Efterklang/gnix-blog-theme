@@ -124,9 +124,7 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
               date={postDate.label}
               dateXml={postDate.xml}
               excerpt={post.excerpt || null}
-              cover={post.cover ? url_for(post.cover) : null}
               readTime={readMinutes ? `${readMinutes} min` : null}
-
             />
           );
         })}
@@ -137,9 +135,8 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
 
 module.exports = class extends Component {
   render() {
-    const { page, helper, config } = this.props;
+    const { page, helper } = this.props;
     const { url_for, date_xml, date } = helper;
-    const langKey = helper.language_key(page);
 
     const visiblePosts = collectPosts(page.posts);
     const totalVisiblePosts = visiblePosts.length;
