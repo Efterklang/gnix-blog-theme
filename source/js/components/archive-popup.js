@@ -137,10 +137,33 @@ function populate(item) {
 }
 
 function position(item) {
-  const rect = item.getBoundingClientRect();
-  const popupRect = popupEl.getBoundingClientRect();
-  const margin = 8;
+  const margin = 12;
+  const viewportW = window.innerWidth;
   const viewportH = window.innerHeight;
+
+  const RIGHT_VIEWPORT_MIN = 1280;
+  const RIGHT_POPUP_WIDTH = 208;
+
+  const rect = item.getBoundingClientRect();
+  const availableRight = viewportW - rect.right - margin;
+  const canPlaceRight = viewportW >= RIGHT_VIEWPORT_MIN && availableRight >= RIGHT_POPUP_WIDTH + margin;
+
+  if (canPlaceRight) {
+    popupEl.dataset.placement = "right";
+    const popupRect = popupEl.getBoundingClientRect();
+    const left = rect.right + margin + window.scrollX;
+    let top = rect.top + window.scrollY - 4;
+    const minTop = window.scrollY + margin;
+    const maxTop = window.scrollY + viewportH - popupRect.height - margin;
+    if (top > maxTop) top = maxTop;
+    if (top < minTop) top = minTop;
+    popupEl.style.top = `${top}px`;
+    popupEl.style.left = `${left}px`;
+    return;
+  }
+
+  popupEl.dataset.placement = "below";
+  const popupRect = popupEl.getBoundingClientRect();
 
   const spaceBelow = viewportH - rect.bottom;
   const spaceAbove = rect.top;
@@ -151,7 +174,6 @@ function position(item) {
     : rect.top - popupRect.height - margin + window.scrollY;
 
   let left = rect.left + window.scrollX;
-  const viewportW = window.innerWidth;
   const maxLeft = window.scrollX + viewportW - popupRect.width - margin;
   if (left > maxLeft) left = maxLeft;
   if (left < window.scrollX + margin) left = window.scrollX + margin;
