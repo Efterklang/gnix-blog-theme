@@ -190,7 +190,6 @@
   content-visibility: auto;
   contain-intrinsic-size: auto 18rem;
   padding: 1.1rem 0 0;
-  border-top: 1px dashed var(--archive-line);
 }
 
 .archive-era + .archive-group {
@@ -224,7 +223,7 @@
 
 .archive-group__title {
   margin: 0;
-  color: var(--text);
+  color: var(--archive-accent);
   font-family: var(--font-serif);
   font-style: italic;
   font-size: 1.7rem;
@@ -258,8 +257,8 @@
   position: absolute;
   top: 1em;
   left: -1rem;
-  width: 0.55rem;
-  height: 0.55rem;
+  width: 0.5rem;
+  height: 0.5rem;
   border-radius: 999px;
   background: transparent;
   content: "";
@@ -281,6 +280,10 @@
   gap: 0.85rem;
   align-items: baseline;
   padding: 0.55rem 0.35rem 0.55rem 0;
+}
+
+.archive-item + .archive-item {
+  border-top: 0.5px solid color-mix(in oklch, var(--surface0) 80%, transparent);
 }
 
 /* #region Popup */
@@ -377,6 +380,7 @@
   font-family: var(--font-mono);
   font-size: 0.62rem;
   letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .archive-popup__tag a,
