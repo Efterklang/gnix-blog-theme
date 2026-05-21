@@ -208,6 +208,11 @@ module.exports = class extends Component {
               <span class="archive-hero__span">{span}</span>
             </p>
             <h1 class="archive-hero__title">{heroTitle}</h1>
+            {years.length > 0 && (
+              <span class="archive-hero__roman" aria-hidden="true">
+                {years.length === 1 ? toRoman(years[0]) : `${toRoman(years[years.length - 1])}–${toRoman(years[0])}`}
+              </span>
+            )}
           </header>
 
           {!page.year && years.length > 1 && (

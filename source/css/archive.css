@@ -11,10 +11,21 @@
 /* #region Hero */
 
 .archive-hero {
+  position: relative;
   display: grid;
-  gap: 0.65rem;
+  gap: 0.6rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--archive-line);
+}
+
+.archive-hero::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: color-mix(in oklch, var(--text) 50%, var(--base));
 }
 
 .archive-hero__eyebrow {
@@ -25,19 +36,29 @@
   margin: 0;
   color: var(--archive-muted);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
 .archive-hero__roman {
+  position: absolute;
+  right: 0;
+  bottom: 1.5rem;
   color: var(--text);
-  letter-spacing: 0.2em;
+  font-family: var(--font-serif);
+  font-size: 5.5rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  opacity: 0.06;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
 }
 
 .archive-hero__sep {
-  opacity: 0.4;
+  opacity: 0.3;
 }
 
 .archive-hero__title {
@@ -46,10 +67,12 @@
   font-family: var(--font-serif);
   font-style: italic;
   font-synthesis: none;
-  font-size: 3.25rem;
+  font-size: 3.5rem;
   font-weight: 500;
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 1;
 }
 
 .archive-hero__ledger {
@@ -164,6 +187,7 @@
 .archive-era__roman {
   flex: 0 0 auto;
   color: var(--text);
+  font-family: var(--font-serif);
   font-size: 0.9rem;
   letter-spacing: 0.28em;
 }
@@ -431,7 +455,11 @@ a.archive-title:focus-visible {
   }
 
   .archive-hero__title {
-    font-size: 2.5rem;
+    font-size: 2.6rem;
+  }
+
+  .archive-hero__roman {
+    font-size: 4rem;
   }
 
   .archive-hero__ledger {
@@ -450,6 +478,11 @@ a.archive-title:focus-visible {
 
   .archive-hero__title {
     font-size: 2.1rem;
+  }
+
+  .archive-hero__roman {
+    font-size: 3rem;
+    opacity: 0.04;
   }
 
   .archive-hero__ledger {
