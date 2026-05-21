@@ -1,13 +1,23 @@
-const HOVER_DELAY = 200;
-const COARSE_POINTER = typeof window.matchMedia === "function" && window.matchMedia("(hover: none)").matches;
+const HOVER_DELAY = 180;
+const CLOSE_DELAY = 140;
+
+const coarsePointerQuery = typeof window.matchMedia === "function" ? window.matchMedia("(hover: none)") : null;
+let coarsePointer = coarsePointerQuery?.matches ?? false;
+coarsePointerQuery?.addEventListener?.("change", (event) => {
+  coarsePointer = event.matches;
+  if (coarsePointer) close();
+});
 
 let popupEl = null;
-let coverEl = null;
 let excerptEl = null;
 let tagsEl = null;
+let indexEl = null;
+let sepEl = null;
+let readEl = null;
 let openTimer = null;
 let closeTimer = null;
 let activeItem = null;
+let scrollFrame = 0;
 
 function ensurePopup() {
   if (popupEl) return popupEl;
@@ -17,18 +27,21 @@ function ensurePopup() {
   popupEl.setAttribute("role", "dialog");
   popupEl.setAttribute("aria-hidden", "true");
   popupEl.innerHTML = `
-    <div class="archive-popup__cover" hidden>
-      <img alt="" decoding="async" loading="lazy" referrerpolicy="no-referrer" />
-    </div>
-    <p class="archive-popup__eyebrow"><span class="archive-popup__index"></span><span class="archive-popup__sep" hidden> · </span><span class="archive-popup__read" hidden></span></p>
+    <p class="archive-popup__eyebrow">
+      <span class="archive-popup__index"></span>
+      <span class="archive-popup__sep" hidden> · </span>
+      <span class="archive-popup__read" hidden></span>
+    </p>
     <div class="archive-popup__excerpt"></div>
     <p class="archive-popup__tags" hidden></p>
   `;
   document.body.appendChild(popupEl);
 
-  coverEl = popupEl.querySelector(".archive-popup__cover");
   excerptEl = popupEl.querySelector(".archive-popup__excerpt");
   tagsEl = popupEl.querySelector(".archive-popup__tags");
+  indexEl = popupEl.querySelector(".archive-popup__index");
+  sepEl = popupEl.querySelector(".archive-popup__sep");
+  readEl = popupEl.querySelector(".archive-popup__read");
 
   popupEl.addEventListener("pointerenter", clearCloseTimer);
   popupEl.addEventListener("pointerleave", scheduleClose);
@@ -36,14 +49,10 @@ function ensurePopup() {
   return popupEl;
 }
 
-function clearTimers() {
+function clearOpenTimer() {
   if (openTimer) {
     clearTimeout(openTimer);
     openTimer = null;
-  }
-  if (closeTimer) {
-    clearTimeout(closeTimer);
-    closeTimer = null;
   }
 }
 
@@ -52,6 +61,11 @@ function clearCloseTimer() {
     clearTimeout(closeTimer);
     closeTimer = null;
   }
+}
+
+function clearTimers() {
+  clearOpenTimer();
+  clearCloseTimer();
 }
 
 function escapeHtml(value) {
@@ -69,7 +83,7 @@ function buildTagUrl(base, name) {
 }
 
 function readArchiveIndex(item) {
-  const items = document.querySelectorAll(".archive-item.has-preview, .archive-item");
+  const items = document.querySelectorAll(".archive-item");
   let total = 0;
   let found = -1;
   for (const el of items) {
@@ -81,8 +95,6 @@ function readArchiveIndex(item) {
 
 function populate(item) {
   ensurePopup();
-  const title = item.querySelector(".archive-title")?.textContent || "";
-  const cover = item.dataset.cover || "";
   const tags = parseTags(item.dataset.tags);
   const readTime = item.dataset.readTime || "";
   const excerptTemplate = item.querySelector(".archive-item__excerpt");
@@ -93,9 +105,6 @@ function populate(item) {
     if (accent) popupEl.style.setProperty("--popup-accent", accent);
   }
 
-  const indexEl = popupEl.querySelector(".archive-popup__index");
-  const sepEl = popupEl.querySelector(".archive-popup__sep");
-  const readEl = popupEl.querySelector(".archive-popup__read");
   const idx = readArchiveIndex(item);
   indexEl.textContent = idx ? `N° ${idx}` : "";
   if (readTime) {
@@ -106,21 +115,6 @@ function populate(item) {
     readEl.textContent = "";
     readEl.hidden = true;
     sepEl.hidden = true;
-  }
-
-  const img = coverEl.querySelector("img");
-  if (cover) {
-    if (img.dataset.src !== cover) {
-      img.dataset.src = cover;
-      img.src = cover;
-      img.alt = title;
-    }
-    coverEl.hidden = false;
-  } else {
-    img.removeAttribute("src");
-    img.removeAttribute("alt");
-    delete img.dataset.src;
-    coverEl.hidden = true;
   }
 
   excerptEl.innerHTML = excerptTemplate ? excerptTemplate.innerHTML : "";
@@ -172,9 +166,9 @@ function open(item) {
   if (activeItem === item && popupEl.classList.contains("is-open")) return;
   activeItem = item;
   populate(item);
+  position(item);
   popupEl.classList.add("is-open");
   popupEl.setAttribute("aria-hidden", "false");
-  position(item);
 }
 
 function close() {
@@ -192,30 +186,46 @@ function scheduleOpen(item) {
 function scheduleClose() {
   clearTimers();
   closeTimer = window.setTimeout(() => {
-    if (popupEl?.matches(":hover")) return;
-    const items = document.querySelectorAll(".archive-item.has-preview");
-    for (const item of items) {
-      if (item.matches(":hover")) return;
-    }
+    if (!popupEl) return;
+    if (popupEl.matches(":hover")) return;
+    if (popupEl.contains(document.activeElement)) return;
+    if (document.querySelector(".archive-item.has-preview:hover")) return;
+    const focused = document.activeElement;
+    if (focused?.closest?.(".archive-item.has-preview")) return;
     close();
-  }, 120);
+  }, CLOSE_DELAY);
 }
 
-function handlePointerEnter(event) {
-  if (COARSE_POINTER) return;
+function handlePointerOver(event) {
+  if (coarsePointer) return;
   const item = event.target.closest(".archive-item.has-preview");
   if (!item) return;
+  const from = event.relatedTarget;
+  if (from && item.contains(from)) return;
   scheduleOpen(item);
 }
 
-function handlePointerLeave(event) {
-  if (COARSE_POINTER) return;
+function handlePointerOut(event) {
+  if (coarsePointer) return;
   const item = event.target.closest(".archive-item.has-preview");
   if (!item) return;
-  if (openTimer) {
-    clearTimeout(openTimer);
-    openTimer = null;
-  }
+  const to = event.relatedTarget;
+  if (to && item.contains(to)) return;
+  clearOpenTimer();
+  scheduleClose();
+}
+
+function handleFocusIn(event) {
+  if (coarsePointer) return;
+  const item = event.target.closest(".archive-item.has-preview");
+  if (!item) return;
+  clearTimers();
+  open(item);
+}
+
+function handleFocusOut(event) {
+  const item = event.target.closest(".archive-item.has-preview");
+  if (!item && !event.target.closest?.(".archive-popup")) return;
   scheduleClose();
 }
 
@@ -226,10 +236,21 @@ function handleDocumentClick(event) {
   close();
 }
 
-function handleScroll() {
-  if (activeItem && popupEl?.classList.contains("is-open")) {
-    position(activeItem);
+function handleKeyDown(event) {
+  if (event.key === "Escape" && popupEl?.classList.contains("is-open")) {
+    close();
   }
+}
+
+function handleScroll() {
+  if (!activeItem || !popupEl?.classList.contains("is-open")) return;
+  if (scrollFrame) return;
+  scrollFrame = requestAnimationFrame(() => {
+    scrollFrame = 0;
+    if (activeItem && popupEl?.classList.contains("is-open")) {
+      position(activeItem);
+    }
+  });
 }
 
 let bound = false;
@@ -244,9 +265,12 @@ function initArchivePopup() {
   if (bound) return;
   bound = true;
 
-  document.addEventListener("pointerover", handlePointerEnter);
-  document.addEventListener("pointerout", handlePointerLeave);
+  document.addEventListener("pointerover", handlePointerOver);
+  document.addEventListener("pointerout", handlePointerOut);
+  document.addEventListener("focusin", handleFocusIn);
+  document.addEventListener("focusout", handleFocusOut);
   document.addEventListener("click", handleDocumentClick);
+  document.addEventListener("keydown", handleKeyDown);
   window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener("resize", handleScroll);
 }
