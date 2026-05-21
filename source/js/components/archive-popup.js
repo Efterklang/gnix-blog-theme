@@ -250,6 +250,7 @@ function initArchivePopup() {
     return;
   }
 
+  if (coarsePointer) return;
   if (bound) return;
   bound = true;
 

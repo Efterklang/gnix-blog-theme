@@ -56,8 +56,7 @@ function getLanguageSwitch(site, page, config, helper) {
   const mode = !url && isDocumentPage ? "missing" : "link";
 
   if (!url && mode === "link") {
-    const targetPath = page?.current > 1 ? "/" : page?.path || "/";
-    url = helper.localized_url_for(targetPath, targetLanguageKey);
+    url = helper.localized_url_for(page?.path || "/", targetLanguageKey);
   }
 
   return {
