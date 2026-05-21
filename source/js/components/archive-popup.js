@@ -16,7 +16,13 @@ let readEl = null;
 let openTimer = null;
 let closeTimer = null;
 let activeItem = null;
+let populatedItem = null;
+let popupSize = null;
 let scrollFrame = 0;
+
+const accentCache = new WeakMap();
+const indexCache = new WeakMap();
+let indexCacheBuilt = false;
 
 function ensurePopup() {
   if (popupEl) return popupEl;
@@ -65,29 +71,39 @@ function clearTimers() {
   clearCloseTimer();
 }
 
-function readArchiveIndex(item) {
-  const items = document.querySelectorAll(".archive-item");
-  let total = 0;
-  let found = -1;
-  for (const el of items) {
-    total += 1;
-    if (el === item) found = total;
+function getItemIndex(item) {
+  const cached = indexCache.get(item);
+  if (cached !== undefined) return cached;
+  if (!indexCacheBuilt) {
+    const items = document.querySelectorAll(".archive-item");
+    items.forEach((el, i) => {
+      indexCache.set(el, String(i + 1).padStart(3, "0"));
+    });
+    indexCacheBuilt = true;
   }
-  return found > 0 ? String(found).padStart(3, "0") : null;
+  return indexCache.get(item) ?? null;
+}
+
+function getGroupAccent(group) {
+  if (!group) return null;
+  const cached = accentCache.get(group);
+  if (cached !== undefined) return cached;
+  const accent = getComputedStyle(group).getPropertyValue("--archive-accent").trim();
+  accentCache.set(group, accent);
+  return accent;
 }
 
 function populate(item) {
   ensurePopup();
+  if (populatedItem === item) return;
+
   const readTime = item.dataset.readTime || "";
   const excerptTemplate = item.querySelector(".archive-item__excerpt");
 
-  const group = item.closest(".archive-group");
-  if (group) {
-    const accent = getComputedStyle(group).getPropertyValue("--archive-accent").trim();
-    if (accent) popupEl.style.setProperty("--popup-accent", accent);
-  }
+  const accent = getGroupAccent(item.closest(".archive-group"));
+  if (accent) popupEl.style.setProperty("--popup-accent", accent);
 
-  const idx = readArchiveIndex(item);
+  const idx = getItemIndex(item);
   indexEl.textContent = idx ? `N° ${idx}` : "";
   if (readTime) {
     readEl.textContent = readTime.replace(/min$/i, "min read").toUpperCase();
@@ -100,6 +116,8 @@ function populate(item) {
   }
 
   excerptEl.innerHTML = excerptTemplate ? excerptTemplate.innerHTML : "";
+  populatedItem = item;
+  popupSize = null;
 }
 
 function position(item) {
@@ -114,13 +132,24 @@ function position(item) {
   const availableRight = viewportW - rect.right - margin;
   const canPlaceRight = viewportW >= RIGHT_VIEWPORT_MIN && availableRight >= RIGHT_POPUP_WIDTH + margin;
 
-  if (canPlaceRight) {
-    popupEl.dataset.placement = "right";
+  // Only mutate dataset (and invalidate size cache) when the width-affecting
+  // placement actually changes — "below" and "above" share dimensions.
+  const wasRight = popupEl.dataset.placement === "right";
+  if (wasRight !== canPlaceRight) {
+    popupEl.dataset.placement = canPlaceRight ? "right" : "below";
+    popupSize = null;
+  }
+
+  if (!popupSize) {
     const popupRect = popupEl.getBoundingClientRect();
+    popupSize = { width: popupRect.width, height: popupRect.height };
+  }
+
+  if (canPlaceRight) {
     const left = rect.right + margin + window.scrollX;
     let top = rect.top + window.scrollY - 4;
     const minTop = window.scrollY + margin;
-    const maxTop = window.scrollY + viewportH - popupRect.height - margin;
+    const maxTop = window.scrollY + viewportH - popupSize.height - margin;
     if (top > maxTop) top = maxTop;
     if (top < minTop) top = minTop;
     popupEl.style.top = `${top}px`;
@@ -128,25 +157,25 @@ function position(item) {
     return;
   }
 
-  popupEl.dataset.placement = "below";
-  const popupRect = popupEl.getBoundingClientRect();
-
   const spaceBelow = viewportH - rect.bottom;
   const spaceAbove = rect.top;
-  const placeBelow = spaceBelow >= popupRect.height + margin || spaceBelow >= spaceAbove;
+  const placeBelow = spaceBelow >= popupSize.height + margin || spaceBelow >= spaceAbove;
 
   const top = placeBelow
     ? rect.bottom + margin + window.scrollY
-    : rect.top - popupRect.height - margin + window.scrollY;
+    : rect.top - popupSize.height - margin + window.scrollY;
 
   let left = rect.left + window.scrollX;
-  const maxLeft = window.scrollX + viewportW - popupRect.width - margin;
+  const maxLeft = window.scrollX + viewportW - popupSize.width - margin;
   if (left > maxLeft) left = maxLeft;
   if (left < window.scrollX + margin) left = window.scrollX + margin;
 
   popupEl.style.top = `${top}px`;
   popupEl.style.left = `${left}px`;
-  popupEl.dataset.placement = placeBelow ? "below" : "above";
+  const finalPlacement = placeBelow ? "below" : "above";
+  if (popupEl.dataset.placement !== finalPlacement) {
+    popupEl.dataset.placement = finalPlacement;
+  }
 }
 
 function open(item) {
@@ -241,27 +270,60 @@ function handleScroll() {
   });
 }
 
-let bound = false;
+function handleResize() {
+  popupSize = null;
+  handleScroll();
+}
+
+let boundArchivePage = null;
+let globalListenersBound = false;
+
+function unbindArchivePage() {
+  if (!boundArchivePage) return;
+  boundArchivePage.removeEventListener("pointerover", handlePointerOver);
+  boundArchivePage.removeEventListener("pointerout", handlePointerOut);
+  boundArchivePage = null;
+}
+
+function resetPerPageState() {
+  populatedItem = null;
+  popupSize = null;
+  indexCacheBuilt = false;
+  clearTimers();
+  close();
+}
 
 function initArchivePopup() {
   const archivePage = document.querySelector(".archive-page");
+
+  // Left the archive page (or navigated to a page without one): tear down.
   if (!archivePage) {
-    close();
+    unbindArchivePage();
+    resetPerPageState();
     return;
   }
 
   if (coarsePointer) return;
-  if (bound) return;
-  bound = true;
 
-  document.addEventListener("pointerover", handlePointerOver);
-  document.addEventListener("pointerout", handlePointerOut);
+  // Same element we already bound to (re-init on same page): nothing to do.
+  if (boundArchivePage === archivePage) return;
+
+  // New archive-page element (Swup swap): rebind to it and drop stale state.
+  unbindArchivePage();
+  resetPerPageState();
+
+  boundArchivePage = archivePage;
+  archivePage.addEventListener("pointerover", handlePointerOver);
+  archivePage.addEventListener("pointerout", handlePointerOut);
+
+  if (globalListenersBound) return;
+  globalListenersBound = true;
   document.addEventListener("focusin", handleFocusIn);
   document.addEventListener("focusout", handleFocusOut);
   document.addEventListener("click", handleDocumentClick);
   document.addEventListener("keydown", handleKeyDown);
   window.addEventListener("scroll", handleScroll, { passive: true });
-  window.addEventListener("resize", handleScroll);
+  window.addEventListener("resize", handleResize, { passive: true });
 }
 
 window.__gnixInitArchivePopup = initArchivePopup;

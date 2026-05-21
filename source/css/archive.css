@@ -265,6 +265,7 @@
   --popup-accent: var(--archive-accent);
   position: absolute;
   z-index: 100;
+  contain: layout style;
   width: min(20rem, calc(100vw - 2rem));
   padding: 0.85rem 1rem 0.9rem;
   opacity: 0;
