@@ -29,7 +29,6 @@ function ensurePopup() {
 
   popupEl = document.createElement("div");
   popupEl.className = "archive-popup";
-  popupEl.setAttribute("role", "dialog");
   popupEl.setAttribute("aria-hidden", "true");
   popupEl.innerHTML = `
     <p class="archive-popup__eyebrow">
@@ -246,19 +245,6 @@ function handleFocusOut(event) {
   scheduleClose();
 }
 
-function handleDocumentClick(event) {
-  if (!popupEl?.classList.contains("is-open")) return;
-  if (event.target.closest(".archive-popup")) return;
-  if (event.target.closest(".archive-item.has-preview")) return;
-  close();
-}
-
-function handleKeyDown(event) {
-  if (event.key === "Escape" && popupEl?.classList.contains("is-open")) {
-    close();
-  }
-}
-
 function handleScroll() {
   if (!activeItem || !popupEl?.classList.contains("is-open")) return;
   if (scrollFrame) return;
@@ -320,8 +306,6 @@ function initArchivePopup() {
   globalListenersBound = true;
   document.addEventListener("focusin", handleFocusIn);
   document.addEventListener("focusout", handleFocusOut);
-  document.addEventListener("click", handleDocumentClick);
-  document.addEventListener("keydown", handleKeyDown);
   window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener("resize", handleResize, { passive: true });
 }
