@@ -10,7 +10,6 @@ coarsePointerQuery?.addEventListener?.("change", (event) => {
 
 let popupEl = null;
 let excerptEl = null;
-let tagsEl = null;
 let indexEl = null;
 let sepEl = null;
 let readEl = null;
@@ -33,12 +32,10 @@ function ensurePopup() {
       <span class="archive-popup__read" hidden></span>
     </p>
     <div class="archive-popup__excerpt"></div>
-    <p class="archive-popup__tags" hidden></p>
   `;
   document.body.appendChild(popupEl);
 
   excerptEl = popupEl.querySelector(".archive-popup__excerpt");
-  tagsEl = popupEl.querySelector(".archive-popup__tags");
   indexEl = popupEl.querySelector(".archive-popup__index");
   sepEl = popupEl.querySelector(".archive-popup__sep");
   readEl = popupEl.querySelector(".archive-popup__read");
@@ -68,20 +65,6 @@ function clearTimers() {
   clearCloseTimer();
 }
 
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
-}
-
-function parseTags(raw) {
-  if (!raw) return [];
-  return raw.split(",").map((name) => name.trim()).filter(Boolean);
-}
-
-function buildTagUrl(base, name) {
-  if (!base) return null;
-  return `${base}${encodeURIComponent(name)}/`;
-}
-
 function readArchiveIndex(item) {
   const items = document.querySelectorAll(".archive-item");
   let total = 0;
@@ -95,7 +78,6 @@ function readArchiveIndex(item) {
 
 function populate(item) {
   ensurePopup();
-  const tags = parseTags(item.dataset.tags);
   const readTime = item.dataset.readTime || "";
   const excerptTemplate = item.querySelector(".archive-item__excerpt");
 
@@ -118,22 +100,6 @@ function populate(item) {
   }
 
   excerptEl.innerHTML = excerptTemplate ? excerptTemplate.innerHTML : "";
-
-  if (tags.length) {
-    const tagBase = item.closest(".archive-page")?.dataset.tagBase || "";
-    tagsEl.innerHTML = tags
-      .map((name) => {
-        const safeName = escapeHtml(name);
-        const url = buildTagUrl(tagBase, name);
-        const node = url ? `<a href="${escapeHtml(url)}">${safeName}</a>` : `<span>${safeName}</span>`;
-        return `<span class="archive-popup__tag">${node}</span>`;
-      })
-      .join("");
-    tagsEl.hidden = false;
-  } else {
-    tagsEl.innerHTML = "";
-    tagsEl.hidden = true;
-  }
 }
 
 function position(item) {
