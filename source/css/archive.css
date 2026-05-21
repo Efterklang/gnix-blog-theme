@@ -87,6 +87,7 @@
   color: var(--text);
   font-family: var(--font-serif);
   font-style: italic;
+  font-synthesis: none;
   font-size: 3.25rem;
   font-weight: 500;
   line-height: 1;

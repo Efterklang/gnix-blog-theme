@@ -143,7 +143,6 @@ module.exports = class extends Component {
 
     const visiblePosts = collectPosts(page.posts);
     const totalVisiblePosts = visiblePosts.length;
-    const latestPost = visiblePosts[0];
 
     const years = collectArchiveYears(visiblePosts);
 
@@ -151,8 +150,9 @@ module.exports = class extends Component {
     const tagBasePath = helper.localized_url_for(`/${tagDir}/`, langKey);
     const currentYear = page.year ? Number(page.year) : null;
     const currentMonth = page.month ? Number(page.month) : null;
-    const latestLabel = latestPost ? date(latestPost.date) : "—";
+    const isTagPage = Boolean(page.tag);
     const span = years.length ? (years.length === 1 ? `${years[0]}` : `${years[years.length - 1]}–${years[0]}`) : "—";
+    const entriesLabel = `${totalVisiblePosts} ${totalVisiblePosts === 1 ? "entry" : "entries"}`;
 
     let articleList;
     if (!page.year) {
@@ -194,7 +194,8 @@ module.exports = class extends Component {
       });
     }
 
-    const heroTitle = currentYear ? getArchiveRangeLabel(currentYear, currentMonth) : "Index";
+    const heroTitle = isTagPage ? page.tag : currentYear ? getArchiveRangeLabel(currentYear, currentMonth) : "Index";
+    const heroKind = isTagPage ? "Tag" : currentYear ? "Archive" : "Volume";
 
     return (
       <Fragment>
@@ -202,26 +203,13 @@ module.exports = class extends Component {
         <main class="archive-page" data-tag-base={tagBasePath}>
           <header class="archive-hero">
             <p class="archive-hero__eyebrow">
-              <span>Volume</span>
-              <span class="archive-hero__roman">{years.length ? toRoman(years[0]) : "—"}</span>
-              <span class="archive-hero__sep" aria-hidden="true">/</span>
-              <span>{totalVisiblePosts} {totalVisiblePosts === 1 ? "Entry" : "Entries"}</span>
+              <span>{heroKind}</span>
+              <span class="archive-hero__sep" aria-hidden="true">·</span>
+              <span class="archive-hero__count">{entriesLabel}</span>
+              <span class="archive-hero__sep" aria-hidden="true">·</span>
+              <span class="archive-hero__span">{span}</span>
             </p>
             <h1 class="archive-hero__title">{heroTitle}</h1>
-            <p class="archive-hero__ledger">
-              <span class="archive-hero__cell">
-                <span class="archive-hero__cell-label">Span</span>
-                <span class="archive-hero__cell-value">{span}</span>
-              </span>
-              <span class="archive-hero__cell">
-                <span class="archive-hero__cell-label">Filed</span>
-                <span class="archive-hero__cell-value">{latestLabel}</span>
-              </span>
-              <span class="archive-hero__cell">
-                <span class="archive-hero__cell-label">Years</span>
-                <span class="archive-hero__cell-value">{String(years.length).padStart(2, "0")}</span>
-              </span>
-            </p>
           </header>
 
           {!page.year && years.length > 1 && (
