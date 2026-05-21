@@ -283,10 +283,6 @@
   padding: 0.55rem 0.35rem 0.55rem 0;
 }
 
-.archive-item + .archive-item {
-  border-top: 1px solid color-mix(in oklch, var(--archive-line) 52%, transparent);
-}
-
 /* #region Popup */
 
 .archive-popup {
@@ -381,7 +377,6 @@
   font-family: var(--font-mono);
   font-size: 0.62rem;
   letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .archive-popup__tag a,
