@@ -27,7 +27,6 @@
     .font-preview-column {
       min-width: 0;
       padding: 1.5rem;
-      background: linear-gradient(180deg, hsl(from var(--base) h s calc(l + 0.02) / 0.72), hsl(from var(--mantle) h s l / 0.94));
     }
 
     .font-setting-group {
