@@ -120,7 +120,7 @@ function getLanguageKeyFromPath(value, config = {}) {
   );
 }
 
-function parseLocalizedSource(source, config = {}) {
+function parseLocalizedSource(source) {
   if (typeof source !== "string" || !source) {
     return { langKey: null, baseSource: "" };
   }
@@ -135,19 +135,14 @@ function parseLocalizedSource(source, config = {}) {
   const match = stem.match(/^(.+?)__([a-zA-Z][\w-]*)$/);
   if (!match) return { langKey: null, baseSource: normalized };
 
-  const candidateKey = match[2];
-  if (!getI18nConfig(config).languages[candidateKey]) {
-    return { langKey: null, baseSource: normalized };
-  }
-
   return {
-    langKey: candidateKey,
+    langKey: match[2],
     baseSource: dir + match[1] + ext,
   };
 }
 
-function getLanguageKeyFromSource(value, config = {}) {
-  return parseLocalizedSource(value, config).langKey;
+function getLanguageKeyFromSource(value) {
+  return parseLocalizedSource(value).langKey;
 }
 
 function getPageLanguageKey(page = {}, config = {}) {
@@ -159,7 +154,7 @@ function getPageLanguageKey(page = {}, config = {}) {
   const explicit = normalizeLanguageKey(page.i18n_lang || page.i18n?.lang || page.i18n?.language);
   if (explicit && getLanguage(config, explicit)?.key === explicit) return explicit;
 
-  const fromSource = getLanguageKeyFromSource(page.source || page.full_source || "", config);
+  const fromSource = getLanguageKeyFromSource(page.source || page.full_source || "");
   if (fromSource) return fromSource;
 
   const pathDescriptor = Object.getOwnPropertyDescriptor(page, "path");
@@ -181,12 +176,6 @@ function getPageLocale(page = {}, config = {}) {
 
   const language = getLanguage(config, getPageLanguageKey(page, config));
   return language?.locale || normalizeLocale(page.lang || page.language) || "";
-}
-
-function getLanguageLabel(config = {}, keyOrLocale) {
-  const key = getLanguage(config, keyOrLocale)?.key === normalizeLanguageKey(keyOrLocale) ? normalizeLanguageKey(keyOrLocale) : getLanguageKeyFromLocale(config, keyOrLocale);
-  const language = getLanguage(config, key || getDefaultLanguageKey(config));
-  return language?.label || keyOrLocale;
 }
 
 function getLanguageBasePath(config = {}, key) {
@@ -241,12 +230,12 @@ function filterByLanguage(collection, key, config = {}) {
   return toArray(collection).filter((item) => getPageLanguageKey(item, config) === key);
 }
 
-function getI18nKey(item = {}, config = {}) {
+function getI18nKey(item = {}) {
   if (item.i18n_key) return item.i18n_key;
   if (item.i18n?.key) return item.i18n.key;
   if (item.translation_key) return item.translation_key;
 
-  const fromSource = inferI18nKeyFromSource(item.source, config);
+  const fromSource = inferI18nKeyFromSource(item.source);
   if (fromSource) return fromSource;
 
   return item.slug || "";
@@ -265,9 +254,9 @@ function getLocalizedTagPath(tag, key, config = {}) {
   return joinRoute(getLanguageBasePath(config, key), tagDir, slug);
 }
 
-function inferI18nKeyFromSource(source, config = {}) {
+function inferI18nKeyFromSource(source) {
   if (typeof source !== "string") return "";
-  const parsed = parseLocalizedSource(source, config);
+  const parsed = parseLocalizedSource(source);
   const baseSource = parsed.baseSource || source;
   const normalized = trimSlashes(baseSource).replace(/\\/g, "/");
   const ext = path.posix.extname(normalized);
@@ -294,7 +283,6 @@ module.exports = {
   getLanguageKeyFromPath,
   getLanguageKeyFromSource,
   getLanguageKeys,
-  getLanguageLabel,
   getLocalizedTagPath,
   getPageLanguageKey,
   getPageLocale,

@@ -13,7 +13,7 @@ const {
 function getLocalizedPagePath(page, langKey, config) {
   let route = page.path || "";
 
-  const parsed = parseLocalizedSource(page.source || "", config);
+  const parsed = parseLocalizedSource(page.source || "");
   if (parsed.langKey) {
     const suffix = `__${parsed.langKey}`;
     const escapedSuffix = suffix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -32,7 +32,7 @@ function decorateLocalizedPage(page, langKey, config) {
   page.i18n_lang = page.i18n_lang || langKey;
   page.lang = language.locale;
   page.language = language.locale;
-  page.i18n_key = page.i18n_key || getI18nKey(page, config) || inferI18nKeyFromSource(page.source, config);
+  page.i18n_key = page.i18n_key || getI18nKey(page) || inferI18nKeyFromSource(page.source);
   page.path = getLocalizedPagePath(page, langKey, config);
 }
 

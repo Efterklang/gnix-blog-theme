@@ -32,7 +32,7 @@ function applyI18nFields(item, config) {
   item.language = language.locale;
 
   if (!item.i18n_key) {
-    item.i18n_key = getI18nKey(item, config) || inferI18nKeyFromSource(item.source, config);
+    item.i18n_key = getI18nKey(item) || inferI18nKeyFromSource(item.source);
   }
 
   return langKey;
@@ -50,9 +50,9 @@ module.exports = (hexo) => {
 
       // 让 permalink 模板里的 :name 取到 baseName 而非 foo__en
       if (post.source) {
-        const parsed = parseLocalizedSource(post.source, activeConfig);
+        const parsed = parseLocalizedSource(post.source);
         if (parsed.langKey) {
-          const baseName = inferI18nKeyFromSource(post.source, activeConfig);
+          const baseName = inferI18nKeyFromSource(post.source);
           if (baseName) post.slug = baseName;
         }
       }
