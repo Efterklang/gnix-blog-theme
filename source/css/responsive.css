@@ -60,14 +60,6 @@
   }
 }
 
-@media (min-width: 900px) {
-  :popover-open.article-font-popover {
-    width: clamp(864px, 67.2vw, 1056px);
-    min-width: 864px;
-    max-width: 96vw;
-  }
-}
-
 @media screen and (max-width: 768px) {
   #icarus-toc-container {
     .toc {
@@ -148,11 +140,6 @@
 
   .article-comment-panel {
     padding: 1rem 1.75rem;
-  }
-
-  :popover-open.article-comment-popover {
-    width: calc(100vw - 1rem);
-    max-width: calc(100vw - 1rem);
   }
 
   .article-comment-popover-body {

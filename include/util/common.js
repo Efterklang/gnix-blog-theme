@@ -43,6 +43,10 @@ module.exports = {
     }
   },
 
+  handleWidgetError: (name) => {
+    console.warn(`[gnix-theme] Failed to load widget: ${name}`);
+  },
+
   isValidDate: (val) => val instanceof Date && !Number.isNaN(val.getTime()),
   parseISO: (str) => new Date(str),
   dateFormatters: {

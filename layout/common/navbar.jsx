@@ -163,12 +163,9 @@ class Navbar extends Component {
 
 module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
   const { site, config, helper, page } = props;
-  const { url_for, _p, __ } = helper;
-  const { logo, title, navbar, widgets } = config;
+  const { url_for, __ } = helper;
+  const { navbar } = config;
   const langKey = helper.language_key(page);
-
-  const hasTocWidget = Array.isArray(widgets) && widgets.find((widget) => widget.type === "toc");
-  const showToc = (config.toc === true || page.toc) && hasTocWidget && ["page", "post"].includes(page.layout);
 
   const menu = {};
   if (navbar?.menu) {
@@ -190,14 +187,10 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
   }
 
   return {
-    logo: url_for(logo),
     siteUrl: helper.localized_url_for("/", langKey),
-    siteTitle: title,
     menu,
     links,
     languageSwitch: getLanguageSwitch(site, page, config, helper),
-    showToc,
-    tocTitle: _p("widget.catalogue", Infinity),
     searchTitle: __("search.search"),
   };
 });

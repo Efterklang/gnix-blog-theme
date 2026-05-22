@@ -16,19 +16,9 @@ common:
     other: "PAGE"
 navbar:
   language_switch: "切换到%s"
-  language_unavailable_title: "暂无对应翻译"
   language_unavailable: "此页面暂未提供%s版本。"
-  language_stay: "留在此页"
-  language_home: "回到主页"
-  language_close: "关闭"
 article:
-  created_at: "%s"
-  more: "Read"
   comments: "评论"
-  edited: "编辑于"
-  word_count:
-    one: "约%d字"
-    other: "约%d字"
   font_settings: "字体设置"
   article_info: "文章信息"
   close: "关闭"
@@ -44,29 +34,13 @@ article:
   translation_original: "原文"
   translation_llm_reviewed: "LLM 翻译 · 已人工审阅"
   translation_llm_unreviewed: "LLM 翻译 · 未人工审阅"
-  licensing:
-    author: "Author"
-    created_at: "Posted"
-    updated_at: "Updated"
-    licensed_under: "License"
 plugin:
-  visit_count: "%sPV" # post页面显示的page view次数
   visitor_count: 'PV&nbsp;<span id="busuanzi_site_pv">-</span>&nbsp;UV&nbsp;<span id="busuanzi_site_uv">-</span>&nbsp;'
-  cookie_consent:
-    message: 此网站使用 Cookie，以启用评论系统和分析功能。
-    dismiss: 知道了
-    allow: 允许使用Cookie
-    deny: 拒绝
-    link: 了解更多
-    policy: Cookie政策
 search:
   search: "搜索"
   hint: "Search something..."
-  no_result: "未找到搜索结果"
   untitled: "(无标题)"
-  empty_preview: "(无内容预览)"
 encrypt:
   message: "此文章已加密，请输入密码查看"
   placeholder: "输入密码..."
-  wrong_pass: "密码错误，请重试"
   abstract: "此文章已加密"

@@ -2092,10 +2092,6 @@ em,
   }
 }
 
-.article-comment-popover {
-  width: min(920px, 92vw);
-}
-
 .article-comment-popover-body {
   width: min(920px, 92vw);
   max-height: min(72vh, 760px);

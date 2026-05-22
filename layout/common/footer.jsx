@@ -31,37 +31,11 @@ class Footer extends Component {
 }
 
 module.exports = cacheComponent(Footer, "common.footer", (props) => {
-  const { config, helper, page, site } = props;
-  const { _p, date } = helper;
-  const { title, author, footer, plugins } = config;
-  const langKey = helper.language_key(page);
-
-  let archives = [];
-  if (site?.posts?.length) {
-    const archiveDir = config.archive_dir || "archives";
-    const byYear = {};
-    const posts = site.posts.sort("date", -1);
-
-    posts.forEach((post) => {
-      let d = post.date.clone();
-      if (config.timezone) {
-        d = d.tz(config.timezone);
-      }
-      const year = d.year();
-      byYear[year] = (byYear[year] || 0) + 1;
-    });
-
-    archives = Object.keys(byYear)
-      .sort((a, b) => Number(b) - Number(a))
-      .map((year) => ({ year, url: helper.localized_url_for(`${archiveDir}/${year}/`, langKey) }));
-  }
+  const { config, helper } = props;
+  const { _p } = helper;
+  const { footer, plugins } = config;
 
   return {
-    siteUrl: helper.localized_url_for("/", langKey),
-    siteTitle: title,
-    siteYear: date(new Date(), "YYYY"),
-    author,
-    archives,
     copyright: footer?.copyright ?? "",
     showVisitorCounter: plugins && plugins.busuanzi === true,
     visitorCounterTitle: _p("plugin.visitor_count", '<span id="busuanzi_value_site_uv">0</span>'),
