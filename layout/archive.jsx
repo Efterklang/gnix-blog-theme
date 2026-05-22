@@ -156,10 +156,8 @@ module.exports = class extends Component {
       articleList = yearBlocks.map((block) => (
         <Fragment key={block.year}>
           <div class="archive-era" id={`archive-year-${block.year}`}>
-            <span class="archive-era__mark" aria-hidden="true">·</span>
             <span class="archive-era__roman">{toRoman(block.year)}</span>
             <span class="archive-era__year" aria-hidden="true">{block.year}</span>
-            <span class="archive-era__mark" aria-hidden="true">·</span>
           </div>
           {block.groups.map((group) => (
             <Fragment key={`${group.year}-${group.season}`}>
