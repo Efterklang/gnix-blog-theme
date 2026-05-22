@@ -101,29 +101,29 @@
         this.apply();
       });
 
-      // Dragging
-      if (this.viewContainer) {
-        this.viewContainer.addEventListener("mousedown", (e) => {
-          this.isDragging = true;
-          this.startX = e.clientX - this.tx;
-          this.startY = e.clientY - this.ty;
-          this.viewContainer.style.cursor = "grabbing";
-        });
-      }
+      // Dragging — bind window listeners only while a drag is active
+      if (!this.viewContainer) return;
 
-      window.addEventListener("mousemove", (e) => {
-        if (!this.isDragging) return;
+      const onMove = (e) => {
         e.preventDefault();
         this.tx = e.clientX - this.startX;
         this.ty = e.clientY - this.startY;
         this.apply();
-      });
+      };
+      const onUp = () => {
+        this.isDragging = false;
+        this.viewContainer.style.cursor = "grab";
+        window.removeEventListener("mousemove", onMove);
+        window.removeEventListener("mouseup", onUp);
+      };
 
-      window.addEventListener("mouseup", () => {
-        if (this.isDragging) {
-          this.isDragging = false;
-          if (this.viewContainer) this.viewContainer.style.cursor = "grab";
-        }
+      this.viewContainer.addEventListener("mousedown", (e) => {
+        this.isDragging = true;
+        this.startX = e.clientX - this.tx;
+        this.startY = e.clientY - this.ty;
+        this.viewContainer.style.cursor = "grabbing";
+        window.addEventListener("mousemove", onMove);
+        window.addEventListener("mouseup", onUp);
       });
     }
 
@@ -165,14 +165,15 @@
   };
 
   // Theme Observer
-  const observer = new MutationObserver((mutations) => {
-    const isThemeChange = mutations.some((m) => m.type === "attributes" && m.attributeName === "class");
-    if (isThemeChange) {
-      pruneInstances();
-      instances.forEach(({ container, code, themeVariables }, id) => {
-        renderDiagram(id, code, container, themeVariables);
-      });
-    }
+  let lastIsNight = document.documentElement.classList.contains("night");
+  const observer = new MutationObserver(() => {
+    const isNight = document.documentElement.classList.contains("night");
+    if (isNight === lastIsNight) return;
+    lastIsNight = isNight;
+    pruneInstances();
+    instances.forEach(({ container, code, themeVariables }, id) => {
+      renderDiagram(id, code, container, themeVariables);
+    });
   });
 
   observer.observe(document.documentElement, {
