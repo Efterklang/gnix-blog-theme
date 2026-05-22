@@ -191,6 +191,23 @@ function close() {
   if (!popupEl) return;
   popupEl.classList.remove("is-open");
   popupEl.setAttribute("aria-hidden", "true");
+  // Reset inline position — otherwise the absolutely-positioned popup keeps
+  // its last top/left and extends document scrollHeight long after it's hidden.
+  popupEl.style.top = "";
+  popupEl.style.left = "";
+  activeItem = null;
+}
+
+function destroyPopup() {
+  if (!popupEl) return;
+  popupEl.remove();
+  popupEl = null;
+  excerptEl = null;
+  indexEl = null;
+  sepEl = null;
+  readEl = null;
+  populatedItem = null;
+  popupSize = null;
   activeItem = null;
 }
 
@@ -286,6 +303,7 @@ function initArchivePopup() {
   if (!archivePage) {
     unbindArchivePage();
     resetPerPageState();
+    destroyPopup();
     return;
   }
 
