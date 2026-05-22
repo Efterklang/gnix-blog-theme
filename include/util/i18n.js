@@ -170,9 +170,6 @@ function getPageLanguageKey(page = {}, config = {}) {
   const fromSource = parseLocalizedSource(page.source || page.full_source || "").langKey;
   if (fromSource) return fromSource;
 
-  const fromPath = getLanguageKeyFromPath(page.path || page.canonical_path || "", config);
-  if (fromPath) return fromPath;
-
   const fromLocale = getLanguageKeyFromLocale(config, page.lang || page.language);
   if (fromLocale) return fromLocale;
 
