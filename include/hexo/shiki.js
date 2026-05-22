@@ -88,7 +88,7 @@ function parseConfig(renderOptions) {
   }
 
   let toClass = null;
-  if (stc && stc.enable) {
+  if (stc?.enable) {
     toClass = t.transformerStyleToClass({ classPrefix: stc.class_prefix || "_sk_" });
     enabledTransformers.push(toClass);
   }
@@ -101,7 +101,7 @@ function parseConfig(renderOptions) {
     aliases: options.language_aliases || {},
     collapseConfig: { enable: maxLines > 0, maxLines },
     styleToClass: {
-      enable: !!(stc && stc.enable),
+      enable: !!stc?.enable,
       cssGetter: toClass ? toClass.getCSS : undefined,
       css_output_path: stc ? stc.css_output_path : undefined,
     },
@@ -139,7 +139,7 @@ function renderCode(md, renderOptions) {
         themes: cfg.themes,
         transformers: cfg.transformers,
       });
-    } catch (err) {
+    } catch (_err) {
       console.warn(`[shiki] Language \`${mappedLang}\` is not supported, falling back to \`txt\`.`);
       codeHtml = await codeToHtml(normalizedCode, {
         lang: "txt",
@@ -174,7 +174,7 @@ function renderCode(md, renderOptions) {
         themes: cfg.themes,
         structure: "inline",
       });
-    } catch (err) {
+    } catch (_err) {
       console.warn(`[shiki] Language \`${lang}\` is not supported, falling back to \`txt\`.`);
       highlighted = await codeToHtml(code, {
         lang: "txt",
@@ -188,4 +188,3 @@ function renderCode(md, renderOptions) {
 
 module.exports = renderCode;
 module.exports.default = renderCode;
-
