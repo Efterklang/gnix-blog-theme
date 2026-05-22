@@ -14,7 +14,6 @@ function getCDN(cdn, pkg, version, filename) {
 }
 
 const {
-  getLanguageLabel,
   getPageLanguageKey,
   getPageLocale,
   getLocalizedTagPath,
@@ -39,9 +38,6 @@ module.exports = (hexo) => {
   });
   hexo.extend.helper.register("language_locale", function (page = null) {
     return getPageLocale(page || this.page, this.config);
-  });
-  hexo.extend.helper.register("language_label", function (keyOrLocale) {
-    return getLanguageLabel(this.config, keyOrLocale);
   });
   hexo.extend.helper.register("localized_path", function (targetPath, langKey = null) {
     return localizePath(targetPath, langKey || getPageLanguageKey(this.page, this.config), this.config);

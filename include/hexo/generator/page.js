@@ -1,11 +1,25 @@
-const { getI18nKey, getLanguage, getLanguageBasePath, getPageLanguageKey, inferI18nKeyFromSource, isI18nEnabled, localizePath, trimSlashes } = require("../../util/i18n");
+const {
+  getI18nKey,
+  getLanguage,
+  getLanguageBasePath,
+  getPageLanguageKey,
+  inferI18nKeyFromSource,
+  isI18nEnabled,
+  localizePath,
+  parseLocalizedSource,
+  trimSlashes,
+} = require("../../util/i18n");
 
 function getLocalizedPagePath(page, langKey, config) {
-  const sourcePrefix = `${trimSlashes(langKey)}/`;
   let route = page.path || "";
 
-  if (route.startsWith(sourcePrefix)) {
-    route = route.slice(sourcePrefix.length);
+  const parsed = parseLocalizedSource(page.source || "");
+  if (parsed.langKey) {
+    const suffix = `__${parsed.langKey}`;
+    const escapedSuffix = suffix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Strip the __<lang> suffix when followed by '/', '.', or end of string
+    // e.g. "about__en/index.html" → "about/index.html"; "about__en.html" → "about.html"
+    route = route.replace(new RegExp(`${escapedSuffix}(?=[/.]|$)`), "");
   }
 
   return trimSlashes(localizePath(`/${route}`, langKey, config));

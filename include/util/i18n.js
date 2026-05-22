@@ -120,13 +120,29 @@ function getLanguageKeyFromPath(value, config = {}) {
   );
 }
 
-function getLanguageKeyFromSource(value, config = {}) {
-  const normalized = trimSlashes(value).replace(/\\/g, "/");
-  if (!normalized) return null;
+function parseLocalizedSource(source) {
+  if (typeof source !== "string" || !source) {
+    return { langKey: null, baseSource: "" };
+  }
 
-  const firstSegment = normalized.split("/")[0];
-  const i18n = getI18nConfig(config);
-  return i18n.languages[firstSegment] ? firstSegment : null;
+  const normalized = source.replace(/\\/g, "/");
+  const lastSlash = normalized.lastIndexOf("/");
+  const dir = lastSlash >= 0 ? normalized.slice(0, lastSlash + 1) : "";
+  const filename = lastSlash >= 0 ? normalized.slice(lastSlash + 1) : normalized;
+  const ext = path.posix.extname(filename);
+  const stem = ext ? filename.slice(0, -ext.length) : filename;
+
+  const match = stem.match(/^(.+?)__([a-zA-Z][\w-]*)$/);
+  if (!match) return { langKey: null, baseSource: normalized };
+
+  return {
+    langKey: match[2],
+    baseSource: dir + match[1] + ext,
+  };
+}
+
+function getLanguageKeyFromSource(value) {
+  return parseLocalizedSource(value).langKey;
 }
 
 function getPageLanguageKey(page = {}, config = {}) {
@@ -138,7 +154,7 @@ function getPageLanguageKey(page = {}, config = {}) {
   const explicit = normalizeLanguageKey(page.i18n_lang || page.i18n?.lang || page.i18n?.language);
   if (explicit && getLanguage(config, explicit)?.key === explicit) return explicit;
 
-  const fromSource = getLanguageKeyFromSource(page.source || page.full_source || "", config);
+  const fromSource = getLanguageKeyFromSource(page.source || page.full_source || "");
   if (fromSource) return fromSource;
 
   const pathDescriptor = Object.getOwnPropertyDescriptor(page, "path");
@@ -160,12 +176,6 @@ function getPageLocale(page = {}, config = {}) {
 
   const language = getLanguage(config, getPageLanguageKey(page, config));
   return language?.locale || normalizeLocale(page.lang || page.language) || "";
-}
-
-function getLanguageLabel(config = {}, keyOrLocale) {
-  const key = getLanguage(config, keyOrLocale)?.key === normalizeLanguageKey(keyOrLocale) ? normalizeLanguageKey(keyOrLocale) : getLanguageKeyFromLocale(config, keyOrLocale);
-  const language = getLanguage(config, key || getDefaultLanguageKey(config));
-  return language?.label || keyOrLocale;
 }
 
 function getLanguageBasePath(config = {}, key) {
@@ -221,7 +231,14 @@ function filterByLanguage(collection, key, config = {}) {
 }
 
 function getI18nKey(item = {}) {
-  return item.i18n_key || item.i18n?.key || item.translation_key || item.slug || inferI18nKeyFromSource(item.source);
+  if (item.i18n_key) return item.i18n_key;
+  if (item.i18n?.key) return item.i18n.key;
+  if (item.translation_key) return item.translation_key;
+
+  const fromSource = inferI18nKeyFromSource(item.source);
+  if (fromSource) return fromSource;
+
+  return item.slug || "";
 }
 
 function getLocalizedTagPath(tag, key, config = {}) {
@@ -239,7 +256,9 @@ function getLocalizedTagPath(tag, key, config = {}) {
 
 function inferI18nKeyFromSource(source) {
   if (typeof source !== "string") return "";
-  const normalized = trimSlashes(source).replace(/\\/g, "/");
+  const parsed = parseLocalizedSource(source);
+  const baseSource = parsed.baseSource || source;
+  const normalized = trimSlashes(baseSource).replace(/\\/g, "/");
   const ext = path.posix.extname(normalized);
   const withoutExt = ext ? normalized.slice(0, -ext.length) : normalized;
   const parts = withoutExt.split("/").filter(Boolean);
@@ -264,7 +283,6 @@ module.exports = {
   getLanguageKeyFromPath,
   getLanguageKeyFromSource,
   getLanguageKeys,
-  getLanguageLabel,
   getLocalizedTagPath,
   getPageLanguageKey,
   getPageLocale,
@@ -274,6 +292,7 @@ module.exports = {
   joinRoute,
   localizePath,
   normalizeLocale,
+  parseLocalizedSource,
   stripLanguagePrefix,
   toArray,
   trimSlashes,

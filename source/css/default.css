@@ -251,6 +251,7 @@ body {
   flex-direction: column;
   /* Ref: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-autospace */
   text-autospace: normal;
+  font-synthesis: none;
   font-family: var(--font-sans-serif);
 }
 
@@ -862,10 +863,11 @@ html {
       &::before {
         content: counter(h2-counter, decimal-leading-zero) ".";
         color: var(--flamingo);
-        font-family: var(--font-mono);
+        font-family: var(--font-serif);
         padding-right: 0.2em;
+        letter-spacing: 0.1rem;
         font-size: 0.75em;
-        font-variant-numeric: tabular-nums;
+        font-variant-numeric: oldstyle-nums;
       }
 
       &:hover::after {
@@ -1446,7 +1448,7 @@ em,
 }
 
 .language-switch-popover {
-  width: min(24rem, 90vw);
+  width: min(40rem, 90vw);
 }
 
 .language-switch-popover-body {
@@ -2064,7 +2066,7 @@ em,
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
-  min-width: 0;
+  min-width: 20rem;
   flex: 1;
   padding-top: 0.125rem;
 }
@@ -2299,19 +2301,16 @@ input.searchbox-input {
     margin: auto;
     max-width: 90vw;
     max-height: 85vh;
-    border: 1px solid var(--surface0);
     border-radius: 16px;
-    background: var(--mantle);
+    /* background: var(--mantle); */
     color: var(--text);
     box-shadow:
       0 20px 60px -15px rgba(0, 0, 0, 0.3),
       0 0 0 1px var(--surface0);
     overflow: hidden;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
 
     &::backdrop {
-      background: hsl(from var(--mantle) h s l / 0.7);
+      /* background: hsl(from var(--mantle) h s l / 0.7); */
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
     }
@@ -2360,7 +2359,7 @@ input.searchbox-input {
       font-size: 1.8rem;
     }
     .toc-level-3 & {
-      color: var(--overlay1);
+      color: var(--subtext1);
       font-size: 1.5rem;
     }
     .toc-level-4 & {

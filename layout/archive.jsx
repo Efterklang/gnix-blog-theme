@@ -67,9 +67,19 @@ function groupSeasonGroupsByYear(seasonGroups) {
 
 function toRoman(num) {
   const map = [
-    [1000, "M"], [900, "CM"], [500, "D"], [400, "CD"],
-    [100, "C"], [90, "XC"], [50, "L"], [40, "XL"],
-    [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"],
+    [1000, "M"],
+    [900, "CM"],
+    [500, "D"],
+    [400, "CD"],
+    [100, "C"],
+    [90, "XC"],
+    [50, "L"],
+    [40, "XL"],
+    [10, "X"],
+    [9, "IX"],
+    [5, "V"],
+    [4, "IV"],
+    [1, "I"],
   ];
   let n = num;
   let out = "";
@@ -108,9 +118,7 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
         <h2 id={sectionId} class="archive-group__title">
           {title}
         </h2>
-        <span class="archive-group__count" aria-label={`${posts.length} entries`}>
-          {String(posts.length).padStart(2, "0")}
-        </span>
+        <span class="archive-group__count">{String(posts.length).padStart(2, "0")}</span>
       </header>
       <div class="timeline">
         {posts.map((post) => {
@@ -146,7 +154,6 @@ module.exports = class extends Component {
     const currentYear = page.year ? Number(page.year) : null;
     const currentMonth = page.month ? Number(page.month) : null;
     const isTagPage = Boolean(page.tag);
-    const span = years.length ? (years.length === 1 ? `${years[0]}` : `${years[years.length - 1]}–${years[0]}`) : "—";
     const entriesLabel = `${totalVisiblePosts} ${totalVisiblePosts === 1 ? "entry" : "entries"}`;
 
     let articleList;
@@ -156,10 +163,11 @@ module.exports = class extends Component {
       articleList = yearBlocks.map((block) => (
         <Fragment key={block.year}>
           <div class="archive-era" id={`archive-year-${block.year}`}>
-            <span class="archive-era__mark" aria-hidden="true">·</span>
             <span class="archive-era__roman">{toRoman(block.year)}</span>
-            <span class="archive-era__year" aria-hidden="true">{block.year}</span>
-            <span class="archive-era__mark" aria-hidden="true">·</span>
+            <span class="archive-era__year" aria-hidden="true">
+              {" "}
+              {block.year}{" "}
+            </span>
           </div>
           {block.groups.map((group) => (
             <Fragment key={`${group.year}-${group.season}`}>
@@ -199,10 +207,10 @@ module.exports = class extends Component {
           <header class="archive-hero">
             <p class="archive-hero__eyebrow">
               <span>{heroKind}</span>
-              <span class="archive-hero__sep" aria-hidden="true">·</span>
+              <span class="archive-hero__sep" aria-hidden="true">
+                ·
+              </span>
               <span class="archive-hero__count">{entriesLabel}</span>
-              <span class="archive-hero__sep" aria-hidden="true">·</span>
-              <span class="archive-hero__span">{span}</span>
             </p>
             <h1 class="archive-hero__title">{heroTitle}</h1>
             {years.length > 0 && (
