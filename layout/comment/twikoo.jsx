@@ -8,13 +8,13 @@ class Twikoo extends Component {
 }
 
 Twikoo.Cacheable = cacheComponent(Twikoo, "comment.twikoo", (props) => {
-  const { comment, helper, page, config } = props;
+  const { comment, page, config } = props;
 
   return {
     envId: comment.env_id,
     region: comment.region,
     lang: comment.lang || page.lang || page.language || config.language || "zh-CN",
-    jsUrl: helper.cdn("twikoo", "1.6.41", "dist/twikoo.all.min.js"),
+    jsUrl: "/js/host/twikoo/1.6.41/dist/twikoo.all.min.js",
   };
 });
 
