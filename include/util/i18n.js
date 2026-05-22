@@ -1,17 +1,6 @@
 const path = require("node:path");
 
-const DEFAULT_LANGUAGES = {
-  cn: {
-    label: "Chinese",
-    locale: "zh-CN",
-    prefix: "cn",
-  },
-  en: {
-    label: "English",
-    locale: "en",
-    prefix: "en",
-  },
-};
+// ─── 基础字符串工具 ────────────────────────────────────────────────
 
 function trimSlashes(value) {
   return String(value || "").replace(/^\/+|\/+$/g, "");
@@ -34,6 +23,8 @@ function isExternalUrl(value) {
   return /^(?:[a-z][a-z\d+.-]*:)?\/\//i.test(value) || /^(?:mailto|tel|data):/i.test(value) || value.startsWith("#");
 }
 
+// ─── i18n 配置解析（带缓存）─────────────────────────────────────────
+
 const i18nConfigCache = new WeakMap();
 
 function getI18nConfig(config = {}) {
@@ -41,27 +32,23 @@ function getI18nConfig(config = {}) {
     return i18nConfigCache.get(config);
   }
 
-  const configI18n = config.i18n || {};
-  const themeI18n = config.theme_config?.i18n || {};
-  const raw = configI18n.enabled === true || configI18n.languages ? configI18n : themeI18n.enabled === true || themeI18n.languages ? themeI18n : configI18n;
-  const rawLanguages = raw.languages || DEFAULT_LANGUAGES;
+  const raw = config.i18n || {};
+  const rawLanguages = raw.languages || {};
   const languages = {};
 
   Object.keys(rawLanguages).forEach((key) => {
     const normalizedKey = normalizeLanguageKey(key);
-    const value = typeof rawLanguages[key] === "string" ? { locale: rawLanguages[key] } : rawLanguages[key] || {};
-    const locale = normalizeLocale(value.locale || value.lang || value.language || normalizedKey);
-    const prefix = value.prefix ?? value.path ?? value.url_prefix;
+    const value = rawLanguages[key] || {};
     languages[normalizedKey] = {
       key: normalizedKey,
-      label: value.label || value.name || locale || normalizedKey,
-      locale,
-      prefix: normalizePrefix(prefix, normalizedKey),
+      label: value.label || normalizedKey,
+      locale: normalizeLocale(value.locale || normalizedKey),
+      prefix: normalizePrefix(value.prefix, normalizedKey),
     };
   });
 
   const keys = Object.keys(languages);
-  const configuredDefault = normalizeLanguageKey(raw.default || raw.default_language || raw.defaultLanguage || keys[0]);
+  const configuredDefault = normalizeLanguageKey(raw.default || keys[0]);
   const defaultLanguage = languages[configuredDefault] ? configuredDefault : keys[0];
 
   const result = {
@@ -92,22 +79,23 @@ function getLanguage(config = {}, key) {
   return i18n.languages[normalizedKey] || i18n.languages[i18n.defaultLanguage];
 }
 
-function getLanguageKeyFromLocale(config = {}, locale) {
-  const normalizedLocale = normalizeLocale(locale).toLowerCase();
-  if (!normalizedLocale) return null;
-
-  const i18n = getI18nConfig(config);
-  if (i18n.languages[normalizedLocale]) return normalizedLocale;
-
-  return (
-    Object.keys(i18n.languages).find((key) => {
-      const language = i18n.languages[key];
-      return language.locale.toLowerCase() === normalizedLocale;
-    }) || null
-  );
+function getLanguageBasePath(config, key) {
+  return getLanguage(config, key)?.prefix || "";
 }
 
-function getLanguageKeyFromPath(value, config = {}) {
+// ─── 语言键查询（私有辅助）─────────────────────────────────────────
+
+function getLanguageKeyFromLocale(config, locale) {
+  const normalized = normalizeLocale(locale).toLowerCase();
+  if (!normalized) return null;
+
+  const i18n = getI18nConfig(config);
+  if (i18n.languages[normalized]) return normalized;
+
+  return Object.keys(i18n.languages).find((key) => i18n.languages[key].locale.toLowerCase() === normalized) || null;
+}
+
+function getLanguageKeyFromPath(value, config) {
   const normalized = trimSlashes(value);
   if (!normalized) return null;
 
@@ -119,6 +107,8 @@ function getLanguageKeyFromPath(value, config = {}) {
     }) || null
   );
 }
+
+// ─── 源路径解析：从文件名识别 __<lang> 后缀 ──────────────────────────
 
 function parseLocalizedSource(source) {
   if (typeof source !== "string" || !source) {
@@ -141,25 +131,46 @@ function parseLocalizedSource(source) {
   };
 }
 
-function getLanguageKeyFromSource(value) {
-  return parseLocalizedSource(value).langKey;
+function inferI18nKeyFromSource(source) {
+  if (typeof source !== "string") return "";
+  const { baseSource } = parseLocalizedSource(source);
+  const normalized = trimSlashes(baseSource || source).replace(/\\/g, "/");
+  const ext = path.posix.extname(normalized);
+  const withoutExt = ext ? normalized.slice(0, -ext.length) : normalized;
+  const parts = withoutExt.split("/").filter(Boolean);
+  if (!parts.length) return "";
+
+  const last = parts[parts.length - 1];
+  if (last === "index" && parts.length >= 2) {
+    return parts[parts.length - 2];
+  }
+  return last;
 }
+
+function getI18nKey(item = {}) {
+  if (item.i18n_key) return item.i18n_key;
+
+  const fromSource = inferI18nKeyFromSource(item.source);
+  if (fromSource) return fromSource;
+
+  return item.slug || "";
+}
+
+// ─── 单个 post / page 的语言归属查询 ────────────────────────────────
 
 function getPageLanguageKey(page = {}, config = {}) {
   if (!isI18nEnabled(config)) {
-    const configuredLanguage = Array.isArray(config.language) ? config.language[0] : config.language;
-    return getLanguageKeyFromLocale(config, page.lang || page.language || configuredLanguage) || normalizeLanguageKey(page.lang || page.language || configuredLanguage) || getDefaultLanguageKey(config);
+    const fallback = Array.isArray(config.language) ? config.language[0] : config.language;
+    return getLanguageKeyFromLocale(config, page.lang || page.language || fallback) || getDefaultLanguageKey(config);
   }
 
-  const explicit = normalizeLanguageKey(page.i18n_lang || page.i18n?.lang || page.i18n?.language);
+  const explicit = normalizeLanguageKey(page.i18n_lang);
   if (explicit && getLanguage(config, explicit)?.key === explicit) return explicit;
 
-  const fromSource = getLanguageKeyFromSource(page.source || page.full_source || "");
+  const fromSource = parseLocalizedSource(page.source || page.full_source || "").langKey;
   if (fromSource) return fromSource;
 
-  const pathDescriptor = Object.getOwnPropertyDescriptor(page, "path");
-  const pathValue = pathDescriptor && typeof pathDescriptor.get !== "function" ? pathDescriptor.value : "";
-  const fromPath = getLanguageKeyFromPath(pathValue || page.canonical_path || "", config);
+  const fromPath = getLanguageKeyFromPath(page.path || page.canonical_path || "", config);
   if (fromPath) return fromPath;
 
   const fromLocale = getLanguageKeyFromLocale(config, page.lang || page.language);
@@ -170,24 +181,22 @@ function getPageLanguageKey(page = {}, config = {}) {
 
 function getPageLocale(page = {}, config = {}) {
   if (!isI18nEnabled(config)) {
-    const configuredLanguage = Array.isArray(config.language) ? config.language[0] : config.language;
-    return normalizeLocale(page.lang || page.language || configuredLanguage || "");
+    const fallback = Array.isArray(config.language) ? config.language[0] : config.language;
+    return normalizeLocale(page.lang || page.language || fallback || "");
   }
 
   const language = getLanguage(config, getPageLanguageKey(page, config));
   return language?.locale || normalizeLocale(page.lang || page.language) || "";
 }
 
-function getLanguageBasePath(config = {}, key) {
-  return getLanguage(config, key)?.prefix || "";
-}
+// ─── 路径生成 ──────────────────────────────────────────────────────
 
 function joinRoute(...parts) {
   const joined = parts.map(trimSlashes).filter(Boolean).join("/");
   return joined ? `${joined}/` : "";
 }
 
-function stripLanguagePrefix(value, config = {}) {
+function stripLanguagePrefix(value, config) {
   const normalized = trimSlashes(value);
   const key = getLanguageKeyFromPath(normalized, config);
   if (!key) return normalized;
@@ -203,42 +212,12 @@ function localizePath(value, key, config = {}) {
 
   const [pathAndQuery, hash = ""] = value.split("#");
   const [pathname, query = ""] = pathAndQuery.split("?");
-  const route = stripLanguagePrefix(pathname, config);
+  const route = trimSlashes(stripLanguagePrefix(pathname, config));
   const base = trimSlashes(getLanguageBasePath(config, key || getDefaultLanguageKey(config)));
-  const normalizedRoute = trimSlashes(route);
-  const joined = [base, normalizedRoute].filter(Boolean).join("/");
-  const hasFileExtension = /\.[^/]+$/.test(normalizedRoute);
+  const joined = [base, route].filter(Boolean).join("/");
+  const hasFileExtension = /\.[^/]+$/.test(route);
   const localized = `/${joined}${joined && !hasFileExtension ? "/" : ""}`;
-  const queryPart = query ? `?${query}` : "";
-  const hashPart = hash ? `#${hash}` : "";
-  return `${localized}${queryPart}${hashPart}`;
-}
-
-function toArray(collection) {
-  if (!collection) return [];
-  if (typeof collection.toArray === "function") return collection.toArray();
-  if (Array.isArray(collection.data)) return collection.data;
-  if (Array.isArray(collection)) return collection;
-  return [];
-}
-
-function filterByLanguage(collection, key, config = {}) {
-  if (!isI18nEnabled(config)) return collection;
-  if (typeof collection?.filter === "function" && !Array.isArray(collection)) {
-    return collection.filter((item) => getPageLanguageKey(item, config) === key);
-  }
-  return toArray(collection).filter((item) => getPageLanguageKey(item, config) === key);
-}
-
-function getI18nKey(item = {}) {
-  if (item.i18n_key) return item.i18n_key;
-  if (item.i18n?.key) return item.i18n.key;
-  if (item.translation_key) return item.translation_key;
-
-  const fromSource = inferI18nKeyFromSource(item.source);
-  if (fromSource) return fromSource;
-
-  return item.slug || "";
+  return `${localized}${query ? `?${query}` : ""}${hash ? `#${hash}` : ""}`;
 }
 
 function getLocalizedTagPath(tag, key, config = {}) {
@@ -254,34 +233,25 @@ function getLocalizedTagPath(tag, key, config = {}) {
   return joinRoute(getLanguageBasePath(config, key), tagDir, slug);
 }
 
-function inferI18nKeyFromSource(source) {
-  if (typeof source !== "string") return "";
-  const parsed = parseLocalizedSource(source);
-  const baseSource = parsed.baseSource || source;
-  const normalized = trimSlashes(baseSource).replace(/\\/g, "/");
-  const ext = path.posix.extname(normalized);
-  const withoutExt = ext ? normalized.slice(0, -ext.length) : normalized;
-  const parts = withoutExt.split("/").filter(Boolean);
-  if (!parts.length) return "";
+// ─── 集合按语言筛选 ────────────────────────────────────────────────
 
-  const last = parts[parts.length - 1];
-  if (last === "index" && parts.length >= 2) {
-    return parts[parts.length - 2];
+function filterByLanguage(collection, key, config = {}) {
+  if (!isI18nEnabled(config)) return collection;
+  // Hexo Query 对象：保留链式能力
+  if (typeof collection?.filter === "function" && !Array.isArray(collection)) {
+    return collection.filter((item) => getPageLanguageKey(item, config) === key);
   }
-
-  return last;
+  // 普通数组 / 含 toArray 的对象
+  const arr = Array.isArray(collection) ? collection : typeof collection?.toArray === "function" ? collection.toArray() : [];
+  return arr.filter((item) => getPageLanguageKey(item, config) === key);
 }
 
 module.exports = {
   filterByLanguage,
   getDefaultLanguageKey,
-  getI18nConfig,
   getI18nKey,
   getLanguage,
   getLanguageBasePath,
-  getLanguageKeyFromLocale,
-  getLanguageKeyFromPath,
-  getLanguageKeyFromSource,
   getLanguageKeys,
   getLocalizedTagPath,
   getPageLanguageKey,
@@ -289,11 +259,8 @@ module.exports = {
   inferI18nKeyFromSource,
   isExternalUrl,
   isI18nEnabled,
-  joinRoute,
   localizePath,
   normalizeLocale,
   parseLocalizedSource,
-  stripLanguagePrefix,
-  toArray,
   trimSlashes,
 };
