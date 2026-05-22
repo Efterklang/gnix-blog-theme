@@ -18,6 +18,10 @@
     }));
   };
 
+  const sweepBodyLeftovers = () => {
+    document.body.querySelectorAll(':scope > div[id^="d"][id*="-svg-"]').forEach((el) => el.remove());
+  };
+
   const renderDiagram = async (id, code, container, themeVariables) => {
     const content = container.querySelector(".mermaid-content");
     const mermaid = await mermaidPromise;
@@ -37,15 +41,19 @@
       fontSize: 16,
     });
 
+    // Render workspace must be inside our container, not document.body —
+    // otherwise an interrupted render leaks a tall <div> onto <body> that
+    // extends document height and tanks scroll repaint on later pages.
     try {
-      content.innerHTML = "";
-      const { svg } = await mermaid.render(`${id}-svg-${version}`, code);
+      const { svg } = await mermaid.render(`${id}-svg-${version}`, code, content);
       if (instance.renderVersion !== version) return;
-      content.insertAdjacentHTML("beforeend", svg);
+      content.innerHTML = svg;
     } catch (error) {
       if (instance.renderVersion !== version) return;
       console.error("Mermaid rendering error:", error);
       content.innerHTML = `<p style="color: red;">Failed to render diagram: ${error.message}</p>`;
+    } finally {
+      sweepBodyLeftovers();
     }
   };
 
