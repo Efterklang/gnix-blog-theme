@@ -1,16 +1,11 @@
-const { extname } = require("node:path");
-const createPostProcessor = require("hexo/dist/plugins/processor/post");
-const { isHiddenFile, isMatch, isTmpFile } = require("hexo/dist/plugins/processor/common");
 const {
   getI18nKey,
-  getLanguageBasePath,
   getLanguage,
-  getLanguageKeys,
+  getLanguageBasePath,
   getPageLanguageKey,
   inferI18nKeyFromSource,
   isI18nEnabled,
-  localizePath,
-  trimSlashes,
+  parseLocalizedSource,
 } = require("../util/i18n");
 
 let cachedConfig = null;
@@ -27,128 +22,23 @@ function getConfig(hexo, locals = {}) {
   return cachedConfig;
 }
 
-function getLocalizedPostParams(hexo, sourcePath) {
-  const config = getConfig(hexo);
-  if (!isI18nEnabled(config) || isTmpFile(sourcePath)) return null;
-
-  const match = sourcePath.replace(/\\/g, "/").match(/^([^/]+)\/(_posts|_drafts)\/(.+)$/);
-  if (!match) return null;
-
-  const langKey = match[1];
-  if (!getLanguageKeys(config).includes(langKey)) return null;
-
-  const postPath = match[3];
-  if (isHiddenFile(postPath)) return null;
-
-  let renderable = hexo.render.isRenderable(sourcePath) && !isMatch(sourcePath, hexo.config.skip_render);
-  if (renderable && hexo.config.post_asset_folder) {
-    renderable = extname(hexo.config.new_post_name) === extname(sourcePath);
-  }
-
-  return {
-    i18n_lang: langKey,
-    path: postPath,
-    published: match[2] === "_posts",
-    renderable,
-  };
-}
-
-function getLocalizedPageParams(hexo, sourcePath) {
-  const config = getConfig(hexo);
-  if (!isI18nEnabled(config) || isTmpFile(sourcePath)) return null;
-
-  const normalized = sourcePath.replace(/\\/g, "/");
-  const match = normalized.match(/^([^/]+)\/(.+)$/);
-  if (!match) return null;
-
-  const langKey = match[1];
-  if (!getLanguageKeys(config).includes(langKey)) return null;
-
-  const pagePath = match[2];
-  if (pagePath.startsWith("_posts/") || pagePath.startsWith("_drafts/") || isHiddenFile(pagePath)) return null;
-
-  const renderable = hexo.render.isRenderable(sourcePath) && !isMatch(sourcePath, hexo.config.skip_render);
-  if (!renderable) return null;
-
-  return {
-    i18n_lang: langKey,
-  };
-}
-
-function buildPostI18nUpdate(post, langKey, config) {
+function applyI18nFields(item, config) {
+  const langKey = getPageLanguageKey(item, config);
   const language = getLanguage(config, langKey);
-  const update = {
-    i18n_path: getLanguageBasePath(config, langKey),
-    i18n_lang: langKey,
-    lang: language.locale,
-    language: language.locale,
-  };
 
-  if (!post.i18n_key) {
-    update.i18n_key = getI18nKey(post) || inferI18nKeyFromSource(post.source);
+  item.i18n_lang = item.i18n_lang || langKey;
+  item.i18n_path = getLanguageBasePath(config, langKey);
+  item.lang = language.locale;
+  item.language = language.locale;
+
+  if (!item.i18n_key) {
+    item.i18n_key = getI18nKey(item, config) || inferI18nKeyFromSource(item.source, config);
   }
 
-  return { $set: update };
-}
-
-function getLocalizedPagePath(page, langKey, config) {
-  const sourcePrefix = `${trimSlashes(langKey)}/`;
-  let route = page.path || "";
-
-  if (route.startsWith(sourcePrefix)) {
-    route = route.slice(sourcePrefix.length);
-  }
-
-  return trimSlashes(localizePath(`/${route}`, langKey, config));
-}
-
-function buildPageI18nUpdate(page, langKey, config) {
-  const language = getLanguage(config, langKey);
-  const update = {
-    i18n_path: getLanguageBasePath(config, langKey),
-    i18n_lang: langKey,
-    lang: language.locale,
-    language: language.locale,
-    path: getLocalizedPagePath(page, langKey, config),
-  };
-
-  if (!page.i18n_key) {
-    update.i18n_key = getI18nKey(page) || inferI18nKeyFromSource(page.source);
-  }
-
-  return { $set: update };
+  return langKey;
 }
 
 module.exports = (hexo) => {
-  const defaultPostProcessor = createPostProcessor(hexo);
-
-  hexo.extend.processor.register(
-    (sourcePath) => getLocalizedPostParams(hexo, sourcePath),
-    (file) =>
-      Promise.resolve(defaultPostProcessor.process(file)).then(() => {
-        if (!isI18nEnabled(getConfig(hexo))) return null;
-        if (!file.params.renderable) return null;
-
-        const post = hexo.model("Post").findOne({ source: file.path });
-        if (!post) return null;
-
-        return post.update(buildPostI18nUpdate(post, file.params.i18n_lang, getConfig(hexo)));
-      }),
-  );
-
-  hexo.extend.processor.register(
-    (sourcePath) => getLocalizedPageParams(hexo, sourcePath),
-    (file) => {
-      if (!isI18nEnabled(getConfig(hexo))) return null;
-      if (file.type === "delete") return null;
-
-      const page = hexo.model("Page").findOne({ source: file.path });
-      if (!page) return null;
-
-      return page.update(buildPageI18nUpdate(page, file.params.i18n_lang, getConfig(hexo)));
-    },
-  );
-
   hexo.extend.filter.register(
     "post_permalink",
     (post) => {
@@ -156,14 +46,16 @@ module.exports = (hexo) => {
       const activeConfig = getConfig(hexo);
       if (!isI18nEnabled(activeConfig)) return post;
 
-      const langKey = getPageLanguageKey(post, activeConfig);
-      const language = getLanguage(activeConfig, langKey);
+      applyI18nFields(post, activeConfig);
 
-      post.i18n_lang = post.i18n_lang || langKey;
-      post.i18n_path = getLanguageBasePath(activeConfig, langKey);
-      post.lang = language.locale;
-      post.language = language.locale;
-      post.i18n_key = post.i18n_key || getI18nKey(post) || inferI18nKeyFromSource(post.source);
+      // 让 permalink 模板里的 :name 取到 baseName 而非 foo__en
+      if (post.source) {
+        const parsed = parseLocalizedSource(post.source, activeConfig);
+        if (parsed.langKey) {
+          const baseName = inferI18nKeyFromSource(post.source, activeConfig);
+          if (baseName) post.slug = baseName;
+        }
+      }
 
       return post;
     },
@@ -177,14 +69,7 @@ module.exports = (hexo) => {
       const activeConfig = getConfig(hexo, locals);
       if (!page || !isI18nEnabled(activeConfig)) return locals;
 
-      const langKey = getPageLanguageKey(page, activeConfig);
-      const language = getLanguage(activeConfig, langKey);
-
-      page.i18n_lang = page.i18n_lang || langKey;
-      page.i18n_path = getLanguageBasePath(activeConfig, langKey);
-      page.lang = language.locale;
-      page.language = language.locale;
-      page.i18n_key = page.i18n_key || getI18nKey(page) || inferI18nKeyFromSource(page.source);
+      applyI18nFields(page, activeConfig);
 
       return locals;
     },
