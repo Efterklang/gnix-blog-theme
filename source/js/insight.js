@@ -36,6 +36,14 @@ function loadInsight(config, translation) {
     return str.replace(_escapeRe, (m) => _escapeMap[m]);
   }
 
+  // content.json 中的字段可能已被 HTML 实体编码（如 / → &#x2F;），需先解码再用于匹配和渲染
+  const _decodeEl = document.createElement("textarea");
+  function decodeHTML(str) {
+    if (!str) return str;
+    _decodeEl.innerHTML = str;
+    return _decodeEl.value;
+  }
+
   // 字段名 → 预计算小写字段名的映射
   const _lowerFields = { title: "_lowerTitle", text: "_lowerText", name: "_lowerName", slug: "_lowerSlug" };
 
@@ -84,10 +92,11 @@ function loadInsight(config, translation) {
 
     for (let i = 0; i < ranges.length; i++) {
       const range = ranges[i];
-      parts.push(escapeHTML(text.slice(last, Math.min(range[0], sumRange[0] + maxlen))));
+      const prefixEnd = maxlen ? Math.min(range[0], sumRange[0] + maxlen) : range[0];
+      parts.push(escapeHTML(text.slice(last, prefixEnd)));
       if (maxlen && range[0] >= sumRange[0] + maxlen) break;
 
-      parts.push(`<span style="color: var(--mauve)">${escapeHTML(text.slice(range[0], range[1]))}</span>`);
+      parts.push(`<span style="color: var(--blue)">${escapeHTML(text.slice(range[0], range[1]))}</span>`);
       last = range[1];
 
       if (i === ranges.length - 1) {
@@ -102,7 +111,6 @@ function loadInsight(config, translation) {
   }
 
   function searchItem(title, preview, url) {
-    title = title || translation.untitled;
     return `<a class="searchbox-result-item" href="${url}">
             <span class="searchbox-result-content">
                 <span class="searchbox-result-title">${title}</span>
@@ -115,15 +123,14 @@ function loadInsight(config, translation) {
     if (array.length === 0) return null;
     const sectionTitle = translation[type.toLowerCase()];
 
-    // 优化点：使用 DocumentFragment 并不完全适用这里因为我们返回的是 element
-    // 但我们可以用 map + join 一次性生成 HTML 字符串
     const isPostOrPage = type === "POSTS" || type === "PAGES";
 
     const itemsHTML = array
       .map((item) => {
         if (isPostOrPage) {
+          const title = findAndHighlight(item.title || translation.untitled, keywords);
           const text = findAndHighlight(item.text, keywords, 100);
-          return searchItem(item.title, text, item.link);
+          return searchItem(title, text, item.link);
         } else {
           // Tags
           const name = findAndHighlight(item.name, keywords);
@@ -292,10 +299,14 @@ function loadInsight(config, translation) {
       .then((response) => response.json())
       .then((json) => {
         for (const post of json.posts) {
+          post.title = decodeHTML(post.title);
+          post.text = decodeHTML(post.text);
           post._lowerTitle = post.title ? post.title.toLowerCase() : "";
           post._lowerText = post.text ? post.text.toLowerCase() : "";
         }
         for (const tag of json.tags) {
+          tag.name = decodeHTML(tag.name);
+          tag.slug = decodeHTML(tag.slug);
           tag._lowerName = tag.name ? tag.name.toLowerCase() : "";
           tag._lowerSlug = tag.slug ? tag.slug.toLowerCase() : "";
         }
