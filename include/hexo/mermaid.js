@@ -31,15 +31,6 @@ const gridPanelTemplate = `<div class="mermaid-viewer-grid-panel">
         </div>
       </div>`;
 
-function escapeHtml(text) {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
 function mermaidDiagram(md) {
   const origFence = md.renderer.rules.fence;
 
@@ -56,17 +47,15 @@ function mermaidDiagram(md) {
         : self.renderToken(tokens, idx, _opts);
     }
 
-    const code = escapeHtml(token.content) || "";
     const id = `mermaid-${Math.random().toString(36).slice(2)}`;
 
     return `<div id="${id}" class="mermaid-container">
   <div class="mermaid-wrapper">
     ${toolbarTemplate}
+    <textarea class="mermaid-code" style="display:none">${token.content}</textarea>
     <div class="mermaid-view-container">
       ${gridPanelTemplate}
-      <pre class="mermaid-content">
-         <code class="mermaid-code" style="display: none;">${code}</code>
-      </pre>
+      <div class="mermaid-content"></div>
     </div>
   </div>
 </div>`;

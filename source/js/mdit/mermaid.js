@@ -126,12 +126,11 @@
       };
 
       this.viewContainer.addEventListener("pointerdown", (e) => {
-        if (e.pointerType === "mouse" && e.button !== 0) return;
+        if (e.button !== 0) return;
         this.isDragging = true;
         this.startX = e.clientX - this.tx;
         this.startY = e.clientY - this.ty;
         this.viewContainer.style.cursor = "grabbing";
-        this.viewContainer.setPointerCapture(e.pointerId);
         window.addEventListener("pointermove", onMove);
         window.addEventListener("pointerup", onUp);
       });
@@ -140,7 +139,7 @@
     copyCode(btn) {
       const codeEl = this.container.querySelector(".mermaid-code");
       if (!codeEl) return;
-      navigator.clipboard.writeText(codeEl.textContent).then(() => {
+      navigator.clipboard.writeText(codeEl.value).then(() => {
         const originalTitle = btn.getAttribute("title");
         btn.setAttribute("title", "Copied!");
         setTimeout(() => btn.setAttribute("title", originalTitle), 2000);
@@ -167,10 +166,10 @@
     if (!codeEl) return;
 
     new PanZoomHandler(container);
-    instances.set(id, { container, code: codeEl.textContent, themeVariables });
+    instances.set(id, { container, code: codeEl.value, themeVariables });
 
     loadMermaid(jsUrl).then(() => {
-      renderDiagram(id, codeEl.textContent, container, themeVariables);
+      renderDiagram(id, codeEl.value, container, themeVariables);
     });
   };
 
