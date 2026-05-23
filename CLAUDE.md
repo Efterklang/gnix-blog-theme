@@ -11,4 +11,4 @@
 
 ### 关键数据文件
 
-- `source/js/data/changelog-data.js` — 更新日志双语数据，由 `x-changelog` 组件渲染
+- `source/js/data/changelog-data.js` — 更新日志双语数据，由 `x-changelog` 组件渲染。**任何对主题的用户可感知变更，更新日志必须编辑此文件**（中英文双语条目，按日期与 category 组织），不要在其他位置维护变更记录。
