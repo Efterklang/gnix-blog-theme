@@ -1,6 +1,6 @@
 const path = require("node:path");
 const { createMarkdownExit } = require("markdown-exit");
-const mermaidDiagram = require("markdown-exit-mermaid");
+const mermaidDiagram = require("./mermaid");
 const ratex = require("markdown-exit-ratex");
 const code = require("./shiki");
 const obsidianCallouts = require("./obsidian-callouts");
@@ -220,9 +220,6 @@ class MarkdownRenderer {
         xhtmlOut: false,
       },
       
-      mermaid_options: {
-        theme: "default",
-      },
       ...(hexo.config.markdown_exit || {}),
     };
 
@@ -238,7 +235,7 @@ class MarkdownRenderer {
         .use(resolveDefault(mark))
         .use(resolveDefault(taskLists))
         .use(resolveDefault(code), this.config.code_options)
-        .use(resolveDefault(mermaidDiagram), this.config.mermaid_options)
+        .use(mermaidDiagram)
         .use(resolveDefault(ratex), this.config.ratex_options)
         .use(obsidianCallouts, this.config.callout_options)
         .use(customTabs)
