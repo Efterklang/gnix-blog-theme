@@ -1,11 +1,14 @@
-Important Paths:
+## 外部项目
 
-外部文件夹
+`~/Projects/vluv` — 使用本主题的 Hexo 项目，含 `_config.yml` 和 `_config.gnix.yml`。
 
-- ~/Projects/vluv: 使用该主题的项目文件夹，包含:
-  - `_config.yml` `_config.gnix.yml`: Hexo以及本主题各自的配置文件
-  - `source/_posts`: 文章存放地。多语言采用文件名后缀约定——中文版用 `foo.md`，英文版用 `foo__en.md`
+### 文章
 
-- 下面是 `source/_posts` 内一些重要文章的文件名:
-  * `change.md` / `change__en.md`: 更新日志（中/英）
-  * `test_components.md` / `test_components__en.md`: 对 `./source/js/components/` 中各组件的介绍
+`source/_posts` 是指向 `~/OneDrive/Documents/posts/blog/_posts/` 的软链接，**必须编辑原文件**：
+- 其中`~/OneDrive/Documents/posts/blog/_posts/test_components.md` & `~/OneDrive/Documents/posts/blog/_posts/test_components__en.md` 是组件文档，介绍`./source/js/components/`中各组件的用法
+
+多语言约定：`foo.md`（中文）/ `foo__en.md`（英文）
+
+### 关键数据文件
+
+- `source/js/data/changelog-data.js` — 更新日志双语数据，由 `x-changelog` 组件渲染
