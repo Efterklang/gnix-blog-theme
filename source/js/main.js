@@ -203,8 +203,6 @@ function handleMermaid() {
   loadCSSOnce(cssUrl);
 
   const runInit = () => {
-    const isNight = document.documentElement.classList.contains("night");
-    const theme = isNight ? "dark" : "default";
     const libUrl = "/js/host/mermaid/mermaid.min.js";
 
     containers.forEach((container, index) => {
@@ -212,7 +210,7 @@ function handleMermaid() {
         container.id = `mermaid-${Date.now()}-${index}`;
       }
       if (window.initMermaidDiagram) {
-        window.initMermaidDiagram(container.id, libUrl, theme, {});
+        window.initMermaidDiagram(container.id, libUrl, {});
       }
     });
   };

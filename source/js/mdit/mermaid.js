@@ -121,17 +121,19 @@
       const onUp = () => {
         this.isDragging = false;
         this.viewContainer.style.cursor = "grab";
-        window.removeEventListener("mousemove", onMove);
-        window.removeEventListener("mouseup", onUp);
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
       };
 
-      this.viewContainer.addEventListener("mousedown", (e) => {
+      this.viewContainer.addEventListener("pointerdown", (e) => {
+        if (e.pointerType === "mouse" && e.button !== 0) return;
         this.isDragging = true;
         this.startX = e.clientX - this.tx;
         this.startY = e.clientY - this.ty;
         this.viewContainer.style.cursor = "grabbing";
-        window.addEventListener("mousemove", onMove);
-        window.addEventListener("mouseup", onUp);
+        this.viewContainer.setPointerCapture(e.pointerId);
+        window.addEventListener("pointermove", onMove);
+        window.addEventListener("pointerup", onUp);
       });
     }
 
@@ -154,7 +156,7 @@
     }
   };
 
-  window.initMermaidDiagram = (id, jsUrl, _theme, themeVariables) => {
+  window.initMermaidDiagram = (id, jsUrl, themeVariables) => {
     const container = document.getElementById(id);
     if (!container) return;
 
