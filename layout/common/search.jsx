@@ -1,18 +1,61 @@
-const { Component, loadComponent, handleWidgetError } = require("../../include/util/common");
+/**
+ * Insight search plugin JSX component.
+ * @module view/common/search
+ */
+const { Component, cacheComponent } = require("../../include/util/common");
 
-module.exports = class extends Component {
+class Search extends Component {
   render() {
-    const { config, helper } = this.props;
-    const { search } = config;
-    if (!search || typeof search.type !== "string") {
-      return null;
-    }
+    const { translation, contentUrl, jsUrl } = this.props;
 
-    const Search = loadComponent(`search/${search.type}`);
-    if (!Search) {
-      handleWidgetError(`search "${search.type}"`);
-      return null;
-    }
-    return <Search config={config} helper={helper} search={search} />;
+    const js = `document.addEventListener('DOMContentLoaded', function () {
+            loadInsight(${JSON.stringify({ contentUrl })}, ${JSON.stringify(translation)});
+        });`;
+
+    return (
+      <>
+        <div class="searchbox" id="searchbox" popover="auto">
+          <div class="searchbox-container">
+            <div class="searchbox-input-container">
+              <input
+                type="text"
+                name="search-input"
+                class="searchbox-input"
+                placeholder={translation.hint}
+                autofocus
+                autocomplete="off"
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-autocomplete="list"
+                aria-controls="searchbox-results"
+                aria-expanded="false"
+                aria-label={translation.hint}
+              />
+            </div>
+            <div class="searchbox-body" id="searchbox-results" role="listbox"></div>
+          </div>
+        </div>
+        <script defer src={jsUrl}></script>
+        <script dangerouslySetInnerHTML={{ __html: js }}></script>
+      </>
+    );
   }
-};
+}
+
+module.exports = cacheComponent(Search, "common.search", (props) => {
+  const { config, helper } = props;
+  if (!config.search) {
+    return null;
+  }
+  return {
+    translation: {
+      hint: helper.__("search.hint"),
+      untitled: helper.__("search.untitled"),
+      posts: helper._p("common.post", Infinity),
+      pages: helper._p("common.page", Infinity),
+      tags: helper._p("common.tag", Infinity),
+    },
+    contentUrl: helper.is_i18n_enabled() ? helper.localized_url_for("/content.json") : helper.url_for("/content.json"),
+    jsUrl: helper.url_for("/js/insight.js"),
+  };
+});
