@@ -7,8 +7,8 @@ const Search = require("./common/search");
 const ThemeSelector = require("./common/theme_selector");
 const { DEFAULT_SETTINGS: ARTICLE_FONT_DEFAULT_SETTINGS } = require("../include/util/article_font");
 
-function buildLangSwitchScript(site, page, config, helper) {
-  const lswitch = Navbar.getLanguageSwitch(site, page, config, helper);
+function buildLangSwitchScript(page, config, helper) {
+  const lswitch = Navbar.getLanguageSwitch(page, config, helper);
 
   const langKey = helper.language_key(page);
   const menu = {};
@@ -60,7 +60,7 @@ module.exports = class extends Component {
     const { site, config, page, helper, body } = this.props;
 
     const language = helper.language_locale ? helper.language_locale(page) : page.lang || page.language || config.language || "en";
-    const langSwitchScript = buildLangSwitchScript(site, page, config, helper);
+    const langSwitchScript = buildLangSwitchScript(page, config, helper);
 
     return (
       <html

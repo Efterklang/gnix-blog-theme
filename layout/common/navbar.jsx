@@ -28,7 +28,7 @@ function getTargetLanguageDisplayName(currentLanguageKey, targetLanguageKey, tar
   return targetLanguage.label;
 }
 
-function getLanguageSwitch(site, page, config, helper) {
+function getLanguageSwitch(page, config, helper) {
   if (!isI18nEnabled(config)) return null;
 
   const languageKeys = getLanguageKeys(config);
@@ -162,7 +162,7 @@ class Navbar extends Component {
 }
 
 module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
-  const { site, config, helper, page } = props;
+  const { config, helper, page } = props;
   const { url_for, __ } = helper;
   const { navbar } = config;
   const langKey = helper.language_key(page);
@@ -190,7 +190,7 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
     siteUrl: helper.localized_url_for("/", langKey),
     menu,
     links,
-    languageSwitch: getLanguageSwitch(site, page, config, helper),
+    languageSwitch: getLanguageSwitch(page, config, helper),
     searchTitle: __("search.search"),
   };
 });
