@@ -6,8 +6,6 @@
     min-width: 864px;
     max-width: 96vw;
 
-    
-
     .article-popover-body {
       display: grid;
       grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
