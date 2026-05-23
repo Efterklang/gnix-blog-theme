@@ -166,14 +166,18 @@ figure.shiki {
   align-items: center;
   font-size: 1em;
   cursor: pointer;
+  > .collapse-icon {
+    display: none;
+  }
+  &.expand-done > .expand-icon {
+    display: none;
+  }
+  &.expand-done > .collapse-icon {
+    display: block;
+  }
   > svg {
     padding: 6px 0;
     animation: code-expand-pulse 1.2s infinite;
-    transition: transform 0.3s ease;
-  }
-
-  &.expand-done > svg {
-    transform: rotate(180deg);
   }
 }
 
