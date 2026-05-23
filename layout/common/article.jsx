@@ -148,28 +148,6 @@ module.exports = class extends Component {
           </article>
 
           <div id="article-font-settings" popover="auto" class="article-popover article-font-popover">
-              <div class="article-popover-header">
-                <h3>Display Settings</h3>
-                <button type="button" class="article-popover-close" popovertarget="article-font-settings" popovertargetaction="hide" aria-label="Close">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    role="img"
-                    aria-label="Close"
-                  >
-                    <title>Close</title>
-                    <path d="M18 6 6 18" />
-                    <path d="m6 6 12 12" />
-                  </svg>
-                </button>
-              </div>
               <div class="article-popover-body">
                 <div class="font-settings-column">
                   <div class="font-setting-group font-size-group">
@@ -331,28 +309,6 @@ module.exports = class extends Component {
 
           {hasComment && (
             <div id="article-comment-popover" popover="auto" class="article-popover article-comment-popover">
-              <div class="article-popover-header">
-                <h3>{commentsLabel}</h3>
-                <button type="button" class="article-popover-close" popovertarget="article-comment-popover" popovertargetaction="hide" aria-label={helper.__("article.close")}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    role="img"
-                    aria-label="Close"
-                  >
-                    <title>Close</title>
-                    <path d="M18 6 6 18" />
-                    <path d="m6 6 12 12" />
-                  </svg>
-                </button>
-              </div>
               <div class="article-popover-body article-comment-popover-body">
                 <Comment config={config} page={page} helper={helper} embedded />
               </div>

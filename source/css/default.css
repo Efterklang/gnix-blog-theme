@@ -1401,45 +1401,7 @@ em,
   padding: 0;
 }
 
-.article-popover-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--surface0);
 
-  h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0;
-    color: var(--text);
-  }
-}
-
-.article-popover-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  color: var(--subtext0);
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    color: var(--text);
-    background-color: var(--surface0);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--mauve);
-    outline-offset: 2px;
-  }
-}
 
 .article-popover-body {
   padding: 1.25rem;

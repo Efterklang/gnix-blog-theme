@@ -6,9 +6,7 @@
     min-width: 864px;
     max-width: 96vw;
 
-    .article-popover-header {
-      padding: 1rem 1.5rem;
-    }
+    
 
     .article-popover-body {
       display: grid;
