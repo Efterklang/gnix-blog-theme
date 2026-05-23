@@ -318,14 +318,13 @@ class XTree extends HTMLElement {
   }
 
   getIcon(label, isFolder) {
-    if (isFolder) return ICON_FOLDER;
-
     const lower = label.toLowerCase();
     if (SPECIAL_FILES[lower]) return SPECIAL_FILES[lower];
 
     const ext = label.includes(".") ? label.split(".").pop().toLowerCase() : "";
     if (ext && FILE_ICONS[ext]) return FILE_ICONS[ext];
 
+    if (isFolder) return ICON_FOLDER;
     return ICON_FILE;
   }
 
@@ -351,7 +350,7 @@ class XTree extends HTMLElement {
         const canToggle = item.hasChildren;
         const label = item.displayLabel || item.label;
         const icon = this.getIcon(label, isFolder);
-        const extClass = isFolder ? "folder" : this.getExtClass(label);
+        const extClass = this.getExtClass(label) || (isFolder ? "folder" : "");
 
         const toggleHTML = canToggle ? `<button class="tree-toggle" aria-expanded="true">${ICON_CHEVRON}</button>` : `<span class="tree-toggle-placeholder"></span>`;
 
