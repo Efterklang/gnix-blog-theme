@@ -3,6 +3,30 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: '5.24',
+        cn: ['修复 x-tree 嵌套在非活动 x-tab 中时子项不可见的问题：移除初始 max-height 测量（在 display:none 的父级中 scrollHeight 恒为 0，导致树永久折叠），改由 toggleNode 在展开/折叠时按需测量'],
+        en: ['Fix x-tree children being invisible when nested inside an inactive x-tab: drop the initial max-height measurement (scrollHeight is 0 under a display:none ancestor, leaving the tree permanently collapsed) and rely on toggleNode to measure on demand'],
+        category: 'fix'
+      },
+      {
+        date: '5.24',
+        cn: [
+          '搜索框整体视觉重设计：玻璃质感容器（backdrop-blur）+ 统一圆角；section header 极简化；post item 用 surface 背景代替文字色跳变作为 hover/active 反馈，active 增加左侧高亮条；tag 结果改为内联 pill 排列',
+          '修复搜索高亮：搜索 he 在 apache 中现在显示完整 apache 并高亮 he（原本只显示 he）；文章/页面标题也参与高亮；解码 content.json 中的 HTML 实体，例如 UI&#x2F;UX 正确显示为 UI/UX'
+        ],
+        en: [
+          'Redesign searchbox: glass container with backdrop-blur and unified border-radius; minimal section labels; surface-based hover/active feedback on post items with a left accent bar for the active item; tag results render as inline pills',
+          'Fix search highlight: searching `he` against `apache` now shows the full `apache` with `he` highlighted (previously only `he` was shown); post/page titles are also highlighted; HTML entities pre-encoded in content.json are decoded so e.g. UI&#x2F;UX renders correctly as UI/UX'
+        ],
+        category: 'uiux'
+      },
+      {
+        date: '5.24',
+        cn: ['合并 layout/search/insight.jsx 到 layout/common/search.jsx：insight 是唯一搜索插件，移除多余的 dispatcher 层'],
+        en: ['Merge layout/search/insight.jsx into layout/common/search.jsx: insight is the only search plugin; remove the dispatcher indirection'],
+        category: 'refactor'
+      },
+      {
         date: '5.23',
         cn: ['将变更日志提取为 x-changelog 自定义组件，数据与渲染逻辑单一来源，支持中英双语 lang 属性切换'],
         en: ['Extract changelog into an x-changelog custom component with single-source data and bilingual lang attribute switching'],

@@ -308,10 +308,6 @@ class XTree extends HTMLElement {
       </div>
     `;
 
-    this.shadowRoot.querySelectorAll(".tree-children").forEach((el) => {
-      el.style.maxHeight = `${el.scrollHeight}px`;
-    });
-
     this.shadowRoot.querySelectorAll(".tree-toggle:not(.collapsed)").forEach((btn) => {
       btn.addEventListener("click", () => this.toggleNode(btn));
     });
