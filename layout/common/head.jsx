@@ -47,17 +47,39 @@ function getArticleSection(page) {
   return undefined;
 }
 
+function normalizeTrailingSlash(url, config) {
+  if (!url || typeof url !== "string") return url;
+  if (config.pretty_urls && config.pretty_urls.trailing_index === false) return url;
+
+  const match = url.match(/^([a-z][a-z0-9+\-.]*:\/\/[^/?#]+)?([^?#]*)(\?[^#]*)?(#.*)?$/i);
+  if (!match) return url;
+  const [, origin = "", path = "", query = "", hash = ""] = match;
+  if (!path || path.endsWith("/")) return url;
+
+  const lastSegment = path.slice(path.lastIndexOf("/") + 1);
+  if (/\.[a-z0-9]+$/i.test(lastSegment)) return url;
+
+  return `${origin}${path}/${query}${hash}`;
+}
+
 function toAbsoluteUrl(href, helper, config) {
   if (!href || typeof href !== "string") return null;
   if (/^https?:\/\//i.test(href)) return href;
-  if (typeof helper.full_url_for === "function") return helper.full_url_for(href);
 
-  const localUrl = typeof helper.url_for === "function" ? helper.url_for(href) : href;
-  if (/^https?:\/\//i.test(localUrl)) return localUrl;
-
-  const siteUrl = String(config.url || "").replace(/\/+$/, "");
-  const path = localUrl.startsWith("/") ? localUrl : `/${localUrl}`;
-  return `${siteUrl}${path}`;
+  let absolute;
+  if (typeof helper.full_url_for === "function") {
+    absolute = helper.full_url_for(href);
+  } else {
+    const localUrl = typeof helper.url_for === "function" ? helper.url_for(href) : href;
+    if (/^https?:\/\//i.test(localUrl)) {
+      absolute = localUrl;
+    } else {
+      const siteUrl = String(config.url || "").replace(/\/+$/, "");
+      const path = localUrl.startsWith("/") ? localUrl : `/${localUrl}`;
+      absolute = `${siteUrl}${path}`;
+    }
+  }
+  return normalizeTrailingSlash(absolute, config);
 }
 
 function addAlternateLink(links, hreflang, href, helper, config) {
