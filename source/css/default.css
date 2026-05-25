@@ -17,7 +17,7 @@
   --font-handwriting: "Bradley Hand", "homemade-apple", XingKai SC, cursive;
   --article-font-size: 1rem;
   --article-font-family: var(--font-serif);
-  --article-line-height: 1.7;
+  --article-line-height: 1.6;
   --article-font-weight: 400;
   --article-bold-font-weight: 700;
   /* misc */
@@ -794,12 +794,6 @@ html {
   word-wrap: break-word;
   color: var(--subtext1);
 
-  ::selection {
-    color: inherit;
-    text-decoration: underline wavy;
-    text-decoration-color: var(--mauve);
-  }
-
   a.header-anchor {
     color: var(--text);
     font-family: var(--article-font-family);
@@ -831,21 +825,30 @@ html {
     text-decoration: none;
   }
 
+  :is(h2, h3, h4, h5, h6) {
+    text-wrap: balance;
+    font-variant-numeric: oldstyle-nums;
+  }
+
   h2 {
-    font-size: 1.5em;
-    margin: 1.5rem 0 1rem;
-    line-height: 1.3;
+    font-size: 1.625em;
+    margin: 2.75rem 0 1rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    padding-bottom: 0.35rem;
     border-bottom: 0.8px solid var(--surface0);
 
     > a.header-anchor {
       counter-increment: h2-counter;
       &::before {
-        content: counter(h2-counter, decimal-leading-zero) ".";
-        color: var(--flamingo);
+        content: counter(h2-counter, decimal-leading-zero);
+        color: var(--overlay0);
         font-family: var(--font-serif);
-        padding-right: 0.2em;
-        letter-spacing: 0.1rem;
-        font-size: 0.75em;
+        font-style: italic;
+        padding-right: 0.55em;
+        letter-spacing: 0.04em;
+        font-size: 0.7em;
+        font-weight: 400;
         font-variant-numeric: oldstyle-nums;
       }
 
@@ -856,9 +859,10 @@ html {
   }
 
   h3 {
-    font-size: 1.45em;
-    margin: 1.4rem 0 1rem;
-    line-height: 1.35;
+    font-size: 1.35em;
+    margin: 2.25rem 0 0.75rem;
+    line-height: 1.3;
+    letter-spacing: -0.005em;
 
     > a.header-anchor:hover::after {
       content: "###";
@@ -866,8 +870,8 @@ html {
   }
 
   h4 {
-    font-size: 1.35em;
-    margin: 1.3rem 0 1rem;
+    font-size: 1.15em;
+    margin: 1.875rem 0 0.5rem;
     line-height: 1.4;
 
     > a.header-anchor:hover::after {
@@ -876,9 +880,9 @@ html {
   }
 
   h5 {
-    font-size: 1.25em;
-    margin: 1.2rem 0 1rem;
-    line-height: 1.4;
+    font-size: 1em;
+    margin: 1.625rem 0 0.5rem;
+    line-height: 1.5;
 
     > a.header-anchor:hover::after {
       content: "#####";
@@ -886,12 +890,19 @@ html {
   }
 
   h6 {
-    font-size: 1.1em;
-    margin: 1.2rem 0 1rem;
-    line-height: 1.45;
+    font-size: 0.8125em;
+    margin: 1.625rem 0 0.5rem;
+    line-height: 1.5;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--subtext0);
 
-    > a.header-anchor:hover::after {
-      content: "######";
+    > a.header-anchor {
+      color: inherit;
+
+      &:hover::after {
+        content: "######";
+      }
     }
   }
 
@@ -899,9 +910,16 @@ html {
   ol,
   dl,
   pre,
+  blockquote,
   details {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.4em;
     line-height: var(--article-line-height);
+  }
+
+  p,
+  li,
+  dd {
+    text-wrap: pretty;
   }
 
   li {
@@ -1164,31 +1182,23 @@ tbody tr:last-child td {
 
 blockquote {
   position: relative;
-  padding: 0.7rem 2.5rem;
-  margin: 1.5rem 0;
-  border-left: 2px solid var(--red);
+  padding: 0.25rem 0 0.25rem 1.75rem;
+  margin: 1.75rem 0;
+  border-left: 2px solid var(--surface1);
   font-family: Georgia, Kai, var(--font-serif);
   font-style: italic;
   font-synthesis: none;
-
-  &:before {
-    content: "”";
-    color: var(--red);
-    position: absolute;
-    left: 0.5rem;
-    top: 0.2rem;
-    font-size: 3rem;
-    font-weight: 700;
-    opacity: 0.3;
-    line-height: 1;
-  }
+  color: var(--subtext0);
 
   cite {
     display: block;
     text-align: right;
-    margin-top: 0.5em;
-    color: var(--subtext0);
-    font-style: italic;
+    margin-top: 0.75em;
+    color: var(--overlay1);
+    font-style: normal;
+    font-family: var(--font-sans-serif);
+    font-size: 0.8125em;
+    letter-spacing: 0.06em;
   }
 }
 
