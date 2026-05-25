@@ -48,26 +48,50 @@ function getThemeInitScript() {
   return `
 (function() {
   var config = ${config};
+  var STORAGE_KEY = config.storageKey;
+  var DEFAULT = config.defaultTheme;
   var themeClassMap = config.themeClassMap || {};
-  var stored = null;
+  var THEME_CLASSES = Array.from(new Set(Object.values(themeClassMap)));
+  var html = document.documentElement;
+  var darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+  function isValidTheme(t) {
+    return t === DEFAULT || Object.prototype.hasOwnProperty.call(themeClassMap, t);
+  }
+
+  function resolveTheme(t) {
+    if (t !== DEFAULT) return t;
+    return darkQuery.matches ? config.systemTheme.dark : config.systemTheme.light;
+  }
+
+  function getThemePreference() {
+    try {
+      var stored = localStorage.getItem(STORAGE_KEY);
+      return isValidTheme(stored) ? stored : DEFAULT;
+    } catch (_) { return DEFAULT; }
+  }
+
+  function applyTheme(theme, persist) {
+    var preference = isValidTheme(theme) ? theme : DEFAULT;
+    var resolved = resolveTheme(preference);
+    var themeClass = themeClassMap[resolved];
+    html.setAttribute("data-theme", resolved);
+    if (THEME_CLASSES.length) html.classList.remove.apply(html.classList, THEME_CLASSES);
+    if (themeClass) html.classList.add(themeClass);
+    if (persist) {
+      try { localStorage.setItem(STORAGE_KEY, preference); } catch (_) {}
+    }
+  }
 
   window.__GNIX_THEME_CONFIG__ = config;
+  window.applyTheme = applyTheme;
+  window.getThemePreference = getThemePreference;
 
-  try {
-    stored = localStorage.getItem(config.storageKey);
-  } catch (_) {}
+  applyTheme(getThemePreference());
 
-  var theme = stored === config.defaultTheme || Object.prototype.hasOwnProperty.call(themeClassMap, stored)
-    ? stored
-    : config.defaultTheme;
-  var resolvedTheme = theme === config.defaultTheme
-    ? window.matchMedia("(prefers-color-scheme: dark)").matches ? config.systemTheme.dark : config.systemTheme.light
-    : theme;
-  var html = document.documentElement;
-  var themeClass = themeClassMap[resolvedTheme];
-
-  html.setAttribute("data-theme", resolvedTheme);
-  if (themeClass) html.classList.add(themeClass);
+  darkQuery.addEventListener("change", function() {
+    if (getThemePreference() === DEFAULT) applyTheme(DEFAULT);
+  });
 })();
 `;
 }

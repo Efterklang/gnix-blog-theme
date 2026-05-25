@@ -10,14 +10,12 @@ class ThemeSelector extends Component {
           role="listbox"
           aria-label="Select theme"
         >
-          {THEME_OPTIONS.map((theme, index) => (
+          {THEME_OPTIONS.map((theme) => (
             <button
               class="theme-option"
               type="submit"
               role="option"
               data-theme-option={theme.value}
-              data-index={index}
-              onclick={`window.selectThemeOption?.(${index})`}
             >
               {theme.label}
             </button>
