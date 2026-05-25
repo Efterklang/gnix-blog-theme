@@ -5,24 +5,22 @@
     "": {
       "name": "gnix-blog-theme",
       "dependencies": {
-        "@shikijs/colorized-brackets": "^4.0.2",
-        "@shikijs/transformers": "^4.0.2",
+        "@shikijs/colorized-brackets": "^4.1.0",
+        "@shikijs/transformers": "^4.1.0",
         "esbuild": "^0.28.0",
         "feedsmith": "^2.9.4",
-        "hexo-pagination": "^4.0.0",
         "hexo-util": "^4.0.0",
         "inferno": "^9.1.0",
         "inferno-create-element": "^9.1.0",
         "inferno-server": "^9.1.0",
         "js-yaml": "^4.1.1",
         "markdown-exit": "^1.0.0-beta.9",
-        "markdown-exit-mermaid": "^2.2.3",
         "markdown-exit-ratex": "^0.2.2",
         "markdown-it-anchor": "^9.2.0",
         "markdown-it-footnote": "^4.0.0",
         "markdown-it-mark": "^4.0.0",
         "markdown-it-task-lists": "^2.1.1",
-        "shiki": "^4.0.2",
+        "shiki": "^4.1.0",
       },
       "peerDependencies": {
         "hexo": "^8.1.2",
@@ -216,8 +214,6 @@
 
     "hexo-log": ["hexo-log@4.1.0", "", { "dependencies": { "picocolors": "^1.0.0" } }, "sha512-i2Sgxk8Cgx5viSjq5qW5N/rBFfwoCKQcH8qnnW1fawCapcdEAhIsq+Y3vbrs9bssyDlyU6Vqm4oQmosREaNI7Q=="],
 
-    "hexo-pagination": ["hexo-pagination@4.0.0", "", {}, "sha512-jNG6AX3EHzY3FRfdzB46tZ833CUX4WudZue3yv6kKaVCCWR61iwFL9LD6xQadvwHBuT1oHy444dJClWORG4sxg=="],
-
     "hexo-util": ["hexo-util@4.0.0", "", { "dependencies": { "camel-case": "^4.1.2", "cross-spawn": "^7.0.3", "deepmerge": "^4.2.2", "highlight.js": "^11.6.0", "htmlparser2": "^10.0.0", "prismjs": "^1.29.0", "strip-indent": "^3.0.0" } }, "sha512-oXKXBs1HZ2Wu/eq0paAVqtCmAEcqJPZ4xxSVRuwAplm1hFU41Ul53WA5bmYMEz9Dp+OJ/SdchjXRmYlbGJdt3w=="],
 
     "highlight.js": ["highlight.js@11.11.1", "", {}, "sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w=="],
@@ -261,8 +257,6 @@
     "lower-case": ["lower-case@2.0.2", "", { "dependencies": { "tslib": "^2.0.3" } }, "sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg=="],
 
     "markdown-exit": ["markdown-exit@1.0.0-beta.9", "", { "dependencies": { "@types/linkify-it": "^5.0.0", "@types/mdurl": "^2.0.0", "entities": "^7.0.0", "linkify-it": "^5.0.0", "mdurl": "^2.0.0", "punycode.js": "^2.3.1", "uc.micro": "^2.1.0" } }, "sha512-5tzrMKMF367amyBly131vm6eGuWRL2DjBqWaFmPzPbLyuxP0XOmyyyroOAIXuBAMF/3kZbbfqOxvW/SotqKqbQ=="],
-
-    "markdown-exit-mermaid": ["markdown-exit-mermaid@2.2.3", "", { "peerDependencies": { "markdown-exit": "^1.0.0-beta.9" } }, "sha512-u1nqCFVCKICFvvx71p/EcG3qHA9rKR5zsqbwyDxUI4leROTPhP/bccxNTq+5wMUxGt5V8pMXgn5uxTWNm2JvlQ=="],
 
     "markdown-exit-ratex": ["markdown-exit-ratex@0.2.2", "", { "peerDependencies": { "markdown-exit": ">=1.0.0-beta.9" }, "bin": { "ratex-render-svg": "bin/ratex-render-svg.mjs" } }, "sha512-0ofoSzQZLuAJjnXx3uTPSMMoHQBqfsWOZ4463tvsQt2mlDVUXFECAnCJyTshwFWjcd0nhdIfjtG/50GW+Y8QGQ=="],
 

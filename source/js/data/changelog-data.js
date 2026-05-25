@@ -3,6 +3,20 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: '5.25',
+        cn: [
+          '废弃归档与标签页的分页功能：archive_generator 与 tag_generator 现在为每种语言各生成一份完整列表，移除 hexo-pagination 依赖以及 per_page / pagination_dir 相关配置',
+          '不再生成 /archives/ 页面（与首页内容完全一致），首页即归档列表；旧的 /archives/ 链接将 404',
+          '移除 archive_generator 的 yearly / monthly / daily 按时间分组聚合页生成逻辑，对应配置项已废弃可从站点 _config 中删除'
+        ],
+        en: [
+          'Drop pagination from archive and tag pages: archive_generator and tag_generator now emit a single full listing per language; hexo-pagination dependency and per_page / pagination_dir options are gone',
+          'Stop emitting /archives/ (it duplicated the home page); the home page itself is the archive listing — existing /archives/ links will 404',
+          'Remove archive_generator yearly / monthly / daily time-bucketed pages; the corresponding config keys are deprecated and can be removed from site _config'
+        ],
+        category: 'refactor'
+      },
+      {
         date: '5.24',
         cn: ['修复 x-tree 嵌套在非活动 x-tab 中时子项不可见的问题：移除初始 max-height 测量（在 display:none 的父级中 scrollHeight 恒为 0，导致树永久折叠），改由 toggleNode 在展开/折叠时按需测量'],
         en: ['Fix x-tree children being invisible when nested inside an inactive x-tab: drop the initial max-height measurement (scrollHeight is 0 under a display:none ancestor, leaving the tree permanently collapsed) and rely on toggleNode to measure on demand'],

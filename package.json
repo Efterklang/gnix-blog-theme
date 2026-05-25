@@ -35,7 +35,6 @@
   "dependencies": {
     "esbuild": "^0.28.0",
     "feedsmith": "^2.9.4",
-    "hexo-pagination": "^4.0.0",
     "inferno": "^9.1.0",
     "inferno-create-element": "^9.1.0",
     "inferno-server": "^9.1.0",
