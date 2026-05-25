@@ -17,7 +17,7 @@ class ThemeSelector extends Component {
               role="option"
               data-theme-option={theme.value}
             >
-              {theme.label}
+              {theme.name}
             </button>
           ))}
         </div>

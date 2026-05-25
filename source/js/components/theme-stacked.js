@@ -36,7 +36,7 @@ function getThemeOptions() {
 
   if (!Array.isArray(config?.themes)) return [];
 
-  return config.themes.filter((theme) => theme.value !== config.defaultTheme).map((theme) => ({ id: theme.value, name: theme.name || theme.label }));
+  return config.themes.filter((theme) => theme.value !== config.defaultTheme).map((theme) => ({ id: theme.value, name: theme.name }));
 }
 
 function getThemeDataCacheKey(themes) {
