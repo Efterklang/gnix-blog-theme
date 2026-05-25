@@ -35,177 +35,6 @@ function wrapMarkdownItTable(md, options = {}) {
   return md;
 }
 
-function parseTabsMarker(state, line, name) {
-  let pos = state.bMarks[line] + state.tShift[line];
-  const max = state.eMarks[line];
-
-  if (state.src.charCodeAt(pos) !== 0x3a /* : */) return false;
-
-  let markerCount = 0;
-  while (pos + markerCount < max && state.src.charCodeAt(pos + markerCount) === 0x3a) markerCount++;
-  if (markerCount < 3) return false;
-
-  pos = state.skipSpaces(pos + markerCount);
-  if (state.src.slice(pos, pos + name.length) !== name) return false;
-
-  pos += name.length;
-  if (pos < max && !state.md.utils.isSpace(state.src.charCodeAt(pos))) return false;
-
-  pos = state.skipSpaces(pos);
-  const id = pos < max && state.src.charCodeAt(pos) === 0x23 /* # */ ? state.src.slice(state.skipSpaces(pos + 1), max).trim() : "";
-
-  return { marker: ":".repeat(markerCount), id };
-}
-
-function parseTabMarker(state, line) {
-  let pos = state.bMarks[line] + state.tShift[line];
-  const max = state.eMarks[line];
-  const marker = "@tab";
-  const activeMarker = "@tab:active";
-
-  if (state.src.charCodeAt(pos) !== 0x40 /* @ */) return false;
-
-  let active = false;
-  if (state.src.slice(pos, pos + activeMarker.length) === activeMarker) {
-    active = true;
-    pos += activeMarker.length;
-  } else if (state.src.slice(pos, pos + marker.length) === marker) {
-    pos += marker.length;
-  } else {
-    return false;
-  }
-
-  const titleStart = state.skipSpaces(pos);
-  if (titleStart === pos || titleStart >= max) return false;
-
-  const rawTitle = state.src.slice(titleStart, max).trim();
-  const match = /^(.*?)(?:\s+#([A-Za-z0-9_-]+))?$/.exec(rawTitle);
-  const title = (match?.[1] || rawTitle).trim();
-  const id = match?.[2] || "";
-
-  return { active, title, id };
-}
-
-function customTabs(md, options = {}) {
-  const name = options.name || "tabs";
-
-  md.block.ruler.before(
-    "fence",
-    `${name}_container`,
-    (state, startLine, endLine, silent) => {
-      const marker = parseTabsMarker(state, startLine, name);
-      if (!marker) return false;
-      if (silent) return true;
-
-      const startIndent = state.sCount[startLine];
-      let nextLine = startLine + 1;
-      let autoClosed = false;
-
-      for (; nextLine < endLine; nextLine++) {
-        const pos = state.bMarks[nextLine] + state.tShift[nextLine];
-        const max = state.eMarks[nextLine];
-
-        if (state.sCount[nextLine] < startIndent) break;
-        if (state.sCount[nextLine] === startIndent && state.src.charCodeAt(pos) === 0x3a /* : */) {
-          let closePos = pos;
-          while (closePos < max && state.src.charCodeAt(closePos) === 0x3a) closePos++;
-          if (closePos - pos >= marker.marker.length && state.skipSpaces(closePos) >= max) {
-            autoClosed = true;
-            break;
-          }
-        }
-      }
-
-      const oldParent = state.parentType;
-      const oldLineMax = state.lineMax;
-      const oldBlkIndent = state.blkIndent;
-      const oldInTabs = state.env.__gnixInTabs;
-
-      const open = state.push("gnix_tabs_open", "", 1);
-      open.block = true;
-      open.markup = marker.marker;
-      open.meta = { id: marker.id };
-      open.map = [startLine, nextLine];
-
-      state.parentType = `${name}_container`;
-      state.lineMax = nextLine;
-      state.blkIndent = startIndent;
-      state.env.__gnixInTabs = true;
-      state.md.block.tokenize(state, startLine + 1, nextLine);
-      state.env.__gnixInTabs = oldInTabs;
-      state.parentType = oldParent;
-      state.lineMax = oldLineMax;
-      state.blkIndent = oldBlkIndent;
-
-      const close = state.push("gnix_tabs_close", "", -1);
-      close.block = true;
-      close.markup = marker.marker;
-
-      state.line = nextLine + (autoClosed ? 1 : 0);
-      return true;
-    },
-    { alt: ["paragraph", "reference", "blockquote", "list"] },
-  );
-
-  md.block.ruler.before(
-    "paragraph",
-    `${name}_tab`,
-    (state, startLine, endLine, silent) => {
-      if (!state.env.__gnixInTabs) return false;
-
-      const marker = parseTabMarker(state, startLine);
-      if (!marker) return false;
-      if (silent) return true;
-
-      const startIndent = state.sCount[startLine];
-      let nextLine = startLine + 1;
-
-      for (; nextLine < endLine; nextLine++) {
-        const pos = state.bMarks[nextLine] + state.tShift[nextLine];
-        if (state.sCount[nextLine] === startIndent && state.src.charCodeAt(pos) === 0x40 /* @ */ && parseTabMarker(state, nextLine)) break;
-      }
-
-      const oldParent = state.parentType;
-      const oldLineMax = state.lineMax;
-      const oldBlkIndent = state.blkIndent;
-
-      const open = state.push("gnix_tab_open", "", 1);
-      open.block = true;
-      open.markup = "@tab";
-      open.meta = marker;
-      open.map = [startLine, nextLine];
-
-      state.parentType = "tab";
-      state.lineMax = nextLine;
-      state.blkIndent = startIndent;
-      state.md.block.tokenize(state, startLine + 1, nextLine);
-      state.parentType = oldParent;
-      state.lineMax = oldLineMax;
-      state.blkIndent = oldBlkIndent;
-
-      const close = state.push("gnix_tab_close", "", -1);
-      close.block = true;
-
-      state.line = nextLine;
-      return true;
-    },
-    { alt: ["paragraph", "reference", "blockquote", "list"] },
-  );
-
-  md.renderer.rules.gnix_tabs_open = (tokens, idx) => {
-    const { id } = tokens[idx].meta || {};
-    return `<x-tabs${id ? ` group-id="${md.utils.escapeHtml(id)}"` : ""}>\n`;
-  };
-  md.renderer.rules.gnix_tabs_close = () => "</x-tabs>\n";
-  md.renderer.rules.gnix_tab_open = (tokens, idx) => {
-    const { title = "Tab", id = "", active = false } = tokens[idx].meta || {};
-    return `<x-tab title="${md.utils.escapeHtml(title)}"${id ? ` sync-id="${md.utils.escapeHtml(id)}"` : ""}${active ? " active" : ""}>\n`;
-  };
-  md.renderer.rules.gnix_tab_close = () => "</x-tab>\n";
-
-  return md;
-}
-
 class MarkdownRenderer {
   constructor(hexo) {
     this.hexo = hexo;
@@ -219,7 +48,7 @@ class MarkdownRenderer {
         typographer: true,
         xhtmlOut: false,
       },
-      
+
       ...(hexo.config.markdown_exit || {}),
     };
 
@@ -238,7 +67,6 @@ class MarkdownRenderer {
         .use(mermaidDiagram)
         .use(resolveDefault(ratex), this.config.ratex_options)
         .use(obsidianCallouts, this.config.callout_options)
-        .use(customTabs)
         .use(wrapMarkdownItTable)
         .use(resolveDefault(anchor), {
           permalink: resolveDefault(anchor).permalink.headerLink(),

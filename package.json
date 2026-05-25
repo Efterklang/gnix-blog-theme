@@ -40,7 +40,6 @@
     "inferno-server": "^9.1.0",
     "js-yaml": "^4.1.1",
     "markdown-exit": "^1.0.0-beta.9",
-    
     "markdown-exit-ratex": "^0.2.2",
     "@shikijs/colorized-brackets": "^4.1.0",
     "@shikijs/transformers": "^4.1.0",
