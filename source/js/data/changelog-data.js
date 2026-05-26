@@ -5,6 +5,20 @@ window.__CHANGELOG_DATA__ = [
       {
         date: '5.26',
         cn: [
+          '拆分 default.css：把内容渲染样式（.content 及其后代、表格、blockquote、task-list、medium-zoom、heimu）、文章元数据（标题/meta-bar/字体设置 popover/comment popover/info popover/语言切换 popover）、.cover-image、TOC 浮动按钮与 #icarus-toc-container 全部迁出到新建的 source/css/article.css；head.jsx 仅在 isArticleLike（post + page）时加载 article.css，归档/标签索引等页面不再拉取这部分样式',
+          'default.css 从 2404 行减到 991 行，只保留主题色变量、字体 @font-face、reset、navbar、theme selector、footer、searchbox 和 :popover-open 基础样式（搜索框 + 主题选择器分支），属于站点级骨架',
+          '把 :popover-open 的 .toc-body 和 .article-popover 分支随 TOC / 文章 popover 一起迁到 article.css，避免无 TOC 的页面解析这部分嵌套规则'
+        ],
+        en: [
+          'Split default.css: move content rendering styles (.content and descendants, tables, blockquote, task-list, medium-zoom, heimu), article metadata (title / meta-bar / font-settings popover / comment popover / info popover / language-switch popover), .cover-image, the floating TOC button and #icarus-toc-container into a new source/css/article.css; head.jsx only loads article.css when isArticleLike (post + page), so archive / tag-index pages no longer pull those styles',
+          'default.css shrinks from 2404 to 991 lines, retaining only theme color variables, font @font-face, reset, navbar, theme selector, footer, searchbox, and the :popover-open base (searchbox + theme-selector branches) — the site-level scaffolding',
+          'Move the .toc-body and .article-popover branches of :popover-open into article.css alongside the TOC and article popovers, so pages without TOC do not parse those nested rules'
+        ],
+        category: 'Perf'
+      },
+      {
+        date: '5.26',
+        cn: [
           '自托管 Swup：把 swup、@swup/head-plugin、@swup/scripts-plugin 用 esbuild 打包为 source/js/host/swup/swup-bundle.mjs（26KB minified），不再从 unpkg.com 拉取，国内访问稳定；新增 npm 脚本 build:swup 用于升级时重新打包',
           '主入口 main.js 改为 ES module：直接 import 本地 swup 实例并 swup.hooks.on("page:view", initPage)，移除原本为绕过 module/classic script 时序问题而保留的 window.swup 同步检查 + gnix:swup-ready CustomEvent 双保险逻辑；decrypt.js 同步简化',
           '移除 swup.js 中冗余的全局 click 拦截器：swup 内部 link delegation 已处理导航期间的重复点击，外层补丁无需保留'

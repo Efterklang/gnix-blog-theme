@@ -239,6 +239,7 @@ module.exports = class extends Component {
         <link rel="icon" href={url_for(favicon || "/img/favicon.svg")} />
         <link rel="stylesheet" href={url_for("/css/default.css")} />
         <link rel="stylesheet" href={url_for("/css/responsive.css")} />
+        {isArticleLike && <link rel="stylesheet" href={url_for("/css/article.css")} />}
         {isArticleLike && <link rel="stylesheet" href={url_for("/css/callout_blocks.css")} media="print" onload="this.media='all'" />}
         {isArchiveLike && <link rel="stylesheet" href={url_for("/css/archive.css")} />}
         {isTagsIndex && <link rel="stylesheet" href={url_for("/css/tags.css")} />}
