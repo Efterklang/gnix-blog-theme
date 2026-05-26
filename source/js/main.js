@@ -60,7 +60,6 @@ const SELECTORS = {
 
 const CLS = {
   copy: "copy-true",
-  wrap: "wrap-active",
   expanded: "expanded",
   expandDone: "expand-done",
 };
@@ -90,13 +89,6 @@ function addHighlightTool() {
           notice.textContent = "Copied";
           notice.classList.add("show");
           setTimeout(() => notice.classList.remove("show"), 800);
-        } else if (target.closest(".toggle-wrap")) {
-          // Toggle wrap
-          const code = figure.querySelector(SELECTORS.code);
-          const enabled = code.style.whiteSpace !== "pre-wrap";
-          code.style.whiteSpace = enabled ? "pre-wrap" : "pre";
-          code.style.wordBreak = enabled ? "break-all" : "normal";
-          target.closest(".toggle-wrap").classList.toggle(CLS.wrap, enabled);
         }
       });
     }

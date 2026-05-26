@@ -120,6 +120,20 @@ figure.shiki {
   }
 }
 
+.toggle-wrap {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  &:has(input:checked) > svg {
+    color: var(--blue);
+  }
+}
+
+figure.shiki:has(.toggle-wrap input:checked) > pre.shiki > code {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
 .traffic-lights {
   display: flex;
   align-items: center;
