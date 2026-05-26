@@ -1,4 +1,4 @@
-import { Swup, SwupHeadPlugin, SwupScriptsPlugin } from "./host/swup/swup-bundle.mjs";
+import { Swup, SwupHeadPlugin, SwupScriptsPlugin } from "./host/swup/swup-bundle.js";
 
 const swup = new Swup({
   containers: ["#swup"],

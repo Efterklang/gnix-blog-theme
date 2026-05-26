@@ -29,12 +29,12 @@ window.__CHANGELOG_DATA__ = [
       {
         date: '5.26',
         cn: [
-          '自托管 Swup：把 swup、@swup/head-plugin、@swup/scripts-plugin 用 esbuild 打包为 source/js/host/swup/swup-bundle.mjs（26KB minified），不再从 unpkg.com 拉取，国内访问稳定；新增 npm 脚本 build:swup 用于升级时重新打包',
+          '自托管 Swup：把 swup、@swup/head-plugin、@swup/scripts-plugin 用 esbuild 打包为 source/js/host/swup/swup-bundle.js（26KB minified），不再从 unpkg.com 拉取，国内访问稳定；新增 npm 脚本 build:swup 用于升级时重新打包',
           '主入口 main.js 改为 ES module：直接 import 本地 swup 实例并 swup.hooks.on("page:view", initPage)，移除原本为绕过 module/classic script 时序问题而保留的 window.swup 同步检查 + gnix:swup-ready CustomEvent 双保险逻辑；decrypt.js 同步简化',
           '移除 swup.js 中冗余的全局 click 拦截器：swup 内部 link delegation 已处理导航期间的重复点击，外层补丁无需保留'
         ],
         en: [
-          'Self-host Swup: bundle swup, @swup/head-plugin, and @swup/scripts-plugin into source/js/host/swup/swup-bundle.mjs (26KB minified) via esbuild instead of fetching from unpkg.com, giving stable access from mainland China; add npm script build:swup to regenerate the bundle when upgrading',
+          'Self-host Swup: bundle swup, @swup/head-plugin, and @swup/scripts-plugin into source/js/host/swup/swup-bundle.js (26KB minified) via esbuild instead of fetching from unpkg.com, giving stable access from mainland China; add npm script build:swup to regenerate the bundle when upgrading',
           'Convert main.js to an ES module: directly import the local swup instance and call swup.hooks.on("page:view", initPage); drop the window.swup synchronous check + gnix:swup-ready CustomEvent dual-binding pattern that previously worked around module/classic script ordering. decrypt.js is simplified the same way',
           'Remove the redundant global click interceptor from swup.js: swup\'s own link delegation already handles repeated clicks during in-flight navigations, so the outer guard is dead weight'
         ],

@@ -22,7 +22,7 @@
     "format": "biome format .",
     "check": "biome check",
     "test": "node test/md_generator.test.js",
-    "build:swup": "echo 'export { default as Swup } from \"swup\"; export { default as SwupHeadPlugin } from \"@swup/head-plugin\"; export { default as SwupScriptsPlugin } from \"@swup/scripts-plugin\";' > .swup-vendor-entry.mjs && esbuild .swup-vendor-entry.mjs --bundle --format=esm --minify --target=es2020 --outfile=source/js/host/swup/swup-bundle.mjs --legal-comments=eof && rm .swup-vendor-entry.mjs"
+    "build:swup": "echo 'export { default as Swup } from \"swup\"; export { default as SwupHeadPlugin } from \"@swup/head-plugin\"; export { default as SwupScriptsPlugin } from \"@swup/scripts-plugin\";' > .swup-vendor-entry.mjs && esbuild .swup-vendor-entry.mjs --bundle --format=esm --minify --target=es2020 --outfile=source/js/host/swup/swup-bundle.js --legal-comments=eof && rm .swup-vendor-entry.mjs"
   },
   "files": [
     "include",
