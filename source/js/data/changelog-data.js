@@ -5,6 +5,16 @@ window.__CHANGELOG_DATA__ = [
       {
         date: '5.26',
         cn: [
+          '语言切换按钮在当前文章无对应翻译时直接渲染为禁用 <button disabled>，悬浮显示"该文章暂无 X 翻译"提示；移除原本的"点击 → 弹 toast"交互（涉及全局 capture 阶段 click 监听器、showSiteToast 函数及 .site-toast 样式），改由原生 title tooltip + disabled 状态承担反馈'
+        ],
+        en: [
+          'When the current article has no translation, render the language switch as a disabled <button> whose native title tooltip says "this article has no X translation"; remove the previous click → toast flow (the global capture-phase click listener, showSiteToast helper, and .site-toast styles) in favor of native title tooltip + disabled state'
+        ],
+        category: 'refactor'
+      },
+      {
+        date: '5.26',
+        cn: [
           '拆分 default.css：把内容渲染样式（.content 及其后代、表格、blockquote、task-list、medium-zoom、heimu）、文章元数据（标题/meta-bar/字体设置 popover/comment popover/info popover/语言切换 popover）、.cover-image、TOC 浮动按钮与 #icarus-toc-container 全部迁出到新建的 source/css/article.css；head.jsx 仅在 isArticleLike（post + page）时加载 article.css，归档/标签索引等页面不再拉取这部分样式',
           'default.css 从 2404 行减到 991 行，只保留主题色变量、字体 @font-face、reset、navbar、theme selector、footer、searchbox 和 :popover-open 基础样式（搜索框 + 主题选择器分支），属于站点级骨架',
           '把 :popover-open 的 .toc-body 和 .article-popover 分支随 TOC / 文章 popover 一起迁到 article.css，避免无 TOC 的页面解析这部分嵌套规则'

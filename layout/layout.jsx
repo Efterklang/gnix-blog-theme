@@ -35,13 +35,27 @@ function buildLangSwitchScript(page, config, helper) {
       var d = ${payload};
       var el = document.getElementById('language-switch');
       if (el && d) {
-        el.href = d.mode === 'link' && d.url ? d.url : '#';
-        el.title = d.title;
-        el.setAttribute('aria-label', d.title);
-        el.setAttribute('lang', d.locale);
-        el.setAttribute('hreflang', d.locale);
-        el.dataset.mode = d.mode;
-        el.dataset.toastMessage = d.unavailableMessage;
+        var icon = ${JSON.stringify(Navbar.LANGUAGE_SWITCH_ICON_HTML)};
+        var n;
+        if (d.mode === 'missing') {
+          n = document.createElement('button');
+          n.type = 'button';
+          n.disabled = true;
+          n.title = d.unavailableMessage;
+          n.setAttribute('aria-label', d.unavailableMessage);
+        } else {
+          n = document.createElement('a');
+          n.href = d.url;
+          n.title = d.title;
+          n.setAttribute('aria-label', d.title);
+          n.setAttribute('lang', d.locale);
+          n.setAttribute('hreflang', d.locale);
+        }
+        n.id = 'language-switch';
+        n.className = 'navbar-item';
+        n.dataset.mode = d.mode;
+        n.innerHTML = icon;
+        el.replaceWith(n);
       }
       var menu = ${JSON.stringify(menu)};
       Object.keys(menu).forEach(function(name) {

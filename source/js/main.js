@@ -1,29 +1,5 @@
 import { swup } from "./swup.js";
 
-function showSiteToast(message) {
-  if (!message) return;
-
-  let toast = document.getElementById("site-toast");
-  if (!toast) {
-    toast = document.createElement("div");
-    toast.id = "site-toast";
-    toast.setAttribute("role", "status");
-    toast.setAttribute("aria-live", "polite");
-    toast.className = "site-toast";
-    document.body.appendChild(toast);
-  }
-
-  toast.textContent = message;
-  toast.classList.add("is-visible");
-
-  clearTimeout(toast._hideTimer);
-  toast._hideTimer = setTimeout(() => {
-    toast.classList.remove("is-visible");
-  }, 1800);
-}
-
-window.showSiteToast = showSiteToast;
-
 function twikoo_handler() {
   const el = document.getElementById("tko");
   if (!el) return;
@@ -609,19 +585,6 @@ document.addEventListener("keydown", handleKeyDown, {
   capture: true, // 捕获阶段监听，优先于浏览器默认处理
   passive: false, // 允许调用 preventDefault
 });
-
-document.addEventListener(
-  "click",
-  (e) => {
-    const el = e.target.closest("#language-switch");
-    if (el && el.dataset.mode === "missing") {
-      e.preventDefault();
-      e.stopPropagation();
-      window.showSiteToast?.(el.dataset.toastMessage);
-    }
-  },
-  { capture: true },
-);
 
 function toggleNav(event) {
   const container = event.currentTarget;
