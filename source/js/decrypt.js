@@ -1,3 +1,5 @@
+import { swup } from "./swup.js";
+
 function getCacheKey() {
   return `gnix-encrypt:${location.pathname}`;
 }
@@ -107,11 +109,4 @@ function init() {
 
 init();
 
-function bindSwupDecryptHook(swupInstance) {
-  if (!swupInstance || swupInstance.gnixDecryptPageHookBound) return;
-  swupInstance.gnixDecryptPageHookBound = true;
-  swupInstance.hooks.on("page:view", init);
-}
-
-bindSwupDecryptHook(window.swup);
-document.addEventListener("gnix:swup-ready", (event) => bindSwupDecryptHook(event.detail?.swup), { once: true });
+swup.hooks.on("page:view", init);

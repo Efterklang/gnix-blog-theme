@@ -5,6 +5,20 @@ window.__CHANGELOG_DATA__ = [
       {
         date: '5.26',
         cn: [
+          '自托管 Swup：把 swup、@swup/head-plugin、@swup/scripts-plugin 用 esbuild 打包为 source/js/host/swup/swup-bundle.mjs（26KB minified），不再从 unpkg.com 拉取，国内访问稳定；新增 npm 脚本 build:swup 用于升级时重新打包',
+          '主入口 main.js 改为 ES module：直接 import 本地 swup 实例并 swup.hooks.on("page:view", initPage)，移除原本为绕过 module/classic script 时序问题而保留的 window.swup 同步检查 + gnix:swup-ready CustomEvent 双保险逻辑；decrypt.js 同步简化',
+          '移除 swup.js 中冗余的全局 click 拦截器：swup 内部 link delegation 已处理导航期间的重复点击，外层补丁无需保留'
+        ],
+        en: [
+          'Self-host Swup: bundle swup, @swup/head-plugin, and @swup/scripts-plugin into source/js/host/swup/swup-bundle.mjs (26KB minified) via esbuild instead of fetching from unpkg.com, giving stable access from mainland China; add npm script build:swup to regenerate the bundle when upgrading',
+          'Convert main.js to an ES module: directly import the local swup instance and call swup.hooks.on("page:view", initPage); drop the window.swup synchronous check + gnix:swup-ready CustomEvent dual-binding pattern that previously worked around module/classic script ordering. decrypt.js is simplified the same way',
+          'Remove the redundant global click interceptor from swup.js: swup\'s own link delegation already handles repeated clicks during in-flight navigations, so the outer guard is dead weight'
+        ],
+        category: 'refactor'
+      },
+      {
+        date: '5.26',
+        cn: [
           '在 head.jsx 按页面类型条件渲染页面级资源：archive.css 与 archive-popup.js 仅在 archive / tag 页面输出，tags.css 仅在 tags 索引页输出；callout_blocks.css 与 shiki.css 仅在 post 或 page（about、links 等）页面输出',
           '移除 data-page-head 约定与对应的 after_render:html 正则后处理（include/hexo/filter.js），改由 Inferno 原生条件渲染实现；Swup head-plugin 在跨页导航时自动加载新增资源',
           'Swup head-plugin 改回 persistTags: true：旧 head 中已有的脚本/样式不在导航时被移除，避免对 outerHTML 精确匹配判定有差异时把脚本重新 appendChild 触发再次执行（曾导致 medium-zoom 多 instance 互相打架）；副作用是长会话会累积访问过的页面类型用过的资源，但首屏仍是按需加载',

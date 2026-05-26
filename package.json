@@ -21,7 +21,8 @@
     "lint": "biome check --write .",
     "format": "biome format .",
     "check": "biome check",
-    "test": "node test/md_generator.test.js"
+    "test": "node test/md_generator.test.js",
+    "build:swup": "echo 'export { default as Swup } from \"swup\"; export { default as SwupHeadPlugin } from \"@swup/head-plugin\"; export { default as SwupScriptsPlugin } from \"@swup/scripts-plugin\";' > .swup-vendor-entry.mjs && esbuild .swup-vendor-entry.mjs --bundle --format=esm --minify --target=es2020 --outfile=source/js/host/swup/swup-bundle.mjs --legal-comments=eof && rm .swup-vendor-entry.mjs"
   },
   "files": [
     "include",
@@ -33,24 +34,29 @@
     "README.md"
   ],
   "dependencies": {
+    "@shikijs/colorized-brackets": "^4.1.0",
+    "@shikijs/transformers": "^4.1.0",
     "esbuild": "^0.28.0",
     "feedsmith": "^2.9.4",
+    "hexo-util": "^4.0.0",
     "inferno": "^9.1.0",
     "inferno-create-element": "^9.1.0",
     "inferno-server": "^9.1.0",
     "js-yaml": "^4.1.1",
     "markdown-exit": "^1.0.0-beta.9",
     "markdown-exit-ratex": "^0.2.2",
-    "@shikijs/colorized-brackets": "^4.1.0",
-    "@shikijs/transformers": "^4.1.0",
-    "shiki": "^4.1.0",
     "markdown-it-anchor": "^9.2.0",
     "markdown-it-footnote": "^4.0.0",
     "markdown-it-mark": "^4.0.0",
     "markdown-it-task-lists": "^2.1.1",
-    "hexo-util": "^4.0.0"
+    "shiki": "^4.1.0"
   },
   "peerDependencies": {
     "hexo": "^8.1.2"
+  },
+  "devDependencies": {
+    "@swup/head-plugin": "^2.3.1",
+    "@swup/scripts-plugin": "^2.1.0",
+    "swup": "^4.8.3"
   }
 }
