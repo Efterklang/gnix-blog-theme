@@ -3,6 +3,24 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: '5.26',
+        cn: [
+          '在 head.jsx 按页面类型条件渲染页面级资源：archive.css 与 archive-popup.js 仅在 archive / tag 页面输出，tags.css 仅在 tags 索引页输出；callout_blocks.css 与 shiki.css 仅在 post 或 page（about、links 等）页面输出',
+          '移除 data-page-head 约定与对应的 after_render:html 正则后处理（include/hexo/filter.js），改由 Inferno 原生条件渲染实现；Swup head-plugin 在跨页导航时自动加载新增资源',
+          'Swup head-plugin 改回 persistTags: true：旧 head 中已有的脚本/样式不在导航时被移除，避免对 outerHTML 精确匹配判定有差异时把脚本重新 appendChild 触发再次执行（曾导致 medium-zoom 多 instance 互相打架）；副作用是长会话会累积访问过的页面类型用过的资源，但首屏仍是按需加载',
+          'archive-popup.js 在文件末尾自调用 initArchivePopup()：Swup head-plugin 动态注入脚本时是异步加载的，会晚于 page:view，导致 main.js 在脚本就绪前就调用 window.__gnixInitArchivePopup 而 no-op；自调用保证脚本一就绪就绑定到当前页面',
+          '归档生成器 include/hexo/generator/archive.js 移除 redirectTo：i18n 启用且默认语言带前缀（如 /zh-CN/）时，直接把默认语言的归档内容写到站点根 /index.html，不再用 meta-refresh 跳转'
+        ],
+        en: [
+          'Conditionally render page-level assets in head.jsx by page type: archive.css and archive-popup.js only on archive / tag pages, tags.css only on the tags index page; callout_blocks.css and shiki.css only on posts and pages (about, links, etc.)',
+          'Drop the data-page-head convention and its after_render:html regex post-processing (include/hexo/filter.js) in favor of native Inferno conditional rendering; Swup head-plugin adds new assets on navigation',
+          'Set Swup head-plugin persistTags: true: scripts and styles already in the current head are kept across navigations rather than removed and re-appended, avoiding the case where any outerHTML mismatch caused the script to be re-executed (which made medium-zoom spin up duplicate instances that fought over click handlers). Tradeoff is asset accumulation over a long session, but the first-paint is still on-demand',
+          'Self-invoke initArchivePopup() at the bottom of archive-popup.js: when Swup head-plugin injects the script dynamically it loads asynchronously and resolves after page:view, so main.js calls window.__gnixInitArchivePopup before the script is ready and silently no-ops; the self-invocation ensures the popup binds to the current page as soon as the script lands',
+          'Drop redirectTo from include/hexo/generator/archive.js: when i18n is enabled and the default language has a non-empty prefix (e.g. /zh-CN/), emit the default language archive content directly at /index.html instead of a meta-refresh redirect'
+        ],
+        category: 'Perf'
+      },
+      {
         date: '5.25',
         cn: [
           '废弃归档与标签页的分页功能：archive_generator 与 tag_generator 现在为每种语言各生成一份完整列表，移除 hexo-pagination 依赖以及 per_page / pagination_dir 相关配置',

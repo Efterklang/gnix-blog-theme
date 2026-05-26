@@ -1,10 +1,5 @@
 const { filterByLanguage, getDefaultLanguageKey, getLanguage, getLanguageBasePath, getLanguageKeys, isI18nEnabled } = require("../../util/i18n");
 
-function redirectTo(path) {
-  const target = path.startsWith("/") ? path : `/${path}`;
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=${target}"><link rel="canonical" href="${target}"></head><body><a href="${target}">Continue</a></body></html>`;
-}
-
 module.exports = (hexo) => {
   hexo.extend.generator.register("archive", function (locals) {
     const { config } = this;
@@ -13,7 +8,7 @@ module.exports = (hexo) => {
     const orderBy = themeConfig.order_by || "-date";
     const result = [];
 
-    function generateForLanguage(langKey = null) {
+    function buildArchive(path, langKey = null) {
       const sorted = locals.posts.sort(orderBy);
       const posts = langKey ? filterByLanguage(sorted, langKey, fullConfig) : sorted;
       if (!posts.length) return;
@@ -24,21 +19,20 @@ module.exports = (hexo) => {
         data.lang = getLanguage(fullConfig, langKey).locale;
       }
 
-      result.push({
-        path: langKey ? getLanguageBasePath(fullConfig, langKey) : "",
-        layout: ["archive", "index"],
-        data,
-      });
+      result.push({ path, layout: ["archive", "index"], data });
     }
 
     if (isI18nEnabled(fullConfig)) {
-      const defaultBase = getLanguageBasePath(fullConfig, getDefaultLanguageKey(fullConfig));
-      if (defaultBase) {
-        result.push({ path: "index.html", data: redirectTo(defaultBase) });
-      }
-      getLanguageKeys(fullConfig).forEach(generateForLanguage);
+      const defaultKey = getDefaultLanguageKey(fullConfig);
+      const defaultBase = getLanguageBasePath(fullConfig, defaultKey);
+      // When the default language lives under a prefix (e.g. "/zh-CN/"),
+      // mirror its archive at site root so /index.html serves real content.
+      if (defaultBase) buildArchive("", defaultKey);
+      getLanguageKeys(fullConfig).forEach((langKey) => {
+        buildArchive(getLanguageBasePath(fullConfig, langKey), langKey);
+      });
     } else {
-      generateForLanguage();
+      buildArchive("");
     }
 
     return result;

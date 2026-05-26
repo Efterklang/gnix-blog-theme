@@ -1,4 +1,4 @@
-const { Component, Fragment, cacheComponent } = require("../include/util/common");
+const { Component, cacheComponent } = require("../include/util/common");
 const { filterByLanguage } = require("../include/util/i18n");
 
 function toRoman(num) {
@@ -25,36 +25,33 @@ function getTagSize(count, maxCount) {
 
 class Tags extends Component {
   render() {
-    const { cssUrl, tags, title, showCount } = this.props;
+    const { tags, title, showCount } = this.props;
 
     return (
-      <Fragment>
-        <link rel="stylesheet" href={cssUrl} data-page-head />
-        <main class="tags-page">
-          <header class="tags-hero">
-            <div>
-              <p class="tags-eyebrow">
-                <span>Topic Index</span>
-                <span class="tags-hero__sep" aria-hidden="true">·</span>
-                <span>{tags.length} {tags.length === 1 ? "topic" : "topics"}</span>
-              </p>
-              <h1>{title}</h1>
-            </div>
-            {tags.length > 0 && (
-              <span class="tags-hero__roman" aria-hidden="true">{toRoman(tags.length)}</span>
-            )}
-          </header>
+      <main class="tags-page">
+        <header class="tags-hero">
+          <div>
+            <p class="tags-eyebrow">
+              <span>Topic Index</span>
+              <span class="tags-hero__sep" aria-hidden="true">·</span>
+              <span>{tags.length} {tags.length === 1 ? "topic" : "topics"}</span>
+            </p>
+            <h1>{title}</h1>
+          </div>
+          {tags.length > 0 && (
+            <span class="tags-hero__roman" aria-hidden="true">{toRoman(tags.length)}</span>
+          )}
+        </header>
 
-          <nav class="tags-index" aria-label={title}>
-            {tags.map((tag) => (
-              <a key={tag.url} class="tags-index__item" href={tag.url} style={`--tag-size:${tag.size};`}>
-                <span class="tags-index__name">{tag.name}</span>
-                {showCount ? <span class="tags-index__count">{tag.count}</span> : null}
-              </a>
-            ))}
-          </nav>
-        </main>
-      </Fragment>
+        <nav class="tags-index" aria-label={title}>
+          {tags.map((tag) => (
+            <a key={tag.url} class="tags-index__item" href={tag.url} style={`--tag-size:${tag.size};`}>
+              <span class="tags-index__name">{tag.name}</span>
+              {showCount ? <span class="tags-index__count">{tag.count}</span> : null}
+            </a>
+          ))}
+        </nav>
+      </main>
     );
   }
 }
@@ -96,7 +93,6 @@ Tags.Cacheable = cacheComponent(Tags, "page.tags", (props) => {
   const maxCount = mappedTags.reduce((max, tag) => Math.max(max, tag.count), 0);
 
   return {
-    cssUrl: helper.url_for("/css/tags.css"),
     showCount: show_count,
     title: _p("common.tag", Infinity),
     tags: mappedTags.map((tag) => ({

@@ -201,9 +201,7 @@ module.exports = class extends Component {
     const heroKind = isTagPage ? "Tag" : currentYear ? "Archive" : "Volume";
 
     return (
-      <Fragment>
-        <link rel="stylesheet" href={url_for("/css/archive.css")} data-page-head />
-        <main class="archive-page">
+      <main class="archive-page">
           <header class="archive-hero">
             <p class="archive-hero__eyebrow">
               <span>{heroKind}</span>
@@ -236,7 +234,6 @@ module.exports = class extends Component {
 
           <div class="archive-stack">{articleList}</div>
         </main>
-      </Fragment>
     );
   }
 };

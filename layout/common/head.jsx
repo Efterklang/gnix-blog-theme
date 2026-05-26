@@ -132,13 +132,15 @@ function getHreflangLinks(site, page, config, helper) {
 module.exports = class extends Component {
   render() {
     const { site, config, helper, page } = this.props;
-    const { url_for, is_post } = helper;
+    const { url_for, is_post, is_page, is_archive, is_tag, is_tags } = helper;
     const { url, head = {}, article } = config;
     const { meta = [], open_graph = {}, structured_data = {}, canonical_url: headCanonicalUrl = page.permalink, favicon } = head;
     const markdownSourceUrl = page.markdown_path ? url_for(page.markdown_path) : null;
     const markdownSourceType = "text/markdown; charset=utf-8";
 
-    const noIndex = helper.is_archive() || helper.is_tag();
+    const isArticleLike = is_post() || is_page();
+    const isArchiveLike = is_archive() || is_tag();
+    const isTagsIndex = is_tags();
 
     const language = getPageLocale(page, config) || page.lang || page.language || config.language;
     const canonicalUrl = toAbsoluteUrl(page.canonical_url || page.canonical || page.i18n?.canonical || headCanonicalUrl, helper, config);
@@ -189,7 +191,6 @@ module.exports = class extends Component {
         <script dangerouslySetInnerHTML={{ __html: articleFontUtilsScript }}></script>
         <script dangerouslySetInnerHTML={{ __html: articleFontInitScript }}></script>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {noIndex ? <meta name="robots" content="noindex" /> : null}
         {meta?.length ? <MetaTags meta={meta} /> : null}
         <title>{getPageTitle(page, config.title, helper)}</title>
         {typeof open_graph === "object" && open_graph !== null ? (
@@ -238,12 +239,15 @@ module.exports = class extends Component {
         <link rel="icon" href={url_for(favicon || "/img/favicon.svg")} />
         <link rel="stylesheet" href={url_for("/css/default.css")} />
         <link rel="stylesheet" href={url_for("/css/responsive.css")} />
-        <link rel="stylesheet" href={url_for("/css/callout_blocks.css")} media="print" onload="this.media='all'" />
+        {isArticleLike && <link rel="stylesheet" href={url_for("/css/callout_blocks.css")} media="print" onload="this.media='all'" />}
+        {isArchiveLike && <link rel="stylesheet" href={url_for("/css/archive.css")} />}
+        {isTagsIndex && <link rel="stylesheet" href={url_for("/css/tags.css")} />}
+        {isArchiveLike && <script defer src={url_for("/js/components/archive-popup.js")}></script>}
         <link rel="preload" href={url_for("/css/font/woff2/HomemadeApple.woff2")} as="font" type="font/woff2" crossorigin />
         <link rel="preconnect" href="https://fontsapi.zeoseven.com" />
         <link rel="stylesheet" href="https://fontsapi.zeoseven.com/5/main/result.css" media="print" onload="this.media='all'" />
         <link rel="stylesheet" href="https://fontsapi.zeoseven.com/442/main/result.css" media="print" onload="this.media='all'" />
-        <link rel="preload" as="style" href="/css/shiki/shiki.css" onload="this.onload=null;this.rel='stylesheet'" />
+        {isArticleLike && <link rel="preload" as="style" href="/css/shiki/shiki.css" onload="this.onload=null;this.rel='stylesheet'" />}
         {page.encrypt ? <link rel="stylesheet" href={url_for("/css/encrypt.css")} /> : null}
         <Plugins site={site} config={config} helper={helper} page={page} head={true} />
       </head>

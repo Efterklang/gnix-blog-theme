@@ -329,3 +329,8 @@ function initArchivePopup() {
 }
 
 window.__gnixInitArchivePopup = initArchivePopup;
+// Self-init for the case where this script is dynamically injected by
+// Swup HeadPlugin: page:view (which calls __gnixInitArchivePopup from
+// main.js) fires before the script finishes loading, so without this
+// the popup never binds on a post→archive navigation.
+initArchivePopup();
