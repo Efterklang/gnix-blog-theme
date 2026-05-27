@@ -238,12 +238,12 @@ module.exports = class extends Component {
         {is_post(page) && markdownSourceUrl ? <link rel="alternate" type={markdownSourceType} title={helper.__("article.markdown_source")} href={markdownSourceUrl} /> : null}
         <link rel="icon" href={url_for(favicon || "/img/favicon.svg")} />
         <link rel="stylesheet" href={url_for("/css/default.css")} />
-        <link rel="stylesheet" href={url_for("/css/responsive.css")} />
         {isArticleLike && <link rel="stylesheet" href={url_for("/css/article.css")} />}
         {isArticleLike && <link rel="stylesheet" href={url_for("/css/callout_blocks.css")} media="print" onload="this.media='all'" />}
         {isArchiveLike && <link rel="stylesheet" href={url_for("/css/archive.css")} />}
         {isTagsIndex && <link rel="stylesheet" href={url_for("/css/tags.css")} />}
         {isArchiveLike && <script defer src={url_for("/js/components/archive-popup.js")}></script>}
+        <link rel="stylesheet" href={url_for("/css/responsive.css")} />
         <link rel="preload" href={url_for("/css/font/woff2/HomemadeApple.woff2")} as="font" type="font/woff2" crossorigin />
         <link rel="preconnect" href="https://fontsapi.zeoseven.com" />
         <link rel="stylesheet" href="https://fontsapi.zeoseven.com/5/main/result.css" media="print" onload="this.media='all'" />
