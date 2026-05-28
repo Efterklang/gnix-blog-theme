@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: '5.28',
+        cn: [
+          'h2 标题改为 flex 布局：移除原本的整行 border-bottom，改为从标题文字垂直中点向右延伸一条虚线（1px dashed var(--surface0)），编号（counter）从文字左侧移到虚线最右端，与文字保持在同一基线高度'
+        ],
+        en: [
+          'Restyle h2 as a flex container: drop the full-width border-bottom and instead extend a 1px dashed line (var(--surface0)) from the vertical midpoint of the heading text out to the right, with the counter number moved from the left of the text to the far end of the dashed line, vertically aligned with the text'
+        ],
+        category: 'uiux'
+      },
+      {
         date: '5.26',
         cn: [
           '语言切换按钮在当前文章无对应翻译时直接渲染为禁用 <button disabled>，悬浮显示"该文章暂无 X 翻译"提示；移除原本的"点击 → 弹 toast"交互（涉及全局 capture 阶段 click 监听器、showSiteToast 函数及 .site-toast 样式），改由原生 title tooltip + disabled 状态承担反馈'
