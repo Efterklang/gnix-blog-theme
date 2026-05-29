@@ -574,7 +574,6 @@ function initPage() {
   document.querySelectorAll(".content img").forEach((img) => zoomImgs.add(img));
   mediumZoom([...zoomImgs], zoomOpts);
   initArticleCommentPopover();
-  window.__gnixInitArchivePopup?.();
 }
 
 document.addEventListener("DOMContentLoaded", initPage, { once: true });

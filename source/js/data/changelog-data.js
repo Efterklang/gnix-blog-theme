@@ -3,6 +3,26 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: '5.29',
+        cn: [
+          '归档页文章预览弹层从 JS 改为纯 CSS 实现：删除 source/js/components/archive-popup.js（337 行）、head.jsx 中的条件 <script> 与 main.js 的 __gnixInitArchivePopup 调用；不再由 JS 创建并复用单个 body 级节点，改为每个 .archive-item 在模板（article_media.jsx）内内联自己的 popup',
+          '显隐与开关延迟改由 :hover / :focus-within + transition-delay 承担（开 180ms / 关 140ms，对应原 HOVER_DELAY / CLOSE_DELAY）；弹层 display:none 时保持摘要不进入布局与无障碍树（沿用原 <template> 的懒加载特性），靠 @starting-style + transition display allow-discrete 实现淡入',
+          '定位改用 CSS 锚点定位（anchor-name + anchor-scope 让每个弹层绑定到各自的 item，position-try-fallbacks 自动翻转）：≥1280px 优先放右侧，否则放下方，空间不足时翻到上方——取代原 JS 的视口测量、右/下/上选择与滚动/缩放重定位逻辑',
+          '序号 N° 001 改用 CSS 计数器（counter-increment + @counter-style { pad: 3 "0" }），accent 配色直接继承 --archive-accent；阅读时长的分隔符与 "read" 后缀由伪元素生成、大写交给 text-transform',
+          '移除 .archive-group 的 content-visibility:auto / contain-intrinsic-size：其 paint 容器会裁剪溢出到组外的弹层，style 容器会把计数器按组重置——计数器改在 .archive-stack 上 reset 以保证跨组连续编号',
+          '锚点定位不可用的浏览器（如 Firefox）通过 @supports 直接隐藏弹层（fail closed），归档列表本身不受影响'
+        ],
+        en: [
+          'Reimplement the archive post-preview popup in pure CSS: delete source/js/components/archive-popup.js (337 lines), its conditional <script> in head.jsx, and the __gnixInitArchivePopup call in main.js. Instead of JS creating and reusing one body-level node, each .archive-item now inlines its own popup in the template (article_media.jsx)',
+          'Drive show/hide and open/close delays with :hover / :focus-within + transition-delay (180ms open / 140ms close, the former HOVER_DELAY / CLOSE_DELAY). The popup stays display:none when closed so the excerpt never enters layout or the a11y tree (the old <template> laziness), with @starting-style + transition display allow-discrete handling the fade-in',
+          'Position via CSS anchor positioning (anchor-name + anchor-scope bind each popup to its own item; position-try-fallbacks flips automatically): prefer the right of the item at ≥1280px, else below, flipping above when space is tight — replacing the JS viewport measuring, right/below/above selection, and scroll/resize repositioning',
+          'Render the "N° 001" index with a CSS counter (counter-increment + @counter-style { pad: 3 "0" }) and inherit the accent straight from --archive-accent; the read-time separator and " read" suffix come from pseudo-elements, with uppercasing left to text-transform',
+          'Drop content-visibility:auto / contain-intrinsic-size from .archive-group: its paint containment clipped popups that overflow the group and its style containment reset the counter per group — the counter now resets on .archive-stack for continuous cross-group numbering',
+          'Browsers without anchor positioning (e.g. Firefox) hide the popup via @supports (fail closed); the archive listing itself is unaffected'
+        ],
+        category: 'refactor'
+      },
+      {
         date: '5.28',
         cn: [
           'h2 标题改为 flex 布局：移除原本的整行 border-bottom，改为从标题文字垂直中点向右延伸一条虚线（1px dashed var(--surface0)），编号（counter）从文字左侧移到虚线最右端，与文字保持在同一基线高度'

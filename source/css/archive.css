@@ -199,13 +199,17 @@
 .archive-stack {
   display: grid;
   gap: 1.35rem;
+  /* Global running index for popup "N° 001" labels (see @counter-style
+     archive-index). Lives here, above every group, so numbering is continuous
+     across season groups — which is also why .archive-group must NOT carry
+     content-visibility/contain (style containment would reset the counter
+     per group, and paint containment would clip the popup). */
+  counter-reset: archive-item;
 }
 
 .archive-group {
   --archive-accent: var(--lavender);
   position: relative;
-  content-visibility: auto;
-  contain-intrinsic-size: auto 18rem;
   padding: 1.1rem 0 0;
 
   .archive-era + & {
@@ -267,9 +271,10 @@
 
 .archive-item {
   position: relative;
+  counter-increment: archive-item;
   text-align: left;
 
-  & > div {
+  & > .archive-item__row {
     display: grid;
     grid-template-columns: 4.9rem minmax(0, 1fr);
     gap: 0.85rem;
@@ -283,6 +288,13 @@
     }
   }
 
+  /* Each previewable item is its own anchor; anchor-scope keeps the shared
+     name local to this subtree so every popup binds to its own item. */
+  &.has-preview {
+    anchor-name: --archive-anchor;
+    anchor-scope: --archive-anchor;
+  }
+
   & + & {
     border-top: 0.5px solid color-mix(in oklch, var(--surface0) 80%, transparent);
   }
@@ -290,39 +302,105 @@
 
 /* #region Popup */
 
+/* 3-digit zero-padded running index: "001", "012", "123". */
+@counter-style archive-index {
+  system: numeric;
+  symbols: "0" "1" "2" "3" "4" "5" "6" "7" "8" "9";
+  pad: 3 "0";
+}
+
+/* Placement fallbacks for anchor positioning. The preferred placement is set
+   on .archive-popup directly; position-try flips to these (in order, first that
+   fits) when that side would overflow the viewport — replacing the old JS
+   measure-and-flip logic. */
+@position-try --archive-below {
+  inset: auto;
+  top: anchor(bottom);
+  left: anchor(left);
+  margin: 12px 0 0;
+  width: min(20rem, calc(100vw - 2rem));
+}
+
+@position-try --archive-above {
+  inset: auto;
+  top: auto;
+  bottom: anchor(top);
+  left: anchor(left);
+  margin: 0 0 12px;
+  width: min(20rem, calc(100vw - 2rem));
+}
+
 .archive-popup {
   --popup-accent: var(--archive-accent);
-  position: absolute;
+  position: fixed;
+  position-anchor: --archive-anchor;
   z-index: 100;
-  contain: layout style;
+  box-sizing: border-box;
+
+  /* Default placement: below the item (viewports 720–1280px). */
+  top: anchor(bottom);
+  left: anchor(left);
+  margin: 12px 0 0;
   width: min(20rem, calc(100vw - 2rem));
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  position-try-fallbacks: --archive-above;
+
   padding: 0.85rem 1rem 0.9rem;
+  border: 1px dashed var(--surface0);
+  border-radius: 5px;
+  background: var(--mantle);
+
+  /* Closed state. display:none keeps the excerpt subtree out of layout and the
+     a11y tree until reveal — same laziness the old <template> gave us — while
+     @starting-style + allow-discrete still let it animate in. */
+  display: none;
   opacity: 0;
+  transform: translateY(-3px);
   pointer-events: none;
-  transform: translateX(-4px);
+  transition:
+    opacity 140ms ease,
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    display 140ms allow-discrete;
+  transition-delay: 140ms; /* close delay (was CLOSE_DELAY) */
 
-  &[data-placement="right"] {
+  /* Wider viewports: prefer the right of the item, fall back to below/above. */
+  @media (min-width: 1280px) {
+    top: anchor(top);
+    left: anchor(right);
+    margin: -4px 0 0 12px;
     width: 14rem;
+    position-try-fallbacks: --archive-below, --archive-above;
   }
 
-  &[data-placement="below"],
-  &[data-placement="above"] {
-    transform: translateY(-3px);
-    border: 1px dashed var(--surface0);
-    border-radius: 5px;
-  }
-
-  &.is-open {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translate(0, 0);
-    background: var(--mantle);
-    transition:
-      opacity 140ms ease,
-      transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
+  /* Touch / narrow screens: no hover preview at all. */
   @media (hover: none), (max-width: 720px) {
+    display: none !important;
+  }
+}
+
+.archive-item.has-preview:hover > .archive-popup,
+.archive-item.has-preview:focus-within > .archive-popup {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition-delay: 180ms; /* open delay (was HOVER_DELAY) */
+}
+
+@starting-style {
+  .archive-item.has-preview:hover > .archive-popup,
+  .archive-item.has-preview:focus-within > .archive-popup {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+}
+
+/* Placement depends entirely on anchor positioning; where it is unsupported,
+   fail closed (no preview) rather than render the popup at a broken position. */
+@supports not (anchor-name: --a) {
+  .archive-popup {
     display: none !important;
   }
 }
@@ -344,11 +422,26 @@
 .archive-popup__index {
   color: color-mix(in oklch, var(--popup-accent) 80%, var(--text));
   font-weight: 600;
+
+  &::before {
+    content: "N° " counter(archive-item, archive-index);
+  }
 }
 
-.archive-popup__sep {
-  margin: 0 0.4em;
-  opacity: 0.4;
+/* Read time arrives as the raw "5 min" from the template; CSS prepends the
+   separator and appends " read", and the eyebrow's text-transform uppercases
+   the lot — "· 5 MIN READ". Both pseudos only exist when the span is rendered
+   (i.e. when the post actually has a read time). */
+.archive-popup__read {
+  &::before {
+    content: "·";
+    margin: 0 0.4em;
+    opacity: 0.4;
+  }
+
+  &::after {
+    content: " read";
+  }
 }
 
 .archive-popup__excerpt {

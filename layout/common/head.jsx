@@ -242,7 +242,6 @@ module.exports = class extends Component {
         {isArticleLike && <link rel="stylesheet" href={url_for("/css/callout_blocks.css")} media="print" onload="this.media='all'" />}
         {isArchiveLike && <link rel="stylesheet" href={url_for("/css/archive.css")} />}
         {isTagsIndex && <link rel="stylesheet" href={url_for("/css/tags.css")} />}
-        {isArchiveLike && <script defer src={url_for("/js/components/archive-popup.js")}></script>}
         <link rel="stylesheet" href={url_for("/css/responsive.css")} />
         <link rel="preload" href={url_for("/css/font/woff2/HomemadeApple.woff2")} as="font" type="font/woff2" crossorigin />
         <link rel="preconnect" href="https://fontsapi.zeoseven.com" />

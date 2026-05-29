@@ -17,11 +17,8 @@ module.exports = class extends Component {
     const hasPreview = excerpt || readTime;
 
     return (
-      <article
-        class={hasPreview ? "archive-item has-preview" : "archive-item"}
-        data-read-time={readTime || null}
-      >
-        <div>
+      <article class={hasPreview ? "archive-item has-preview" : "archive-item"}>
+        <div class="archive-item__row">
           <p class="article-meta">
             <time dateTime={dateXml || null}>{formattedDate}</time>
           </p>
@@ -29,8 +26,14 @@ module.exports = class extends Component {
             {title}
           </a>
         </div>
-        {excerpt && (
-          <template class="archive-item__excerpt" dangerouslySetInnerHTML={{ __html: excerpt }}></template>
+        {hasPreview && (
+          <div class="archive-popup">
+            <p class="archive-popup__eyebrow">
+              <span class="archive-popup__index"></span>
+              {readTime && <span class="archive-popup__read">{readTime}</span>}
+            </p>
+            {excerpt && <div class="archive-popup__excerpt" dangerouslySetInnerHTML={{ __html: excerpt }}></div>}
+          </div>
         )}
       </article>
     );
