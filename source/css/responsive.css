@@ -312,6 +312,21 @@
     display: none;
   }
 
+  .navbar {
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    backdrop-filter: blur(20px) saturate(1.4);
+    background: hsl(from var(--mantle) h s l / 0.72);
+  }
+
+  .navbar-start .navbar-item {
+    font-family: var(--font-sans-serif);
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: lowercase;
+    padding: 0 0.9rem;
+    color: var(--subtext0);
+  }
+
   .navbar-container {
     max-width: 1260px;
   }

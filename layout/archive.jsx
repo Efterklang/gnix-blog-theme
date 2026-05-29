@@ -197,43 +197,43 @@ module.exports = class extends Component {
       });
     }
 
-    const heroTitle = isTagPage ? page.tag : currentYear ? getArchiveRangeLabel(currentYear, currentMonth) : "Index";
-    const heroKind = isTagPage ? "Tag" : currentYear ? "Archive" : "Volume";
+    const heroTitle = isTagPage ? page.tag : currentYear ? getArchiveRangeLabel(currentYear, currentMonth) : "Posts";
+    const heroKind = isTagPage ? "Tag" : "Archive";
 
     return (
       <main class="archive-page">
-          <header class="archive-hero">
-            <p class="archive-hero__eyebrow">
-              <span>{heroKind}</span>
-              <span class="archive-hero__sep" aria-hidden="true">
-                ·
-              </span>
-              <span class="archive-hero__count">{entriesLabel}</span>
-            </p>
-            <h1 class="archive-hero__title">{heroTitle}</h1>
-            {years.length > 0 && (
-              <span class="archive-hero__roman" aria-hidden="true">
-                {years.length === 1 ? toRoman(years[0]) : `${toRoman(years[years.length - 1])}–${toRoman(years[0])}`}
-              </span>
-            )}
-          </header>
-
-          {!page.year && years.length > 1 && (
-            <aside class="archive-rail" aria-label="Jump to year">
-              <ol class="archive-rail__list">
-                {years.map((year) => (
-                  <li key={year} class="archive-rail__item">
-                    <a href={`#archive-year-${year}`} class="archive-rail__link">
-                      <span class="archive-rail__year">{year}</span>
-                    </a>
-                  </li>
-                ))}
-              </ol>
-            </aside>
+        <header class="archive-hero">
+          <p class="archive-hero__eyebrow">
+            <span>{heroKind}</span>
+            <span class="archive-hero__sep" aria-hidden="true">
+              ·
+            </span>
+            <span class="archive-hero__count">{entriesLabel}</span>
+          </p>
+          <h1 class="archive-hero__title">{heroTitle}</h1>
+          {years.length > 0 && (
+            <span class="archive-hero__roman" aria-hidden="true">
+              {years.length === 1 ? toRoman(years[0]) : `${toRoman(years[years.length - 1])}–${toRoman(years[0])}`}
+            </span>
           )}
+        </header>
 
-          <div class="archive-stack">{articleList}</div>
-        </main>
+        {!page.year && years.length > 1 && (
+          <aside class="archive-rail" aria-label="Jump to year">
+            <ol class="archive-rail__list">
+              {years.map((year) => (
+                <li key={year} class="archive-rail__item">
+                  <a href={`#archive-year-${year}`} class="archive-rail__link">
+                    <span class="archive-rail__year">{year}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </aside>
+        )}
+
+        <div class="archive-stack">{articleList}</div>
+      </main>
     );
   }
 };

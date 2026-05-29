@@ -243,9 +243,10 @@
   margin: 0;
   color: var(--archive-accent);
   font-family: var(--font-serif);
+  text-transform: lowercase;
+  font-weight: lighter;
   font-style: italic;
   font-size: 1.7rem;
-  line-height: 1.08;
   letter-spacing: 0;
   padding-inline: 0.2rem;
 }
@@ -380,6 +381,8 @@
   font-variant-numeric: tabular-nums;
   line-height: 1.4;
   white-space: nowrap;
+  text-transform: lowercase;
+  font-weight: lighter;
 
   @media (max-width: 480px) {
     white-space: normal;

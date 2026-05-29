@@ -511,14 +511,6 @@ html {
   pointer-events: none;
 }
 
-@media screen and (min-width: 1024px) {
-  .navbar {
-    -webkit-backdrop-filter: blur(20px) saturate(1.4);
-    backdrop-filter: blur(20px) saturate(1.4);
-    background: hsl(from var(--mantle) h s l / 0.72);
-  }
-}
-
 .navbar-container {
   flex-grow: 1;
   margin: 0 auto;
@@ -552,10 +544,6 @@ html {
   transition: color 240ms ease;
 }
 
-.navbar-logo:hover {
-  color: var(--rosewater);
-}
-
 .navbar-item {
   color: var(--subtext0);
   align-items: center;
@@ -569,43 +557,9 @@ html {
   font: inherit;
   background: transparent;
   border: none;
-}
-
-.navbar-item:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-}
-
-@media screen and (min-width: 1024px) {
-  .navbar-start .navbar-item {
-    font-family: var(--font-sans-serif);
-    font-size: 0.78rem;
-    font-weight: 500;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    padding: 0 0.9rem;
-    color: var(--subtext0);
-  }
-
-  .navbar-start .navbar-item::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    bottom: 0.95rem;
-    width: 55%;
-    height: 1px;
-    background: var(--rosewater);
-    transform: translateX(-50%) scaleX(0);
-    transform-origin: center;
-    transition: transform 320ms cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .navbar-start .navbar-item:hover {
-    color: var(--text);
-  }
-
-  .navbar-start .navbar-item:hover::after {
-    transform: translateX(-50%) scaleX(1);
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
   }
 }
 
