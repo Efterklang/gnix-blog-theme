@@ -3,7 +3,15 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
-        date: '5.29',
+        date: '5.30',
+        cn: [
+          'image-carousel 限高：轮播图高度不再超过视口的 80%。对竖图（portrait），改为限制 .stage 的 max-width（= 宽高比 × max-height）并居中，而非直接裁剪或加黑边——宽度收窄、高度封顶但宽高比保持不变。在 _resolveRatio 解析出的宽高比基础上额外算出数值比并写入 --carousel-max-width；上限可用 --carousel-max-height CSS 变量覆盖（默认 80vh）'
+        ],
+        en: [
+          'Cap image-carousel height at 80% of the viewport. For portrait images, constrain the stage\'s max-width (= aspect ratio × max-height) and center it rather than cropping or letterboxing — the width narrows and the height is capped while the aspect ratio stays intact. _resolveRatio now also derives a numeric ratio and writes --carousel-max-width; override the cap via the --carousel-max-height CSS variable (default 80vh)'
+        ],
+        category: 'uiux'
+      },
         cn: [
           '修复搜索框未搜索时底部边框重叠：把输入框与结果之间的分隔线从 .searchbox-input-container 常驻的 border-bottom 改为 .searchbox-body:not(:empty) 的 border-top，仅在有结果时出现——此前结果区为空（含初始未搜索状态及零结果搜索）时，输入容器的 border-bottom 会与 .searchbox-container 自身的圆角底边框叠在一起、并撞进圆角形成双线'
         ],

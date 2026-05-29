@@ -13,6 +13,10 @@
  * - interval: Autoplay interval in ms (default: 3000)
  * - ratio: Aspect ratio as CSS value (default: derived from first image,
  *   falls back to 3/2 while loading or if dimensions are unknown)
+ *
+ * The carousel never grows taller than 80% of the viewport height; instead
+ * of cropping, its width is capped (preserving the aspect ratio) so tall
+ * images shrink and center. Override via the `--carousel-max-height` CSS var.
  */
 
 // Shared stylesheet — parsed once, reused across all carousel instances
@@ -21,6 +25,7 @@ let _sheet;
 const DEFAULT_INTERVAL = 3000;
 const FALLBACK_RATIO = "3 / 2";
 const SWIPE_THRESHOLD_PX = 40;
+const MAX_HEIGHT = "80vh";
 
 const STYLES = `
   :host {
@@ -39,6 +44,8 @@ const STYLES = `
 
   .stage {
     position: relative;
+    max-width: var(--carousel-max-width, none);
+    margin-inline: auto;
     border-radius: var(--radius, 12px);
     overflow: hidden;
     background: var(--crust, #11111b);
@@ -254,18 +261,18 @@ class ImageCarousel extends HTMLElement {
   _resolveRatio() {
     const explicit = this.getAttribute("ratio");
     if (explicit) {
-      this.style.setProperty("--carousel-ratio", explicit);
+      this._applyRatio(explicit);
       return;
     }
 
     // Set fallback first so the stage has dimensions while we wait.
-    this.style.setProperty("--carousel-ratio", FALLBACK_RATIO);
+    this._applyRatio(FALLBACK_RATIO);
 
     const first = this._images[0];
     if (!first?.src) return;
 
     const apply = (w, h) => {
-      if (w && h) this.style.setProperty("--carousel-ratio", `${w} / ${h}`);
+      if (w && h) this._applyRatio(`${w} / ${h}`);
     };
 
     // Reuse the light-DOM <img> if it's already decoded — avoids a
@@ -280,6 +287,30 @@ class ImageCarousel extends HTMLElement {
     probe.onload = () => apply(probe.naturalWidth, probe.naturalHeight);
     if (first.srcset) probe.srcset = first.srcset;
     probe.src = first.src;
+  }
+
+  /**
+   * Apply the aspect ratio and derive a max-width that keeps the stage from
+   * growing taller than --carousel-max-height (default 80vh). Capping width
+   * (max-width = ratio × max-height) preserves the aspect ratio, so tall
+   * images shrink and center instead of being cropped or letterboxed.
+   */
+  _applyRatio(ratio) {
+    this.style.setProperty("--carousel-ratio", ratio);
+    const n = this._ratioToNumber(ratio);
+    if (n) {
+      this.style.setProperty(
+        "--carousel-max-width",
+        `calc(${n} * var(--carousel-max-height, ${MAX_HEIGHT}))`,
+      );
+    }
+  }
+
+  /** Parse a CSS ratio ("16 / 9" or "1.78") into a numeric width ÷ height. */
+  _ratioToNumber(ratio) {
+    const [w, h] = String(ratio).split("/").map((v) => parseFloat(v));
+    if (h) return w / h;
+    return w || 0;
   }
 
   _render() {
