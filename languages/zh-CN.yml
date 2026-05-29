@@ -6,8 +6,8 @@ common:
     one: "CATEGORY"
     other: "CATEGORY"
   tag:
-    one: "TAGS"
-    other: "TAGS"
+    one: "Tag"
+    other: "Tags"
   post:
     one: "POST"
     other: "POST"

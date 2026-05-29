@@ -55,14 +55,14 @@
 
     &::before {
       content: "";
-      order: 2;
+      order: 1;
       flex: 1;
       border-top: 1px dashed var(--surface0);
     }
 
     &::after {
       content: counter(h2-counter, decimal-leading-zero);
-      order: 3;
+      order: 2;
       color: var(--overlay0);
       font-family: var(--font-serif);
       font-style: italic;
@@ -71,15 +71,6 @@
       font-weight: 400;
       font-variant-numeric: oldstyle-nums;
       flex-shrink: 0;
-    }
-
-    > a.header-anchor {
-      order: 1;
-      min-width: 0;
-
-      &:hover::after {
-        content: "##";
-      }
     }
   }
 

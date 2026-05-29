@@ -489,13 +489,7 @@ a.archive-title {
   font-weight: 500;
   line-height: 1.45;
   overflow-wrap: anywhere;
-  text-decoration: none;
-  text-decoration-color: transparent;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.28em;
-  transition:
-    color 140ms ease,
-    text-decoration-color 140ms ease;
+  transition: color 140ms ease;
 
   &:hover,
   &:focus-visible {
