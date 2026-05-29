@@ -777,12 +777,17 @@ input.searchbox-input {
   align-items: center;
   line-height: 1.5em;
   min-height: 3.25rem;
-  border-bottom: 1px solid var(--surface0);
 }
 
 .searchbox-body {
   flex-grow: 1;
   width: 100%;
+}
+
+/* Divider between input and results — only when there are results,
+   otherwise it would stack on the container's bottom border before searching. */
+.searchbox-body:not(:empty) {
+  border-top: 1px solid var(--surface0);
 }
 
 .searchbox-result-section {

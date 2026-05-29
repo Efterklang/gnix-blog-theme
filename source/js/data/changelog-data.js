@@ -5,6 +5,16 @@ window.__CHANGELOG_DATA__ = [
       {
         date: '5.29',
         cn: [
+          '修复搜索框未搜索时底部边框重叠：把输入框与结果之间的分隔线从 .searchbox-input-container 常驻的 border-bottom 改为 .searchbox-body:not(:empty) 的 border-top，仅在有结果时出现——此前结果区为空（含初始未搜索状态及零结果搜索）时，输入容器的 border-bottom 会与 .searchbox-container 自身的圆角底边框叠在一起、并撞进圆角形成双线'
+        ],
+        en: [
+          'Fix the doubled bottom border on the search box before searching: move the input/results divider from a permanent border-bottom on .searchbox-input-container to a border-top on .searchbox-body:not(:empty) so it only appears when there are results — previously, when the results body was empty (the initial pre-search state and zero-result searches) the input container\'s border-bottom stacked onto .searchbox-container\'s own rounded bottom border and ran into the corners, forming a double line'
+        ],
+        category: 'fix'
+      },
+      {
+        date: '5.29',
+        cn: [
           '归档页文章预览弹层从 JS 改为纯 CSS 实现：删除 source/js/components/archive-popup.js（337 行）、head.jsx 中的条件 <script> 与 main.js 的 __gnixInitArchivePopup 调用；不再由 JS 创建并复用单个 body 级节点，改为每个 .archive-item 在模板（article_media.jsx）内内联自己的 popup',
           '显隐与开关延迟改由 :hover / :focus-within + transition-delay 承担（开 180ms / 关 140ms，对应原 HOVER_DELAY / CLOSE_DELAY）；弹层 display:none 时保持摘要不进入布局与无障碍树（沿用原 <template> 的懒加载特性），靠 @starting-style + transition display allow-discrete 实现淡入',
           '定位改用 CSS 锚点定位（anchor-name + anchor-scope 让每个弹层绑定到各自的 item，position-try-fallbacks 自动翻转）：≥1280px 优先放右侧，否则放下方，空间不足时翻到上方——取代原 JS 的视口测量、右/下/上选择与滚动/缩放重定位逻辑',
