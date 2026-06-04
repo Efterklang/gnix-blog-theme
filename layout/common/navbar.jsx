@@ -81,7 +81,7 @@ class Navbar extends Component {
     return (
       <Fragment>
         <nav class="navbar navbar-main">
-          <div class="navbar-container" onclick="toggleNav(event)">
+          <div class="navbar-container">
             <a id="navbar-logo-link" class="navbar-logo" href={siteUrl}>
               GnixAij
             </a>

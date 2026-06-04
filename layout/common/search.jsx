@@ -8,9 +8,21 @@ class Search extends Component {
   render() {
     const { translation, contentUrl, jsUrl } = this.props;
 
-    const js = `document.addEventListener('DOMContentLoaded', function () {
-            loadInsight(${JSON.stringify({ contentUrl })}, ${JSON.stringify(translation)});
-        });`;
+    const js = `(function() {
+            function initSearch() {
+                loadInsight(${JSON.stringify({ contentUrl })}, ${JSON.stringify(translation)});
+            }
+            function runWhenActivated(callback) {
+                (window.__gnixPrerender?.runWhenActivated || function(fn) { fn(); })(callback);
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    runWhenActivated(initSearch);
+                }, { once: true });
+            } else {
+                runWhenActivated(initSearch);
+            }
+        })();`;
 
     return (
       <>

@@ -8,7 +8,7 @@ module.exports = class extends Component {
     return (
       <Fragment>
         {Object.keys(plugins).map((name) => {
-          // plugin is not enabled or is 'swup' (which is now built-in)
+          // Keep ignoring legacy `swup` config entries from older theme setups.
           if (!plugins[name] || name === "swup") {
             return null;
           }

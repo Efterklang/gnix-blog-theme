@@ -21,8 +21,7 @@
     "lint": "biome check --write .",
     "format": "biome format .",
     "check": "biome check",
-    "test": "node test/md_generator.test.js",
-    "build:swup": "echo 'export { default as Swup } from \"swup\"; export { default as SwupHeadPlugin } from \"@swup/head-plugin\"; export { default as SwupScriptsPlugin } from \"@swup/scripts-plugin\";' > .swup-vendor-entry.mjs && esbuild .swup-vendor-entry.mjs --bundle --format=esm --minify --target=es2020 --outfile=source/js/host/swup/swup-bundle.js --legal-comments=eof && rm .swup-vendor-entry.mjs"
+    "test": "node test/md_generator.test.js"
   },
   "files": [
     "include",
@@ -54,9 +53,5 @@
   "peerDependencies": {
     "hexo": "^8.1.2"
   },
-  "devDependencies": {
-    "@swup/head-plugin": "^2.3.1",
-    "@swup/scripts-plugin": "^2.1.0",
-    "swup": "^4.9.0"
-  }
+  "devDependencies": {}
 }

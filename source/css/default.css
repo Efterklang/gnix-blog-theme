@@ -1,5 +1,61 @@
 @charset "UTF-8";
 
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: none;
+}
+
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-group(gnix-navbar),
+::view-transition-old(gnix-navbar),
+::view-transition-new(gnix-navbar) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(gnix-navbar) {
+  opacity: 0;
+}
+
+::view-transition-old(gnix-main-content) {
+  animation: gnix-view-transition-out 160ms ease both;
+}
+
+::view-transition-new(gnix-main-content) {
+  animation: gnix-view-transition-in 160ms ease both;
+}
+
+@keyframes gnix-view-transition-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes gnix-view-transition-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(gnix-main-content),
+  ::view-transition-new(gnix-main-content) {
+    animation-duration: 1ms;
+  }
+}
+
 :root {
   /* color */
   --subtext1: color-mix(in oklch, var(--text) 90%, var(--base));
@@ -515,6 +571,7 @@ html {
 }
 
 .navbar-main {
+  view-transition-name: gnix-navbar;
   transition: transform 240ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -631,6 +688,7 @@ html {
 }
 
 .main-content {
+  view-transition-name: gnix-main-content;
   -webkit-justify-content: center;
   justify-content: center;
   flex-grow: 1;

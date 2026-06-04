@@ -139,5 +139,5 @@
     );
   }
 
-  setup();
+  (window.__gnixPrerender?.runWhenActivated || function(callback) { callback(); })(setup);
 })(window, document);

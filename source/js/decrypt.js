@@ -1,5 +1,3 @@
-import { swup } from "./swup.js";
-
 function getCacheKey() {
   return `gnix-encrypt:${location.pathname}`;
 }
@@ -60,7 +58,7 @@ async function decrypt(container, password) {
   container.outerHTML = html;
   localStorage.setItem(getCacheKey(), password);
   buildToc();
-  if (typeof initPage === "function") initPage();
+  document.dispatchEvent(new CustomEvent("gnix:content-ready"));
 }
 
 function showError(container) {
@@ -107,6 +105,4 @@ function init() {
   if (input) input.focus();
 }
 
-init();
-
-swup.hooks.on("page:view", init);
+(window.__gnixPrerender?.runWhenActivated || function(callback) { callback(); })(init);

@@ -1,31 +1,43 @@
-import { swup } from "./swup.js";
+function runWhenActivated(callback) {
+  (window.__gnixPrerender?.runWhenActivated || function(fn) { fn(); })(callback);
+}
+
+function whenReady(callback) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", callback, { once: true });
+  } else {
+    callback();
+  }
+}
 
 function twikoo_handler() {
-  const el = document.getElementById("tko");
-  if (!el) return;
-  if (el.dataset.initialized === "true" || el.dataset.initializing === "true") return;
+  runWhenActivated(() => {
+    const el = document.getElementById("tko");
+    if (!el) return;
+    if (el.dataset.initialized === "true" || el.dataset.initializing === "true") return;
 
-  const { envId, region, lang, jsUrl, cssUrl } = el.dataset;
+    const { envId, region, lang, jsUrl, cssUrl } = el.dataset;
 
-  if (cssUrl) loadCSSOnce(cssUrl);
+    if (cssUrl) loadCSSOnce(cssUrl);
 
-  const config = { envId, region, lang, el: "#tko" };
+    const config = { envId, region, lang, el: "#tko" };
 
-  if (typeof window.twikoo?.init === "function") {
-    window.twikoo.init(config);
-    el.dataset.initialized = "true";
-    return;
-  }
-
-  el.dataset.initializing = "true";
-  loadScriptOnce(jsUrl, () => {
-    if (el.dataset.initialized === "true") {
-      delete el.dataset.initializing;
+    if (typeof window.twikoo?.init === "function") {
+      window.twikoo.init(config);
+      el.dataset.initialized = "true";
       return;
     }
-    window.twikoo.init(config);
-    el.dataset.initialized = "true";
-    delete el.dataset.initializing;
+
+    el.dataset.initializing = "true";
+    loadScriptOnce(jsUrl, () => {
+      if (el.dataset.initialized === "true") {
+        delete el.dataset.initializing;
+        return;
+      }
+      window.twikoo.init(config);
+      el.dataset.initialized = "true";
+      delete el.dataset.initializing;
+    });
   });
 }
 // #region markdown-exit shiki
@@ -386,6 +398,8 @@ function initArticleSettings() {
 
   const fontSettingsPopover = document.getElementById("article-font-settings");
   if (!fontSettingsPopover) return;
+  if (fontSettingsPopover.dataset.bound === "true") return;
+  fontSettingsPopover.dataset.bound = "true";
 
   function updateButtonStates(selector, isActive) {
     fontSettingsPopover.querySelectorAll(selector).forEach((btn) => {
@@ -545,7 +559,7 @@ function initArticleCommentPopover() {
   // Preload twikoo JS during idle time so comments render faster on click
   const tko = document.getElementById("tko");
   if (tko?.dataset.jsUrl) {
-    const preload = () => loadScriptOnce(tko.dataset.jsUrl, () => {});
+    const preload = () => runWhenActivated(() => loadScriptOnce(tko.dataset.jsUrl, () => {}));
     if (typeof requestIdleCallback === "function") {
       requestIdleCallback(preload, { timeout: 3000 });
     } else {
@@ -570,34 +584,52 @@ function initPage() {
   addHighlightTool();
   initArticleSettings();
   const zoomOpts = { background: "hsla(from var(--mantle) / 0.9)" };
-  const zoomImgs = new Set();
-  document.querySelectorAll(".content img").forEach((img) => zoomImgs.add(img));
-  mediumZoom([...zoomImgs], zoomOpts);
+  const zoomImgs = [];
+  document.querySelectorAll(".content img").forEach((img) => {
+    if (img.dataset.zoomBound === "true") return;
+    img.dataset.zoomBound = "true";
+    zoomImgs.push(img);
+  });
+  if (zoomImgs.length) mediumZoom(zoomImgs, zoomOpts);
   initArticleCommentPopover();
 }
 
-document.addEventListener("DOMContentLoaded", initPage, { once: true });
+function initPageWhenActivated() {
+  runWhenActivated(initPage);
+}
 
-swup.hooks.on("page:view", initPage);
+whenReady(initPageWhenActivated);
+document.addEventListener("gnix:content-ready", initPageWhenActivated);
 
-document.addEventListener("keydown", handleKeyDown, {
-  capture: true, // 捕获阶段监听，优先于浏览器默认处理
-  passive: false, // 允许调用 preventDefault
+runWhenActivated(() => {
+  document.addEventListener("keydown", handleKeyDown, {
+    capture: true, // 捕获阶段监听，优先于浏览器默认处理
+    passive: false, // 允许调用 preventDefault
+  });
 });
 
-function toggleNav(event) {
+function handleNavbarClick(event) {
   const container = event.currentTarget;
   const burger = container.querySelector(".navbar-burger");
   const menu = container.querySelector(".navbar-menu");
   const target = event.target;
 
   if (target.closest(".navbar-burger")) {
-    burger.classList.toggle("is-active");
-    menu.classList.toggle("is-active");
+    const isActive = burger.classList.toggle("is-active");
+    menu.classList.toggle("is-active", isActive);
+    burger.setAttribute("aria-expanded", String(isActive));
   } else if (target.closest(".navbar-item")) {
     burger.classList.remove("is-active");
     menu.classList.remove("is-active");
+    burger.setAttribute("aria-expanded", "false");
   }
 }
 
-window.toggleNav = toggleNav;
+function initNavbar() {
+  const container = document.querySelector(".navbar-container");
+  if (!container || container.dataset.bound === "true") return;
+  container.dataset.bound = "true";
+  container.addEventListener("click", handleNavbarClick);
+}
+
+whenReady(() => runWhenActivated(initNavbar));

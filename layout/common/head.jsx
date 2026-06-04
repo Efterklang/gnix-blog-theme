@@ -104,6 +104,95 @@ function addExplicitAlternates(links, alternates, helper, config) {
   });
 }
 
+const DEFAULT_SPECULATION_SELECTOR =
+  "a[href]:not([href^='#']):not([href^='mailto:']):not([href^='tel:']):not([href*='?']):not([target]):not([download]):not([rel~='nofollow']):not([data-no-instant]):not([data-no-prefetch]):not([data-no-prerender])";
+const SPECULATION_EAGERNESS = new Set(["immediate", "eager", "moderate", "conservative"]);
+
+function getSpeculationRules(head = {}) {
+  const prerender = head.prerender;
+  if (prerender === false || prerender?.enabled === false) return null;
+
+  const options = typeof prerender === "object" && prerender !== null ? prerender : {};
+  const eagerness = SPECULATION_EAGERNESS.has(options.eagerness) ? options.eagerness : "moderate";
+  const hrefMatches = typeof options.href_matches === "string" ? options.href_matches : "/*";
+  const selectorMatches = typeof options.selector_matches === "string" ? options.selector_matches : DEFAULT_SPECULATION_SELECTOR;
+
+  return {
+    prerender: [
+      {
+        source: "document",
+        where: {
+          and: [{ href_matches: hrefMatches }, { selector_matches: selectorMatches }],
+        },
+        eagerness,
+      },
+    ],
+  };
+}
+
+const PRERENDER_HELPER_SCRIPT = `(function() {
+  if (window.__gnixPrerender) return;
+
+  function getNavigationEntry() {
+    if (!("performance" in window) || typeof performance.getEntriesByType !== "function") {
+      return null;
+    }
+    return performance.getEntriesByType("navigation")[0] || null;
+  }
+
+  function isPrerendering() {
+    return document.prerendering === true;
+  }
+
+  function wasPrerendered() {
+    var navigationEntry = getNavigationEntry();
+    return !!navigationEntry && navigationEntry.activationStart > 0;
+  }
+
+  var activated = !isPrerendering();
+  var callbacks = [];
+
+  function run(callback) {
+    try {
+      callback();
+    } catch (error) {
+      setTimeout(function() {
+        throw error;
+      });
+    }
+  }
+
+  function flushCallbacks() {
+    if (activated || isPrerendering()) return;
+    activated = true;
+    var pending = callbacks;
+    callbacks = [];
+    pending.forEach(run);
+  }
+
+  function runWhenActivated(callback) {
+    if (typeof callback !== "function") return;
+    if (activated || !isPrerendering()) {
+      activated = true;
+      run(callback);
+      return;
+    }
+    callbacks.push(callback);
+  }
+
+  if (isPrerendering()) {
+    document.addEventListener("prerenderingchange", flushCallbacks, { once: true });
+    document.addEventListener("visibilitychange", flushCallbacks, { once: true });
+    window.addEventListener("pageshow", flushCallbacks, { once: true });
+  }
+
+  window.__gnixPrerender = {
+    runWhenActivated: runWhenActivated,
+    isPrerendering: isPrerendering,
+    wasPrerendered: wasPrerendered
+  };
+})();`;
+
 function getHreflangLinks(_site, page, config, helper) {
   if (!isI18nEnabled(config)) return [];
 
@@ -183,6 +272,8 @@ module.exports = class extends Component {
     const themeInitScript = getThemeInitScript();
     const articleFontInitScript = getArticleFontInitScript();
     const articleFontUtilsScript = fs.readFileSync(path.join(__dirname, "../../source/js/article-font-utils.js"), "utf8");
+    const speculationRules = getSpeculationRules(head);
+    const speculationRulesScript = speculationRules ? JSON.stringify(speculationRules, null, 2) : null;
 
     return (
       <head>
@@ -190,6 +281,7 @@ module.exports = class extends Component {
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }}></script>
         <script dangerouslySetInnerHTML={{ __html: articleFontUtilsScript }}></script>
         <script dangerouslySetInnerHTML={{ __html: articleFontInitScript }}></script>
+        <script dangerouslySetInnerHTML={{ __html: PRERENDER_HELPER_SCRIPT }}></script>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {meta?.length ? <MetaTags meta={meta} /> : null}
         <title>{getPageTitle(page, config.title, helper)}</title>
@@ -235,6 +327,7 @@ module.exports = class extends Component {
         {hreflangLinks.map((link) => (
           <link rel="alternate" hreflang={link.hreflang} href={link.href} />
         ))}
+        {speculationRulesScript ? <script type="speculationrules" dangerouslySetInnerHTML={{ __html: speculationRulesScript }}></script> : null}
         {is_post(page) && markdownSourceUrl ? <link rel="alternate" type={markdownSourceType} title={helper.__("article.markdown_source")} href={markdownSourceUrl} /> : null}
         <link rel="icon" href={url_for(favicon || "/img/favicon.svg")} />
         <link rel="stylesheet" href={url_for("/css/default.css")} />

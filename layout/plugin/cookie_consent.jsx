@@ -254,10 +254,16 @@ class CookieConsent extends Component {
               });
             }
 
+            function runWhenActivated(callback) {
+              (window.__gnixPrerender?.runWhenActivated || function(fn) { fn(); })(callback);
+            }
+
             if (document.readyState === "loading") {
-              document.addEventListener("DOMContentLoaded", initCookieConsent, { once: true });
+              document.addEventListener("DOMContentLoaded", function() {
+                runWhenActivated(initCookieConsent);
+              }, { once: true });
             } else {
-              initCookieConsent();
+              runWhenActivated(initCookieConsent);
             }
           })();
         `,

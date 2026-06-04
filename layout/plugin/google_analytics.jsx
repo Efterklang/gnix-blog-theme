@@ -15,15 +15,25 @@ class GoogleAnalytics extends Component {
   render() {
     const { trackingId } = this.props;
 
-    const js = `window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
+    const js = `
+      (window.__gnixPrerender?.runWhenActivated || function(callback) { callback(); })(function() {
+        var trackingId = ${JSON.stringify(trackingId)};
+        var script = document.createElement("script");
+        script.async = true;
+        script.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(trackingId);
+        document.head.appendChild(script);
 
-        gtag('config', '${trackingId}');`;
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = window.gtag || function() {
+          window.dataLayer.push(arguments);
+        };
+        window.gtag("js", new Date());
+        window.gtag("config", trackingId);
+      });
+    `;
 
     return (
       <Fragment>
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${trackingId}`}></script>
         <script dangerouslySetInnerHTML={{ __html: js }}></script>
       </Fragment>
     );
