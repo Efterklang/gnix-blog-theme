@@ -1,5 +1,6 @@
 const { Component, Fragment, isValidDate, parseISO, dateFormatters } = require("../include/util/common");
 const ArticleMedia = require("./common/article_media");
+const { filterByLanguage } = require("../include/util/i18n");
 
 function collectPosts(collection) {
   const posts = [];
@@ -9,6 +10,18 @@ function collectPosts(collection) {
     posts.push(...collection);
   }
   return posts;
+}
+
+function collectTags(collection) {
+  const tags = [];
+  if (collection?.each) {
+    collection.each((tag) => tags.push(tag));
+  } else if (typeof collection?.toArray === "function") {
+    tags.push(...collection.toArray());
+  } else if (Array.isArray(collection)) {
+    tags.push(...collection);
+  }
+  return tags;
 }
 
 function estimateReadMinutes(content) {
@@ -96,6 +109,29 @@ function collectArchiveYears(posts) {
   return Array.from(new Set(posts.map((post) => post.date.year()))).sort((a, b) => b - a);
 }
 
+function getTopicTags(siteTags, page, config, helper) {
+  const langKey = helper.language_key(page);
+  const currentTag = page.tag;
+
+  return collectTags(siteTags)
+    .map((tag) => {
+      if (!tag?.length) return null;
+
+      const posts = helper.is_i18n_enabled() ? filterByLanguage(tag.posts, langKey, config || {}) : tag.posts;
+      const count = posts?.length || 0;
+      if (!count) return null;
+
+      return {
+        name: tag.name,
+        count,
+        url: helper.localized_tag_url(tag, langKey),
+        current: currentTag === tag.name,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => String(a.name).localeCompare(String(b.name)));
+}
+
 function getPostDateParts(postDate, dateXml, date) {
   const xml = dateXml(postDate);
   const parsed = parseISO(xml);
@@ -141,15 +177,48 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
   );
 }
 
+function renderTopicPicker({ tags, title }) {
+  if (!tags.length) return null;
+
+  const tagCountLabel = `${tags.length} ${tags.length === 1 ? "topic" : "topics"}`;
+
+  return (
+    <div id="archive-topic-picker" class="archive-topic-picker" popover="auto">
+      <button class="archive-topic-picker__backdrop" type="button" popovertarget="archive-topic-picker" popovertargetaction="hide" tabindex="-1" aria-label="Close tag picker"></button>
+      <div class="archive-topic-picker__body" role="dialog" aria-labelledby="archive-topic-picker-title">
+        <header class="archive-topic-picker__header">
+          <div>
+            <p class="archive-topic-picker__eyebrow">{tagCountLabel}</p>
+            <h2 id="archive-topic-picker-title">{title}</h2>
+          </div>
+          <button class="archive-topic-picker__close" type="button" popovertarget="archive-topic-picker" popovertargetaction="hide" aria-label="Close tag picker">
+            <span aria-hidden="true"></span>
+          </button>
+        </header>
+        <nav class="archive-topic-list" aria-label={title}>
+          {tags.map((tag) => (
+            <a key={tag.url} class="archive-topic-list__item" href={tag.url} aria-current={tag.current ? "page" : null}>
+              <span class="archive-topic-list__name">{tag.name}</span>
+              <span class="archive-topic-list__count">{tag.count}</span>
+            </a>
+          ))}
+        </nav>
+      </div>
+    </div>
+  );
+}
+
 module.exports = class extends Component {
   render() {
-    const { page, helper } = this.props;
+    const { config, page, site, helper } = this.props;
     const { url_for, date_xml, date } = helper;
 
     const visiblePosts = collectPosts(page.posts);
     const totalVisiblePosts = visiblePosts.length;
 
     const years = collectArchiveYears(visiblePosts);
+    const topicTags = getTopicTags(site?.tags, page, config, helper);
+    const topicsTitle = helper._p("common.tag", Infinity);
 
     const currentYear = page.year ? Number(page.year) : null;
     const currentMonth = page.month ? Number(page.month) : null;
@@ -198,24 +267,24 @@ module.exports = class extends Component {
     }
 
     const heroTitle = isTagPage ? page.tag : currentYear ? getArchiveRangeLabel(currentYear, currentMonth) : "Posts";
-    const heroKind = isTagPage ? "Tag" : "Archive";
-
     return (
       <main class="archive-page">
         <header class="archive-hero">
-          <p class="archive-hero__eyebrow">
-            <span>{heroKind}</span>
-            <span class="archive-hero__sep" aria-hidden="true">
-              ·
-            </span>
-            <span class="archive-hero__count">{entriesLabel}</span>
-          </p>
           <h1 class="archive-hero__title">{heroTitle}</h1>
-          {years.length > 0 && (
-            <span class="archive-hero__roman" aria-hidden="true">
-              {years.length === 1 ? toRoman(years[0]) : `${toRoman(years[years.length - 1])}–${toRoman(years[0])}`}
-            </span>
-          )}
+          <div class="archive-hero__meta">
+            <p class="archive-hero__eyebrow">
+              <span class="archive-hero__count">{entriesLabel}</span>
+            </p>
+            {topicTags.length > 0 && (
+              <button type="button" class="archive-hero__topics-button" popovertarget="archive-topic-picker" aria-label={`${topicsTitle}: ${topicTags.length}`}>
+                <span class="archive-hero__topics-mark" aria-hidden="true">
+                  #
+                </span>
+                <span class="archive-hero__topics-count">{topicTags.length}</span>
+              </button>
+            )}
+          </div>
+          {renderTopicPicker({ tags: topicTags, title: topicsTitle })}
         </header>
 
         {!page.year && years.length > 1 && (

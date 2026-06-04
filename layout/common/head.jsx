@@ -104,7 +104,7 @@ function addExplicitAlternates(links, alternates, helper, config) {
   });
 }
 
-function getHreflangLinks(site, page, config, helper) {
+function getHreflangLinks(_site, page, config, helper) {
   if (!isI18nEnabled(config)) return [];
 
   const links = new Map();
@@ -132,7 +132,7 @@ function getHreflangLinks(site, page, config, helper) {
 module.exports = class extends Component {
   render() {
     const { site, config, helper, page } = this.props;
-    const { url_for, is_post, is_page, is_archive, is_tag, is_tags } = helper;
+    const { url_for, is_post, is_page, is_archive, is_tag } = helper;
     const { url, head = {}, article } = config;
     const { meta = [], open_graph = {}, structured_data = {}, canonical_url: headCanonicalUrl = page.permalink, favicon } = head;
     const markdownSourceUrl = page.markdown_path ? url_for(page.markdown_path) : null;
@@ -140,7 +140,6 @@ module.exports = class extends Component {
 
     const isArticleLike = is_post() || is_page();
     const isArchiveLike = is_archive() || is_tag();
-    const isTagsIndex = is_tags();
     const isStatusPage = page.status === true;
 
     const language = getPageLocale(page, config) || page.lang || page.language || config.language;
@@ -242,7 +241,6 @@ module.exports = class extends Component {
         {isArticleLike && <link rel="stylesheet" href={url_for("/css/article.css")} />}
         {isArticleLike && <link rel="stylesheet" href={url_for("/css/callout_blocks.css")} media="print" onload="this.media='all'" />}
         {isArchiveLike && <link rel="stylesheet" href={url_for("/css/archive.css")} />}
-        {isTagsIndex && <link rel="stylesheet" href={url_for("/css/tags.css")} />}
         {isStatusPage && <link rel="stylesheet" href={url_for("/css/status.css")} />}
         <link rel="stylesheet" href={url_for("/css/responsive.css")} />
         <link rel="preload" href={url_for("/css/font/woff2/HomemadeApple.woff2")} as="font" type="font/woff2" crossorigin />
