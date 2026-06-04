@@ -345,9 +345,9 @@
 .archive-rail {
   position: fixed;
   top: 50%;
-  left: max(1.25rem, calc((100vw - 50em) / 2 - var(--archive-rail-width) - 0.5rem));
+  left: max(1rem, calc((100vw - 50em) / 2 - var(--archive-rail-width) - 1rem));
   transform: translateY(-50%);
-  z-index: 20;
+  z-index: 10;
   pointer-events: none;
 
   @media (max-width: 1023px) {
@@ -357,7 +357,7 @@
 
 .archive-rail__list {
   display: grid;
-  gap: 0.4rem;
+  gap: 0.18rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -366,29 +366,72 @@
 }
 
 .archive-rail__link {
-  display: inline-block;
-  padding: 0.1rem 0;
-  color: var(--archive-muted);
+  display: inline-grid;
+  grid-template-columns: 0.7rem auto;
+  gap: 0.28rem;
+  align-items: center;
+  min-height: 1.25rem;
+  padding: 0 0.2rem;
+  color: var(--overlay0);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.64rem;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
   text-decoration: none;
-  opacity: 0.6;
+  transform: translateX(-0.12rem);
   transition:
     color 160ms ease,
-    opacity 160ms ease;
+    transform 160ms ease;
+
+  &::before {
+    content: "";
+    width: 0.54rem;
+    height: 1px;
+    border-radius: 999px;
+    background: currentColor;
+    transform: scaleX(0.63);
+    transform-origin: left center;
+    transition: transform 160ms ease;
+  }
+
+  :where(.archive-rail:hover, .archive-rail:focus-within) & {
+    opacity: 0.58;
+    transform: translateX(0);
+  }
 
   &:hover,
   &:focus-visible {
-    color: var(--text);
-    opacity: 1;
+    color: color-mix(in oklch, var(--text) 88%, var(--base));
+  }
+
+  &:hover::before,
+  &:focus-visible::before {
+    transform: scaleX(1);
   }
 
   &:focus-visible {
     outline: 2px solid color-mix(in oklch, var(--archive-accent) 70%, transparent);
     outline-offset: 3px;
     border-radius: 2px;
+  }
+}
+
+.archive-rail__year {
+  opacity: 0;
+  transform: translateX(-0.18rem);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+
+  :where(.archive-rail:hover, .archive-rail:focus-within) & {
+    opacity: 0.78;
+    transform: translateX(0);
+  }
+
+  .archive-rail__link:hover &,
+  .archive-rail__link:focus-visible & {
+    opacity: 1;
   }
 }
 
@@ -537,7 +580,6 @@
     anchor-scope: --archive-anchor;
   }
 
-  /* biome-ignore lint/style/noDescendingSpecificity: adjacent item borders are unrelated to archive group modifiers above. */
   & + & {
     border-top: 0.5px solid color-mix(in oklch, var(--surface0) 80%, transparent);
   }
