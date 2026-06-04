@@ -61,16 +61,16 @@ window.__CHANGELOG_DATA__ = [
       {
         date: '5.29',
         cn: [
-          '归档页文章预览弹层从 JS 改为纯 CSS 实现：删除 source/js/components/archive-popup.js（337 行）、head.jsx 中的条件 <script> 与 main.js 的 __gnixInitArchivePopup 调用；不再由 JS 创建并复用单个 body 级节点，改为每个 .archive-item 在模板（article_media.jsx）内内联自己的 popup',
-          '显隐与开关延迟改由 :hover / :focus-within + transition-delay 承担（开 180ms / 关 140ms，对应原 HOVER_DELAY / CLOSE_DELAY）；弹层 display:none 时保持摘要不进入布局与无障碍树（沿用原 <template> 的懒加载特性），靠 @starting-style + transition display allow-discrete 实现淡入',
+          '归档页文章预览弹层从 JS 改为纯 CSS 实现：删除 source/js/components/archive-popup.js（337 行）、head.jsx 中的条件 &lt;script&gt; 与 main.js 的 __gnixInitArchivePopup 调用；不再由 JS 创建并复用单个 body 级节点，改为每个 .archive-item 在模板（article_media.jsx）内内联自己的 popup',
+          '显隐与开关延迟改由 :hover / :focus-within + transition-delay 承担（开 180ms / 关 140ms，对应原 HOVER_DELAY / CLOSE_DELAY）；弹层 display:none 时保持摘要不进入布局与无障碍树（沿用原 &lt;template&gt; 的懒加载特性），靠 @starting-style + transition display allow-discrete 实现淡入',
           '定位改用 CSS 锚点定位（anchor-name + anchor-scope 让每个弹层绑定到各自的 item，position-try-fallbacks 自动翻转）：≥1280px 优先放右侧，否则放下方，空间不足时翻到上方——取代原 JS 的视口测量、右/下/上选择与滚动/缩放重定位逻辑',
           '序号 N° 001 改用 CSS 计数器（counter-increment + @counter-style { pad: 3 "0" }），accent 配色直接继承 --archive-accent；阅读时长的分隔符与 "read" 后缀由伪元素生成、大写交给 text-transform',
           '移除 .archive-group 的 content-visibility:auto / contain-intrinsic-size：其 paint 容器会裁剪溢出到组外的弹层，style 容器会把计数器按组重置——计数器改在 .archive-stack 上 reset 以保证跨组连续编号',
           '锚点定位不可用的浏览器（如 Firefox）通过 @supports 直接隐藏弹层（fail closed），归档列表本身不受影响'
         ],
         en: [
-          'Reimplement the archive post-preview popup in pure CSS: delete source/js/components/archive-popup.js (337 lines), its conditional <script> in head.jsx, and the __gnixInitArchivePopup call in main.js. Instead of JS creating and reusing one body-level node, each .archive-item now inlines its own popup in the template (article_media.jsx)',
-          'Drive show/hide and open/close delays with :hover / :focus-within + transition-delay (180ms open / 140ms close, the former HOVER_DELAY / CLOSE_DELAY). The popup stays display:none when closed so the excerpt never enters layout or the a11y tree (the old <template> laziness), with @starting-style + transition display allow-discrete handling the fade-in',
+          'Reimplement the archive post-preview popup in pure CSS: delete source/js/components/archive-popup.js (337 lines), its conditional &lt;script&gt; in head.jsx, and the __gnixInitArchivePopup call in main.js. Instead of JS creating and reusing one body-level node, each .archive-item now inlines its own popup in the template (article_media.jsx)',
+          'Drive show/hide and open/close delays with :hover / :focus-within + transition-delay (180ms open / 140ms close, the former HOVER_DELAY / CLOSE_DELAY). The popup stays display:none when closed so the excerpt never enters layout or the a11y tree (the old &lt;template&gt; laziness), with @starting-style + transition display allow-discrete handling the fade-in',
           'Position via CSS anchor positioning (anchor-name + anchor-scope bind each popup to its own item; position-try-fallbacks flips automatically): prefer the right of the item at ≥1280px, else below, flipping above when space is tight — replacing the JS viewport measuring, right/below/above selection, and scroll/resize repositioning',
           'Render the "N° 001" index with a CSS counter (counter-increment + @counter-style { pad: 3 "0" }) and inherit the accent straight from --archive-accent; the read-time separator and " read" suffix come from pseudo-elements, with uppercasing left to text-transform',
           'Drop content-visibility:auto / contain-intrinsic-size from .archive-group: its paint containment clipped popups that overflow the group and its style containment reset the counter per group — the counter now resets on .archive-stack for continuous cross-group numbering',
@@ -91,10 +91,10 @@ window.__CHANGELOG_DATA__ = [
       {
         date: '5.26',
         cn: [
-          '语言切换按钮在当前文章无对应翻译时直接渲染为禁用 <button disabled>，悬浮显示"该文章暂无 X 翻译"提示；移除原本的"点击 → 弹 toast"交互（涉及全局 capture 阶段 click 监听器、showSiteToast 函数及 .site-toast 样式），改由原生 title tooltip + disabled 状态承担反馈'
+          '语言切换按钮在当前文章无对应翻译时直接渲染为禁用 &lt;button disabled&gt;，悬浮显示"该文章暂无 X 翻译"提示；移除原本的"点击 → 弹 toast"交互（涉及全局 capture 阶段 click 监听器、showSiteToast 函数及 .site-toast 样式），改由原生 title tooltip + disabled 状态承担反馈'
         ],
         en: [
-          'When the current article has no translation, render the language switch as a disabled <button> whose native title tooltip says "this article has no X translation"; remove the previous click → toast flow (the global capture-phase click listener, showSiteToast helper, and .site-toast styles) in favor of native title tooltip + disabled state'
+          'When the current article has no translation, render the language switch as a disabled &lt;button&gt; whose native title tooltip says "this article has no X translation"; remove the previous click → toast flow (the global capture-phase click listener, showSiteToast helper, and .site-toast styles) in favor of native title tooltip + disabled state'
         ],
         category: 'refactor'
       },
@@ -215,7 +215,7 @@ window.__CHANGELOG_DATA__ = [
       {
         date: '5.18',
         cn: ['将 markdown-it-obsidian-callouts 移植到主题作为默认插件（位于 include/hexo/obsidian-callouts.js），支持 [!note] 等 Obsidian/GitHub 风格 callouts 与 ad-* admonitions 语法', '修复 callout 标题中包含 inline code 时因 shiki 异步渲染而输出 [object Promise] 的问题；admonition body 同步改为 render 阶段异步渲染，使内嵌的代码块也能正常高亮', '优化 callout_blocks.css：清理无用 CSS 变量、修正 details[close] 错误选择器、仅对可折叠 callout 启用 cursor:pointer 与 hover、隐藏原生 summary marker；支持通过 admonition color: header 自定义单个 callout 颜色'],
-        en: ['Port markdown-it-obsidian-callouts into the theme as a default plugin (at include/hexo/obsidian-callouts.js), supporting [!note]-style Obsidian/GitHub callouts and ad-* admonition syntax', 'Fix [object Promise] output when callout titles contain inline code (shiki async rendering); admonition bodies now also render asynchronously at render-time so nested fenced code blocks highlight correctly', 'Optimize callout_blocks.css: drop dead CSS variables, fix the bogus details[close] selector, gate cursor:pointer and hover behind <details>, hide the native summary marker; support per-callout color override via admonition color: header'],
+        en: ['Port markdown-it-obsidian-callouts into the theme as a default plugin (at include/hexo/obsidian-callouts.js), supporting [!note]-style Obsidian/GitHub callouts and ad-* admonition syntax', 'Fix [object Promise] output when callout titles contain inline code (shiki async rendering); admonition bodies now also render asynchronously at render-time so nested fenced code blocks highlight correctly', 'Optimize callout_blocks.css: drop dead CSS variables, fix the bogus details[close] selector, gate cursor:pointer and hover behind &lt;details&gt;, hide the native summary marker; support per-callout color override via admonition color: header'],
         category: 'Feat'
       },
       {
@@ -239,13 +239,13 @@ window.__CHANGELOG_DATA__ = [
       {
         date: '5.6',
         cn: ['添加边注样式：.content 内的 &lt;aside&gt; 元素渲染为次文本颜色的注释，带细左边框；在 ≥1280px 屏幕上通过负 margin-right 浮动到右页边，与 .content 并列且不占用其宽度，边注顶部与相邻段落顶部对齐；在较小屏幕上回退为段落下方的流式块', '集成 hexo-generator-tag/archive/home 索引'],
-        en: ['Add side note style: <aside> elements inside .content render as subtext-colored notes with a thin left rule; on screens >= 1280px they float into the right margin via negative margin-right so they sit beside .content without taking width from it, and the aside top aligns with the adjacent paragraph top; on smaller screens they fall back to an in-flow block below the paragraph', 'Integrate hexo-generator-tag/archive/home index'],
+        en: ['Add side note style: &lt;aside&gt; elements inside .content render as subtext-colored notes with a thin left rule; on screens >= 1280px they float into the right margin via negative margin-right so they sit beside .content without taking width from it, and the aside top aligns with the adjacent paragraph top; on smaller screens they fall back to an in-flow block below the paragraph', 'Integrate hexo-generator-tag/archive/home index'],
         category: 'Feat'
       },
       {
         date: '5.5',
         cn: ['重构 image-carousel：从第一张图片自动推导宽高比（通过缓存的 light-DOM &lt;img&gt; 就绪时获取，否则使用分离的 Image() 探测），替代硬编码 3/2——显式 ratio 属性仍优先；将 next/prev/dot/keyboard/touch 入口统一为单个 _userNav 辅助函数以重置自动播放时钟；将 chevron SVG 和魔数（默认间隔、滑动阈值、回退比例）提取为模块级常量；监听 ratio 属性变化', '重写 text-image-section：放弃包装 div，改用 &lt;figure&gt; 作为宿主元素的直接子元素，使用 display:flow-root 包含浮动并隔离父块级格式化上下文布局（例如避免引用块左边框在移动端渗入图片区域），保留用户内容为直接子元素而非重新序列化 innerHTML'],
-        en: ['Refactor image-carousel: auto-derive aspect ratio from the first image (via cached light-DOM <img> when ready, otherwise a detached Image() probe) instead of hardcoding 3/2 — explicit ratio attribute still wins; consolidate next/prev/dot/keyboard/touch entry points through a single _userNav helper that resets the autoplay clock; extract chevron SVGs and magic numbers (default interval, swipe threshold, fallback ratio) to module-scope constants; observe ratio attribute changes', 'Rewrite text-image-section: drop wrapper divs in favor of <figure> as a direct child of the host element, use display:flow-root to contain floats and isolate the layout from parent block formatting (e.g. blockquote left borders bleeding into the image area on mobile), preserve user content as direct children instead of re-serializing innerHTML'],
+        en: ['Refactor image-carousel: auto-derive aspect ratio from the first image (via cached light-DOM &lt;img&gt; when ready, otherwise a detached Image() probe) instead of hardcoding 3/2 — explicit ratio attribute still wins; consolidate next/prev/dot/keyboard/touch entry points through a single _userNav helper that resets the autoplay clock; extract chevron SVGs and magic numbers (default interval, swipe threshold, fallback ratio) to module-scope constants; observe ratio attribute changes', 'Rewrite text-image-section: drop wrapper divs in favor of &lt;figure&gt; as a direct child of the host element, use display:flow-root to contain floats and isolate the layout from parent block formatting (e.g. blockquote left borders bleeding into the image area on mobile), preserve user content as direct children instead of re-serializing innerHTML'],
         category: 'refactor'
       },
       {
@@ -633,8 +633,8 @@ window.__CHANGELOG_DATA__ = [
       },
       {
         date: '12.08',
-        cn: ['切换到 markdown-exit 渲染引擎', '使用 <code>@mdit/tabs</code> 替代 Hexo 自定义标签'],
-        en: ['Switch to markdown-exit rendering engine', 'Use <code>@mdit/tabs</code> instead of Hexo Custom Tag'],
+        cn: ['切换到 markdown-exit 渲染引擎', '使用 &lt;code&gt;@mdit/tabs&lt;/code&gt; 替代 Hexo 自定义标签'],
+        en: ['Switch to markdown-exit rendering engine', 'Use &lt;code&gt;@mdit/tabs&lt;/code&gt; instead of Hexo Custom Tag'],
         category: 'refactor'
       },
       {
@@ -680,8 +680,8 @@ window.__CHANGELOG_DATA__ = [
       },
       {
         date: '3.12',
-        cn: ['在阿里云购买 <code>jvav.love</code> 域名一年，费用为个位数', '使用 ZOHO 设置企业邮箱并向计算机网络老师发送邮件（用于"五个一工程"项目作业）'],
-        en: ['Buy <code>jvav.love</code> domain for one year on Alibaba Cloud, cost is single digit.', 'Use ZOHO to set up enterprise email and send email to computer network teacher (for "五个一工程" project assignment)'],
+        cn: ['在阿里云购买 &lt;code&gt;jvav.love&lt;/code&gt; 域名一年，费用为个位数', '使用 ZOHO 设置企业邮箱并向计算机网络老师发送邮件（用于"五个一工程"项目作业）'],
+        en: ['Buy &lt;code&gt;jvav.love&lt;/code&gt; domain for one year on Alibaba Cloud, cost is single digit.', 'Use ZOHO to set up enterprise email and send email to computer network teacher (for "五个一工程" project assignment)'],
         category: 'other'
       },
       {
