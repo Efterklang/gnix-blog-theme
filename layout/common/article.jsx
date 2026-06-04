@@ -46,6 +46,14 @@ module.exports = class extends Component {
                   )}
                   {page.date && wordCount > 0 && <span class="meta-separator">·</span>}
                   {wordCount > 0 && <span class="article-reading-time">{readTime} min</span>}
+                  {(page.date || wordCount > 0) && <span class="meta-separator">·</span>}
+                  <span
+                    class="article-visit-count"
+                    data-flag-title={page.title}
+                    dangerouslySetInnerHTML={{
+                      __html: '<span id="busuanzi_page_pv"></span> PV',
+                    }}
+                  ></span>
                 </div>
               </div>
             ) : null}

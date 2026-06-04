@@ -11,7 +11,7 @@ class Busuanzi extends Component {
 }
 
 Busuanzi.Cacheable = cacheComponent(Busuanzi, "plugin.busuanzi", (props) => {
-  if (!props.head || props.page?.status !== true) {
+  if (!props.head) {
     return null;
   }
   return {};
