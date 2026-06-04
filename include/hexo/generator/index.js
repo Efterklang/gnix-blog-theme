@@ -73,5 +73,10 @@ module.exports = (hexo) => {
     require("./archive")(hexo);
   }
 
+  const statusConfig = hexo.theme.config.status_generator || {};
+  if (statusConfig.enabled !== false) {
+    require("./status")(hexo);
+  }
+
   require("./page")(hexo);
 };

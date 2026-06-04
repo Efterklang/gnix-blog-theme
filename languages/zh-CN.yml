@@ -36,6 +36,13 @@ article:
   translation_llm_unreviewed: "LLM 翻译 · 未人工审阅"
 plugin:
   visitor_count: 'PV&nbsp;<span id="busuanzi_site_pv">-</span>&nbsp;UV&nbsp;<span id="busuanzi_site_uv">-</span>&nbsp;'
+status:
+  title: "状态"
+  eyebrow: "站点状态"
+  metrics: "站点指标"
+  article_total: "文章总数"
+  site_pv: "站点 PV"
+  site_uv: "站点 UV"
 search:
   search: "搜索"
   hint: "Search something..."

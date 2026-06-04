@@ -679,11 +679,8 @@ html {
 }
 
 .footer-author {
-  font-size: 0.8125rem;
-  font-style: italic;
   font-family: homemade-apple, var(--font-handwriting);
   color: var(--subtext0);
-  font-weight: 600;
   letter-spacing: 0.01em;
 }
 

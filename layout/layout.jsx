@@ -19,6 +19,7 @@ function buildLangSwitchScript(page, config, helper) {
     });
   }
   const siteUrl = helper.localized_url_for("/", langKey);
+  const footerAuthorUrl = typeof Footer.getStatusUrl === "function" ? Footer.getStatusUrl(page, helper) : "/status.html";
 
   const payload = lswitch
     ? JSON.stringify({
@@ -65,6 +66,9 @@ function buildLangSwitchScript(page, config, helper) {
       });
       var logo = document.getElementById('navbar-logo-link');
       if (logo) logo.href = ${JSON.stringify(siteUrl)};
+      document.querySelectorAll('.footer-author').forEach(function(link) {
+        link.href = ${JSON.stringify(footerAuthorUrl)};
+      });
     })();
   </script>`;
 }

@@ -36,6 +36,13 @@ article:
   translation_llm_unreviewed: "LLM · unreviewed"
 plugin:
   visitor_count: "Visited by %s users"
+status:
+  title: "Status"
+  eyebrow: "Site status"
+  metrics: "Site metrics"
+  article_total: "Total posts"
+  site_pv: "Site PV"
+  site_uv: "Site UV"
 search:
   search: "Search"
   hint: "Search Something..."

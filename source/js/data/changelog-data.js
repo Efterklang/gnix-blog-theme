@@ -12,6 +12,8 @@ window.__CHANGELOG_DATA__ = [
         ],
         category: 'uiux'
       },
+      {
+        date: '5.30',
         cn: [
           '修复搜索框未搜索时底部边框重叠：把输入框与结果之间的分隔线从 .searchbox-input-container 常驻的 border-bottom 改为 .searchbox-body:not(:empty) 的 border-top，仅在有结果时出现——此前结果区为空（含初始未搜索状态及零结果搜索）时，输入容器的 border-bottom 会与 .searchbox-container 自身的圆角底边框叠在一起、并撞进圆角形成双线'
         ],
