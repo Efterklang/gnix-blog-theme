@@ -19,17 +19,17 @@
 /* #region Hero */
 
 .archive-hero {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.7rem 1.5rem;
-  align-items: end;
-  padding: 0.1rem 0 1.2rem;
-  border-bottom: 1px solid var(--archive-line);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.45rem;
+  align-items: start;
+  padding: 0.1rem 0 1.35rem;
+  border-bottom: 1px dashed var(--surface0);
 
   @media (max-width: 720px) {
-    grid-template-columns: 1fr;
-    gap: 0.55rem;
-    padding-bottom: 1rem;
+    gap: 0.4rem;
+    padding-bottom: 1.1rem;
   }
 }
 
@@ -39,48 +39,51 @@
   align-items: center;
   justify-content: flex-end;
   justify-self: end;
-  gap: 0.45rem 0.7rem;
-  min-width: max-content;
-  margin-bottom: 0.18rem;
+  min-width: 0;
+  max-width: 100%;
+  margin: -0.05rem 0 0;
+  text-align: right;
 
   @media (max-width: 720px) {
-    justify-content: flex-start;
-    justify-self: start;
-    min-width: 0;
-    margin-bottom: 0;
+    margin-top: 0;
   }
 }
 
 .archive-hero__eyebrow {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.1rem 0.34rem;
+  align-items: baseline;
+  justify-content: flex-end;
   margin: 0;
   color: var(--archive-muted);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 600;
+  font-family: var(--font-handwriting);
+  font-size: 0.92rem;
+  font-weight: 400;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.12em;
-  line-height: 1;
+  letter-spacing: 0;
+  line-height: 1.25;
   text-transform: lowercase;
 }
 
 .archive-hero__topics-button {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  min-height: 1.45rem;
-  padding: 0.18rem 0;
+  gap: 0.02rem;
+  min-height: 1.2rem;
+  padding: 0;
   border: none;
   border-bottom: 1px solid transparent;
   border-radius: 0;
   background: transparent;
   color: var(--archive-muted);
   cursor: pointer;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 600;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.1em;
-  line-height: 1;
+  letter-spacing: inherit;
+  line-height: inherit;
   text-transform: lowercase;
   transition:
     border-color 140ms ease,
@@ -111,17 +114,10 @@
   margin: 0;
   color: var(--text);
   font-family: var(--font-serif);
-  font-style: italic;
-  font-synthesis: none;
-  font-size: 3rem;
-  font-weight: 500;
+  font-weight: 100;
   line-height: 1;
   letter-spacing: 0;
   overflow-wrap: anywhere;
-
-  @media (max-width: 480px) {
-    font-size: 2.1rem;
-  }
 }
 
 .archive-topic-picker {
@@ -308,7 +304,7 @@
 
 @media (max-width: 480px) {
   .archive-hero__topics-button {
-    min-height: 1.55rem;
+    min-height: 1.2rem;
   }
 
   .archive-topic-picker__body {
@@ -443,7 +439,6 @@
   display: flex;
   align-items: baseline;
   justify-content: center;
-  gap: 0.85rem;
   margin: 1.5rem 0 0.25rem;
   padding-top: 0.25rem;
   color: var(--archive-muted);
@@ -468,15 +463,6 @@
   font-family: var(--font-serif);
   font-size: 0.9rem;
   letter-spacing: 0.28em;
-}
-
-.archive-era__year {
-  flex: 0 0 auto;
-  color: var(--archive-muted);
-  font-size: 0.66rem;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.18em;
-  opacity: 0.55;
 }
 
 /* #endregion */

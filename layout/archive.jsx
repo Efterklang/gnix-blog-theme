@@ -223,7 +223,9 @@ module.exports = class extends Component {
     const currentYear = page.year ? Number(page.year) : null;
     const currentMonth = page.month ? Number(page.month) : null;
     const isTagPage = Boolean(page.tag);
-    const entriesLabel = `${totalVisiblePosts} ${totalVisiblePosts === 1 ? "entry" : "entries"}`;
+    const writingsLabel = `${totalVisiblePosts} ${totalVisiblePosts === 1 ? "writing" : "writings"}`;
+    const topicLabel = topicTags.length === 1 ? "topic" : "topics";
+    const sinceYear = years.length ? years[years.length - 1] : currentYear;
 
     let articleList;
     if (!page.year) {
@@ -233,10 +235,6 @@ module.exports = class extends Component {
         <Fragment key={block.year}>
           <div class="archive-era" id={`archive-year-${block.year}`}>
             <span class="archive-era__roman">{toRoman(block.year)}</span>
-            <span class="archive-era__year" aria-hidden="true">
-              {" "}
-              {block.year}{" "}
-            </span>
           </div>
           {block.groups.map((group) => (
             <Fragment key={`${group.year}-${group.season}`}>
@@ -273,16 +271,26 @@ module.exports = class extends Component {
           <h1 class="archive-hero__title">{heroTitle}</h1>
           <div class="archive-hero__meta">
             <p class="archive-hero__eyebrow">
-              <span class="archive-hero__count">{entriesLabel}</span>
+              <span class="archive-hero__count">{writingsLabel}</span>
+              {topicTags.length > 0 && (
+                <Fragment>
+                  <span>on</span>
+                  <button type="button" class="archive-hero__topics-button" popovertarget="archive-topic-picker" aria-label={`${topicsTitle}: ${topicTags.length}`}>
+                    <span class="archive-hero__topics-mark" aria-hidden="true">
+                      #
+                    </span>
+                    <span class="archive-hero__topics-count">{topicTags.length}</span>
+                  </button>
+                  <span>{topicLabel}</span>
+                </Fragment>
+              )}
+              {sinceYear && (
+                <Fragment>
+                  <span>since</span>
+                  <span>{sinceYear}</span>
+                </Fragment>
+              )}
             </p>
-            {topicTags.length > 0 && (
-              <button type="button" class="archive-hero__topics-button" popovertarget="archive-topic-picker" aria-label={`${topicsTitle}: ${topicTags.length}`}>
-                <span class="archive-hero__topics-mark" aria-hidden="true">
-                  #
-                </span>
-                <span class="archive-hero__topics-count">{topicTags.length}</span>
-              </button>
-            )}
           </div>
           {renderTopicPicker({ tags: topicTags, title: topicsTitle })}
         </header>

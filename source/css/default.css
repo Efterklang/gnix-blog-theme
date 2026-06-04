@@ -497,18 +497,7 @@ html {
   left: 0;
   right: 0;
   z-index: 100;
-  background: var(--mantle);
-}
-
-.navbar::after {
-  content: "";
-  position: absolute;
-  left: 8%;
-  right: 8%;
-  bottom: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, hsl(from var(--surface0) h s l / 0.75) 22%, hsl(from var(--surface0) h s l / 0.75) 78%, transparent 100%);
-  pointer-events: none;
+  border-bottom: 0.1px solid var(--surface0);
 }
 
 .navbar-container {
