@@ -1,5 +1,6 @@
 (() => {
   const instances = new Map();
+  const mermaidFontFamily = "ChillKai, Avenir, system-ui";
   let mermaidPromise = null;
   let renderSeq = 0;
 
@@ -36,8 +37,12 @@
       startOnLoad: false,
       theme: isNight ? "dark" : "default",
       darkMode: isNight,
-      themeVariables,
+      themeVariables: {
+        ...themeVariables,
+        fontFamily: mermaidFontFamily,
+      },
       securityLevel: "strict",
+      fontFamily: mermaidFontFamily,
       fontSize: 16,
     });
 
