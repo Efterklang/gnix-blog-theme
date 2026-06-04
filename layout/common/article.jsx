@@ -148,6 +148,7 @@ module.exports = class extends Component {
           </article>
 
           <div id="article-font-settings" popover="auto" class="article-popover article-font-popover">
+            <button class="article-popover-backdrop" type="button" popovertarget="article-font-settings" popovertargetaction="hide" tabindex="-1" aria-label="Close article panel"></button>
               <div class="article-popover-body">
                 <div class="font-settings-column">
                   <div class="font-setting-group font-size-group">
@@ -309,6 +310,7 @@ module.exports = class extends Component {
 
           {hasComment && (
             <div id="article-comment-popover" popover="auto" class="article-popover article-comment-popover">
+              <button class="article-popover-backdrop" type="button" popovertarget="article-comment-popover" popovertargetaction="hide" tabindex="-1" aria-label="Close article panel"></button>
               <div class="article-popover-body article-comment-popover-body">
                 <Comment config={config} page={page} helper={helper} embedded />
               </div>

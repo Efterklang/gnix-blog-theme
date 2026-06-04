@@ -34,6 +34,7 @@ module.exports = class extends Component {
 
     return (
       <div id="article-info-popover" popover="auto" class="article-popover article-info-popover">
+        <button class="article-popover-backdrop" type="button" popovertarget="article-info-popover" popovertargetaction="hide" tabindex="-1" aria-label="Close article panel"></button>
         <div class="article-popover-body">
           <div class="article-info-list">
             {(page.author || config.author) && (

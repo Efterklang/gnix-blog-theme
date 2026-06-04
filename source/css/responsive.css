@@ -7,6 +7,9 @@
     max-width: 96vw;
 
     .article-popover-body {
+      width: clamp(864px, 67.2vw, 1056px);
+      min-width: 864px;
+      max-width: 96vw;
       display: grid;
       grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
       gap: 0;
