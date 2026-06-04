@@ -8,10 +8,6 @@ module.exports = class extends Component {
     return (
       <Fragment>
         {Object.keys(plugins).map((name) => {
-          // Keep ignoring legacy `swup` config entries from older theme setups.
-          if (!plugins[name] || name === "swup") {
-            return null;
-          }
           const Plugin = loadComponent(`plugin/${name}`);
           return <Plugin site={site} config={config} page={page} helper={helper} plugin={plugins[name]} head={head} />;
         })}
