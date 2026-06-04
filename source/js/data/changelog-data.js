@@ -3,6 +3,42 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: '6.04',
+        cn: [
+          '归档页接管主题索引：tag generator 不再额外生成 /tags/ 索引页，删除独立的 tags.jsx / tags.css，head.jsx 也不再加载 tags.css；主题入口改为 archive-hero 右侧的 # 数量按钮，打开轻量 popover 列出当前语言下有文章的 tag，并在 tag 页标记当前项',
+          '重做 archive-hero：eyebrow 只保留文章数量，移除 Archive / Tag 文案、分隔点和罗马数字水印；标题与元信息改为极简双列布局，移动端自然堆叠，底部只保留一条安静的细分隔线'
+        ],
+        en: [
+          'Let the archive page absorb the tag index: the tag generator no longer emits a separate /tags/ index, the standalone tags.jsx / tags.css are removed, and head.jsx stops loading tags.css. The topic entry is now a compact # count button in archive-hero, opening a lightweight popover of tags with posts in the current language and marking the active tag page',
+          'Refine archive-hero: the eyebrow now only carries the entry count, with Archive / Tag copy, dot separator, and the Roman numeral watermark removed. The title and meta use a minimal two-column layout that stacks cleanly on mobile, with one quiet bottom rule'
+        ],
+        category: 'uiux'
+      },
+      {
+        date: '6.04',
+        cn: [
+          '新增本地化 /status.html：status generator 为每种语言输出状态页，展示文章总数与 busuanzi PV / UV；新增 status.css 与中英翻译，head.jsx 仅在状态页加载这份样式',
+          '页脚作者链接改为进入对应语言的 status.html，Swup 导航时同步刷新 .footer-author 的 href，避免跨语言导航后仍指向旧语言状态页'
+        ],
+        en: [
+          'Add localized /status.html pages: the status generator emits one status page per language, showing total posts plus busuanzi PV / UV metrics. Add status.css and bilingual strings, with head.jsx loading that stylesheet only on status pages',
+          'Turn the footer author mark into a link to the matching-language status.html, and refresh .footer-author href during Swup navigation so cross-language visits do not keep pointing at the previous language status page'
+        ],
+        category: 'Feat'
+      },
+      {
+        date: '6.04',
+        cn: [
+          '修复文章 popover 点击穿透：字体设置、评论和文章信息 popover 都增加透明 backdrop button，:popover-open 改为覆盖整个视口并把实际面板放在上层；点击面板外会关闭 popover，不再落到下方文章链接或按钮上',
+          '同步调整弹层尺寸与背景：面板主体负责宽度、圆角、阴影和滚动，评论 / 字体设置弹层在桌面保持原有宽度约束，移动端仍限制在视口内'
+        ],
+        en: [
+          'Fix article popover click-through: font settings, comments, and article info popovers now include a transparent backdrop button, while :popover-open covers the viewport and places the real panel above it. Clicking outside the panel closes the popover instead of hitting article links or buttons underneath',
+          'Tighten popover sizing and surface treatment at the same time: the panel body now owns width, radius, shadow, and scrolling; comment / font-settings panels keep their desktop width constraints while remaining viewport-bounded on mobile'
+        ],
+        category: 'fix'
+      },
+      {
         date: '5.30',
         cn: [
           'image-carousel 限高：轮播图高度不再超过视口的 80%。对竖图（portrait），改为限制 .stage 的 max-width（= 宽高比 × max-height）并居中，而非直接裁剪或加黑边——宽度收窄、高度封顶但宽高比保持不变。在 _resolveRatio 解析出的宽高比基础上额外算出数值比并写入 --carousel-max-width；上限可用 --carousel-max-height CSS 变量覆盖（默认 80vh）'
