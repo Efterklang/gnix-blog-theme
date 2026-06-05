@@ -553,6 +553,7 @@ html {
   left: 0;
   right: 0;
   z-index: 100;
+  background-color: var(--mantle);
   border-bottom: 0.1px solid var(--surface0);
 }
 
