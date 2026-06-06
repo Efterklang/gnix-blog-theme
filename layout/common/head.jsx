@@ -273,7 +273,7 @@ module.exports = class extends Component {
     const articleFontInitScript = getArticleFontInitScript();
     const articleFontUtilsScript = fs.readFileSync(path.join(__dirname, "../../source/js/article-font-utils.js"), "utf8");
     const speculationRules = getSpeculationRules(head);
-    const speculationRulesScript = speculationRules ? JSON.stringify(speculationRules, null, 2) : null;
+    const speculationRulesScript = speculationRules ? JSON.stringify(speculationRules) : null;
 
     return (
       <head>
