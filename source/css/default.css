@@ -12,17 +12,6 @@
   animation: none;
 }
 
-::view-transition-group(gnix-navbar),
-::view-transition-old(gnix-navbar),
-::view-transition-new(gnix-navbar) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-
-::view-transition-new(gnix-navbar) {
-  opacity: 0;
-}
-
 ::view-transition-old(gnix-main-content) {
   animation: gnix-view-transition-out 160ms ease both;
 }
@@ -572,7 +561,8 @@ html {
 }
 
 .navbar-main {
-  view-transition-name: gnix-navbar;
+  /* Keep the sticky nav out of native history snapshots to avoid stale-style flashes on back/forward navigation. */
+  view-transition-name: none;
   transition: transform 240ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -580,15 +570,14 @@ html {
   transform: translateY(-100%);
 }
 
-.navbar-logo {
+#navbar-logo-link {
   font-family: homemade-apple, var(--font-handwriting);
+  font-size: 0.5rem;
   color: var(--subtext1);
   display: flex;
   align-items: center;
   padding: 0 1.25rem;
   letter-spacing: 0.01em;
-  line-height: 1;
-  transition: color 240ms ease;
 }
 
 .navbar-item {

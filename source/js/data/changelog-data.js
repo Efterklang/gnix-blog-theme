@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: '6.06',
+        cn: [
+          '修复浏览器后退 / 前进时 navbar 偶发 FOUC：navbar 不再注册独立的 native View Transition name，避免历史导航恢复时显示过期的导航栏快照；页面过渡仍只保留正文区域淡入淡出'
+        ],
+        en: [
+          'Fix intermittent navbar FOUC during browser back / forward navigation: the navbar no longer registers a separate native View Transition name, preventing stale navbar snapshots during history restores while keeping the main content fade transition intact'
+        ],
+        category: 'fix'
+      },
+      {
         date: '6.04',
         cn: [
           '归档页接管主题索引：tag generator 不再额外生成 /tags/ 索引页，删除独立的 tags.jsx / tags.css，head.jsx 也不再加载 tags.css；主题入口改为 archive-hero 右侧的 # 数量按钮，打开轻量 popover 列出当前语言下有文章的 tag，并在 tag 页标记当前项',

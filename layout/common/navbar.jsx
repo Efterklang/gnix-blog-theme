@@ -82,7 +82,7 @@ class Navbar extends Component {
       <Fragment>
         <nav class="navbar navbar-main">
           <div class="navbar-container">
-            <a id="navbar-logo-link" class="navbar-logo" href={siteUrl}>
+            <a id="navbar-logo-link" href={siteUrl}>
               GnixAij
             </a>
             <div class="navbar-menu">
