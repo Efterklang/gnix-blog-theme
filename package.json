@@ -20,8 +20,7 @@
   "scripts": {
     "lint": "biome check --write .",
     "format": "biome format .",
-    "check": "biome check",
-    "test": "node test/md_generator.test.js"
+    "check": "biome check"
   },
   "files": [
     "include",
