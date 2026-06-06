@@ -556,17 +556,6 @@ function initArticleCommentPopover() {
     return;
   }
 
-  // Preload twikoo JS during idle time so comments render faster on click
-  const tko = document.getElementById("tko");
-  if (tko?.dataset.jsUrl) {
-    const preload = () => runWhenActivated(() => loadScriptOnce(tko.dataset.jsUrl, () => {}));
-    if (typeof requestIdleCallback === "function") {
-      requestIdleCallback(preload, { timeout: 3000 });
-    } else {
-      setTimeout(preload, 200);
-    }
-  }
-
   const initializeComments = () => twikoo_handler();
   if (commentPopover.matches(":popover-open")) {
     initializeComments();
@@ -585,11 +574,13 @@ function initPage() {
   initArticleSettings();
   const zoomOpts = { background: "hsla(from var(--mantle) / 0.9)" };
   const zoomImgs = [];
-  document.querySelectorAll(".content img").forEach((img) => {
-    if (img.dataset.zoomBound === "true") return;
-    img.dataset.zoomBound = "true";
-    zoomImgs.push(img);
-  });
+  if (typeof mediumZoom === "function") {
+    document.querySelectorAll(".content img").forEach((img) => {
+      if (img.dataset.zoomBound === "true") return;
+      img.dataset.zoomBound = "true";
+      zoomImgs.push(img);
+    });
+  }
   if (zoomImgs.length) mediumZoom(zoomImgs, zoomOpts);
   initArticleCommentPopover();
 }

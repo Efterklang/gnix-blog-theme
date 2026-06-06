@@ -62,21 +62,4 @@ module.exports = (hexo) => {
       }),
     };
   });
-
-  const tagConfig = hexo.theme.config.tag_generator || {};
-  if (tagConfig.enabled !== false) {
-    require("./tag")(hexo);
-  }
-
-  const archiveConfig = hexo.theme.config.archive_generator || {};
-  if (archiveConfig.enabled !== false) {
-    require("./archive")(hexo);
-  }
-
-  const statusConfig = hexo.theme.config.status_generator || {};
-  if (statusConfig.enabled !== false) {
-    require("./status")(hexo);
-  }
-
-  require("./page")(hexo);
 };
