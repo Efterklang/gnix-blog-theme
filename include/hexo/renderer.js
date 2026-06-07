@@ -1,13 +1,14 @@
 const path = require("node:path");
 const { createMarkdownExit } = require("markdown-exit");
-const mermaidDiagram = require("./mermaid");
+const mermaidDiagram = require("./mdit/mermaid");
 const ratex = require("markdown-exit-ratex");
-const code = require("./shiki");
-const obsidianCallouts = require("./obsidian-callouts");
+const code = require("./mdit/shiki");
+const obsidianCallouts = require("./mdit/obsidian-callouts");
 const anchor = require("markdown-it-anchor");
 const footnote = require("markdown-it-footnote");
 const mark = require("markdown-it-mark");
 const taskLists = require("markdown-it-task-lists");
+const createTitlebasedLink = require("./mdit/titlebased-link");
 
 function resolveDefault(module) {
   return module && typeof module === "object" && "default" in module ? module.default : module;
@@ -36,8 +37,9 @@ function wrapMarkdownItTable(md, options = {}) {
 }
 
 class MarkdownRenderer {
-  constructor(hexo) {
+  constructor(hexo, titlebasedLink) {
     this.hexo = hexo;
+    this.titlebasedLink = titlebasedLink;
     this.config = {
       render_options: {
         breaks: true,
@@ -58,6 +60,8 @@ class MarkdownRenderer {
 
   initPlugins() {
     console.time("MarkdownExit: Load Default Plugins");
+    this.md.use(this.titlebasedLink);
+
     if (this.config.defaultPlugins !== false) {
       this.md
         .use(resolveDefault(footnote))
@@ -125,9 +129,9 @@ class MarkdownRenderer {
 
 const markdownRendererInstances = new WeakMap();
 
-function getMarkdownRenderer(hexo) {
+function getMarkdownRenderer(hexo, titlebasedLink) {
   if (!markdownRendererInstances.has(hexo)) {
-    markdownRendererInstances.set(hexo, new MarkdownRenderer(hexo));
+    markdownRendererInstances.set(hexo, new MarkdownRenderer(hexo, titlebasedLink));
   }
   return markdownRendererInstances.get(hexo);
 }
@@ -184,8 +188,9 @@ function renderer(data, locals) {
 renderer.compile = compile;
 
 module.exports = (hexo) => {
+  const titlebasedLink = createTitlebasedLink(hexo);
   const markdownConfig = hexo.config.markdown_exit || {};
-  const markdownRenderer = async (data) => getMarkdownRenderer(hexo).render(data);
+  const markdownRenderer = async (data) => getMarkdownRenderer(hexo, titlebasedLink).render(data);
   markdownRenderer.disableNunjucks = Boolean(markdownConfig.disableNunjucks);
 
   hexo.extend.renderer.register("md", "html", markdownRenderer);
