@@ -83,7 +83,7 @@ class Navbar extends Component {
         <nav class="navbar navbar-main">
           <div class="navbar-container">
             <a id="navbar-logo-link" href={siteUrl}>
-              GnixAij
+              ga.o
             </a>
             <div class="navbar-menu">
               {Object.keys(menu).length ? (
