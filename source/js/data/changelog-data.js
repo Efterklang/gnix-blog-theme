@@ -3,6 +3,42 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: '6.08',
+        cn: [
+          '偏好设置页去掉与整体视觉不搭的左侧 sidebar，并移除顶部 Appearance / Typography tabs；设置内容改为连续的 Appearance 与 Typography section，减少导航和初始化代码',
+          '主题配置区不再为每个配色方案展示一张代码预览卡，改为 Light 与 Dark 两张预览卡；每张卡展示当前 scheme 的 palette 色块，并通过紧凑下拉菜单切换具体 scheme',
+          '隐藏偏好设置页与 popup 内部滚动条，并进一步压平偏好设置视觉层级：移除 section/card 的多层装饰、冗余说明文案、预览卡图标和 Light / Dark 卡片标题，让设置内容更简洁',
+          '排版预览文案改为叶芝《当你老了》的中英文片段，预览内容更适合作为字体效果样张',
+          '页面顶部新增返回上一页链接；全站 settings 快捷键从 Ctrl/Cmd+P 改为 Ctrl/Cmd+,',
+          '进入与离开偏好设置页时主动跳过 native view-transition，不再播放主内容淡入淡出；导航栏偏好设置入口改为更简洁的 Lucide settings-2 图标',
+          '偏好设置入口改为按需加载的 popup：普通页面首屏不加载 preferences.css / preferences.js / 偏好设置预览 HTML，首次点击或按 Ctrl/Cmd+, 时再拉取当前语言的 preferences.html 并缓存；再次按快捷键或点击入口会关闭弹层；popup loader 也拆到独立动态模块，减少 main.js 常驻解析成本',
+          '移除文章标题操作区的字体设置按钮，偏好设置只保留导航栏入口与 Ctrl/Cmd+, 快捷键，减少文章页操作噪音'
+        ],
+        en: [
+          'Remove the preferences sidebar and the top-level Appearance / Typography tabs. Settings now render as continuous Appearance and Typography sections, reducing navigation and initialization code',
+          'Collapse the seven per-scheme code preview cards into two Light and Dark preview cards. Each card now shows palette swatches for the current scheme, with a compact select for changing the concrete scheme',
+          'Hide scrollbars in the preferences page and popup, then further flatten the preferences hierarchy by removing layered section/card decoration, redundant helper copy, preview-card icons, and Light / Dark card headings',
+          'Replace the typography preview copy with localized excerpts from Yeats\' When You Are Old so the sample reads more naturally as a type specimen',
+          'Add a back link at the top of the page and change the global settings shortcut from Ctrl/Cmd+P to Ctrl/Cmd+,',
+          'Actively skip native view-transitions when entering or leaving preferences so the main-content fade no longer plays, and replace the navbar preferences entry with a cleaner Lucide settings-2 icon',
+          'Turn the preferences entry into an on-demand popup: normal pages no longer load preferences.css, preferences.js, or preferences preview HTML on first paint; the current-language preferences.html is fetched and cached on the first click or Ctrl/Cmd+, and the same shortcut or entry toggles the popup closed. The popup loader is split into its own dynamic module so main.js keeps less resident parse work',
+          'Remove the article title-bar font settings button, leaving preferences accessible through the navbar entry and Ctrl/Cmd+, shortcut so article controls stay quieter'
+        ],
+        category: 'Style'
+      },
+      {
+        date: '6.07',
+        cn: [
+          '新增本地化 /preferences.html 偏好设置页：主题设置从 navbar 的临时 popover 迁移为完整页面，支持 System / Light / Dark 模式，并可分别选择浅色与深色配色方案；旧的 themePreference 字符串存储会自动兼容为新的 mode + light + dark 结构',
+          '文章字体设置从文章页弹层迁移到偏好设置页，保留字号、行高、字体类型、字重、自定义网页字体与预览；文章工具栏的字体按钮改为跳转偏好设置页，同时移除旧 theme selector 组件、脚本与文章字体弹层绑定代码'
+        ],
+        en: [
+          'Add localized /preferences.html pages: theme settings move from the navbar popover to a full preference page, with System / Light / Dark modes and separate light/dark color-scheme choices. Existing string-based themePreference values are normalized into the new mode + light + dark structure',
+          'Move article typography settings from the article popover to the preference page, preserving size, line height, typeface, weight, custom web fonts, and preview. The article toolbar font action now links to preferences, while the old theme selector component/script and article font-popover bindings are removed'
+        ],
+        category: 'Feat'
+      },
+      {
         date: '6.06',
         cn: [
           '修复浏览器后退 / 前进时 navbar 偶发 FOUC：navbar 不再注册独立的 native View Transition name，避免历史导航恢复时显示过期的导航栏快照；页面过渡仍只保留正文区域淡入淡出'

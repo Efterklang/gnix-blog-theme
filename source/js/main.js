@@ -10,6 +10,38 @@ function whenReady(callback) {
   }
 }
 
+const PREFERENCE_POPUP_MODULE_URL = "/js/preferences-popup.js";
+
+let preferencePopupModulePromise = null;
+
+function isPreferencesUrl(value) {
+  try {
+    const url = new URL(value, window.location.href);
+    return url.origin === window.location.origin && /(?:^|\/)preferences\.html$/.test(url.pathname);
+  } catch {
+    return false;
+  }
+}
+
+function getPreferencesUrl() {
+  return document.getElementById("preferences-link")?.href || new URL("/preferences.html", window.location.href).href;
+}
+
+function navigateToPreferences(preferencesUrl = getPreferencesUrl()) {
+  window.location.href = preferencesUrl;
+}
+
+function loadPreferencePopupModule() {
+  preferencePopupModulePromise ||= import(PREFERENCE_POPUP_MODULE_URL);
+  return preferencePopupModulePromise;
+}
+
+function togglePreferencePopup(preferencesUrl = getPreferencesUrl()) {
+  if (document.querySelector('[data-preferences-page][data-preference-surface="page"]')) return Promise.resolve();
+
+  return loadPreferencePopupModule().then((module) => module.togglePreferencePopup(preferencesUrl));
+}
+
 function twikoo_handler() {
   runWhenActivated(() => {
     const el = document.getElementById("tko");
@@ -126,12 +158,35 @@ function addHighlightTool() {
 
 // #region Keyboard Shortcuts
 
+function handlePreferenceTransitionLinkClick(event) {
+  if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+  const link = event.target.closest?.("[data-preference-trigger][href]");
+  if (!link || link.target || link.download) return;
+
+  try {
+    const url = new URL(link.href, window.location.href);
+    if (url.origin !== window.location.origin || !isPreferencesUrl(url.href)) return;
+    event.preventDefault();
+    togglePreferencePopup(url.href).catch(() => navigateToPreferences(url.href));
+  } catch {
+    // Invalid hrefs do not participate in same-origin preferences navigation.
+  }
+}
+
 function handleKeyDown(e) {
   const isModifier = e.metaKey || e.ctrlKey;
   if (!isModifier) return;
 
   const tag = e.target.tagName;
   if (["INPUT", "TEXTAREA"].includes(tag) || e.target.isContentEditable) return;
+
+  const isSettingsShortcut = (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.code === "Comma" || e.key === "," || e.key === "Comma");
+  if (isSettingsShortcut) {
+    e.preventDefault();
+    togglePreferencePopup().catch(() => navigateToPreferences());
+    return;
+  }
 
   switch (e.code) {
     case "KeyT":
@@ -141,12 +196,6 @@ function handleKeyDown(e) {
     case "KeyK":
       e.preventDefault();
       document.querySelector("#searchbox")?.showPopover();
-      break;
-    case "KeyP":
-      if (!e.shiftKey) {
-        e.preventDefault();
-        document.querySelector("#theme-selector-popover")?.showPopover();
-      }
       break;
   }
 }
@@ -206,349 +255,6 @@ function handleMermaid() {
 
 // #endregion
 
-const articleFontConfig = window.__GNIX_ARTICLE_FONT_CONFIG__ || {};
-const ARTICLE_FONT_STORAGE_KEY = articleFontConfig.storageKey || "gnix-article-font";
-const ARTICLE_FONT_DEFAULT_SETTINGS = articleFontConfig.defaultSettings || { size: "medium", type: "serif", lineHeight: 1.7, weight: "regular" };
-const ARTICLE_SIZE_OPTIONS = new Set(articleFontConfig.sizeOptions || ["small", "medium-small", "medium", "medium-large", "large"]);
-const ARTICLE_FONT_OPTIONS = new Set(articleFontConfig.fontOptions || ["serif", "sans-serif", "mono", "handwriting"]);
-const ARTICLE_WEIGHT_OPTIONS = new Set(articleFontConfig.weightOptions || ["light", "regular", "medium"]);
-const ARTICLE_LINE_HEIGHT_MIN = articleFontConfig.lineHeight?.min ?? 1.45;
-const ARTICLE_LINE_HEIGHT_MAX = articleFontConfig.lineHeight?.max ?? 1.9;
-const ARTICLE_CUSTOM_FONT_OPTIONS = articleFontConfig.customFonts?.familyOptions || {
-  serif: "--font-serif",
-  "sans-serif": "--font-sans-serif",
-  mono: "--font-mono",
-  handwriting: "--font-handwriting",
-};
-const ARTICLE_CUSTOM_FONT_IMPORT_LIMIT = articleFontConfig.customFonts?.importLimit ?? 6;
-const ARTICLE_CUSTOM_FONT_LINK_SELECTOR = 'link[data-gnix-custom-font="true"]';
-
-function getCssVariableValue(name, fallback = "") {
-  if (typeof document === "undefined") return fallback;
-
-  const value = window.getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  return value || fallback;
-}
-
-// Reads `--font-*` from default.css. Custom fonts are applied as inline
-// styles on <html>, which would override the stylesheet value; we strip
-// those overrides while reading and restore them after.
-function getDefaultCustomFontFamilies() {
-  if (typeof document === "undefined") return {};
-
-  const html = document.documentElement;
-  const saved = {};
-  Object.values(ARTICLE_CUSTOM_FONT_OPTIONS).forEach((cssVar) => {
-    const inline = html.style.getPropertyValue(cssVar);
-    if (inline) {
-      saved[cssVar] = inline;
-      html.style.removeProperty(cssVar);
-    }
-  });
-
-  const defaults = {
-    serif: getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS.serif),
-    "sans-serif": getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS["sans-serif"]),
-    mono: getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS.mono),
-    handwriting: getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS.handwriting),
-  };
-
-  Object.keys(saved).forEach((cssVar) => {
-    html.style.setProperty(cssVar, saved[cssVar]);
-  });
-
-  return defaults;
-}
-
-const ARTICLE_FONT_UTILS = window.__GNIX_ARTICLE_FONT_UTILS__ || {};
-
-function normalizeCustomFonts(value = {}) {
-  const normalized = ARTICLE_FONT_UTILS.normalizeCustomFonts
-    ? ARTICLE_FONT_UTILS.normalizeCustomFonts(value, ARTICLE_CUSTOM_FONT_OPTIONS, ARTICLE_CUSTOM_FONT_IMPORT_LIMIT)
-    : { imports: [], families: {} };
-  const defaultFamilies = getDefaultCustomFontFamilies();
-
-  Object.keys(ARTICLE_CUSTOM_FONT_OPTIONS).forEach((key) => {
-    if (!normalized.families[key]) {
-      normalized.families[key] = defaultFamilies[key] || "";
-    }
-  });
-
-  return normalized;
-}
-
-function applyCustomFonts(customFonts = {}) {
-  const normalized = normalizeCustomFonts(customFonts);
-  if (ARTICLE_FONT_UTILS.applyCustomFontImports) {
-    ARTICLE_FONT_UTILS.applyCustomFontImports(normalized.imports, ARTICLE_CUSTOM_FONT_LINK_SELECTOR);
-  }
-  if (ARTICLE_FONT_UTILS.applyCustomFontFamilies) {
-    ARTICLE_FONT_UTILS.applyCustomFontFamilies(document.documentElement, normalized.families, ARTICLE_CUSTOM_FONT_OPTIONS);
-  }
-  return normalized;
-}
-
-function initHoverPopover(trigger, popover) {
-  if (!trigger || !popover || typeof popover.showPopover !== "function" || typeof popover.hidePopover !== "function") {
-    return;
-  }
-
-  let hideTimer = null;
-
-  function clearHideTimer() {
-    if (hideTimer) {
-      clearTimeout(hideTimer);
-      hideTimer = null;
-    }
-  }
-
-  function openPopover() {
-    clearHideTimer();
-    if (!popover.matches(":popover-open")) {
-      popover.showPopover();
-    }
-    const rect = trigger.getBoundingClientRect();
-    const popoverWidth = popover.offsetWidth || 0;
-    const left = Math.min(Math.max(16, rect.left), Math.max(16, window.innerWidth - popoverWidth - 16));
-    popover.style.left = `${left}px`;
-    popover.style.top = `${rect.bottom + 8}px`;
-  }
-
-  function scheduleClose() {
-    clearHideTimer();
-    hideTimer = window.setTimeout(() => {
-      const hasPointer = trigger.matches(":hover") || popover.matches(":hover");
-      const hasFocus = trigger.matches(":focus-visible") || popover.contains(document.activeElement);
-      if (!hasPointer && !hasFocus && popover.matches(":popover-open")) {
-        popover.hidePopover();
-      }
-    }, 80);
-  }
-
-  trigger.addEventListener("pointerenter", openPopover);
-  trigger.addEventListener("focus", openPopover);
-  trigger.addEventListener("pointerleave", scheduleClose);
-  trigger.addEventListener("blur", scheduleClose);
-  trigger.addEventListener("click", openPopover);
-
-  popover.addEventListener("pointerenter", openPopover);
-  popover.addEventListener("pointerleave", scheduleClose);
-  popover.addEventListener("focusin", openPopover);
-  popover.addEventListener("focusout", scheduleClose);
-  popover.addEventListener("toggle", (event) => {
-    if (event.newState === "closed") clearHideTimer();
-  });
-}
-
-function normalizeArticleLineHeight(value) {
-  if (value === "compact") return 1.55;
-  if (value === "normal") return 1.7;
-  if (value === "relaxed") return 1.85;
-
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) return ARTICLE_FONT_DEFAULT_SETTINGS.lineHeight;
-  return Math.min(ARTICLE_LINE_HEIGHT_MAX, Math.max(ARTICLE_LINE_HEIGHT_MIN, parsed));
-}
-
-function normalizeArticleFontSettings(value = {}) {
-  const candidate = value || {};
-  return {
-    size: ARTICLE_SIZE_OPTIONS.has(candidate.size) ? candidate.size : ARTICLE_FONT_DEFAULT_SETTINGS.size,
-    type: ARTICLE_FONT_OPTIONS.has(candidate.type) ? candidate.type : ARTICLE_FONT_DEFAULT_SETTINGS.type,
-    lineHeight: normalizeArticleLineHeight(candidate.lineHeight),
-    weight: ARTICLE_WEIGHT_OPTIONS.has(candidate.weight) ? candidate.weight : ARTICLE_FONT_DEFAULT_SETTINGS.weight,
-    customFonts: normalizeCustomFonts(candidate.customFonts),
-  };
-}
-
-function getArticleFontSettings() {
-  let settings = { ...ARTICLE_FONT_DEFAULT_SETTINGS };
-  try {
-    const stored = localStorage.getItem(ARTICLE_FONT_STORAGE_KEY);
-    if (stored) settings = normalizeArticleFontSettings({ ...ARTICLE_FONT_DEFAULT_SETTINGS, ...JSON.parse(stored) });
-  } catch {
-    settings = { ...ARTICLE_FONT_DEFAULT_SETTINGS };
-  }
-  return settings;
-}
-
-function applyArticleFontSettings(settings = getArticleFontSettings()) {
-  const normalized = normalizeArticleFontSettings(settings);
-  const html = document.documentElement;
-
-  applyCustomFonts(normalized.customFonts);
-  html.dataset.articleFontSize = normalized.size;
-  html.dataset.articleFontFamily = normalized.type;
-  html.dataset.articleLineHeight = String(normalized.lineHeight);
-  html.dataset.articleFontWeight = normalized.weight;
-  html.style.setProperty("--article-line-height", String(normalized.lineHeight));
-}
-
-function saveArticleFontSettings(settings) {
-  try {
-    localStorage.setItem(ARTICLE_FONT_STORAGE_KEY, JSON.stringify(normalizeArticleFontSettings(settings)));
-  } catch {
-    // Keep the current page responsive even when storage is unavailable.
-  }
-}
-
-function initArticleSettings() {
-  const settings = getArticleFontSettings();
-  applyArticleFontSettings(settings);
-
-  const fontSettingsPopover = document.getElementById("article-font-settings");
-  if (!fontSettingsPopover) return;
-  if (fontSettingsPopover.dataset.bound === "true") return;
-  fontSettingsPopover.dataset.bound = "true";
-
-  function updateButtonStates(selector, isActive) {
-    fontSettingsPopover.querySelectorAll(selector).forEach((btn) => {
-      const active = isActive(btn);
-      btn.classList.toggle("is-active", active);
-      btn.setAttribute("aria-pressed", String(active));
-    });
-  }
-
-  const lineHeightSlider = fontSettingsPopover.querySelector(".font-line-height-slider");
-  const lineHeightValue = fontSettingsPopover.querySelector(".font-line-height-value");
-  const customFontForm = fontSettingsPopover.querySelector(".font-custom-form");
-  const customFontImportInput = fontSettingsPopover.querySelector(".font-custom-imports");
-  const customFontResetButton = fontSettingsPopover.querySelector(".font-custom-reset");
-  const customFontFamilyInputs = fontSettingsPopover.querySelectorAll(".font-custom-family-input");
-  const customFontHelpButton = fontSettingsPopover.querySelector(".font-custom-help-btn");
-  const customFontHelpPopover = document.getElementById("font-custom-help-popover");
-  const customFontToggleButton = fontSettingsPopover.querySelector(".font-custom-toggle");
-  const customFontPanel = fontSettingsPopover.querySelector(".font-custom-panel");
-
-  initHoverPopover(customFontHelpButton, customFontHelpPopover);
-
-  if (customFontToggleButton && customFontPanel) {
-    const syncCustomFontPanelState = (expanded) => {
-      customFontToggleButton.setAttribute("aria-expanded", String(expanded));
-      customFontPanel.dataset.expanded = String(expanded);
-      customFontPanel.setAttribute("aria-hidden", String(!expanded));
-    };
-
-    syncCustomFontPanelState(false);
-    customFontToggleButton.addEventListener("click", () => {
-      const expanded = customFontToggleButton.getAttribute("aria-expanded") === "true";
-      syncCustomFontPanelState(!expanded);
-    });
-  }
-
-  function updateLineHeightUI() {
-    if (lineHeightSlider) {
-      lineHeightSlider.value = String(settings.lineHeight);
-    }
-    if (lineHeightValue) {
-      lineHeightValue.textContent = settings.lineHeight.toFixed(2);
-    }
-  }
-
-  function updateActiveStates() {
-    updateButtonStates(".font-size-btn", (btn) => btn.dataset.size === settings.size);
-    updateButtonStates(".font-type-btn", (btn) => btn.dataset.font === settings.type);
-    updateButtonStates(".font-weight-btn", (btn) => btn.dataset.weight === settings.weight);
-    updateLineHeightUI();
-  }
-
-  function updateCustomFontUI() {
-    const customFonts = normalizeCustomFonts(settings.customFonts);
-    if (customFontImportInput) {
-      customFontImportInput.value = customFonts.imports.join("\n");
-    }
-
-    customFontFamilyInputs.forEach((input) => {
-      input.value = customFonts.families[input.dataset.fontFamily] || "";
-    });
-  }
-
-  function readCustomFontsFromUI() {
-    const families = {};
-
-    customFontFamilyInputs.forEach((input) => {
-      families[input.dataset.fontFamily] = input.value;
-    });
-
-    return normalizeCustomFonts({
-      imports: customFontImportInput?.value || "",
-      families,
-    });
-  }
-
-  fontSettingsPopover.querySelectorAll(".font-size-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      if (!ARTICLE_SIZE_OPTIONS.has(btn.dataset.size)) return;
-      settings.size = btn.dataset.size;
-      saveArticleFontSettings(settings);
-      updateActiveStates();
-      applyArticleFontSettings(settings);
-    });
-  });
-
-  fontSettingsPopover.querySelectorAll(".font-type-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      if (!ARTICLE_FONT_OPTIONS.has(btn.dataset.font)) return;
-      settings.type = btn.dataset.font;
-      saveArticleFontSettings(settings);
-      updateActiveStates();
-      applyArticleFontSettings(settings);
-    });
-  });
-
-  if (lineHeightSlider) {
-    lineHeightSlider.min = String(ARTICLE_LINE_HEIGHT_MIN);
-    lineHeightSlider.max = String(ARTICLE_LINE_HEIGHT_MAX);
-    lineHeightSlider.step = "0.05";
-    lineHeightSlider.addEventListener("input", () => {
-      settings.lineHeight = normalizeArticleLineHeight(lineHeightSlider.value);
-      saveArticleFontSettings(settings);
-      updateActiveStates();
-      applyArticleFontSettings(settings);
-    });
-  }
-
-  fontSettingsPopover.querySelectorAll(".font-weight-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      if (!ARTICLE_WEIGHT_OPTIONS.has(btn.dataset.weight)) return;
-      settings.weight = btn.dataset.weight;
-      saveArticleFontSettings(settings);
-      updateActiveStates();
-      applyArticleFontSettings(settings);
-    });
-  });
-
-  if (customFontForm) {
-    customFontForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-      settings.customFonts = readCustomFontsFromUI();
-      saveArticleFontSettings(settings);
-      applyArticleFontSettings(settings);
-      updateCustomFontUI();
-    });
-  }
-
-  if (customFontResetButton) {
-    customFontResetButton.addEventListener("click", () => {
-      settings.customFonts = normalizeCustomFonts();
-      saveArticleFontSettings(settings);
-      applyArticleFontSettings(settings);
-
-      const defaults = getDefaultCustomFontFamilies();
-      if (customFontImportInput) {
-        customFontImportInput.value = "";
-      }
-      customFontFamilyInputs.forEach((input) => {
-        const key = input.dataset.fontFamily;
-        input.value = defaults[key] || "";
-      });
-    });
-  }
-
-  updateActiveStates();
-  updateCustomFontUI();
-}
-
 function initArticleCommentPopover() {
   const commentPopover = document.getElementById("article-comment-popover");
   if (!commentPopover) {
@@ -582,7 +288,6 @@ function initArticleCommentPopover() {
 function initPage() {
   handleMermaid();
   addHighlightTool();
-  initArticleSettings();
   const zoomOpts = { background: "hsla(from var(--mantle) / 0.9)" };
   const zoomImgs = [];
   document.querySelectorAll(".content img").forEach((img) => {
@@ -602,6 +307,10 @@ whenReady(initPageWhenActivated);
 document.addEventListener("gnix:content-ready", initPageWhenActivated);
 
 runWhenActivated(() => {
+  document.addEventListener("click", handlePreferenceTransitionLinkClick, {
+    capture: true,
+    passive: false,
+  });
   document.addEventListener("keydown", handleKeyDown, {
     capture: true, // 捕获阶段监听，优先于浏览器默认处理
     passive: false, // 允许调用 preventDefault

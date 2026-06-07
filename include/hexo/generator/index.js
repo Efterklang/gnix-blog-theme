@@ -40,9 +40,7 @@ module.exports = (hexo) => {
     if (isI18nEnabled(fullConfig)) {
       return getLanguageKeys(fullConfig).map((langKey) => {
         const posts = filterByLanguage(locals.posts, langKey, fullConfig);
-        const tags = locals.tags
-          .filter((tag) => filterByLanguage(tag.posts, langKey, fullConfig).length)
-          .map((tag) => mapTag(tag, url_for, langKey, fullConfig));
+        const tags = locals.tags.filter((tag) => filterByLanguage(tag.posts, langKey, fullConfig).length).map((tag) => mapTag(tag, url_for, langKey, fullConfig));
 
         return {
           path: `${getLanguageBasePath(fullConfig, langKey)}content.json`,
@@ -76,6 +74,11 @@ module.exports = (hexo) => {
   const statusConfig = hexo.theme.config.status_generator || {};
   if (statusConfig.enabled !== false) {
     require("./status")(hexo);
+  }
+
+  const preferencesConfig = hexo.theme.config.preferences_generator || {};
+  if (preferencesConfig.enabled !== false) {
+    require("./preferences")(hexo);
   }
 
   require("./page")(hexo);

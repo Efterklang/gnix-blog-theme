@@ -525,13 +525,23 @@ class ThemeStackedElement extends HTMLElement {
 
   getCurrentTheme() {
     const config = window.__GNIX_THEME_CONFIG__;
+    if (typeof window.getResolvedTheme === "function") return window.getResolvedTheme();
+
     let storedTheme = null;
 
     try {
       storedTheme = config?.storageKey ? localStorage.getItem(config.storageKey) : null;
     } catch (_e) {}
 
-    if (storedTheme && storedTheme !== config?.defaultTheme) return storedTheme;
+    if (storedTheme && storedTheme !== config?.defaultTheme) {
+      if (storedTheme.charAt(0) === "{") {
+        try {
+          const preferences = JSON.parse(storedTheme);
+          return preferences.mode === "light" ? preferences.light : preferences.mode === "dark" ? preferences.dark : document.documentElement.getAttribute("data-theme");
+        } catch (_e) {}
+      }
+      return storedTheme;
+    }
 
     return document.documentElement.getAttribute("data-theme") || config?.systemTheme?.dark || this._themes[0]?.id;
   }

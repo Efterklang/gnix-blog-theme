@@ -74,7 +74,7 @@ function getLanguageSwitch(page, config, helper) {
 
 class Navbar extends Component {
   render() {
-    const { siteUrl, menu, links, languageSwitch, searchTitle } = this.props;
+    const { siteUrl, menu, links, languageSwitch, preferencesUrl, preferencesTitle, searchTitle } = this.props;
 
     const languageIconChildren = { __html: LANGUAGE_SWITCH_ICON_HTML };
 
@@ -137,20 +137,29 @@ class Navbar extends Component {
                     />
                   )
                 ) : null}
-                <button type="button" class="navbar-item" title="Choose Theme" popovertarget="theme-selector-popover">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>brightness_fill</title>
-                    <g id="brightness_fill" fill="currentColor">
-                      <path d="M12 18.5a1.5 1.5 0 0 1 1.493 1.356L13.5 20v1a1.5 1.5 0 0 1-2.993.144L10.5 21v-1a1.5 1.5 0 0 1 1.5-1.5m4.596-1.904a1.5 1.5 0 0 1 2.008-.103l.114.103.707.707a1.5 1.5 0 0 1-2.008 2.225l-.114-.103-.707-.707a1.5 1.5 0 0 1 0-2.122m-11.314 0a1.5 1.5 0 0 1 2.225 2.008l-.103.114-.707.707a1.5 1.5 0 0 1-2.225-2.008l.103-.114zM12 6a6 6 0 1 1 0 12 6 6 0 0 1 0-12m0 3a3 3 0 0 0-.176 5.995L12 15zm-8 1.5a1.5 1.5 0 0 1 .144 2.993L4 13.5H3a1.5 1.5 0 0 1-.144-2.993L3 10.5zm17 0a1.5 1.5 0 0 1 .144 2.993L21 13.5h-1a1.5 1.5 0 0 1-.144-2.993L20 10.5zM4.575 4.575a1.5 1.5 0 0 1 2.008-.103l.114.103.707.707a1.5 1.5 0 0 1-2.008 2.225l-.114-.103-.707-.707a1.5 1.5 0 0 1 0-2.122m12.728 0a1.5 1.5 0 0 1 2.225 2.008l-.103.114-.707.707a1.5 1.5 0 0 1-2.225-2.008l.103-.114zM12 1.5a1.5 1.5 0 0 1 1.493 1.356L13.5 3v1a1.5 1.5 0 0 1-2.993.144L10.5 4V3A1.5 1.5 0 0 1 12 1.5"></path>
-                    </g>
+                <a
+                  id="preferences-link"
+                  class="navbar-item"
+                  title={preferencesTitle}
+                  aria-label={preferencesTitle}
+                  href={preferencesUrl}
+                  data-preference-trigger
+                  data-no-prefetch
+                  data-no-prerender
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <title>{preferencesTitle}</title>
+                    <path d="M14 17H5" />
+                    <path d="M19 7h-9" />
+                    <circle cx="17" cy="17" r="3" />
+                    <circle cx="7" cy="7" r="3" />
                   </svg>
-                </button>
+                </a>
                 <button type="button" class="navbar-item search" popovertarget="searchbox" title={searchTitle}>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>search_line</title>
-                    <g id="search_line" fill="currentColor">
-                      <path d="M10.5 2a8.5 8.5 0 1 0 5.262 15.176l3.652 3.652a1 1 0 0 0 1.414-1.414l-3.652-3.652A8.5 8.5 0 0 0 10.5 2M4 10.5a6.5 6.5 0 1 1 13 0 6.5 6.5 0 0 1-13 0"></path>
-                    </g>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <title>Search Button</title>
+                    <path d="m21 21-4.34-4.34" />
+                    <circle cx="11" cy="11" r="8" />
                   </svg>
                 </button>
               </div>
@@ -197,6 +206,8 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
     menu,
     links,
     languageSwitch: getLanguageSwitch(page, config, helper),
+    preferencesUrl: helper.localized_url_for("/preferences.html", langKey),
+    preferencesTitle: __("preferences.title"),
     searchTitle: __("search.search"),
   };
 });

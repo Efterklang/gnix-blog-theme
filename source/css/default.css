@@ -20,6 +20,11 @@
   animation: gnix-view-transition-in 160ms ease both;
 }
 
+html:has(.preference-page[data-preference-surface="page"])::view-transition-old(gnix-main-content),
+html:has(.preference-page[data-preference-surface="page"])::view-transition-new(gnix-main-content) {
+  animation: none;
+}
+
 @keyframes gnix-view-transition-out {
   from {
     opacity: 1;
@@ -635,44 +640,6 @@ html {
 
 /* #endregion Navbar */
 
-/* #region Theme Selector */
-
-#theme-selector-popover:focus {
-  outline: none;
-}
-
-.theme-selector-list {
-  width: 90vw;
-  max-width: 480px;
-  display: flex;
-  flex-direction: column;
-  padding: 0.5rem;
-  overflow: hidden;
-}
-
-.theme-option {
-  background-color: inherit;
-  border: none;
-  outline: none;
-  color: var(--text);
-  padding: 0.75rem 1.25rem;
-  cursor: pointer;
-  font-size: clamp(1.35rem, 2vw, 2rem);
-  letter-spacing: clamp(0.1em, 0.3vw, 0.3em);
-  font-family: "Bradley Hand", var(--font-serif);
-  font-style: italic;
-
-  &.is-focused,
-  &:hover {
-    color: var(--rosewater);
-  }
-  &.is-active {
-    color: var(--blue);
-  }
-}
-
-/* #endregion Theme Selector */
-
 .section {
   padding: 3rem 1.5rem;
   flex-grow: 1;
@@ -965,11 +932,5 @@ input.searchbox-input {
     font-family: var(--font-mono);
     line-height: 0;
     display: flex;
-  }
-
-  &#theme-selector-popover {
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 }

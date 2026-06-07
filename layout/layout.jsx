@@ -4,7 +4,6 @@ const Navbar = require("./common/navbar");
 const Footer = require("./common/footer");
 const Scripts = require("./common/scripts");
 const Search = require("./common/search");
-const ThemeSelector = require("./common/theme_selector");
 const { DEFAULT_SETTINGS: ARTICLE_FONT_DEFAULT_SETTINGS } = require("../include/util/article_font");
 
 module.exports = class extends Component {
@@ -24,7 +23,6 @@ module.exports = class extends Component {
         <Head site={site} config={config} helper={helper} page={page} />
         <body>
           <Navbar site={site} config={config} helper={helper} page={page} />
-          <ThemeSelector />
           <section class="section">
             <div class="main-content" dangerouslySetInnerHTML={{ __html: body }}></div>
           </section>

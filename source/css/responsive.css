@@ -1,68 +1,6 @@
 @charset "UTF-8";
 
-@media (min-width: 900px) {
-  .article-font-popover {
-    width: clamp(864px, 67.2vw, 1056px);
-    min-width: 864px;
-    max-width: 96vw;
-
-    .article-popover-body {
-      width: clamp(864px, 67.2vw, 1056px);
-      min-width: 864px;
-      max-width: 96vw;
-      display: grid;
-      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-      gap: 0;
-      align-items: start;
-      padding: 0;
-    }
-
-    .font-settings-column {
-      max-width: 36rem;
-      padding: 1.5rem;
-      border-right: 1px dashed var(--surface0);
-    }
-
-    .font-preview-column {
-      min-width: 0;
-      padding: 1.5rem;
-    }
-
-    .font-setting-group {
-      min-width: 0;
-    }
-
-    .font-preview-group {
-      align-self: start;
-      width: 100%;
-    }
-
-    .font-preview-box {
-      min-height: 100%;
-      padding: 1.75rem 1.875rem;
-      border-radius: 18px;
-      box-shadow:
-        inset 0 0 0 1px hsl(from var(--surface0) h s l / 0.8),
-        0 18px 40px -28px rgba(0, 0, 0, 0.32);
-    }
-
-    .font-preview-title {
-      margin-bottom: 0.875rem;
-      font-size: 1.5em;
-      line-height: 1.3;
-    }
-
-    .font-preview-excerpt {
-      font-size: 1em;
-    }
-  }
-}
-
 @media screen and (max-width: 768px) {
-  .font-weight-selector {
-    margin-bottom: 0.5rem;
-  }
-
   table {
     font-size: 14px;
   }
@@ -245,11 +183,6 @@
   }
 
   /* #endregion Navbar */
-
-  .theme-selector-list {
-    width: 80%;
-    padding: 1.5rem;
-  }
 
   .searchbox-container {
     top: 15px;
