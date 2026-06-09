@@ -31,28 +31,11 @@ function icon(name) {
           <path d="M19 12H5" />
         </svg>
       );
-    case "book-open":
-      return (
-        <svg {...common}>
-          <title>book-open</title>
-          <path d="M12 7v14" />
-          <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
-        </svg>
-      );
     case "chevron-down":
       return (
         <svg {...common}>
           <title>chevron-down</title>
           <path d="m6 9 6 6 6-6" />
-        </svg>
-      );
-    case "circle-help":
-      return (
-        <svg {...common}>
-          <title>circle-help</title>
-          <circle cx="12" cy="12" r="10" />
-          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-          <path d="M12 17h.01" />
         </svg>
       );
     case "monitor":
@@ -71,31 +54,12 @@ function icon(name) {
           <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
         </svg>
       );
-    case "palette":
-      return (
-        <svg {...common}>
-          <title>palette</title>
-          <path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4A1.75 1.75 0 0 1 12 22z" />
-          <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
-          <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
-          <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
-          <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
-        </svg>
-      );
     case "rotate-ccw":
       return (
         <svg {...common}>
           <title>rotate-ccw</title>
           <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
           <path d="M3 3v5h5" />
-        </svg>
-      );
-    case "search":
-      return (
-        <svg {...common}>
-          <title>search</title>
-          <path d="m21 21-4.34-4.34" />
-          <circle cx="11" cy="11" r="8" />
         </svg>
       );
     case "sun":
@@ -111,15 +75,6 @@ function icon(name) {
           <path d="M20 12h2" />
           <path d="m6.34 17.66-1.41 1.41" />
           <path d="m19.07 4.93-1.41 1.41" />
-        </svg>
-      );
-    case "type":
-      return (
-        <svg {...common}>
-          <title>type</title>
-          <path d="M12 4v16" />
-          <path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2" />
-          <path d="M9 20h6" />
         </svg>
       );
     default:
@@ -163,7 +118,7 @@ function renderThemePreviewCard(helper, kind, themes) {
   const selectId = `preference-${kind}-theme-select`;
 
   return (
-    <article class="theme-preview-card" data-theme-preview-card={kind}>
+    <article class="theme-preview-card">
       <label class="theme-scheme-select-row" for={selectId}>
         <span>{translate(helper, isLight ? "preferences.light_scheme" : "preferences.dark_scheme", isLight ? "Light Scheme" : "Dark Scheme")}</span>
         <select id={selectId} class="theme-scheme-select" data-theme-scheme-kind={kind} aria-label={title}>
@@ -179,7 +134,7 @@ function renderThemePreviewCard(helper, kind, themes) {
           <div class="theme-palette-preview" data-theme-preview-option={theme.value} data-theme={theme.value} hidden={theme.value !== defaultThemeValue}>
             <div class="theme-palette-strip">
               {THEME_PALETTE_SWATCHES.map((token) => (
-                <span class={`theme-palette-swatch theme-palette-swatch--${token}`} style={`--swatch-color: var(--${token})`} title={token}></span>
+                <span class="theme-palette-swatch" style={`--swatch-color: var(--${token})`} title={token}></span>
               ))}
             </div>
             <div class="theme-palette-caption">
@@ -212,7 +167,7 @@ module.exports = class extends Component {
           </div>
 
           <div class="preference-content">
-            <section id="preference-section-appearance" class="preference-panel" aria-labelledby="preference-theme-title">
+            <section id="preference-section-appearance" aria-labelledby="preference-theme-title">
               <div class="preference-panel__header">
                 <h2 id="preference-theme-title">{translate(helper, "preferences.appearance", "Appearance")}</h2>
                 <fieldset class="preference-choice-group preference-choice-group--segmented preference-choice-group--mode">
@@ -234,7 +189,7 @@ module.exports = class extends Component {
               </div>
             </section>
 
-            <section id="preference-section-typography" class="preference-panel" aria-labelledby="preference-font-title">
+            <section id="preference-section-typography" aria-labelledby="preference-font-title">
               <div class="preference-panel__header">
                 <h2 id="preference-font-title">{translate(helper, "preferences.font_title", "Typography")}</h2>
                 <button type="button" class="preference-secondary-action font-settings-reset">
@@ -256,7 +211,7 @@ module.exports = class extends Component {
                 </div>
               </div>
 
-              <div class="preference-row preference-row--line-height">
+              <div class="preference-row">
                 <div class="preference-row__label">
                   <span>{translate(helper, "preferences.line_height", "Line Height")}</span>
                   <small>{translate(helper, "preferences.normal", "Normal")}</small>
@@ -309,7 +264,7 @@ module.exports = class extends Component {
                 </div>
               </div>
 
-              <div class="preference-row preference-row--stacked font-custom-group">
+              <div class="preference-row preference-row--stacked">
                 <button type="button" class="font-custom-toggle" aria-expanded="false" aria-controls="font-custom-panel" aria-label="Custom Fonts">
                   <span class="preference-row__label">
                     <span>{translate(helper, "preferences.custom_fonts", "Custom Fonts")}</span>
@@ -319,64 +274,55 @@ module.exports = class extends Component {
                     {icon("chevron-down")}
                   </span>
                 </button>
-                <div id="font-custom-panel" class="font-custom-panel" data-expanded="false" aria-hidden="true" hidden>
-                  <div class="font-custom-panel-inner">
-                    <form class="font-custom-form">
-                      <label class="font-custom-field font-custom-import-field">
-                        <span class="font-custom-label-row">
-                          <span>{translate(helper, "preferences.web_font_css", "Web Font CSS URL")}</span>
-                          <button type="button" class="font-custom-help-btn" popovertarget="font-custom-help-popover" aria-label="Font CSS help">
-                            {icon("circle-help")}
-                          </button>
-                        </span>
-                        <textarea class="font-custom-imports" name="font-custom-imports" rows="3" placeholder="https://fonts.googleapis.com/css2?family=..." aria-label="Web Font CSS URL"></textarea>
+                <div id="font-custom-panel" class="font-custom-panel" hidden>
+                  <form class="font-custom-form">
+                    <label class="font-custom-field">
+                      <span>{translate(helper, "preferences.web_font_css", "Web Font CSS URL")}</span>
+                      <small>{translate(helper, "preferences.font_css_help", "Paste one web font CSS URL per line. Each URL can load one or more font families.")}</small>
+                      <textarea class="font-custom-imports" name="font-custom-imports" rows="3" placeholder="https://fonts.googleapis.com/css2?family=..." aria-label="Web Font CSS URL"></textarea>
+                    </label>
+                    <div class="font-custom-family-grid">
+                      <label class="font-custom-field">
+                        <span>Serif</span>
+                        <input class="font-custom-family-input" name="font-custom-family-serif" type="text" data-font-family="serif" placeholder={'"Noto Serif SC", serif'} autocomplete="off" />
                       </label>
-                      <div class="font-custom-family-grid">
-                        <label class="font-custom-field">
-                          <span>Serif</span>
-                          <input class="font-custom-family-input" name="font-custom-family-serif" type="text" data-font-family="serif" placeholder={'"Noto Serif SC", serif'} autocomplete="off" />
-                        </label>
-                        <label class="font-custom-field">
-                          <span>Sans Serif</span>
-                          <input
-                            class="font-custom-family-input"
-                            name="font-custom-family-sans-serif"
-                            type="text"
-                            data-font-family="sans-serif"
-                            placeholder={'"Inter", sans-serif'}
-                            autocomplete="off"
-                          />
-                        </label>
-                        <label class="font-custom-field">
-                          <span>Monospace</span>
-                          <input class="font-custom-family-input" name="font-custom-family-mono" type="text" data-font-family="mono" placeholder={'"Fira Code", monospace'} autocomplete="off" />
-                        </label>
-                        <label class="font-custom-field">
-                          <span>Handwriting</span>
-                          <input
-                            class="font-custom-family-input"
-                            name="font-custom-family-handwriting"
-                            type="text"
-                            data-font-family="handwriting"
-                            placeholder={'"LXGW WenKai", cursive'}
-                            autocomplete="off"
-                          />
-                        </label>
-                      </div>
-                      <div class="font-custom-actions">
-                        <button type="submit" class="font-custom-apply">
-                          {translate(helper, "preferences.apply", "Apply")}
-                        </button>
-                        <button type="button" class="font-custom-reset">
-                          {translate(helper, "preferences.reset_fonts", "Reset Fonts")}
-                        </button>
-                      </div>
-                    </form>
-                  </div>
+                      <label class="font-custom-field">
+                        <span>Sans Serif</span>
+                        <input
+                          class="font-custom-family-input"
+                          name="font-custom-family-sans-serif"
+                          type="text"
+                          data-font-family="sans-serif"
+                          placeholder={'"Inter", sans-serif'}
+                          autocomplete="off"
+                        />
+                      </label>
+                      <label class="font-custom-field">
+                        <span>Monospace</span>
+                        <input class="font-custom-family-input" name="font-custom-family-mono" type="text" data-font-family="mono" placeholder={'"Fira Code", monospace'} autocomplete="off" />
+                      </label>
+                      <label class="font-custom-field">
+                        <span>Handwriting</span>
+                        <input
+                          class="font-custom-family-input"
+                          name="font-custom-family-handwriting"
+                          type="text"
+                          data-font-family="handwriting"
+                          placeholder={'"LXGW WenKai", cursive'}
+                          autocomplete="off"
+                        />
+                      </label>
+                    </div>
+                    <div class="font-custom-actions">
+                      <button type="submit" class="font-custom-apply">
+                        {translate(helper, "preferences.apply", "Apply")}
+                      </button>
+                      <button type="button" class="font-custom-reset">
+                        {translate(helper, "preferences.reset_fonts", "Reset Fonts")}
+                      </button>
+                    </div>
+                  </form>
                 </div>
-              </div>
-              <div id="font-custom-help-popover" popover="manual" class="font-custom-help-popover" role="tooltip">
-                {translate(helper, "preferences.font_css_help", "Paste one web font CSS URL per line. Each URL can load one or more font families.")}
               </div>
 
               <aside class="preference-row preference-row--preview" aria-label={translate(helper, "preferences.preview", "Preview")}>

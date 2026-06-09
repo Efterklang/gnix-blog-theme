@@ -181,7 +181,7 @@ function handleKeyDown(e) {
   const tag = e.target.tagName;
   if (["INPUT", "TEXTAREA"].includes(tag) || e.target.isContentEditable) return;
 
-  const isSettingsShortcut = (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.code === "Comma" || e.key === "," || e.key === "Comma");
+  const isSettingsShortcut = !e.altKey && !e.shiftKey && (e.code === "Comma" || e.key === "," || e.key === "Comma");
   if (isSettingsShortcut) {
     e.preventDefault();
     togglePreferencePopup().catch(() => navigateToPreferences());

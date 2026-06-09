@@ -7,7 +7,7 @@ window.__CHANGELOG_DATA__ = [
         cn: [
           '偏好设置页去掉与整体视觉不搭的左侧 sidebar，并移除顶部 Appearance / Typography tabs；设置内容改为连续的 Appearance 与 Typography section，减少导航和初始化代码',
           '主题配置区不再为每个配色方案展示一张代码预览卡，改为 Light 与 Dark 两张预览卡；每张卡展示当前 scheme 的 palette 色块，并通过紧凑下拉菜单切换具体 scheme',
-          '隐藏偏好设置页与 popup 内部滚动条，并进一步压平偏好设置视觉层级：移除 section/card 的多层装饰、冗余说明文案、预览卡图标和 Light / Dark 卡片标题，让设置内容更简洁',
+          '隐藏偏好设置页与 popup 内部滚动条，并进一步压平偏好设置视觉层级：移除 section/card 的多层装饰、冗余说明文案、预览卡图标和 Light / Dark 卡片标题；自定义字体帮助也从 popover 改为内联说明',
           '排版预览文案改为叶芝《当你老了》的中英文片段，预览内容更适合作为字体效果样张',
           '页面顶部新增返回上一页链接；全站 settings 快捷键从 Ctrl/Cmd+P 改为 Ctrl/Cmd+,',
           '进入与离开偏好设置页时主动跳过 native view-transition，不再播放主内容淡入淡出；导航栏偏好设置入口改为更简洁的 Lucide settings-2 图标',
@@ -17,7 +17,7 @@ window.__CHANGELOG_DATA__ = [
         en: [
           'Remove the preferences sidebar and the top-level Appearance / Typography tabs. Settings now render as continuous Appearance and Typography sections, reducing navigation and initialization code',
           'Collapse the seven per-scheme code preview cards into two Light and Dark preview cards. Each card now shows palette swatches for the current scheme, with a compact select for changing the concrete scheme',
-          'Hide scrollbars in the preferences page and popup, then further flatten the preferences hierarchy by removing layered section/card decoration, redundant helper copy, preview-card icons, and Light / Dark card headings',
+          'Hide scrollbars in the preferences page and popup, then further flatten the preferences hierarchy by removing layered section/card decoration, redundant helper copy, preview-card icons, and Light / Dark card headings. Custom-font help now renders inline instead of using a popover',
           'Replace the typography preview copy with localized excerpts from Yeats\' When You Are Old so the sample reads more naturally as a type specimen',
           'Add a back link at the top of the page and change the global settings shortcut from Ctrl/Cmd+P to Ctrl/Cmd+,',
           'Actively skip native view-transitions when entering or leaving preferences so the main-content fade no longer plays, and replace the navbar preferences entry with a cleaner Lucide settings-2 icon',

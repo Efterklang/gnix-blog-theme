@@ -80,17 +80,11 @@ html:has(.preference-page[data-preference-surface="page"])::view-transition-new(
   &[data-article-font-size="medium-small"] {
     --article-font-size: 0.9375rem;
   }
-  &[data-article-font-size="medium"] {
-    --article-font-size: 1rem;
-  }
   &[data-article-font-size="medium-large"] {
     --article-font-size: 1.0625rem;
   }
   &[data-article-font-size="large"] {
     --article-font-size: 1.125rem;
-  }
-  &[data-article-font-family="serif"] {
-    --article-font-family: var(--font-serif);
   }
   &[data-article-font-family="sans-serif"] {
     --article-font-family: var(--font-sans-serif);
@@ -112,15 +106,9 @@ html:has(.preference-page[data-preference-surface="page"])::view-transition-new(
   }
   &[data-article-font-weight="light"] {
     --article-font-weight: 300;
-    --article-bold-font-weight: 700;
-  }
-  &[data-article-font-weight="regular"] {
-    --article-font-weight: 400;
-    --article-bold-font-weight: 700;
   }
   &[data-article-font-weight="medium"] {
     --article-font-weight: 500;
-    --article-bold-font-weight: 700;
   }
 }
 

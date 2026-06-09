@@ -17,16 +17,9 @@
   }
 
   const themeConfig = window.__GNIX_THEME_CONFIG__ || {};
-  const themeLabels = new Map((themeConfig.themes || []).map((theme) => [theme.value, theme.name]));
-
   function getThemePreferences() {
     if (typeof window.getThemePreferences === "function") return window.getThemePreferences();
     return themeConfig.defaultPreferences || { mode: "system", light: "nord", dark: "mocha" };
-  }
-
-  function getResolvedTheme() {
-    if (typeof window.getResolvedTheme === "function") return window.getResolvedTheme();
-    return document.documentElement.getAttribute("data-theme") || "";
   }
 
   function applyThemePreferences(preferences) {
@@ -170,51 +163,6 @@
     return normalized;
   }
 
-  function initHoverPopover(trigger, popover) {
-    if (!trigger || !popover || typeof popover.showPopover !== "function" || typeof popover.hidePopover !== "function") return;
-
-    let hideTimer = null;
-
-    function clearHideTimer() {
-      if (hideTimer) {
-        clearTimeout(hideTimer);
-        hideTimer = null;
-      }
-    }
-
-    function openPopover() {
-      clearHideTimer();
-      if (!popover.matches(":popover-open")) popover.showPopover();
-      const rect = trigger.getBoundingClientRect();
-      const popoverWidth = popover.offsetWidth || 0;
-      const left = Math.min(Math.max(16, rect.left), Math.max(16, window.innerWidth - popoverWidth - 16));
-      popover.style.left = `${left}px`;
-      popover.style.top = `${rect.bottom + 8}px`;
-    }
-
-    function scheduleClose() {
-      clearHideTimer();
-      hideTimer = window.setTimeout(() => {
-        const hasPointer = trigger.matches(":hover") || popover.matches(":hover");
-        const hasFocus = trigger.matches(":focus-visible") || popover.contains(document.activeElement);
-        if (!hasPointer && !hasFocus && popover.matches(":popover-open")) popover.hidePopover();
-      }, 80);
-    }
-
-    trigger.addEventListener("pointerenter", openPopover);
-    trigger.addEventListener("focus", openPopover);
-    trigger.addEventListener("pointerleave", scheduleClose);
-    trigger.addEventListener("blur", scheduleClose);
-    trigger.addEventListener("click", openPopover);
-    popover.addEventListener("pointerenter", openPopover);
-    popover.addEventListener("pointerleave", scheduleClose);
-    popover.addEventListener("focusin", openPopover);
-    popover.addEventListener("focusout", scheduleClose);
-    popover.addEventListener("toggle", (event) => {
-      if (event.newState === "closed") clearHideTimer();
-    });
-  }
-
   function initPreferenceBackLink(root) {
     const link = root.querySelector("[data-preference-back-link]");
     if (!link) return;
@@ -236,23 +184,12 @@
 
   function initThemePreferences(root) {
     const modeButtons = root.querySelectorAll("[data-theme-mode]");
-    const schemeButtons = root.querySelectorAll("[data-theme-scheme-kind][data-theme-option]");
     const schemeSelects = root.querySelectorAll(".theme-scheme-select[data-theme-scheme-kind]");
-    const previewCards = root.querySelectorAll("[data-theme-preview-card]");
-    const currentThemeOutput = root.querySelector("[data-current-theme]");
+    const previewStages = root.querySelectorAll("[data-theme-preview-stage]");
 
     function sync(preferences = getThemePreferences()) {
-      const resolved = getResolvedTheme();
-
       modeButtons.forEach((button) => {
         const active = button.dataset.themeMode === preferences.mode;
-        button.classList.toggle("is-active", active);
-        button.setAttribute("aria-pressed", String(active));
-      });
-
-      schemeButtons.forEach((button) => {
-        const kind = button.dataset.themeSchemeKind;
-        const active = button.dataset.themeOption === preferences[kind];
         button.classList.toggle("is-active", active);
         button.setAttribute("aria-pressed", String(active));
       });
@@ -262,38 +199,18 @@
         if (value) select.value = value;
       });
 
-      previewCards.forEach((card) => {
-        const kind = card.dataset.themePreviewCard;
-        const activeTheme = preferences[kind];
-        card.classList.toggle("is-current-mode", preferences.mode === kind);
-        card.classList.toggle("is-resolved", activeTheme === resolved);
-        card.dataset.activeTheme = activeTheme || "";
-
-        card.querySelectorAll("[data-theme-preview-option]").forEach((preview) => {
-          const active = preview.dataset.themePreviewOption === activeTheme;
-          preview.hidden = !active;
-          preview.classList.toggle("is-active", active);
+      previewStages.forEach((stage) => {
+        const activeTheme = preferences[stage.dataset.themePreviewStage];
+        stage.querySelectorAll("[data-theme-preview-option]").forEach((preview) => {
+          preview.hidden = preview.dataset.themePreviewOption !== activeTheme;
         });
       });
-
-      if (currentThemeOutput) {
-        currentThemeOutput.value = themeLabels.get(resolved) || resolved;
-        currentThemeOutput.textContent = currentThemeOutput.value;
-      }
     }
 
     modeButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const preferences = getThemePreferences();
         preferences.mode = button.dataset.themeMode;
-        sync(applyThemePreferences(preferences));
-      });
-    });
-
-    schemeButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const preferences = getThemePreferences();
-        preferences[button.dataset.themeSchemeKind] = button.dataset.themeOption;
         sync(applyThemePreferences(preferences));
       });
     });
@@ -322,8 +239,6 @@
     const customFontResetButton = root.querySelector(".font-custom-reset");
     const fontSettingsResetButton = root.querySelector(".font-settings-reset");
     const customFontFamilyInputs = root.querySelectorAll(".font-custom-family-input");
-    const customFontHelpButton = root.querySelector(".font-custom-help-btn");
-    const customFontHelpPopover = root.querySelector("#font-custom-help-popover");
     const customFontToggleButton = root.querySelector(".font-custom-toggle");
     const customFontPanel = root.querySelector(".font-custom-panel");
 
@@ -338,8 +253,6 @@
     function syncCustomFontPanelState(expanded) {
       if (!customFontToggleButton || !customFontPanel) return;
       customFontToggleButton.setAttribute("aria-expanded", String(expanded));
-      customFontPanel.dataset.expanded = String(expanded);
-      customFontPanel.setAttribute("aria-hidden", String(!expanded));
       customFontPanel.hidden = !expanded;
     }
 
@@ -382,7 +295,6 @@
       updateActiveStates();
     }
 
-    initHoverPopover(customFontHelpButton, customFontHelpPopover);
     syncCustomFontPanelState(false);
 
     if (customFontToggleButton && customFontPanel) {
