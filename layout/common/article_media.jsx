@@ -22,7 +22,7 @@ module.exports = class extends Component {
           <p class="article-meta">
             <time dateTime={dateXml || null}>{formattedDate}</time>
           </p>
-          <a class="archive-title" href={url}>
+          <a class="archive-title archive-label" href={url}>
             {title}
           </a>
         </div>

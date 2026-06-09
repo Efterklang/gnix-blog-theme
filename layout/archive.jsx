@@ -78,33 +78,6 @@ function groupSeasonGroupsByYear(seasonGroups) {
   return years;
 }
 
-function toRoman(num) {
-  const map = [
-    [1000, "M"],
-    [900, "CM"],
-    [500, "D"],
-    [400, "CD"],
-    [100, "C"],
-    [90, "XC"],
-    [50, "L"],
-    [40, "XL"],
-    [10, "X"],
-    [9, "IX"],
-    [5, "V"],
-    [4, "IV"],
-    [1, "I"],
-  ];
-  let n = num;
-  let out = "";
-  for (const [value, sym] of map) {
-    while (n >= value) {
-      out += sym;
-      n -= value;
-    }
-  }
-  return out;
-}
-
 function collectArchiveYears(posts) {
   return Array.from(new Set(posts.map((post) => post.date.year()))).sort((a, b) => b - a);
 }
@@ -151,7 +124,7 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
   return (
     <section class={["archive-group", marker].filter(Boolean).join(" ")} aria-labelledby={sectionId}>
       <header class="archive-group__header">
-        <h2 id={sectionId} class="archive-group__title">
+        <h2 id={sectionId} class="archive-group__title archive-label">
           {title}
         </h2>
         <span class="archive-group__count">{String(posts.length).padStart(2, "0")}</span>
@@ -234,7 +207,7 @@ module.exports = class extends Component {
       articleList = yearBlocks.map((block) => (
         <Fragment key={block.year}>
           <div class="archive-era" id={`archive-year-${block.year}`}>
-            <span class="archive-era__roman">{toRoman(block.year)}</span>
+            <span class="archive-era__year archive-label">{block.year}</span>
           </div>
           {block.groups.map((group) => (
             <Fragment key={`${group.year}-${group.season}`}>
@@ -268,30 +241,20 @@ module.exports = class extends Component {
     return (
       <main class="archive-page">
         <header class="archive-hero">
-          <h1 class="archive-hero__title">{heroTitle}</h1>
-          <div class="archive-hero__meta">
-            <p class="archive-hero__eyebrow">
-              <span class="archive-hero__count">{writingsLabel}</span>
-              {topicTags.length > 0 && (
-                <Fragment>
-                  <span>on</span>
-                  <button type="button" class="archive-hero__topics-button" popovertarget="archive-topic-picker" aria-label={`${topicsTitle}: ${topicTags.length}`}>
-                    <span class="archive-hero__topics-mark" aria-hidden="true">
-                      #
-                    </span>
-                    <span class="archive-hero__topics-count">{topicTags.length}</span>
-                  </button>
-                  <span>{topicLabel}</span>
-                </Fragment>
-              )}
-              {sinceYear && (
-                <Fragment>
-                  <span>since</span>
-                  <span>{sinceYear}</span>
-                </Fragment>
-              )}
-            </p>
-          </div>
+          <h1 class="archive-hero__title archive-label">{heroTitle}</h1>
+          <p class="archive-hero__meta archive-label">
+            {writingsLabel}
+            {topicTags.length > 0 && (
+              <Fragment>
+                {" / "}
+                <button type="button" class="archive-hero__topics-button" popovertarget="archive-topic-picker" aria-label={`${topicsTitle}: ${topicTags.length}`}>
+                  {topicTags.length}
+                </button>
+                {` ${topicLabel}`}
+              </Fragment>
+            )}
+            {sinceYear && ` / since ${sinceYear}`}
+          </p>
           {renderTopicPicker({ tags: topicTags, title: topicsTitle })}
         </header>
 
