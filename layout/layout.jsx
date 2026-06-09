@@ -4,6 +4,7 @@ const Navbar = require("./common/navbar");
 const Footer = require("./common/footer");
 const Scripts = require("./common/scripts");
 const Search = require("./common/search");
+const PreferencesPopup = require("./common/preferences_popup");
 const { DEFAULT_SETTINGS: ARTICLE_FONT_DEFAULT_SETTINGS } = require("../include/util/article_font");
 
 module.exports = class extends Component {
@@ -27,6 +28,7 @@ module.exports = class extends Component {
             <div class="main-content" dangerouslySetInnerHTML={{ __html: body }}></div>
           </section>
           <Footer site={site} config={config} helper={helper} page={page} />
+          <PreferencesPopup site={site} config={config} helper={helper} page={page} />
           <Scripts site={site} config={config} helper={helper} page={page} />
           <Search config={config} helper={helper} />
         </body>

@@ -150,20 +150,29 @@ function renderThemePreviewCard(helper, kind, themes) {
 
 module.exports = class extends Component {
   render() {
-    const { helper, page } = this.props;
+    const { helper, page, surface = "page", closeLabel } = this.props;
     const lightThemes = THEME_OPTIONS.filter((theme) => theme.colorScheme === "light");
     const darkThemes = THEME_OPTIONS.filter((theme) => theme.colorScheme === "night");
     const langKey = typeof helper.language_key === "function" ? helper.language_key(page) : null;
     const fallbackUrl = typeof helper.localized_url_for === "function" ? helper.localized_url_for("/", langKey) : "/";
+    const isPopup = surface === "popup";
+    const resolvedCloseLabel = closeLabel || translate(helper, "article.close", "Close");
 
     return (
-      <main class="preference-page" data-preferences-page data-preference-surface="page">
+      <main class="preference-page" data-preferences-page data-preference-surface={surface}>
         <div class="preference-shell">
           <div class="preference-topbar">
-            <a class="preference-back-link" href={fallbackUrl} data-preference-back-link>
-              {icon("arrow-left")}
-              <span>{translate(helper, "preferences.back_to_app", "Back")}</span>
-            </a>
+            {isPopup ? (
+              <button type="button" class="preference-back-link" aria-label={resolvedCloseLabel} data-preference-popup-close>
+                {icon("arrow-left")}
+                <span>{resolvedCloseLabel}</span>
+              </button>
+            ) : (
+              <a class="preference-back-link" href={fallbackUrl} data-preference-back-link>
+                {icon("arrow-left")}
+                <span>{translate(helper, "preferences.back_to_app", "Back")}</span>
+              </a>
+            )}
           </div>
 
           <div class="preference-content">
@@ -288,14 +297,7 @@ module.exports = class extends Component {
                       </label>
                       <label class="font-custom-field">
                         <span>Sans Serif</span>
-                        <input
-                          class="font-custom-family-input"
-                          name="font-custom-family-sans-serif"
-                          type="text"
-                          data-font-family="sans-serif"
-                          placeholder={'"Inter", sans-serif'}
-                          autocomplete="off"
-                        />
+                        <input class="font-custom-family-input" name="font-custom-family-sans-serif" type="text" data-font-family="sans-serif" placeholder={'"Inter", sans-serif'} autocomplete="off" />
                       </label>
                       <label class="font-custom-field">
                         <span>Monospace</span>
@@ -331,9 +333,7 @@ module.exports = class extends Component {
                 </div>
                 <div class="font-preview-copy">
                   <p class="font-preview-title">{translate(helper, "preferences.preview_title", "When You Are Old")}</p>
-                  <p class="font-preview-excerpt">
-                    {translate(helper, "preferences.preview_copy", "When you are old and grey and full of sleep, and nodding by the fire, take down this book,")}
-                  </p>
+                  <p class="font-preview-excerpt">{translate(helper, "preferences.preview_copy", "When you are old and grey and full of sleep, and nodding by the fire, take down this book,")}</p>
                   <p class="font-preview-excerpt">
                     {translate(helper, "preferences.preview_copy_secondary", "And slowly read, and dream of the soft look your eyes had once, and of their shadows deep.")}
                   </p>

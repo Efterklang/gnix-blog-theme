@@ -3,7 +3,6 @@ const PREFERENCE_CSS_URL = "/css/preferences.css";
 const PREFERENCE_SCRIPT_URL = "/js/preferences.js";
 
 let preferencePopupPromise = null;
-let preferencePopupUrl = "";
 let preferencePopupReturnFocus = null;
 
 function getPreferenceCloseLabel() {
@@ -41,7 +40,7 @@ function loadScriptOnce(url) {
         script.dataset.loadState = "loaded";
         resolve(script);
       },
-      { once: true }
+      { once: true },
     );
     script.addEventListener("error", reject, { once: true });
 
@@ -133,74 +132,51 @@ function handlePreferencePopupToggle(event) {
   restorePopupFocus();
 }
 
-async function ensurePreferencePopup(preferencesUrl) {
-  const normalizedUrl = new URL(preferencesUrl, window.location.href).href;
-  if (preferencePopupPromise && preferencePopupUrl === normalizedUrl) return preferencePopupPromise;
+function bindPreferencePopup(popup) {
+  if (popup.dataset.preferencePopupBound === "true") return;
+
+  const page = popup.querySelector("[data-preferences-page]");
+  if (!page) throw new Error("Preferences popup markup was not found");
+  preparePreferencePopupPage(page);
+
+  popup.addEventListener("click", handlePreferencePopupClick);
+  popup.addEventListener("keydown", handlePreferencePopupKeydown);
+  popup.addEventListener("toggle", handlePreferencePopupToggle);
+  popup.dataset.preferencePopupBound = "true";
+}
+
+async function ensurePreferencePopup() {
+  if (preferencePopupPromise) return preferencePopupPromise;
 
   const existing = document.getElementById(PREFERENCE_POPUP_ID);
-  if (existing && preferencePopupUrl === normalizedUrl) return existing;
-  if (existing) existing.remove();
+  if (!existing) throw new Error("Preferences popup container was not found");
 
-  preferencePopupUrl = normalizedUrl;
   preferencePopupPromise = (async () => {
     await loadStyleOnce(PREFERENCE_CSS_URL);
 
-    const response = await fetch(normalizedUrl, { credentials: "same-origin" });
-    if (!response.ok) throw new Error(`Unable to load preferences: ${response.status}`);
-
-    const doc = new DOMParser().parseFromString(await response.text(), "text/html");
-    const page = doc.querySelector("[data-preferences-page]");
-    if (!page) throw new Error("Preferences page markup was not found");
-
-    const popup = document.createElement("div");
-    popup.id = PREFERENCE_POPUP_ID;
-    popup.className = "preference-popup";
-    popup.setAttribute("popover", "manual");
-    popup.setAttribute("role", "dialog");
-    popup.setAttribute("aria-modal", "true");
-    popup.setAttribute("aria-label", doc.title || "Preferences");
-    popup.hidden = true;
-
-    const backdrop = document.createElement("button");
-    backdrop.type = "button";
-    backdrop.className = "preference-popup__backdrop";
-    backdrop.setAttribute("data-preference-popup-close", "");
-    backdrop.setAttribute("aria-label", getPreferenceCloseLabel());
-    backdrop.tabIndex = -1;
-
-    const panel = document.createElement("div");
-    panel.className = "preference-popup__panel";
-    panel.tabIndex = -1;
-    panel.appendChild(preparePreferencePopupPage(page));
-
-    popup.append(backdrop, panel);
-    popup.addEventListener("click", handlePreferencePopupClick);
-    popup.addEventListener("keydown", handlePreferencePopupKeydown);
-    popup.addEventListener("toggle", handlePreferencePopupToggle);
-    document.body.appendChild(popup);
+    bindPreferencePopup(existing);
 
     await loadScriptOnce(PREFERENCE_SCRIPT_URL);
     window.__gnixInitPreferencesPage?.();
 
-    return popup;
+    return existing;
   })();
 
   try {
     return await preferencePopupPromise;
   } catch (error) {
     preferencePopupPromise = null;
-    preferencePopupUrl = "";
     throw error;
   }
 }
 
-export async function togglePreferencePopup(preferencesUrl) {
+export async function togglePreferencePopup() {
   const existing = document.getElementById(PREFERENCE_POPUP_ID);
   if (isPreferencePopupOpen(existing)) {
     closePreferencePopup();
     return;
   }
 
-  const popup = await ensurePreferencePopup(preferencesUrl);
+  const popup = await ensurePreferencePopup();
   showPreferencePopupElement(popup);
 }

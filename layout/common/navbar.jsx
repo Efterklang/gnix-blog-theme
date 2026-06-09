@@ -74,7 +74,7 @@ function getLanguageSwitch(page, config, helper) {
 
 class Navbar extends Component {
   render() {
-    const { siteUrl, menu, links, languageSwitch, preferencesUrl, preferencesTitle, searchTitle } = this.props;
+    const { siteUrl, menu, links, languageSwitch, preferencesTitle, searchTitle } = this.props;
 
     const languageIconChildren = { __html: LANGUAGE_SWITCH_ICON_HTML };
 
@@ -137,16 +137,7 @@ class Navbar extends Component {
                     />
                   )
                 ) : null}
-                <a
-                  id="preferences-link"
-                  class="navbar-item"
-                  title={preferencesTitle}
-                  aria-label={preferencesTitle}
-                  href={preferencesUrl}
-                  data-preference-trigger
-                  data-no-prefetch
-                  data-no-prerender
-                >
+                <button type="button" id="preferences-link" class="navbar-item" title={preferencesTitle} aria-label={preferencesTitle} data-preference-trigger>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <title>{preferencesTitle}</title>
                     <path d="M14 17H5" />
@@ -154,7 +145,7 @@ class Navbar extends Component {
                     <circle cx="17" cy="17" r="3" />
                     <circle cx="7" cy="7" r="3" />
                   </svg>
-                </a>
+                </button>
                 <button type="button" class="navbar-item search" popovertarget="searchbox" title={searchTitle}>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <title>Search Button</title>
@@ -206,7 +197,6 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
     menu,
     links,
     languageSwitch: getLanguageSwitch(page, config, helper),
-    preferencesUrl: helper.localized_url_for("/preferences.html", langKey),
     preferencesTitle: __("preferences.title"),
     searchTitle: __("search.search"),
   };

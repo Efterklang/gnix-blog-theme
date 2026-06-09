@@ -76,10 +76,5 @@ module.exports = (hexo) => {
     require("./status")(hexo);
   }
 
-  const preferencesConfig = hexo.theme.config.preferences_generator || {};
-  if (preferencesConfig.enabled !== false) {
-    require("./preferences")(hexo);
-  }
-
   require("./page")(hexo);
 };

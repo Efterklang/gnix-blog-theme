@@ -1,5 +1,10 @@
 function runWhenActivated(callback) {
-  (window.__gnixPrerender?.runWhenActivated || function(fn) { fn(); })(callback);
+  (
+    window.__gnixPrerender?.runWhenActivated ||
+    ((fn) => {
+      fn();
+    })
+  )(callback);
 }
 
 function whenReady(callback) {
@@ -14,32 +19,17 @@ const PREFERENCE_POPUP_MODULE_URL = "/js/preferences-popup.js";
 
 let preferencePopupModulePromise = null;
 
-function isPreferencesUrl(value) {
-  try {
-    const url = new URL(value, window.location.href);
-    return url.origin === window.location.origin && /(?:^|\/)preferences\.html$/.test(url.pathname);
-  } catch {
-    return false;
-  }
-}
-
-function getPreferencesUrl() {
-  return document.getElementById("preferences-link")?.href || new URL("/preferences.html", window.location.href).href;
-}
-
-function navigateToPreferences(preferencesUrl = getPreferencesUrl()) {
-  window.location.href = preferencesUrl;
-}
-
 function loadPreferencePopupModule() {
   preferencePopupModulePromise ||= import(PREFERENCE_POPUP_MODULE_URL);
   return preferencePopupModulePromise;
 }
 
-function togglePreferencePopup(preferencesUrl = getPreferencesUrl()) {
-  if (document.querySelector('[data-preferences-page][data-preference-surface="page"]')) return Promise.resolve();
+function togglePreferencePopup() {
+  return loadPreferencePopupModule().then((module) => module.togglePreferencePopup());
+}
 
-  return loadPreferencePopupModule().then((module) => module.togglePreferencePopup(preferencesUrl));
+function handlePreferencePopupError(error) {
+  console.warn("[gnix] Unable to open preferences popup", error);
 }
 
 function twikoo_handler() {
@@ -158,20 +148,14 @@ function addHighlightTool() {
 
 // #region Keyboard Shortcuts
 
-function handlePreferenceTransitionLinkClick(event) {
-  if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+function handlePreferenceTriggerClick(event) {
+  if (event.defaultPrevented) return;
 
-  const link = event.target.closest?.("[data-preference-trigger][href]");
-  if (!link || link.target || link.download) return;
+  const trigger = event.target.closest?.("[data-preference-trigger]");
+  if (!trigger || trigger.disabled) return;
 
-  try {
-    const url = new URL(link.href, window.location.href);
-    if (url.origin !== window.location.origin || !isPreferencesUrl(url.href)) return;
-    event.preventDefault();
-    togglePreferencePopup(url.href).catch(() => navigateToPreferences(url.href));
-  } catch {
-    // Invalid hrefs do not participate in same-origin preferences navigation.
-  }
+  event.preventDefault();
+  togglePreferencePopup().catch(handlePreferencePopupError);
 }
 
 function handleKeyDown(e) {
@@ -184,7 +168,7 @@ function handleKeyDown(e) {
   const isSettingsShortcut = !e.altKey && !e.shiftKey && (e.code === "Comma" || e.key === "," || e.key === "Comma");
   if (isSettingsShortcut) {
     e.preventDefault();
-    togglePreferencePopup().catch(() => navigateToPreferences());
+    togglePreferencePopup().catch(handlePreferencePopupError);
     return;
   }
 
@@ -307,7 +291,7 @@ whenReady(initPageWhenActivated);
 document.addEventListener("gnix:content-ready", initPageWhenActivated);
 
 runWhenActivated(() => {
-  document.addEventListener("click", handlePreferenceTransitionLinkClick, {
+  document.addEventListener("click", handlePreferenceTriggerClick, {
     capture: true,
     passive: false,
   });

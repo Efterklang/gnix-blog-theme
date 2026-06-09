@@ -11,7 +11,7 @@ window.__CHANGELOG_DATA__ = [
           '排版预览文案改为叶芝《当你老了》的中英文片段，预览内容更适合作为字体效果样张',
           '页面顶部新增返回上一页链接；全站 settings 快捷键从 Ctrl/Cmd+P 改为 Ctrl/Cmd+,',
           '进入与离开偏好设置页时主动跳过 native view-transition，不再播放主内容淡入淡出；导航栏偏好设置入口改为更简洁的 Lucide settings-2 图标',
-          '偏好设置入口改为按需加载的 popup：普通页面首屏不加载 preferences.css / preferences.js / 偏好设置预览 HTML，首次点击或按 Ctrl/Cmd+, 时再拉取当前语言的 preferences.html 并缓存；再次按快捷键或点击入口会关闭弹层；popup loader 也拆到独立动态模块，减少 main.js 常驻解析成本',
+          '偏好设置入口改为站内 Popup：不再生成或拉取 preferences.html，点击导航栏图标或按 Ctrl/Cmd+, 时按需加载 preferences.css / preferences.js 并打开弹层；再次触发会关闭弹层',
           '移除文章标题操作区的字体设置按钮，偏好设置只保留导航栏入口与 Ctrl/Cmd+, 快捷键，减少文章页操作噪音'
         ],
         en: [
@@ -21,7 +21,7 @@ window.__CHANGELOG_DATA__ = [
           'Replace the typography preview copy with localized excerpts from Yeats\' When You Are Old so the sample reads more naturally as a type specimen',
           'Add a back link at the top of the page and change the global settings shortcut from Ctrl/Cmd+P to Ctrl/Cmd+,',
           'Actively skip native view-transitions when entering or leaving preferences so the main-content fade no longer plays, and replace the navbar preferences entry with a cleaner Lucide settings-2 icon',
-          'Turn the preferences entry into an on-demand popup: normal pages no longer load preferences.css, preferences.js, or preferences preview HTML on first paint; the current-language preferences.html is fetched and cached on the first click or Ctrl/Cmd+, and the same shortcut or entry toggles the popup closed. The popup loader is split into its own dynamic module so main.js keeps less resident parse work',
+          'Turn the preferences entry into an in-page popup: preferences.html is no longer generated or fetched, and clicking the navbar icon or pressing Ctrl/Cmd+, loads preferences.css / preferences.js on demand before opening the popup. Triggering it again closes the popup',
           'Remove the article title-bar font settings button, leaving preferences accessible through the navbar entry and Ctrl/Cmd+, shortcut so article controls stay quieter'
         ],
         category: 'Style'
