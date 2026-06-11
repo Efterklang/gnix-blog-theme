@@ -1,0 +1,87 @@
+.accordion {
+  display: block;
+  interpolate-size: allow-keywords;
+  margin: 1em 0;
+}
+
+.accordion > details.accordion-item {
+  border-bottom: 1px solid var(--surface0);
+  margin: 0;
+  padding: 0;
+}
+
+.accordion > details.accordion-item:last-child {
+  border-bottom: none;
+}
+
+.accordion > details.accordion-item > summary {
+  align-items: center;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.875em;
+  gap: 12px;
+  line-height: 1.45;
+  list-style: none;
+  padding: 16px 0;
+  text-align: left;
+  transition: color 0.2s;
+  user-select: none;
+}
+
+.accordion > details.accordion-item > summary::-webkit-details-marker,
+.accordion > details.accordion-item > summary::marker {
+  content: "";
+  display: none;
+}
+
+.accordion > details.accordion-item > summary:hover {
+  color: var(--subtext0);
+}
+
+.accordion > details.accordion-item > summary::before {
+  color: var(--subtext0);
+  content: "+";
+  display: inline-flex;
+  flex: 0 0 16px;
+  font-size: 16px;
+  font-weight: 300;
+  justify-content: center;
+  line-height: 1;
+  transition: transform 0.2s ease;
+  width: 16px;
+}
+
+.accordion > details.accordion-item[open] > summary::before {
+  transform: rotate(45deg);
+}
+
+.accordion > details.accordion-item::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition:
+    block-size 0.3s ease,
+    content-visibility 0.3s ease allow-discrete;
+}
+
+.accordion > details.accordion-item[open]::details-content {
+  block-size: auto;
+}
+
+.accordion > details.accordion-item > summary ~ * {
+  color: var(--subtext1);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-left: 28px;
+}
+
+.accordion > details.accordion-item > summary ~ :last-child {
+  margin-bottom: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accordion > details.accordion-item > summary::before,
+  .accordion > details.accordion-item::details-content {
+    transition: none;
+  }
+}

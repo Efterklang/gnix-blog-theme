@@ -12,18 +12,21 @@ const md = createMarkdownExit({
 });
 
 function accordion(markdown) {
-  return `<x-accordion>
-  <accordion-item title="A">
+  return `<link rel="stylesheet" href="/css/optional/accordion.css">
+<div class="accordion">
+  <details class="accordion-item" name="test-accordion">
+    <summary>A</summary>
 
 ${markdown}
 
-  </accordion-item>
-  <accordion-item title="B">
+  </details>
+  <details class="accordion-item" name="test-accordion">
+    <summary>B</summary>
 
 Next item.
 
-  </accordion-item>
-</x-accordion>`;
+  </details>
+</div>`;
 }
 
 function hasListOpenAtAccordionClose(html) {
@@ -43,8 +46,8 @@ function hasListOpenAtAccordionClose(html) {
       continue;
     }
 
-    if (isClosing && tag === "accordion-item") {
-      const itemIndex = stack.lastIndexOf("accordion-item");
+    if (isClosing && tag === "details") {
+      const itemIndex = stack.lastIndexOf("details");
       if (itemIndex !== -1 && stack.slice(itemIndex + 1).some((name) => name === "ul" || name === "ol" || name === "li")) {
         return true;
       }
@@ -70,8 +73,7 @@ async function main() {
   await assertAccordionListBoundary("explicit HTML list keeps the custom element boundary stable", "Intro.\n\n<ul>\n  <li><p>one</p></li>\n  <li><p>two</p></li>\n</ul>", false);
   await assertAccordionListBoundary("fenced code does not disturb accordion-item boundaries", "Text.\n\n```js\nconsole.log(1)\n```", false);
   await assertAccordionListBoundary("nested ordered list remains aligned", "Intro.\n\n1. one\n   - nested\n2. two", false);
-
-  await assertAccordionListBoundary("unindented unordered list can leave list tags open across accordion-item", "Intro.\n\n- one\n- two", true);
+  await assertAccordionListBoundary("unindented unordered list can leave list tags open across details", "Intro.\n\n- one\n- two", true);
 }
 
 main().catch((error) => {

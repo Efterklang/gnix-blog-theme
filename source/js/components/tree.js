@@ -8,8 +8,9 @@
  *
  * - src
  *   - components
- *     - accordion.js
  *     - tree.js
+ *   - css/
+ *     - accordion.css
  *   - styles/
  *     - main.css
  * - package.json

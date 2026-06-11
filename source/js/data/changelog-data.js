@@ -3,6 +3,20 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: '6.11',
+        cn: [
+          'Accordion 从自定义元素改为 CSS-only 可选组件：删除 source/js/components/accordion.js，新增 /css/optional/accordion.css；内容直接使用原生 <details name> / <summary> 获得互斥展开，不再需要加载 JS',
+          '保留原有视觉与纯 CSS 展开动画：用 summary::before 渲染加号图标，details[open] 驱动旋转，::details-content + interpolate-size 处理展开/收起动画，并通过 prefers-reduced-motion 关闭动效',
+          'Accordion 结构测试改为覆盖原生 details 写法，同时保留 markdown-exit 对未缩进列表的边界约束验证'
+        ],
+        en: [
+          'Convert Accordion from a custom element to a CSS-only optional component: delete source/js/components/accordion.js and add /css/optional/accordion.css. Content now uses native <details name> / <summary> for exclusive expansion without loading JavaScript',
+          'Keep the existing visual treatment and CSS-only animation: render the plus icon with summary::before, rotate it from details[open], animate expansion with ::details-content + interpolate-size, and disable motion through prefers-reduced-motion',
+          'Update Accordion structure tests to cover the native details markup while preserving markdown-exit boundary coverage for unindented lists'
+        ],
+        category: 'refactor'
+      },
+      {
         date: '6.08',
         cn: [
           '偏好设置页去掉与整体视觉不搭的左侧 sidebar，并移除顶部 Appearance / Typography tabs；设置内容改为连续的 Appearance 与 Typography section，减少导航和初始化代码',
