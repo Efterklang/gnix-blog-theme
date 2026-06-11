@@ -13,12 +13,12 @@
  */
 
 let styleSheetInjected = false;
+let accordionId = 0;
 
 class Accordion extends HTMLElement {
   connectedCallback() {
     this.injectStyles();
     this.render();
-    this.setupListeners();
   }
 
   injectStyles() {
@@ -27,18 +27,21 @@ class Accordion extends HTMLElement {
     const style = `
       x-accordion {
         display: block;
+        interpolate-size: allow-keywords;
         margin: 1em 0;
       }
 
-      .accordion-item {
+      x-accordion > details.accordion-item {
         border-bottom: 1px solid var(--surface0);
+        margin: 0;
+        padding: 0;
       }
 
-      .accordion-item:last-child {
+      x-accordion > details.accordion-item:last-child {
         border-bottom: none;
       }
 
-      .accordion-header {
+      x-accordion .accordion-header {
         width: 100%;
         padding: 16px 0;
         border: none;
@@ -48,14 +51,25 @@ class Accordion extends HTMLElement {
         align-items: center;
         gap: 12px;
         cursor: pointer;
+        font-size: 0.875em;
+        line-height: 1.45;
+        list-style: none;
         transition: color 0.2s;
         text-align: left;
-        & :hover {
-         color: var(--subtext0);
-        }
+        user-select: none;
       }
 
-      .accordion-icon {
+      x-accordion .accordion-header::-webkit-details-marker,
+      x-accordion .accordion-header::marker {
+        display: none;
+        content: "";
+      }
+
+      x-accordion .accordion-header:hover {
+        color: var(--subtext0);
+      }
+
+      x-accordion .accordion-icon {
         font-size: 16px;
         font-weight: 300;
         color: var(--subtext0);
@@ -66,21 +80,38 @@ class Accordion extends HTMLElement {
         justify-content: center;
       }
 
-      .accordion-item.active .accordion-icon {
+      x-accordion > details.accordion-item[open] > .accordion-header .accordion-icon {
         transform: rotate(45deg);
       }
 
-      .accordion-content {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease;
+      x-accordion > details.accordion-item::details-content {
+        block-size: 0;
+        overflow: clip;
+        transition:
+          block-size 0.3s ease,
+          content-visibility 0.3s ease allow-discrete;
       }
 
-      .accordion-content-inner {
+      x-accordion > details.accordion-item[open]::details-content {
+        block-size: auto;
+      }
+
+      x-accordion .accordion-content {
+        overflow: clip;
+      }
+
+      x-accordion .accordion-content-inner {
         padding: 0 0 16px 28px;
         color: var(--subtext1);
         font-size: 14px;
         line-height: 1.6;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        x-accordion .accordion-icon,
+        x-accordion > details.accordion-item::details-content {
+          transition: none;
+        }
       }
     `;
 
@@ -90,95 +121,89 @@ class Accordion extends HTMLElement {
     styleSheetInjected = true;
   }
 
-  render() {
-    const items = this.querySelectorAll("accordion-item");
-    if (items.length === 0) return; // Already rendered or empty
+  get accordionName() {
+    const name = this.getAttribute("name");
+    if (name) return name;
 
-    const itemsHTML = Array.from(items)
-      .map((item) => {
-        const title = item.getAttribute("title") || "Item";
+    if (!this._accordionName) {
+      accordionId += 1;
+      this._accordionName = `x-accordion-${accordionId}`;
+    }
 
-        // Filter out nested accordion-item elements to handle malformed HTML
-        const contentNodes = Array.from(item.childNodes).filter((node) => {
-          return node.nodeType !== Node.ELEMENT_NODE || node.tagName.toLowerCase() !== "accordion-item";
-        });
-
-        const content = contentNodes
-          .map((node) => {
-            return node.nodeType === Node.TEXT_NODE ? node.textContent : node.outerHTML;
-          })
-          .join("");
-
-        return `
-        <div class="accordion-item">
-          <button class="accordion-header" aria-expanded="false">
-            <span class="accordion-icon">+</span>
-            <span>${title}</span>
-          </button>
-          <div class="accordion-content">
-            <div class="accordion-content-inner content">${content}</div>
-          </div>
-        </div>
-      `;
-      })
-      .join("");
-
-    this.innerHTML = itemsHTML;
+    return this._accordionName;
   }
 
-  setupListeners() {
-    const headers = this.querySelectorAll(".accordion-header");
+  render() {
+    const items = Array.from(this.querySelectorAll("accordion-item"));
+    if (items.length === 0) return; // Already rendered or empty
 
-    headers.forEach((header) => {
-      header.addEventListener("click", () => {
-        const item = header.closest(".accordion-item");
-        const isActive = item.classList.contains("active");
-        const content = item.querySelector(".accordion-content");
+    const fragment = document.createDocumentFragment();
+    const accordionName = this.accordionName;
 
-        // Close all items (accordion mode - single expansion)
-        this.querySelectorAll(".accordion-item").forEach((i) => {
-          i.classList.remove("active");
-          i.querySelector(".accordion-header").setAttribute("aria-expanded", "false");
-          const c = i.querySelector(".accordion-content");
-          if (c) c.style.maxHeight = null;
-        });
+    items.forEach((item) => {
+      const details = document.createElement("details");
+      details.className = "accordion-item";
+      details.setAttribute("name", accordionName);
+      if (item.hasAttribute("open")) details.open = true;
 
-        // Open clicked item if it wasn't active
-        if (!isActive) {
-          item.classList.add("active");
-          header.setAttribute("aria-expanded", "true");
-          if (content) {
-            content.style.maxHeight = `${content.scrollHeight}px`;
-          }
-        }
+      const summary = document.createElement("summary");
+      summary.className = "accordion-header";
+
+      const icon = document.createElement("span");
+      icon.className = "accordion-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = "+";
+
+      const title = document.createElement("span");
+      title.textContent = item.getAttribute("title") || "Item";
+
+      const content = document.createElement("div");
+      content.className = "accordion-content";
+
+      const contentInner = document.createElement("div");
+      contentInner.className = "accordion-content-inner content";
+
+      // Filter out nested accordion-item elements to handle malformed HTML.
+      const contentNodes = Array.from(item.childNodes).filter((node) => {
+        return node.nodeType !== Node.ELEMENT_NODE || node.tagName.toLowerCase() !== "accordion-item";
       });
+
+      contentInner.append(...contentNodes);
+      content.append(contentInner);
+      summary.append(icon, title);
+      details.append(summary, content);
+      fragment.append(details);
     });
+
+    this.replaceChildren(fragment);
   }
 
   // Public method to expand a specific item by index
   expandItem(index) {
-    const items = this.querySelectorAll(".accordion-item");
-    if (items[index]) {
-      items[index].querySelector(".accordion-header").click();
-    }
+    const items = Array.from(this.querySelectorAll("details.accordion-item"));
+    const target = items[index];
+    if (!target) return;
+
+    items.forEach((item) => {
+      item.open = item === target;
+    });
   }
 
   // Public method to collapse all items
   collapseAll() {
-    this.querySelectorAll(".accordion-item").forEach((item) => {
-      item.classList.remove("active");
-      item.querySelector(".accordion-header").setAttribute("aria-expanded", "false");
-      const content = item.querySelector(".accordion-content");
-      if (content) content.style.maxHeight = null;
+    this.querySelectorAll("details.accordion-item").forEach((item) => {
+      item.open = false;
     });
   }
 
   static get observedAttributes() {
-    return ["single-expand"];
+    return ["name"];
   }
 
   attributeChangedCallback() {
-    // Future: support multi-expand mode
+    this.querySelectorAll("details.accordion-item").forEach((item) => {
+      item.setAttribute("name", this.accordionName);
+    });
   }
 }
 
