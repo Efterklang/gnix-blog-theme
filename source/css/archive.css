@@ -748,7 +748,7 @@
 
 a.archive-title {
   font-size: 0.8rem;
-  font-weight: 400;
+  padding-left: 0;
   line-height: 1.45;
   overflow-wrap: anywhere;
   transition: color 140ms ease;
