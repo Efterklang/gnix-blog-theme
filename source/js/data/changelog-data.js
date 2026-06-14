@@ -3,6 +3,20 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: '6.14',
+        cn: [
+          '新增 image-group 自定义组件，用横向样片墙展示多张不同比例图片：每张图等高、宽度按自然比例变化，object-fit: contain 保证不裁剪，并通过固定组件高度避免图片加载推动后续内容产生 CLS',
+          '组件支持 height / gap / label 属性、原生横向滚动、左右按钮和 hover/focus caption，适合不需要轮播顺序但需要集中展示同组照片的文章场景',
+          'image-group 新增 wide 属性：可让组件在较宽视口突破文章正文栏宽，居中扩展到更接近视口的宽度；默认限制为 min(72rem, 100vw - 2rem)，避免横向溢出'
+        ],
+        en: [
+          'Add an image-group custom element for mixed-ratio image sets: images share one visual height while their widths follow natural ratios, object-fit: contain prevents cropping, and the fixed component height avoids image-loading CLS for following content',
+          'Support height / gap / label attributes, native horizontal scrolling, arrow buttons, and hover/focus captions for posts that need a grouped photo presentation rather than sequential carousel navigation',
+          'Add a wide attribute to image-group so it can break out of the article column on wider viewports and center itself at a more viewport-like width; the default cap is min(72rem, 100vw - 2rem) to avoid horizontal overflow'
+        ],
+        category: 'Feat'
+      },
+      {
         date: '6.11',
         cn: [
           'Accordion 从自定义元素改为 CSS-only 可选组件：删除 source/js/components/accordion.js，新增 /css/optional/accordion.css；内容直接使用原生 <details name> / <summary> 获得互斥展开，不再需要加载 JS',
