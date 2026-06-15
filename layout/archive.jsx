@@ -70,9 +70,8 @@ function groupSeasonGroupsByYear(seasonGroups) {
     const last = years[years.length - 1];
     if (last && last.year === group.year) {
       last.groups.push(group);
-      last.total += group.posts.length;
     } else {
-      years.push({ year: group.year, total: group.posts.length, groups: [group] });
+      years.push({ year: group.year, groups: [group] });
     }
   }
   return years;
@@ -124,7 +123,7 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
   return (
     <section class={["archive-group", marker].filter(Boolean).join(" ")} aria-labelledby={sectionId}>
       <header class="archive-group__header">
-        <h2 id={sectionId} class="archive-group__title archive-label">
+        <h2 id={sectionId} class="archive-label">
           {title}
         </h2>
         <span class="archive-group__count">{String(posts.length).padStart(2, "0")}</span>
@@ -132,7 +131,8 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
       <div class="timeline">
         {posts.map((post) => {
           const postDate = getPostDateParts(post.date, date_xml, date);
-          const readMinutes = estimateReadMinutes(post._content);
+          const excerpt = post.excerpt || null;
+          const readMinutes = excerpt ? estimateReadMinutes(post._content) : 0;
           return (
             <ArticleMedia
               key={post.path}
@@ -140,7 +140,7 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
               title={post.title}
               date={postDate.label}
               dateXml={postDate.xml}
-              excerpt={post.excerpt || null}
+              excerpt={excerpt}
               readTime={readMinutes ? `${readMinutes} min` : null}
             />
           );
@@ -157,16 +157,13 @@ function renderTopicPicker({ tags, title }) {
 
   return (
     <div id="archive-topic-picker" class="archive-topic-picker" popover="auto">
-      <button class="archive-topic-picker__backdrop" type="button" popovertarget="archive-topic-picker" popovertargetaction="hide" tabindex="-1" aria-label="Close tag picker"></button>
       <div class="archive-topic-picker__body" role="dialog" aria-labelledby="archive-topic-picker-title">
         <header class="archive-topic-picker__header">
           <div>
             <p class="archive-topic-picker__eyebrow">{tagCountLabel}</p>
             <h2 id="archive-topic-picker-title">{title}</h2>
           </div>
-          <button class="archive-topic-picker__close" type="button" popovertarget="archive-topic-picker" popovertargetaction="hide" aria-label="Close tag picker">
-            <span aria-hidden="true"></span>
-          </button>
+          <button class="archive-topic-picker__close" type="button" popovertarget="archive-topic-picker" popovertargetaction="hide" aria-label="Close tag picker"></button>
         </header>
         <nav class="archive-topic-list" aria-label={title}>
           {tags.map((tag) => (
@@ -262,7 +259,7 @@ module.exports = class extends Component {
           <aside class="archive-rail" aria-label="Jump to year">
             <ol class="archive-rail__list">
               {years.map((year) => (
-                <li key={year} class="archive-rail__item">
+                <li key={year}>
                   <a href={`#archive-year-${year}`} class="archive-rail__link">
                     <span class="archive-rail__year">{year}</span>
                   </a>

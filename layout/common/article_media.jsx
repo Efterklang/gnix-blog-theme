@@ -14,7 +14,7 @@ module.exports = class extends Component {
   render() {
     const { url, title, date, dateXml, excerpt, readTime } = this.props;
     const formattedDate = formatDate(date, dateXml);
-    const hasPreview = excerpt || readTime;
+    const hasPreview = Boolean(excerpt);
 
     return (
       <article class={hasPreview ? "archive-item has-preview" : "archive-item"}>

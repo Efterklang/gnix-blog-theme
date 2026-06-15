@@ -1,8 +1,8 @@
 .archive-page {
-  --archive-line: color-mix(in oklch, var(--surface1) 72%, var(--text));
   --archive-muted: color-mix(in oklch, var(--subtext1) 78%, var(--base));
   --archive-accent: var(--lavender);
   --archive-rail-width: 5rem;
+  position: relative;
   display: grid;
   gap: 1.5rem;
   padding: 1.25em 1.25rem 0;
@@ -129,6 +129,58 @@
   color: var(--text);
 }
 
+/* #region Hover overlay */
+
+.footer,
+.archive-hero,
+.archive-rail,
+.archive-era,
+.archive-group__header,
+.archive-item {
+  transition:
+    filter 180ms ease,
+    opacity 180ms ease;
+}
+
+body:has(.archive-page) .navbar-main {
+  transition:
+    transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    filter 180ms ease,
+    opacity 180ms ease;
+}
+
+.archive-page:has(.archive-item.has-preview)::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: hsl(from var(--mantle) h s l / 0.28);
+  -webkit-backdrop-filter: blur(8px) saturate(0.96);
+  backdrop-filter: blur(8px) saturate(0.96);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    opacity 180ms ease,
+    visibility 180ms ease;
+}
+
+.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) :where(.navbar-main, .footer),
+.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))
+  :where(.archive-hero, .archive-rail, .archive-era, .archive-group__header),
+.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))
+  .archive-item:not(:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))) {
+  filter: blur(6px);
+  opacity: 0.42;
+}
+
+/* #endregion */
+
 :popover-open.archive-topic-picker {
   box-sizing: border-box;
   display: flex;
@@ -143,17 +195,7 @@
   }
 }
 
-.archive-topic-picker__backdrop {
-  position: fixed;
-  inset: 0;
-  border: 0;
-  background: transparent;
-  cursor: default;
-}
-
 .archive-topic-picker__body {
-  position: relative;
-  z-index: 1;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   width: min(680px, 92vw);
@@ -209,7 +251,7 @@
     color 150ms ease,
     transform 150ms ease;
 
-  span,
+  &::before,
   &::after {
     content: "";
     position: absolute;
@@ -486,7 +528,6 @@
   padding: 1.1rem 0 0;
 
   .archive-era + & {
-    border-top: none;
     padding-top: 0.35rem;
   }
 
@@ -572,71 +613,39 @@
   pad: 3 "0";
 }
 
-/* Placement fallbacks for anchor positioning. The preferred placement is set
-   on .archive-popup directly; position-try flips to these (in order, first that
-   fits) when that side would overflow the viewport — replacing the old JS
-   measure-and-flip logic. */
-@position-try --archive-below {
-  top: anchor(bottom);
-  right: auto;
-  bottom: auto;
-  left: anchor(left);
-  margin: 12px 0 0;
-  width: min(20rem, calc(100vw - 2rem));
-}
-
-@position-try --archive-above {
-  top: auto;
-  right: auto;
-  bottom: anchor(top);
-  left: anchor(left);
-  margin: 0 0 12px;
-  width: min(20rem, calc(100vw - 2rem));
-}
-
 .archive-popup {
   --popup-accent: var(--archive-accent);
+  --popup-gap: 12px;
+  --popup-hidden-shift: 3px;
   position: fixed;
   position-anchor: --archive-anchor;
-  z-index: 100;
+  z-index: 141;
   box-sizing: border-box;
 
-  /* Default placement: below the item (viewports 720–1280px). */
-  top: anchor(bottom);
+  /* Default placement: above the item. */
+  top: anchor(top);
   left: anchor(left);
-  margin: 12px 0 0;
-  width: min(20rem, calc(100vw - 2rem));
-  max-width: calc(100vw - 24px);
-  max-height: calc(100dvh - 24px);
+  translate: 0 calc(-100% - var(--popup-gap));
+  inline-size: fit-content;
+  min-inline-size: min(20rem, calc(100vw - 2rem));
+  max-inline-size: min(34rem, calc(100vw - 24px));
   overflow: auto;
-  position-try-fallbacks: --archive-above;
 
   padding: 0.85rem 1rem 0.9rem;
   border: 1px dashed var(--surface0);
   border-radius: 5px;
   background: var(--mantle);
 
-  /* Closed state. display:none keeps the excerpt subtree out of layout and the
-     a11y tree until reveal — same laziness the old <template> gave us — while
-     @starting-style + allow-discrete still let it animate in. */
-  display: none;
+  /* Keep the fixed, anchored box present while hidden so the browser can settle
+     its anchor placement before the popup fades in. */
   opacity: 0;
-  transform: translateY(-3px);
+  transform: translateY(var(--popup-hidden-shift));
   pointer-events: none;
+  visibility: hidden;
   transition:
-    opacity 140ms ease,
-    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
-    display 140ms allow-discrete;
-  transition-delay: 140ms; /* close delay (was CLOSE_DELAY) */
-
-  /* Wider viewports: prefer the right of the item, fall back to below/above. */
-  @media (min-width: 1280px) {
-    top: anchor(top);
-    left: anchor(right);
-    margin: -4px 0 0 12px;
-    width: 14rem;
-    position-try-fallbacks: --archive-below, --archive-above;
-  }
+    opacity 140ms ease 140ms,
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1) 140ms,
+    visibility 0s linear 280ms;
 
   /* Touch / narrow screens: no hover preview at all. */
   @media (hover: none), (max-width: 720px) {
@@ -644,20 +653,25 @@
   }
 }
 
-.archive-item.has-preview:hover > .archive-popup,
-.archive-item.has-preview:focus-within > .archive-popup {
-  display: block;
+.archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) > .archive-popup {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
-  transition-delay: 180ms; /* open delay (was HOVER_DELAY) */
+  visibility: visible;
+  transition:
+    opacity 140ms ease 180ms,
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1) 180ms,
+    visibility 0s linear 180ms;
+}
+
+.archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) {
+  z-index: 140;
 }
 
 @starting-style {
-  .archive-item.has-preview:hover > .archive-popup,
-  .archive-item.has-preview:focus-within > .archive-popup {
+  .archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) > .archive-popup {
     opacity: 0;
-    transform: translateY(-3px);
+    transform: translateY(var(--popup-hidden-shift));
   }
 }
 
@@ -747,8 +761,11 @@
 }
 
 a.archive-title {
+  justify-self: start;
+  inline-size: fit-content;
+  max-inline-size: 100%;
   font-size: 0.8rem;
-  padding-left: 0;
+  padding-inline: 0;
   line-height: 1.45;
   overflow-wrap: anywhere;
   transition: color 140ms ease;
