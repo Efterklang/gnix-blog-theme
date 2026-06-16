@@ -165,16 +165,17 @@ body:has(.archive-page) .navbar-main {
     visibility 180ms ease;
 }
 
-.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))::before {
+.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item.has-preview:focus-within, .archive-popup:hover, .archive-popup:focus-within))::before {
   opacity: 1;
   visibility: visible;
 }
 
-body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) :where(.navbar-main, .footer),
-.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))
+body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .archive-item.has-preview:focus-within, .archive-popup:hover, .archive-popup:focus-within))
+  :where(.navbar-main, .footer),
+.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item.has-preview:focus-within, .archive-popup:hover, .archive-popup:focus-within))
   :where(.archive-hero, .archive-rail, .archive-era, .archive-group__header),
-.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))
-  .archive-item:not(:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))) {
+.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item.has-preview:focus-within, .archive-popup:hover, .archive-popup:focus-within))
+  .archive-item:not(:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))):not(:focus-within) {
   filter: blur(6px);
   opacity: 0.42;
 }
@@ -647,13 +648,24 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
     transform 180ms cubic-bezier(0.22, 1, 0.36, 1) 140ms,
     visibility 0s linear 280ms;
 
-  /* Touch / narrow screens: no hover preview at all. */
   @media (hover: none), (max-width: 720px) {
-    display: none !important;
+    --popup-hidden-shift: 10px;
+    inset: auto max(0.75rem, env(safe-area-inset-right)) max(0.75rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+    top: auto;
+    left: max(0.75rem, env(safe-area-inset-left));
+    translate: 0 0;
+    inline-size: auto;
+    min-inline-size: 0;
+    max-inline-size: none;
+    max-block-size: min(45dvh, 22rem);
+    padding: 0.9rem 1rem 1rem;
+    border-style: solid;
+    box-shadow: 0 -12px 36px hsl(from var(--crust) h s l / 0.28);
   }
 }
 
-.archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) > .archive-popup {
+.archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) > .archive-popup,
+.archive-item.has-preview:focus-within > .archive-popup {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -664,12 +676,14 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
     visibility 0s linear 180ms;
 }
 
-.archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) {
+.archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)),
+.archive-item.has-preview:focus-within {
   z-index: 140;
 }
 
 @starting-style {
-  .archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) > .archive-popup {
+  .archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) > .archive-popup,
+  .archive-item.has-preview:focus-within > .archive-popup {
     opacity: 0;
     transform: translateY(var(--popup-hidden-shift));
   }
@@ -680,6 +694,12 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
 @supports not (anchor-name: --a) {
   .archive-popup {
     display: none !important;
+  }
+
+  @media (hover: none), (max-width: 720px) {
+    .archive-popup {
+      display: block !important;
+    }
   }
 }
 
@@ -706,19 +726,12 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
   }
 }
 
-/* Read time arrives as the raw "5 min" from the template; CSS prepends the
-   separator and appends " read", and the eyebrow's text-transform uppercases
-   the lot — "· 5 MIN READ". Both pseudos only exist when the span is rendered
-   (i.e. when the post actually has a read time). */
+/* Read time text is localized in the template; CSS only adds the separator. */
 .archive-popup__read {
   &::before {
     content: "·";
     margin: 0 0.4em;
     opacity: 0.4;
-  }
-
-  &::after {
-    content: " read";
   }
 }
 
