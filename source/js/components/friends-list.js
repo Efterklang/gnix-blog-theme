@@ -36,6 +36,19 @@ function displayUrlFromHref(href) {
   }
 }
 
+function isZhLocale() {
+  return (document.documentElement.lang || "").toLowerCase().startsWith("zh");
+}
+
+function getUiText(key) {
+  const zh = isZhLocale();
+  const messages = {
+    open: zh ? "打开" : "Open",
+    rssFeed: zh ? "RSS 订阅" : "RSS Feed",
+  };
+  return messages[key] || key;
+}
+
 function injectFriendsListStyles() {
   if (friendsListStyleSheetInjected) return;
 
@@ -245,7 +258,8 @@ class FriendCard extends HTMLElement {
     const avatar = this.getAttribute("avatar") || "";
     const description = this.getAttribute("description") || "";
     const feed = this.getAttribute("feed") || "";
-    const openLabel = this.getAttribute("open-label") || "Open";
+    const openLabel = this.getAttribute("open-label") || getUiText("open");
+    const rssLabel = this.getAttribute("feed-label") || getUiText("rssFeed");
     const ariaLabel = href && name ? `${openLabel} ${name}` : "";
 
     this.setAttribute("role", "listitem");
@@ -255,7 +269,7 @@ class FriendCard extends HTMLElement {
       <article class="friend-detail">
         <h3 class="friend-name">
           ${escapeHtml(name)}
-          ${feed ? `<a class="rss-link" target="_blank" rel="noopener noreferrer" href="${escapeAttribute(feed)}" title="RSS Feed">◎</a>` : ""}
+          ${feed ? `<a class="rss-link" target="_blank" rel="noopener noreferrer" href="${escapeAttribute(feed)}" title="${escapeAttribute(rssLabel)}" aria-label="${escapeAttribute(rssLabel)}">◎</a>` : ""}
         </h3>
         ${displayUrl ? `<div class="friend-url">${escapeHtml(displayUrl)}</div>` : ""}
         ${description ? `<div class="friend-desc">${escapeHtml(description)}</div>` : ""}

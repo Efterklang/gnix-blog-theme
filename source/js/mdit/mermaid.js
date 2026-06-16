@@ -4,6 +4,24 @@
   let mermaidPromise = null;
   let renderSeq = 0;
 
+  const isZhLocale = () => (document.documentElement.lang || "").toLowerCase().startsWith("zh");
+
+  const getUiText = (key) => {
+    const zh = isZhLocale();
+    const messages = {
+      copied: zh ? "已复制" : "Copied!",
+      copyCode: zh ? "复制代码" : "Copy Code",
+      panDown: zh ? "向下平移" : "Pan down",
+      panLeft: zh ? "向左平移" : "Pan left",
+      panRight: zh ? "向右平移" : "Pan right",
+      panUp: zh ? "向上平移" : "Pan up",
+      resetView: zh ? "重置视图" : "Reset view",
+      zoomIn: zh ? "放大" : "Zoom in",
+      zoomOut: zh ? "缩小" : "Zoom out",
+    };
+    return messages[key] || key;
+  };
+
   const loadMermaid = (jsUrl) => {
     if (mermaidPromise) return mermaidPromise;
     if (window.mermaid) {
@@ -74,7 +92,28 @@
       this.startX = 0;
       this.startY = 0;
       this.wrapper = container.querySelector(".mermaid-wrapper");
+      this.localizeControls();
       this.initEvents();
+    }
+
+    localizeControls() {
+      const labels = [
+        [".copy-code", getUiText("copyCode")],
+        [".up", getUiText("panUp")],
+        [".down", getUiText("panDown")],
+        [".left", getUiText("panLeft")],
+        [".right", getUiText("panRight")],
+        [".reset", getUiText("resetView")],
+        [".zoom-in", getUiText("zoomIn")],
+        [".zoom-out", getUiText("zoomOut")],
+      ];
+
+      labels.forEach(([selector, label]) => {
+        this.container.querySelectorAll(selector).forEach((button) => {
+          button.setAttribute("aria-label", label);
+          if (button.classList.contains("copy-code")) button.setAttribute("title", label);
+        });
+      });
     }
 
     apply() {
@@ -146,7 +185,7 @@
       if (!codeEl) return;
       navigator.clipboard.writeText(codeEl.value).then(() => {
         const originalTitle = btn.getAttribute("title");
-        btn.setAttribute("title", "Copied!");
+        btn.setAttribute("title", getUiText("copied"));
         setTimeout(() => btn.setAttribute("title", originalTitle), 2000);
       });
     }

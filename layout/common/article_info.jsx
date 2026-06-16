@@ -43,10 +43,18 @@ module.exports = class extends Component {
     const markdownSourceUrl = page.markdown_path ? helper.url_for(page.markdown_path) : null;
     const markdownSourceLabel = helper.__("article.markdown_source");
     const markdownSourceType = "text/markdown; charset=utf-8";
+    const closeLabel = helper.__("article.close");
+    const authorLabel = helper.__("article.author");
+    const titleLabel = helper.__("article.article_title");
+    const urlLabel = helper.__("article.url");
+    const createdLabel = helper.__("article.created_time");
+    const updatedLabel = helper.__("article.updated_time");
+    const licenseLabel = helper.__("article.license");
+    const locationLabel = helper.__("article.location");
 
     return (
       <div id="article-info-popover" popover="auto" class="article-popover article-info-popover">
-        <button class="article-popover-backdrop" type="button" popovertarget="article-info-popover" popovertargetaction="hide" tabindex="-1" aria-label="Close article panel"></button>
+        <button class="article-popover-backdrop" type="button" popovertarget="article-info-popover" popovertargetaction="hide" tabindex="-1" aria-label={closeLabel}></button>
         <div class="article-popover-body">
           <div class="article-info-list">
             {(page.author || config.author) && (
@@ -63,15 +71,15 @@ module.exports = class extends Component {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     role="img"
-                    aria-label="Author"
+                    aria-label={authorLabel}
                   >
-                    <title>Author</title>
+                    <title>{authorLabel}</title>
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
                   </svg>
                 </div>
                 <div class="article-info-content">
-                  <span class="article-info-label">{helper.__("article.author")}</span>
+                  <span class="article-info-label">{authorLabel}</span>
                   <span class="article-info-value">{page.author || config.author}</span>
                 </div>
               </div>
@@ -90,9 +98,9 @@ module.exports = class extends Component {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     role="img"
-                    aria-label="Title"
+                    aria-label={titleLabel}
                   >
-                    <title>Title</title>
+                    <title>{titleLabel}</title>
                     <path d="M4 20h16" />
                     <path d="M6 16h6" />
                     <path d="M6 12h12" />
@@ -100,7 +108,7 @@ module.exports = class extends Component {
                   </svg>
                 </div>
                 <div class="article-info-content">
-                  <span class="article-info-label">{helper.__("article.article_title")}</span>
+                  <span class="article-info-label">{titleLabel}</span>
                   <span class="article-info-value">{page.title}</span>
                 </div>
               </div>
@@ -119,15 +127,15 @@ module.exports = class extends Component {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     role="img"
-                    aria-label="URL"
+                    aria-label={urlLabel}
                   >
-                    <title>URL</title>
+                    <title>{urlLabel}</title>
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                   </svg>
                 </div>
                 <div class="article-info-content">
-                  <span class="article-info-label">{helper.__("article.url")}</span>
+                  <span class="article-info-label">{urlLabel}</span>
                   <span class="article-info-value">
                     <a href={page.permalink} target="_blank" rel="noopener">
                       {decodeURI(page.permalink)}
@@ -182,15 +190,15 @@ module.exports = class extends Component {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     role="img"
-                    aria-label="Created time"
+                    aria-label={createdLabel}
                   >
-                    <title>Created time</title>
+                    <title>{createdLabel}</title>
                     <circle cx="12" cy="12" r="10" />
                     <polyline points="12 6 12 12 16 14" />
                   </svg>
                 </div>
                 <div class="article-info-content">
-                  <span class="article-info-label">{helper.__("article.created_time")}</span>
+                  <span class="article-info-label">{createdLabel}</span>
                   <span class="article-info-value">{helper.date(page.date, "YYYY-MM-DD HH:mm")}</span>
                 </div>
               </div>
@@ -209,15 +217,15 @@ module.exports = class extends Component {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     role="img"
-                    aria-label="Updated time"
+                    aria-label={updatedLabel}
                   >
-                    <title>Updated time</title>
+                    <title>{updatedLabel}</title>
                     <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                     <path d="M3 3v5h5" />
                   </svg>
                 </div>
                 <div class="article-info-content">
-                  <span class="article-info-label">{helper.__("article.updated_time")}</span>
+                  <span class="article-info-label">{updatedLabel}</span>
                   <span class="article-info-value">{helper.date(page.updated, "YYYY-MM-DD HH:mm")}</span>
                 </div>
               </div>
@@ -236,15 +244,15 @@ module.exports = class extends Component {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     role="img"
-                    aria-label="License"
+                    aria-label={licenseLabel}
                   >
-                    <title>License</title>
+                    <title>{licenseLabel}</title>
                     <path fill="none" d="M15 21H6a3 3 0 0 1-3-3v-1h10v2a2 2 0 0 0 4 0V5a2 2 0 1 1 2 2h-2m2-4H8a3 3 0 0 0-3 3v11M9 7h4m-4 4h4" />
                     <polyline points="14 2 14 8 20 8" />
                   </svg>
                 </div>
                 <div class="article-info-content">
-                  <span class="article-info-label">{helper.__("article.license")}</span>
+                  <span class="article-info-label">{licenseLabel}</span>
                   <span class="article-info-value">
                     {Object.keys(article.licenses).map((name, i) => (
                       <span key={name}>
@@ -272,15 +280,15 @@ module.exports = class extends Component {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     role="img"
-                    aria-label="Location"
+                    aria-label={locationLabel}
                   >
-                    <title>Location</title>
+                    <title>{locationLabel}</title>
                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
                     <circle cx="12" cy="10" r="3" />
                   </svg>
                 </div>
                 <div class="article-info-content">
-                  <span class="article-info-label">{helper.__("article.location")}</span>
+                  <span class="article-info-label">{locationLabel}</span>
                   <span class="article-info-value">{page.location}</span>
                 </div>
               </div>

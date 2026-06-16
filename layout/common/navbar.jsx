@@ -74,7 +74,7 @@ function getLanguageSwitch(page, config, helper) {
 
 class Navbar extends Component {
   render() {
-    const { siteUrl, menu, links, languageSwitch, preferencesTitle, searchTitle } = this.props;
+    const { siteUrl, menu, links, languageSwitch, preferencesTitle, searchTitle, menuTitle, isSearchEnabled } = this.props;
 
     const languageIconChildren = { __html: LANGUAGE_SWITCH_ICON_HTML };
 
@@ -85,7 +85,7 @@ class Navbar extends Component {
             <a id="navbar-logo-link" href={siteUrl}>
               ga.o
             </a>
-            <div class="navbar-menu">
+            <div class="navbar-menu" id="navbar-menu">
               {Object.keys(menu).length ? (
                 <div class="navbar-start">
                   {Object.keys(menu).map((name) => {
@@ -146,16 +146,18 @@ class Navbar extends Component {
                     <circle cx="7" cy="7" r="3" />
                   </svg>
                 </button>
-                <button type="button" class="navbar-item search" popovertarget="searchbox" title={searchTitle}>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <title>Search Button</title>
-                    <path d="m21 21-4.34-4.34" />
-                    <circle cx="11" cy="11" r="8" />
-                  </svg>
-                </button>
+                {isSearchEnabled ? (
+                  <button type="button" class="navbar-item search" popovertarget="searchbox" title={searchTitle} aria-label={searchTitle}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <title>{searchTitle}</title>
+                      <path d="m21 21-4.34-4.34" />
+                      <circle cx="11" cy="11" r="8" />
+                    </svg>
+                  </button>
+                ) : null}
               </div>
             </div>
-            <button type="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <button type="button" class="navbar-burger" aria-label={menuTitle} aria-expanded="false" aria-controls="navbar-menu">
               <span aria-hidden="true"></span>
               <span aria-hidden="true"></span>
               <span aria-hidden="true"></span>
@@ -199,6 +201,8 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
     languageSwitch: getLanguageSwitch(page, config, helper),
     preferencesTitle: __("preferences.title"),
     searchTitle: __("search.search"),
+    menuTitle: __("navbar.menu"),
+    isSearchEnabled: !!config.search,
   };
 });
 

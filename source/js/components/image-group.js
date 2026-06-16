@@ -26,6 +26,19 @@ const DEFAULT_HEIGHT = "clamp(160px, 32vw, 320px)";
 const CHEVRON_LEFT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>`;
 const CHEVRON_RIGHT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>`;
 
+function isZhLocale() {
+  return (document.documentElement.lang || "").toLowerCase().startsWith("zh");
+}
+
+function getUiText(key) {
+  const zh = isZhLocale();
+  const messages = {
+    nextImages: zh ? "下一组图片" : "Next images",
+    previousImages: zh ? "上一组图片" : "Previous images",
+  };
+  return messages[key] || key;
+}
+
 const STYLES = `
   :host {
     display: block;
@@ -360,7 +373,7 @@ class ImageGroup extends HTMLElement {
     const button = document.createElement("button");
     button.className = `nav ${direction}`;
     button.type = "button";
-    button.setAttribute("aria-label", direction === "prev" ? "Previous images" : "Next images");
+    button.setAttribute("aria-label", direction === "prev" ? getUiText("previousImages") : getUiText("nextImages"));
     button.innerHTML = direction === "prev" ? CHEVRON_LEFT : CHEVRON_RIGHT;
     button.addEventListener("click", () => this._scroll(direction === "prev" ? -1 : 1));
     return button;

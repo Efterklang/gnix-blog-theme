@@ -1,6 +1,16 @@
 const PREFERENCE_POPUP_ID = "preference-popup";
-const PREFERENCE_CSS_URL = "/css/preferences.css";
-const PREFERENCE_SCRIPT_URL = "/js/preferences.js";
+
+function resolveGnixAssetUrl(path) {
+  if (!path || /^(?:[a-z][a-z\d+.-]*:)?\/\//i.test(path) || /^(?:data|mailto|tel):/i.test(path)) {
+    return path;
+  }
+
+  const root = window.__gnixAssetRoot || "/";
+  return `${root.replace(/\/?$/, "/")}${String(path).replace(/^\/+/, "")}`;
+}
+
+const PREFERENCE_CSS_URL = resolveGnixAssetUrl("/css/preferences.css");
+const PREFERENCE_SCRIPT_URL = resolveGnixAssetUrl("/js/preferences.js");
 
 let preferencePopupPromise = null;
 let preferencePopupReturnFocus = null;

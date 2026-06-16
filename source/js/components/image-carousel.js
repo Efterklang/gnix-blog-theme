@@ -27,6 +27,32 @@ const FALLBACK_RATIO = "3 / 2";
 const SWIPE_THRESHOLD_PX = 40;
 const MAX_HEIGHT = "80vh";
 
+function isZhLocale() {
+  return (document.documentElement.lang || "").toLowerCase().startsWith("zh");
+}
+
+function getUiText(key, value) {
+  const zh = isZhLocale();
+  const messages = {
+    imageCarousel: zh ? "图片轮播" : "Image carousel",
+    nextSlide: zh ? "下一张" : "Next slide",
+    previousSlide: zh ? "上一张" : "Previous slide",
+    slide: zh ? `第 ${value} 张` : `Slide ${value}`,
+    slideNavigation: zh ? "幻灯片导航" : "Slide navigation",
+  };
+  return messages[key] || key;
+}
+
+function escapeHtml(value) {
+  const span = document.createElement("span");
+  span.textContent = value == null ? "" : String(value);
+  return span.innerHTML;
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value).replace(/"/g, "&quot;");
+}
+
 const STYLES = `
   :host {
     display: block;
@@ -299,16 +325,15 @@ class ImageCarousel extends HTMLElement {
     this.style.setProperty("--carousel-ratio", ratio);
     const n = this._ratioToNumber(ratio);
     if (n) {
-      this.style.setProperty(
-        "--carousel-max-width",
-        `calc(${n} * var(--carousel-max-height, ${MAX_HEIGHT}))`,
-      );
+      this.style.setProperty("--carousel-max-width", `calc(${n} * var(--carousel-max-height, ${MAX_HEIGHT}))`);
     }
   }
 
   /** Parse a CSS ratio ("16 / 9" or "1.78") into a numeric width ÷ height. */
   _ratioToNumber(ratio) {
-    const [w, h] = String(ratio).split("/").map((v) => parseFloat(v));
+    const [w, h] = String(ratio)
+      .split("/")
+      .map((v) => parseFloat(v));
     if (h) return w / h;
     return w || 0;
   }
@@ -323,36 +348,34 @@ class ImageCarousel extends HTMLElement {
     const multiSlide = this._images.length > 1;
 
     const slidesHTML = this._images
-      .map(
-        (img, i) => `
-      <div class="slide${i === 0 ? " active" : ""}" role="tabpanel" aria-label="${img.alt || `Slide ${i + 1}`}">
+      .map((img, i) => {
+        const label = img.alt || getUiText("slide", i + 1);
+        return `
+      <div class="slide${i === 0 ? " active" : ""}" role="tabpanel" aria-label="${escapeAttribute(label)}">
         <figure>
-          <img src="${img.src}"${img.srcset ? ` srcset="${img.srcset}"` : ""} alt="${img.alt}" loading="${i === 0 ? "eager" : "lazy"}">
-          ${img.alt ? `<figcaption>${img.alt}</figcaption>` : ""}
+          <img src="${escapeAttribute(img.src)}"${img.srcset ? ` srcset="${escapeAttribute(img.srcset)}"` : ""} alt="${escapeAttribute(img.alt)}" loading="${i === 0 ? "eager" : "lazy"}">
+          ${img.alt ? `<figcaption>${escapeHtml(img.alt)}</figcaption>` : ""}
         </figure>
       </div>
-    `,
-      )
+    `;
+      })
       .join("");
 
     const navHTML = multiSlide
-      ? `<button class="nav prev" aria-label="Previous slide">${CHEVRON_LEFT}</button>
-         <button class="nav next" aria-label="Next slide">${CHEVRON_RIGHT}</button>`
+      ? `<button class="nav prev" aria-label="${getUiText("previousSlide")}">${CHEVRON_LEFT}</button>
+         <button class="nav next" aria-label="${getUiText("nextSlide")}">${CHEVRON_RIGHT}</button>`
       : "";
 
     const dotsHTML = multiSlide
-      ? `<div class="dots" role="tablist" aria-label="Slide navigation">
+      ? `<div class="dots" role="tablist" aria-label="${getUiText("slideNavigation")}">
           ${this._images
-            .map(
-              (_img, i) =>
-                `<button class="dot${i === 0 ? " active" : ""}" data-index="${i}" role="tab" aria-label="Slide ${i + 1}" aria-selected="${i === 0}"></button>`,
-            )
+            .map((_img, i) => `<button class="dot${i === 0 ? " active" : ""}" data-index="${i}" role="tab" aria-label="${getUiText("slide", i + 1)}" aria-selected="${i === 0}"></button>`)
             .join("")}
         </div>`
       : "";
 
     this.shadowRoot.innerHTML = `
-      <div class="carousel" role="region" aria-label="Image carousel" tabindex="0">
+      <div class="carousel" role="region" aria-label="${getUiText("imageCarousel")}" tabindex="0">
         <div class="stage">
           <div class="slides">${slidesHTML}</div>
           ${navHTML}

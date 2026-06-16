@@ -27,6 +27,9 @@ module.exports = class extends Component {
     const hasComment = config.comment && typeof config.comment.type === "string";
     const translatedCommentsLabel = helper.__("article.comments");
     const commentsLabel = translatedCommentsLabel === "article.comments" ? "Comments" : translatedCommentsLabel;
+    const articleInfoLabel = helper.__("article.article_info");
+    const closeLabel = helper.__("article.close");
+    const pageViewsHtml = helper.__("plugin.page_views", '<span id="busuanzi_page_pv"></span>');
 
     return (
       <Fragment>
@@ -45,13 +48,13 @@ module.exports = class extends Component {
                     </time>
                   )}
                   {page.date && wordCount > 0 && <span class="meta-separator">·</span>}
-                  {wordCount > 0 && <span class="article-reading-time">{readTime} min</span>}
+                  {wordCount > 0 && <span class="article-reading-time">{helper.__("article.reading_time", readTime)}</span>}
                   {(page.date || wordCount > 0) && <span class="meta-separator">·</span>}
                   <span
                     class="article-visit-count"
                     data-flag-title={page.title}
                     dangerouslySetInnerHTML={{
-                      __html: '<span id="busuanzi_page_pv"></span> PV',
+                      __html: pageViewsHtml,
                     }}
                   ></span>
                 </div>
@@ -100,7 +103,7 @@ module.exports = class extends Component {
                     </svg>
                   </button>
                 )}
-                <button type="button" class="article-action-btn" popovertarget="article-info-popover" aria-label={helper.__("article.article_info")} title={helper.__("article.article_info")}>
+                <button type="button" class="article-action-btn" popovertarget="article-info-popover" aria-label={articleInfoLabel} title={articleInfoLabel}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -112,9 +115,9 @@ module.exports = class extends Component {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     role="img"
-                    aria-label={helper.__("article.article_info")}
+                    aria-label={articleInfoLabel}
                   >
-                    <title>{helper.__("article.article_info")}</title>
+                    <title>{articleInfoLabel}</title>
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 16v-4" />
                     <path d="M12 8h.01" />
@@ -128,7 +131,7 @@ module.exports = class extends Component {
 
           {hasComment && (
             <div id="article-comment-popover" popover="auto" class="article-popover article-comment-popover">
-              <button class="article-popover-backdrop" type="button" popovertarget="article-comment-popover" popovertargetaction="hide" tabindex="-1" aria-label="Close article panel"></button>
+              <button class="article-popover-backdrop" type="button" popovertarget="article-comment-popover" popovertargetaction="hide" tabindex="-1" aria-label={closeLabel}></button>
               <div class="article-popover-body article-comment-popover-body">
                 <Comment config={config} page={page} helper={helper} embedded />
               </div>

@@ -39,13 +39,13 @@ function getSeason(month) {
   return "Winter";
 }
 
-function getArchiveRangeLabel(year, month = null, season = null) {
-  if (!year) return "All Posts";
+function getArchiveRangeLabel(year, month = null, season = null, labels = {}) {
+  if (!year) return labels.allPosts || "All Posts";
   if (month) {
     const time = parseISO(`${year}-${String(month).padStart(2, "0")}-01T00:00:00.000Z`);
     return isValidDate(time) ? `${dateFormatters.longMonth.format(time)} ${year}` : String(year);
   }
-  return season ? `${season} ${year}` : String(year);
+  return season ? `${labels.seasons?.[season] || season} ${year}` : String(year);
 }
 
 function groupPostsBySeason(posts) {
@@ -114,9 +114,9 @@ function getPostDateParts(postDate, dateXml, date) {
   };
 }
 
-function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, date_xml, date }) {
-  const title = sectionTitle || getArchiveRangeLabel(year, month, season);
-  const kicker = year ? String(year) : "Archive";
+function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, date_xml, date, labels, formatReadTime }) {
+  const title = sectionTitle || getArchiveRangeLabel(year, month, season, labels);
+  const kicker = year ? String(year) : "archive";
   const marker = season ? season.toLowerCase() : "all";
   const sectionId = `archive-${kicker}-${marker}-${month || "all"}`;
 
@@ -141,7 +141,7 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
               date={postDate.label}
               dateXml={postDate.xml}
               excerpt={excerpt}
-              readTime={readMinutes ? `${readMinutes} min` : null}
+              readTime={readMinutes ? formatReadTime(readMinutes) : null}
             />
           );
         })}
@@ -150,20 +150,18 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
   );
 }
 
-function renderTopicPicker({ tags, title }) {
+function renderTopicPicker({ tags, title, countLabel, closeLabel }) {
   if (!tags.length) return null;
-
-  const tagCountLabel = `${tags.length} ${tags.length === 1 ? "topic" : "topics"}`;
 
   return (
     <div id="archive-topic-picker" class="archive-topic-picker" popover="auto">
       <div class="archive-topic-picker__body" role="dialog" aria-labelledby="archive-topic-picker-title">
         <header class="archive-topic-picker__header">
           <div>
-            <p class="archive-topic-picker__eyebrow">{tagCountLabel}</p>
+            <p class="archive-topic-picker__eyebrow">{countLabel}</p>
             <h2 id="archive-topic-picker-title">{title}</h2>
           </div>
-          <button class="archive-topic-picker__close" type="button" popovertarget="archive-topic-picker" popovertargetaction="hide" aria-label="Close tag picker"></button>
+          <button class="archive-topic-picker__close" type="button" popovertarget="archive-topic-picker" popovertargetaction="hide" aria-label={closeLabel}></button>
         </header>
         <nav class="archive-topic-list" aria-label={title}>
           {tags.map((tag) => (
@@ -189,12 +187,23 @@ module.exports = class extends Component {
     const years = collectArchiveYears(visiblePosts);
     const topicTags = getTopicTags(site?.tags, page, config, helper);
     const topicsTitle = helper._p("common.tag", Infinity);
+    const archiveLabels = {
+      allPosts: helper.__("archive.all_posts"),
+      seasons: {
+        Spring: helper.__("archive.season_spring"),
+        Summer: helper.__("archive.season_summer"),
+        Autumn: helper.__("archive.season_autumn"),
+        Winter: helper.__("archive.season_winter"),
+      },
+    };
+    const formatReadTime = (minutes) => helper.__("archive.read_time", minutes);
 
     const currentYear = page.year ? Number(page.year) : null;
     const currentMonth = page.month ? Number(page.month) : null;
     const isTagPage = Boolean(page.tag);
-    const writingsLabel = `${totalVisiblePosts} ${totalVisiblePosts === 1 ? "writing" : "writings"}`;
-    const topicLabel = topicTags.length === 1 ? "topic" : "topics";
+    const writingsLabel = `${totalVisiblePosts} ${helper._p("archive.writing", totalVisiblePosts)}`;
+    const topicLabel = helper._p("archive.topic", topicTags.length);
+    const topicCountLabel = `${topicTags.length} ${topicLabel}`;
     const sinceYear = years.length ? years[years.length - 1] : currentYear;
 
     let articleList;
@@ -212,10 +221,12 @@ module.exports = class extends Component {
                 posts: group.posts,
                 year: group.year,
                 season: group.season,
-                sectionTitle: group.season,
+                sectionTitle: archiveLabels.seasons[group.season],
                 url_for,
                 date_xml,
                 date,
+                labels: archiveLabels,
+                formatReadTime,
               })}
             </Fragment>
           ))}
@@ -231,10 +242,12 @@ module.exports = class extends Component {
         url_for,
         date_xml,
         date,
+        labels: archiveLabels,
+        formatReadTime,
       });
     }
 
-    const heroTitle = isTagPage ? page.tag : currentYear ? getArchiveRangeLabel(currentYear, currentMonth) : "Posts";
+    const heroTitle = isTagPage ? page.tag : currentYear ? getArchiveRangeLabel(currentYear, currentMonth, null, archiveLabels) : helper.__("archive.posts");
     return (
       <main class="archive-page">
         <header class="archive-hero">
@@ -250,13 +263,13 @@ module.exports = class extends Component {
                 {` ${topicLabel}`}
               </Fragment>
             )}
-            {sinceYear && ` / since ${sinceYear}`}
+            {sinceYear && ` / ${helper.__("archive.since", sinceYear)}`}
           </p>
-          {renderTopicPicker({ tags: topicTags, title: topicsTitle })}
+          {renderTopicPicker({ tags: topicTags, title: topicsTitle, countLabel: topicCountLabel, closeLabel: helper.__("archive.close_topic_picker") })}
         </header>
 
         {!page.year && years.length > 1 && (
-          <aside class="archive-rail" aria-label="Jump to year">
+          <aside class="archive-rail" aria-label={helper.__("archive.jump_to_year")}>
             <ol class="archive-rail__list">
               {years.map((year) => (
                 <li key={year}>

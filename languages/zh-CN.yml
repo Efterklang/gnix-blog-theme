@@ -1,20 +1,21 @@
 common:
   archive:
-    one: "ARCHIVE"
-    other: "ARCHIVE"
+    one: "归档"
+    other: "归档"
   category:
-    one: "CATEGORY"
-    other: "CATEGORY"
+    one: "分类"
+    other: "分类"
   tag:
-    one: "Tag"
-    other: "Tags"
+    one: "标签"
+    other: "标签"
   post:
-    one: "POST"
-    other: "POST"
+    one: "文章"
+    other: "文章"
   page:
-    one: "PAGE"
-    other: "PAGE"
+    one: "页面"
+    other: "页面"
 navbar:
+  menu: "菜单"
   language_switch: "切换到%s"
   language_unavailable: "此页面暂未提供%s版本。"
 article:
@@ -30,11 +31,18 @@ article:
   article_title: "标题"
   url: "链接"
   markdown_source: "Markdown 源码"
+  reading_time: "%s 分钟"
   translation_info: "关于翻译"
   translation_original: "原文"
   translation_llm_reviewed: "LLM 翻译 · 已人工审阅"
   translation_llm_unreviewed: "LLM 翻译 · 未人工审阅"
+  toc: "目录"
+code:
+  copied: "已复制"
+  copy_code: "复制代码"
+  toggle_wrap: "切换自动换行"
 plugin:
+  page_views: "%s PV"
   visitor_count: 'PV&nbsp;<span id="busuanzi_site_pv">-</span>&nbsp;UV&nbsp;<span id="busuanzi_site_uv">-</span>&nbsp;'
 status:
   title: "状态"
@@ -43,6 +51,23 @@ status:
   article_total: "文章总数"
   site_pv: "站点 PV"
   site_uv: "站点 UV"
+archive:
+  posts: "文章"
+  writing:
+    one: "篇文章"
+    other: "篇文章"
+  topic:
+    one: "个主题"
+    other: "个主题"
+  since: "始于 %s"
+  read_time: "%s 分钟阅读"
+  jump_to_year: "跳转到年份"
+  close_topic_picker: "关闭标签选择器"
+  all_posts: "全部文章"
+  season_spring: "春"
+  season_summer: "夏"
+  season_autumn: "秋"
+  season_winter: "冬"
 preferences:
   title: "偏好设置"
   eyebrow: "本地设置"
@@ -67,12 +92,24 @@ preferences:
   typography_description: "调整文章阅读密度、字体和自定义网页字体"
   reset: "重置"
   font_size: "字号"
+  font_size_small: "小"
+  font_size_medium_small: "偏小"
+  font_size_medium: "中"
+  font_size_medium_large: "偏大"
+  font_size_large: "大"
   line_height: "行高"
   compact: "紧凑"
   relaxed: "舒展"
   normal: "常规"
   typeface: "字体"
+  typeface_serif: "衬线"
+  typeface_sans_serif: "无衬线"
+  typeface_mono: "等宽"
+  typeface_handwriting: "手写"
   weight: "字重"
+  weight_light: "细"
+  weight_regular: "常规"
+  weight_medium: "中等"
   custom_fonts: "自定义字体"
   custom_fonts_description: "加载网页字体 CSS 并映射字体族"
   web_font_css: "网页字体 CSS URL"
@@ -85,9 +122,10 @@ preferences:
   preview_copy_secondary: "慢慢读，梦回你眼中曾有的温柔，和它们深处的阴影。"
 search:
   search: "搜索"
-  hint: "Search something..."
+  hint: "搜索内容..."
   untitled: "(无标题)"
 encrypt:
   message: "此文章已加密，请输入密码查看"
   placeholder: "输入密码..."
   abstract: "此文章已加密"
+  error: "密码错误，请重试"

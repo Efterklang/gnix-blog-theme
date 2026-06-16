@@ -89,24 +89,24 @@ const THEME_MODE_OPTIONS = [
 ];
 
 const FONT_SIZE_OPTIONS = [
-  ["small", "Small"],
-  ["medium-small", "Medium Small"],
-  ["medium", "Medium"],
-  ["medium-large", "Medium Large"],
-  ["large", "Large"],
+  ["small", "preferences.font_size_small", "Small"],
+  ["medium-small", "preferences.font_size_medium_small", "Medium Small"],
+  ["medium", "preferences.font_size_medium", "Medium"],
+  ["medium-large", "preferences.font_size_medium_large", "Medium Large"],
+  ["large", "preferences.font_size_large", "Large"],
 ];
 
 const FONT_TYPE_OPTIONS = [
-  ["serif", "Serif"],
-  ["sans-serif", "Sans Serif"],
-  ["mono", "Monospace"],
-  ["handwriting", "Handwriting"],
+  ["serif", "preferences.typeface_serif", "Serif"],
+  ["sans-serif", "preferences.typeface_sans_serif", "Sans Serif"],
+  ["mono", "preferences.typeface_mono", "Monospace"],
+  ["handwriting", "preferences.typeface_handwriting", "Handwriting"],
 ];
 
 const FONT_WEIGHT_OPTIONS = [
-  ["light", "Light"],
-  ["regular", "Regular"],
-  ["medium", "Medium"],
+  ["light", "preferences.weight_light", "Light"],
+  ["regular", "preferences.weight_regular", "Regular"],
+  ["medium", "preferences.weight_medium", "Medium"],
 ];
 
 const THEME_PALETTE_SWATCHES = ["base", "mantle", "crust", "text", "mauve", "blue", "green", "yellow", "red", "pink"];
@@ -212,8 +212,8 @@ module.exports = class extends Component {
                   <span>{translate(helper, "preferences.font_size", "Size")}</span>
                 </div>
                 <div class="preference-choice-group preference-choice-group--font-size font-size-selector">
-                  {FONT_SIZE_OPTIONS.map(([value, label]) => (
-                    <button type="button" class="preference-choice-button preference-choice-button--size font-size-btn" data-size={value} aria-label={label}>
+                  {FONT_SIZE_OPTIONS.map(([value, key, fallback]) => (
+                    <button type="button" class="preference-choice-button preference-choice-button--size font-size-btn" data-size={value} aria-label={translate(helper, key, fallback)}>
                       <span class="font-size-preview">A</span>
                     </button>
                   ))}
@@ -251,10 +251,10 @@ module.exports = class extends Component {
                   <span>{translate(helper, "preferences.typeface", "Typeface")}</span>
                 </div>
                 <div class="preference-choice-group preference-choice-group--font-type font-type-selector">
-                  {FONT_TYPE_OPTIONS.map(([value, label]) => (
+                  {FONT_TYPE_OPTIONS.map(([value, key, fallback]) => (
                     <button type="button" class="preference-choice-button preference-choice-button--type font-type-btn" data-font={value}>
                       <span class="font-type-preview">Aa</span>
-                      <span class="font-type-name">{label}</span>
+                      <span class="font-type-name">{translate(helper, key, fallback)}</span>
                     </button>
                   ))}
                 </div>
@@ -265,16 +265,16 @@ module.exports = class extends Component {
                   <span>{translate(helper, "preferences.weight", "Weight")}</span>
                 </div>
                 <div class="preference-choice-group preference-choice-group--segmented preference-choice-group--font-weight font-weight-selector">
-                  {FONT_WEIGHT_OPTIONS.map(([value, label]) => (
-                    <button type="button" class="preference-choice-button preference-choice-button--segmented font-weight-btn" data-weight={value} aria-label={label}>
-                      <span class="font-option-name">{label}</span>
+                  {FONT_WEIGHT_OPTIONS.map(([value, key, fallback]) => (
+                    <button type="button" class="preference-choice-button preference-choice-button--segmented font-weight-btn" data-weight={value} aria-label={translate(helper, key, fallback)}>
+                      <span class="font-option-name">{translate(helper, key, fallback)}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
               <div class="preference-row preference-row--stacked">
-                <button type="button" class="font-custom-toggle" aria-expanded="false" aria-controls="font-custom-panel" aria-label="Custom Fonts">
+                <button type="button" class="font-custom-toggle" aria-expanded="false" aria-controls="font-custom-panel" aria-label={translate(helper, "preferences.custom_fonts", "Custom Fonts")}>
                   <span class="preference-row__label">
                     <span>{translate(helper, "preferences.custom_fonts", "Custom Fonts")}</span>
                     <small>{translate(helper, "preferences.custom_fonts_description", "Load web font CSS and map families")}</small>
@@ -288,23 +288,29 @@ module.exports = class extends Component {
                     <label class="font-custom-field">
                       <span>{translate(helper, "preferences.web_font_css", "Web Font CSS URL")}</span>
                       <small>{translate(helper, "preferences.font_css_help", "Paste one web font CSS URL per line. Each URL can load one or more font families.")}</small>
-                      <textarea class="font-custom-imports" name="font-custom-imports" rows="3" placeholder="https://fonts.googleapis.com/css2?family=..." aria-label="Web Font CSS URL"></textarea>
+                      <textarea
+                        class="font-custom-imports"
+                        name="font-custom-imports"
+                        rows="3"
+                        placeholder="https://fonts.googleapis.com/css2?family=..."
+                        aria-label={translate(helper, "preferences.web_font_css", "Web Font CSS URL")}
+                      ></textarea>
                     </label>
                     <div class="font-custom-family-grid">
                       <label class="font-custom-field">
-                        <span>Serif</span>
+                        <span>{translate(helper, "preferences.typeface_serif", "Serif")}</span>
                         <input class="font-custom-family-input" name="font-custom-family-serif" type="text" data-font-family="serif" placeholder={'"Noto Serif SC", serif'} autocomplete="off" />
                       </label>
                       <label class="font-custom-field">
-                        <span>Sans Serif</span>
+                        <span>{translate(helper, "preferences.typeface_sans_serif", "Sans Serif")}</span>
                         <input class="font-custom-family-input" name="font-custom-family-sans-serif" type="text" data-font-family="sans-serif" placeholder={'"Inter", sans-serif'} autocomplete="off" />
                       </label>
                       <label class="font-custom-field">
-                        <span>Monospace</span>
+                        <span>{translate(helper, "preferences.typeface_mono", "Monospace")}</span>
                         <input class="font-custom-family-input" name="font-custom-family-mono" type="text" data-font-family="mono" placeholder={'"Fira Code", monospace'} autocomplete="off" />
                       </label>
                       <label class="font-custom-field">
-                        <span>Handwriting</span>
+                        <span>{translate(helper, "preferences.typeface_handwriting", "Handwriting")}</span>
                         <input
                           class="font-custom-family-input"
                           name="font-custom-family-handwriting"
