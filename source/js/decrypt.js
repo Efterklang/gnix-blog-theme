@@ -69,7 +69,7 @@ function showError(container) {
     el.className = "encrypt-error";
     form.appendChild(el);
   }
-  el.textContent = document.documentElement.lang === "zh-CN" ? "密码错误，请重试" : "Wrong password, please try again";
+  el.textContent = container.dataset.errorMessage || "Wrong password, please try again";
   const input = container.querySelector("#encrypt-pass");
   if (input) {
     input.value = "";
@@ -105,4 +105,4 @@ function init() {
   if (input) input.focus();
 }
 
-(window.__gnixPrerender?.runWhenActivated || function(callback) { callback(); })(init);
+(window.__gnixPrerender?.runWhenActivated || ((callback) => callback()))(init);

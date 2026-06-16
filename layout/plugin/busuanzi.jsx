@@ -2,16 +2,18 @@ const { Component, cacheComponent } = require("../../include/util/common");
 
 class Busuanzi extends Component {
   render() {
+    const { scriptUrl } = this.props;
     return (
       // busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js
       <script
         dangerouslySetInnerHTML={{
           __html: `
             (function() {
+              var scriptUrl = ${JSON.stringify(scriptUrl)};
               function loadBusuanzi() {
                 var script = document.createElement("script");
                 script.defer = true;
-                script.src = "/js/busuanzi.js";
+                script.src = scriptUrl;
                 document.head.appendChild(script);
               }
 
@@ -39,7 +41,9 @@ Busuanzi.Cacheable = cacheComponent(Busuanzi, "plugin.busuanzi", (props) => {
   if (!props.head) {
     return null;
   }
-  return {};
+  return {
+    scriptUrl: props.helper.url_for("/js/busuanzi.js"),
+  };
 });
 
 module.exports = Busuanzi;

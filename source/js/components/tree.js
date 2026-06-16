@@ -304,7 +304,7 @@ class XTree extends HTMLElement {
 
     this.shadowRoot.innerHTML = `
       <style>${STYLES}</style>
-      <div class="file-tree"${rootName ? ` data-root="${rootName}"` : ""}>
+      <div class="file-tree"${rootName ? ` data-root="${this.escapeAttribute(rootName)}"` : ""}>
         <ul class="tree-list">${treeHTML}</ul>
       </div>
     `;
@@ -397,6 +397,10 @@ class XTree extends HTMLElement {
     const div = document.createElement("div");
     div.textContent = str;
     return div.innerHTML;
+  }
+
+  escapeAttribute(str) {
+    return this.escapeHTML(str).replace(/"/g, "&quot;");
   }
 
   renderFromText() {
