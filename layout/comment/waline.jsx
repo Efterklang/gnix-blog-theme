@@ -125,7 +125,7 @@ class Waline extends Component {
  *     helper={{ cdn: function() {...} }} />
  */
 Waline.Cacheable = cacheComponent(Waline, "comment.waline", (props) => {
-  const { comment, helper, page, config } = props;
+  const { comment, page, config } = props;
 
   return {
     serverURL: comment.server_url,

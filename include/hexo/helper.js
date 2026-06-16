@@ -1,11 +1,4 @@
-const {
-  getPageLanguageKey,
-  getPageLocale,
-  getLocalizedTagPath,
-  isExternalUrl,
-  isI18nEnabled,
-  localizePath,
-} = require("../util/i18n");
+const { getPageLanguageKey, getPageLocale, getLocalizedTagPath, isExternalUrl, isI18nEnabled, localizePath } = require("../util/i18n");
 
 module.exports = (hexo) => {
   hexo.extend.helper.register("is_tags", function (page = null) {

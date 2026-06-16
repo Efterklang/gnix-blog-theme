@@ -114,12 +114,7 @@ ${sections.join("\n\n")}
 }
 
 function renderTxt({ posts, tags, categories, siteUrl }) {
-  const lines = [
-    ...posts.map((post) => encodeURL(post.permalink)),
-    encodeURL(siteUrl),
-    ...tags.map((tag) => encodeURL(tag.permalink)),
-    ...categories.map((cat) => encodeURL(cat.permalink)),
-  ];
+  const lines = [...posts.map((post) => encodeURL(post.permalink)), encodeURL(siteUrl), ...tags.map((tag) => encodeURL(tag.permalink)), ...categories.map((cat) => encodeURL(cat.permalink))];
   return `${lines.join("\n")}\n`;
 }
 

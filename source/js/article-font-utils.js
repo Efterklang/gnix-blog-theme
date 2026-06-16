@@ -67,7 +67,7 @@
     });
     applyCustomFontImports._signature = signature;
 
-    if (!document || !document.head || !Array.isArray(imports)) return;
+    if (typeof document === "undefined" || !document.head || !Array.isArray(imports)) return;
 
     imports.forEach((href, index) => {
       var link = document.createElement("link");

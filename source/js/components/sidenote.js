@@ -191,7 +191,7 @@ class SideNote extends HTMLElement {
 
   unwrapMarkdownParagraph() {
     const parent = this.parentElement;
-    if (!parent || parent.tagName !== "P") return;
+    if (parent?.tagName !== "P") return;
 
     const onlyContainsThisSideNote = Array.from(parent.childNodes).every((node) => {
       return node === this || (node.nodeType === Node.TEXT_NODE && node.textContent.trim() === "");

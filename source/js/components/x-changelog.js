@@ -2,37 +2,37 @@ let styleSheetInjected = false;
 
 const I18N = {
   cn: {
-    allYears: '全部年份',
-    allCategories: '全部分类',
-    noResults: '没有找到匹配的记录',
+    allYears: "全部年份",
+    allCategories: "全部分类",
+    noResults: "没有找到匹配的记录",
   },
   en: {
-    allYears: 'All Years',
-    allCategories: 'All Categories',
-    noResults: 'No matching records found',
+    allYears: "All Years",
+    allCategories: "All Categories",
+    noResults: "No matching records found",
   },
 };
 
 const CATEGORY_LABELS = {
-  Feat: 'Feat',
-  Perf: 'Perf',
-  fix: 'Fix',
-  refactor: 'Refactor',
-  other: 'Other',
-  uiux: 'UIUX',
+  Feat: "Feat",
+  Perf: "Perf",
+  fix: "Fix",
+  refactor: "Refactor",
+  other: "Other",
+  uiux: "UIUX",
 };
 
 class Changelog extends HTMLElement {
   static get observedAttributes() {
-    return ['lang'];
+    return ["lang"];
   }
 
   connectedCallback() {
     this.injectStyles();
     this.render();
-    if (!this.hasAttribute('data-initialized')) {
+    if (!this.hasAttribute("data-initialized")) {
       this.setupListeners();
-      this.setAttribute('data-initialized', 'true');
+      this.setAttribute("data-initialized", "true");
     }
   }
 
@@ -41,13 +41,13 @@ class Changelog extends HTMLElement {
   }
 
   get lang() {
-    return this.getAttribute('lang') || 'cn';
+    return this.getAttribute("lang") || "cn";
   }
 
   injectStyles() {
     if (styleSheetInjected) return;
 
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       x-changelog {
         display: block;
@@ -253,7 +253,7 @@ class Changelog extends HTMLElement {
       year: yearData.year,
       items: yearData.items.map((item) => ({
         date: item.date,
-        content: lang === 'en' ? item.en : item.cn,
+        content: lang === "en" ? item.en : item.cn,
         category: item.category,
       })),
     }));
@@ -264,15 +264,11 @@ class Changelog extends HTMLElement {
     const lang = this.lang;
     const i18n = I18N[lang] || I18N.cn;
     const years = [...new Set(data.map((d) => d.year))].sort((a, b) => b - a);
-    const categories = ['Feat', 'Perf', 'fix', 'refactor', 'other', 'uiux'];
+    const categories = ["Feat", "Perf", "fix", "refactor", "other", "uiux"];
 
-    const yearOptions = years
-      .map((y) => `<option value="${y}">${y}</option>`)
-      .join('');
+    const yearOptions = years.map((y) => `<option value="${y}">${y}</option>`).join("");
 
-    const categoryOptions = categories
-      .map((c) => `<option value="${c}">${CATEGORY_LABELS[c]}</option>`)
-      .join('');
+    const categoryOptions = categories.map((c) => `<option value="${c}">${CATEGORY_LABELS[c]}</option>`).join("");
 
     this.innerHTML = `
       <div class="x-changelog-filters">
@@ -298,7 +294,7 @@ class Changelog extends HTMLElement {
   }
 
   renderTimeline(data) {
-    const container = this.querySelector('.x-changelog-timeline');
+    const container = this.querySelector(".x-changelog-timeline");
     if (!container) return;
 
     if (data.length === 0) {
@@ -306,7 +302,7 @@ class Changelog extends HTMLElement {
       return;
     }
 
-    let html = '';
+    let html = "";
     data.forEach((yearData, yearIndex) => {
       html += `<div class="x-changelog-year">${yearData.year}</div>`;
       html += '<div class="x-changelog-items">';
@@ -324,10 +320,10 @@ class Changelog extends HTMLElement {
           }
         }
 
-        html += '</div></div>';
+        html += "</div></div>";
       }
 
-      html += '</div>';
+      html += "</div>";
       if (yearIndex < data.length - 1) {
         html += '<div class="x-changelog-separator"></div>';
       }
@@ -337,23 +333,23 @@ class Changelog extends HTMLElement {
   }
 
   setupListeners() {
-    this.addEventListener('change', (event) => {
+    this.addEventListener("change", (event) => {
       const select = event.target;
-      if (!select.classList.contains('x-changelog-select')) return;
+      if (!select.classList.contains("x-changelog-select")) return;
 
       const yearFilter = this.querySelector('[data-filter="year"]');
       const categoryFilter = this.querySelector('[data-filter="category"]');
 
-      const yearVal = yearFilter ? yearFilter.value : 'all';
-      const catVal = categoryFilter ? categoryFilter.value : 'all';
+      const yearVal = yearFilter ? yearFilter.value : "all";
+      const catVal = categoryFilter ? categoryFilter.value : "all";
 
       let filtered = this._data;
 
-      if (yearVal !== 'all') {
+      if (yearVal !== "all") {
         filtered = filtered.filter((d) => d.year === parseInt(yearVal, 10));
       }
 
-      if (catVal !== 'all') {
+      if (catVal !== "all") {
         filtered = filtered
           .map((yearData) => ({
             ...yearData,
@@ -367,8 +363,8 @@ class Changelog extends HTMLElement {
   }
 }
 
-if (!customElements.get('x-changelog')) {
-  customElements.define('x-changelog', Changelog);
+if (!customElements.get("x-changelog")) {
+  customElements.define("x-changelog", Changelog);
 }
 
 export { Changelog };

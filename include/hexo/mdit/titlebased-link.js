@@ -2,7 +2,7 @@ const path = require("node:path");
 const { slugize } = require("hexo-util");
 
 const MARKDOWN_EXTENSIONS = new Set([".md", ".markdown"]);
-const LINK_RE = /^\[\[\s*([^*"\\/<>:?\[\]|#]+)\s*(#[^"\\/\[\]|]+)?\s*(\\?\|[^/\[\]]*)?\s*\]\]/;
+const LINK_RE = /^\[\[\s*([^*"\\/<>:?[\]|#]+)\s*(#[^"\\/[\]|]+)?\s*(\\?\|[^/[\]]*)?\s*\]\]/;
 
 function decodePart(value) {
   if (!value) return "";
