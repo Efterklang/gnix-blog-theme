@@ -179,6 +179,30 @@ html:has(.preference-page[data-preference-surface="page"])::view-transition-new(
   --crust: #d8dee9;
 }
 
+:where([data-theme="sunny"]) {
+  color-scheme: light;
+  --rosewater: #c98a5f;
+  --flamingo: #d98b6e;
+  --pink: #cf5d83;
+  --mauve: #9a5fa0;
+  --red: #c33b2b;
+  --maroon: #a64a3c;
+  --peach: #df7a18;
+  --yellow: #cf971a;
+  --green: #5f8a37;
+  --teal: #2f8a78;
+  --sky: #3f9fc4;
+  --sapphire: #2f7a9b;
+  --blue: #2f5fa0;
+  --lavender: #7a64b0;
+  --text: #463a28;
+  --base: #fbf7ef;
+  --mantle: #f3eee2;
+  --crust: #e7decb;
+  /* Golden sunlight tint used by the Sunny atmosphere layers */
+  --gnix-sun: #ffce7a;
+}
+
 :where([data-theme="song_ci"]) {
   color-scheme: light;
   --rosewater: #d8a48f;
@@ -953,3 +977,54 @@ input.searchbox-input {
     display: flex;
   }
 }
+
+/* #region Sunny atmosphere */
+
+/* Atmosphere layers are injected only when Sunny is active. Visuals mirror
+   dany.works: a cream page palette, a golden radial sun glow behind content,
+   and a full-screen multiply-blended moving texture over the page. */
+.gnix-sunny-glow,
+.gnix-sunny-leaves {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+
+.gnix-sunny-glow {
+  z-index: -1;
+  background:
+    radial-gradient(115% 68% at 50% -18%, hsl(from var(--gnix-sun) h s l / 0.28), transparent 56%), radial-gradient(70% 48% at 88% 0%, hsl(from var(--gnix-sun) h s l / 0.14), transparent 48%);
+}
+
+.gnix-sunny-leaves {
+  z-index: 999;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  mix-blend-mode: multiply;
+}
+
+/* Activate the atmosphere only under the Sunny theme. */
+:root[data-theme="sunny"] .gnix-sunny-glow {
+  opacity: 1;
+}
+
+:root[data-theme="sunny"] .gnix-sunny-leaves.is-ready {
+  opacity: var(--gnix-sunny-leaves-opacity, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="sunny"] .gnix-sunny-leaves {
+    opacity: 0;
+  }
+
+  .gnix-sunny-glow,
+  .gnix-sunny-leaves {
+    transition: none;
+  }
+}
+
+/* #endregion Sunny atmosphere */

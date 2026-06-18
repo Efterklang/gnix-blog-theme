@@ -17,6 +17,7 @@ const THEME_OPTIONS = Object.freeze([
   { name: "System", value: DEFAULT_THEME },
   { name: "Catppuccin Latte", value: "latte", colorScheme: "light" },
   { name: "Nord Light", value: "nord", colorScheme: "light" },
+  { name: "Sunny", value: "sunny", colorScheme: "light" },
   { name: "Song Porcelain", value: "song_ci", colorScheme: "light" },
   { name: "Nord Night", value: "nord_night", colorScheme: "night" },
   { name: "Rosé Pine", value: "rose_pine", colorScheme: "night" },

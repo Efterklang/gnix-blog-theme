@@ -193,6 +193,78 @@ const PRERENDER_HELPER_SCRIPT = `(function() {
   };
 })();`;
 
+function getSunnyBootScript(url_for) {
+  const mp4Url = typeof url_for === "function" ? url_for("/media/leaves.mp4") : "/media/leaves.mp4";
+  const css = `
+html.gnix-sunny-booting,
+html.gnix-sunny-booting body {
+  background: #fbf7ef;
+}
+html.gnix-sunny-booting body > :not(.gnix-sunny-atmosphere) {
+  opacity: 0;
+}
+.gnix-sunny-glow,
+.gnix-sunny-leaves {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+.gnix-sunny-glow {
+  z-index: -1;
+  background: radial-gradient(115% 68% at 50% -18%, rgb(255 206 122 / 0.28), transparent 56%), radial-gradient(70% 48% at 88% 0%, rgb(255 206 122 / 0.14), transparent 48%);
+}
+.gnix-sunny-leaves {
+  z-index: 999;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  mix-blend-mode: multiply;
+}
+:root[data-theme="sunny"] .gnix-sunny-glow,
+:root[data-theme="sunny"] .gnix-sunny-leaves.is-ready {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="sunny"] .gnix-sunny-leaves {
+    opacity: 0;
+  }
+}`;
+
+  return `
+(function() {
+  var html = document.documentElement;
+  if (!html || html.dataset.theme !== "sunny") return;
+
+  html.classList.add("gnix-sunny-booting");
+
+  var style = document.createElement("style");
+  style.setAttribute("data-gnix-sunny-boot", "");
+  style.textContent = ${JSON.stringify(css)};
+  document.head.appendChild(style);
+
+  var preload = document.createElement("link");
+  preload.rel = "preload";
+  preload.as = "video";
+  preload.href = ${JSON.stringify(mp4Url)};
+  preload.type = "video/mp4";
+  document.head.appendChild(preload);
+
+  window.__gnixSunnyBoot = {
+    mp4: ${JSON.stringify(mp4Url)},
+    clear: function() {
+      html.classList.remove("gnix-sunny-booting");
+      if (window.__gnixSunnyBoot && window.__gnixSunnyBoot.timeout) {
+        clearTimeout(window.__gnixSunnyBoot.timeout);
+        window.__gnixSunnyBoot.timeout = 0;
+      }
+    }
+  };
+  window.__gnixSunnyBoot.timeout = setTimeout(window.__gnixSunnyBoot.clear, 5000);
+})();`;
+}
+
 function getHreflangLinks(_site, page, config, helper) {
   if (!isI18nEnabled(config)) return [];
 
@@ -271,6 +343,7 @@ module.exports = class extends Component {
     }
 
     const themeInitScript = getThemeInitScript();
+    const sunnyBootScript = getSunnyBootScript(url_for);
     const articleFontInitScript = getArticleFontInitScript();
     const articleFontUtilsScript = fs.readFileSync(path.join(__dirname, "../../source/js/article-font-utils.js"), "utf8");
     const speculationRules = getSpeculationRules(head);
@@ -280,6 +353,7 @@ module.exports = class extends Component {
       <head>
         <meta charset="utf-8" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }}></script>
+        <script dangerouslySetInnerHTML={{ __html: sunnyBootScript }}></script>
         <script dangerouslySetInnerHTML={{ __html: articleFontUtilsScript }}></script>
         <script dangerouslySetInnerHTML={{ __html: articleFontInitScript }}></script>
         <script dangerouslySetInnerHTML={{ __html: PRERENDER_HELPER_SCRIPT }}></script>

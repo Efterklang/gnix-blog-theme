@@ -3,6 +3,20 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "6.18",
+        cn: [
+          "新增 Sunny 浅色主题（归入浅色配色方案）：提供温暖的米色基础配色，并叠加受 dany.works 启发的氛围——金色阳光光晕与全屏 multiply 视频光影",
+          "Sunny 视频光影静音播放，并在首屏内联启动；仅在 Sunny 模式下创建视频层与预加载媒体，避免影响其他主题性能",
+          "视频光影为来自 Wikimedia Commons 的 CC BY-SA 素材，已转码压缩，署名见 source/media/CREDITS.md",
+        ],
+        en: [
+          "Add a Sunny light theme (grouped under the light color scheme): a warm cream base palette layered with a dany.works-inspired atmosphere — a golden sun glow and a full-screen multiply-blended video texture",
+          "The Sunny video texture plays silently and boots inline on first paint; the video layer and media preload are created only in Sunny mode to avoid impacting other themes",
+          "The video texture is CC BY-SA media from Wikimedia Commons, transcoded and compressed; attribution lives in source/media/CREDITS.md",
+        ],
+        category: "feature",
+      },
+      {
         date: "6.15",
         cn: ["完善归档弹窗的弹出逻辑判定规则，弹窗展示时，页面底层所有背景元素统一施加模糊处理。"],
         en: [
