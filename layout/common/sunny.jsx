@@ -111,7 +111,6 @@ function getSunnyInlineScript(url_for) {
 
     ensureSunny();
     window.addEventListener("gnix:theme-change", ensureSunny);
-    document.addEventListener("gnix:content-ready", ensureSunny);
   }
 })();`;
 }

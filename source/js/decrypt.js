@@ -58,7 +58,7 @@ async function decrypt(container, password) {
   container.outerHTML = html;
   localStorage.setItem(getCacheKey(), password);
   buildToc();
-  document.dispatchEvent(new CustomEvent("gnix:content-ready"));
+  document.dispatchEvent(new CustomEvent("gnix:decrypted-content-ready"));
 }
 
 function showError(container) {

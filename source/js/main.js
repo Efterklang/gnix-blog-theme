@@ -555,7 +555,7 @@ function initPageWhenActivated() {
 }
 
 whenReady(initPageWhenActivated);
-document.addEventListener("gnix:content-ready", initPageWhenActivated);
+document.addEventListener("gnix:decrypted-content-ready", initPageWhenActivated);
 
 runWhenActivated(() => {
   initGlobalIdlePrewarm();

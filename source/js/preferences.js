@@ -361,5 +361,4 @@
   window.__gnixInitPreferencesPage = () => runWhenActivated(initPreferencesPage);
 
   whenReady(window.__gnixInitPreferencesPage);
-  document.addEventListener("gnix:content-ready", window.__gnixInitPreferencesPage);
 })(window, document);
