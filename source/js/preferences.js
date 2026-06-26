@@ -17,9 +17,15 @@
   }
 
   const themeConfig = window.__GNIX_THEME_CONFIG__ || {};
+  const THEME_DEFAULT_PREFERENCES = themeConfig.defaultPreferences || { mode: "system", light: "nord", dark: "mocha" };
+
+  function getDefaultThemePreferences() {
+    return { ...THEME_DEFAULT_PREFERENCES };
+  }
+
   function getThemePreferences() {
     if (typeof window.getThemePreferences === "function") return window.getThemePreferences();
-    return themeConfig.defaultPreferences || { mode: "system", light: "nord", dark: "mocha" };
+    return getDefaultThemePreferences();
   }
 
   function applyThemePreferences(preferences) {
@@ -185,7 +191,7 @@
   function initThemePreferences(root) {
     const modeButtons = root.querySelectorAll("[data-theme-mode]");
     const schemeSelects = root.querySelectorAll(".theme-scheme-select[data-theme-scheme-kind]");
-    const previewStages = root.querySelectorAll("[data-theme-preview-stage]");
+    const themePreviewPanes = root.querySelectorAll("[data-theme-preview-scheme]");
 
     function sync(preferences = getThemePreferences()) {
       modeButtons.forEach((button) => {
@@ -199,11 +205,9 @@
         if (value) select.value = value;
       });
 
-      previewStages.forEach((stage) => {
-        const activeTheme = preferences[stage.dataset.themePreviewStage];
-        stage.querySelectorAll("[data-theme-preview-option]").forEach((preview) => {
-          preview.hidden = preview.dataset.themePreviewOption !== activeTheme;
-        });
+      themePreviewPanes.forEach((pane) => {
+        const value = preferences[pane.dataset.themePreviewScheme];
+        if (value) pane.dataset.theme = value;
       });
     }
 
@@ -237,7 +241,7 @@
     const customFontForm = root.querySelector(".font-custom-form");
     const customFontImportInput = root.querySelector(".font-custom-imports");
     const customFontResetButton = root.querySelector(".font-custom-reset");
-    const fontSettingsResetButton = root.querySelector(".font-settings-reset");
+    const allSettingsResetButtons = root.querySelectorAll("[data-preference-reset-all]");
     const customFontFamilyInputs = root.querySelectorAll(".font-custom-family-input");
     const customFontToggleButton = root.querySelector(".font-custom-toggle");
     const customFontPanel = root.querySelector(".font-custom-panel");
@@ -349,12 +353,13 @@
       });
     }
 
-    if (fontSettingsResetButton) {
-      fontSettingsResetButton.addEventListener("click", () => {
+    allSettingsResetButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        applyThemePreferences(getDefaultThemePreferences(), true);
         commitSettings({ ...ARTICLE_FONT_DEFAULT_SETTINGS, customFonts: { imports: [], families: {} } });
         updateCustomFontUI();
       });
-    }
+    });
 
     applyArticleFontSettings(settings);
     updateActiveStates();

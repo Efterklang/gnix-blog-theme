@@ -83,6 +83,8 @@ preferences:
   theme_mode_system: "System"
   theme_mode_light: "Light"
   theme_mode_dark: "Dark"
+  light_theme: "Light Theme"
+  dark_theme: "Dark Theme"
   light_scheme: "Light Scheme"
   light_scheme_description: "Used when Light mode is active"
   dark_scheme: "Dark Scheme"

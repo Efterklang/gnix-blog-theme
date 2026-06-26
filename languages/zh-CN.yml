@@ -83,6 +83,8 @@ preferences:
   theme_mode_system: "跟随系统"
   theme_mode_light: "浅色"
   theme_mode_dark: "深色"
+  light_theme: "浅色主题"
+  dark_theme: "深色主题"
   light_scheme: "浅色方案"
   light_scheme_description: "浅色模式启用时使用"
   dark_scheme: "深色方案"
