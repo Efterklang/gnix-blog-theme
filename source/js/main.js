@@ -34,6 +34,166 @@ function resolveGnixAssetUrl(path) {
   return `${root.replace(/\/?$/, "/")}${String(path).replace(/^\/+/, "")}`;
 }
 
+const lazyAssetPromises = new Map();
+
+function resolveAssetHref(path) {
+  return new URL(resolveGnixAssetUrl(path), window.location.href).href;
+}
+
+function getLazyAssetKey(kind, path) {
+  return `${kind}:${resolveAssetHref(path)}`;
+}
+
+function findAssetElement(selector, path) {
+  const href = resolveAssetHref(path);
+  return Array.from(document.querySelectorAll(selector)).find((element) => element.href === href || element.src === href) || null;
+}
+
+function setFetchPriority(element, fetchPriority) {
+  if (!fetchPriority) return;
+  element.setAttribute("fetchpriority", fetchPriority);
+  if ("fetchPriority" in element) element.fetchPriority = fetchPriority;
+}
+
+function waitForLazyAsset(element, key) {
+  if (element.dataset.loadState === "loaded") return Promise.resolve(element);
+  if (lazyAssetPromises.has(key)) return lazyAssetPromises.get(key);
+
+  const promise = new Promise((resolve, reject) => {
+    element.addEventListener(
+      "load",
+      () => {
+        element.dataset.loadState = "loaded";
+        lazyAssetPromises.delete(key);
+        resolve(element);
+      },
+      { once: true },
+    );
+    element.addEventListener(
+      "error",
+      () => {
+        element.dataset.loadState = "error";
+        lazyAssetPromises.delete(key);
+        reject(new Error(`Unable to load ${element.href || element.src}`));
+      },
+      { once: true },
+    );
+  });
+
+  lazyAssetPromises.set(key, promise);
+  return promise;
+}
+
+function loadStyleOnce(path, options = {}) {
+  const key = getLazyAssetKey("style", path);
+  if (lazyAssetPromises.has(key)) return lazyAssetPromises.get(key);
+
+  const existing = findAssetElement('link[rel~="stylesheet"]', path);
+  if (existing) return Promise.resolve(existing);
+
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = resolveAssetHref(path);
+  setFetchPriority(link, options.fetchPriority);
+  if (options.media) link.media = options.media;
+
+  const promise = waitForLazyAsset(link, key);
+  document.head.appendChild(link);
+  return promise;
+}
+
+function loadScriptOnce(path, options = {}) {
+  const key = getLazyAssetKey("script", path);
+  if (lazyAssetPromises.has(key)) return lazyAssetPromises.get(key);
+
+  const existing = findAssetElement("script[src]", path);
+  if (existing) {
+    return existing.dataset.loadState === "loading" ? waitForLazyAsset(existing, key) : Promise.resolve(existing);
+  }
+
+  const script = document.createElement("script");
+  script.src = resolveAssetHref(path);
+  script.async = options.async ?? true;
+  script.defer = options.defer ?? true;
+  script.dataset.loadState = "loading";
+  setFetchPriority(script, options.fetchPriority);
+
+  const promise = waitForLazyAsset(script, key);
+  document.head.appendChild(script);
+  return promise;
+}
+
+function inferLazyAssetType(path) {
+  const url = String(path).split(/[?#]/)[0];
+  if (url.endsWith(".css")) return "style";
+  if (url.endsWith(".js") || url.endsWith(".mjs")) return "script";
+  return "fetch";
+}
+
+function normalizeLazyAsset(asset) {
+  if (!asset) return null;
+  if (typeof asset === "string") return { as: inferLazyAssetType(asset), url: asset };
+
+  const url = asset.url || asset.href || asset.src;
+  if (!url) return null;
+  return {
+    ...asset,
+    as: asset.as || inferLazyAssetType(url),
+    url,
+  };
+}
+
+function prewarmLazyAssetOnce(asset, options = {}) {
+  const normalized = normalizeLazyAsset(asset);
+  if (!normalized) return null;
+
+  const { as, rel = options.rel || "prefetch", url } = normalized;
+  if (as === "style" && findAssetElement('link[rel~="stylesheet"]', url)) return null;
+  if (as === "script" && findAssetElement("script[src]", url)) return null;
+
+  const href = resolveAssetHref(url);
+  const existing = Array.from(document.querySelectorAll(`link[rel~="${rel}"][href]`)).find((link) => link.href === href);
+  if (existing) return existing;
+
+  const link = document.createElement("link");
+  link.rel = rel;
+  link.href = href;
+  if (as && rel !== "modulepreload") link.as = as;
+  if (normalized.type && normalized.type !== as) link.type = normalized.type;
+  if (normalized.crossOrigin) link.crossOrigin = normalized.crossOrigin;
+  setFetchPriority(link, normalized.fetchPriority || options.fetchPriority || "low");
+  document.head.appendChild(link);
+  return link;
+}
+
+function prewarmLazyAssets(assets, options = {}) {
+  return (Array.isArray(assets) ? assets : [assets]).map((asset) => prewarmLazyAssetOnce(asset, options)).filter(Boolean);
+}
+
+function runOnIdle(callback, { fallbackDelay = 250, timeout = 3000 } = {}) {
+  if (typeof window.requestIdleCallback === "function") {
+    const idleId = window.requestIdleCallback(callback, { timeout });
+    return () => window.cancelIdleCallback?.(idleId);
+  }
+
+  const timeoutId = window.setTimeout(callback, fallbackDelay);
+  return () => window.clearTimeout(timeoutId);
+}
+
+function prewarmLazyAssetsOnIdle(assets, options = {}) {
+  const { fallbackDelay, timeout, ...prewarmOptions } = options;
+  return runOnIdle(() => prewarmLazyAssets(assets, prewarmOptions), { fallbackDelay, timeout });
+}
+
+window.__gnixLazyAssets = {
+  ...(window.__gnixLazyAssets || {}),
+  loadScriptOnce,
+  loadStyleOnce,
+  prewarmLazyAssets,
+  prewarmLazyAssetsOnIdle,
+  resolveGnixAssetUrl,
+};
+
 function getHashTarget(hash) {
   if (!hash || hash === "#") return null;
   let id = hash.slice(1);
@@ -87,8 +247,14 @@ function handleAnchorJumpClick(event) {
 }
 
 const PREFERENCE_POPUP_MODULE_URL = resolveGnixAssetUrl("/js/preferences-popup.js");
+const GLOBAL_IDLE_PREWARM_ASSETS = [
+  { as: "script", url: PREFERENCE_POPUP_MODULE_URL },
+  { as: "style", url: "/css/preferences.css" },
+  { as: "script", url: "/js/preferences.js" },
+];
 
 let preferencePopupModulePromise = null;
+let globalIdlePrewarmScheduled = false;
 
 function loadPreferencePopupModule() {
   preferencePopupModulePromise ||= import(PREFERENCE_POPUP_MODULE_URL);
@@ -103,6 +269,16 @@ function handlePreferencePopupError(error) {
   console.warn("[gnix] Unable to open preferences popup", error);
 }
 
+function handleLazyAssetError(error) {
+  console.warn("[gnix] Unable to load lazy asset", error);
+}
+
+function initGlobalIdlePrewarm() {
+  if (globalIdlePrewarmScheduled) return;
+  globalIdlePrewarmScheduled = true;
+  prewarmLazyAssetsOnIdle(GLOBAL_IDLE_PREWARM_ASSETS, { fetchPriority: "low", timeout: 4000 });
+}
+
 function twikoo_handler() {
   runWhenActivated(() => {
     const el = document.getElementById("tko");
@@ -111,7 +287,7 @@ function twikoo_handler() {
 
     const { envId, region, lang, jsUrl, cssUrl } = el.dataset;
 
-    if (cssUrl) loadCSSOnce(cssUrl);
+    if (cssUrl) loadStyleOnce(cssUrl).catch(handleLazyAssetError);
 
     const config = { envId, region, lang, el: "#tko" };
 
@@ -121,16 +297,22 @@ function twikoo_handler() {
       return;
     }
 
+    if (!jsUrl) return;
     el.dataset.initializing = "true";
-    loadScriptOnce(jsUrl, () => {
-      if (el.dataset.initialized === "true") {
+    loadScriptOnce(jsUrl)
+      .then(() => {
+        if (el.dataset.initialized === "true") {
+          delete el.dataset.initializing;
+          return;
+        }
+        window.twikoo.init(config);
+        el.dataset.initialized = "true";
         delete el.dataset.initializing;
-        return;
-      }
-      window.twikoo.init(config);
-      el.dataset.initialized = "true";
-      delete el.dataset.initializing;
-    });
+      })
+      .catch((error) => {
+        delete el.dataset.initializing;
+        handleLazyAssetError(error);
+      });
   });
 }
 // #region markdown-exit shiki
@@ -281,30 +463,6 @@ function handleKeyDown(e) {
   }
 }
 
-function loadCSSOnce(url) {
-  if (!document.querySelector(`link[href="${url}"]`)) {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = url;
-    document.head.appendChild(link);
-  }
-}
-
-/**
- * 加载脚本一次，如果已存在则监听 load 事件
- */
-function loadScriptOnce(url, onLoad) {
-  const existingScript = document.querySelector(`script[src="${url}"]`);
-  if (existingScript) {
-    existingScript.addEventListener("load", onLoad);
-  } else {
-    const script = document.createElement("script");
-    script.src = url;
-    script.onload = onLoad;
-    document.head.appendChild(script);
-  }
-}
-
 function handleMermaid() {
   const containers = document.querySelectorAll(".mermaid-container");
   if (containers.length === 0) return;
@@ -312,7 +470,7 @@ function handleMermaid() {
   const cssUrl = resolveGnixAssetUrl("/css/optional/mermaid.css");
   const adapterUrl = resolveGnixAssetUrl("/js/mdit/mermaid.js");
 
-  loadCSSOnce(cssUrl);
+  loadStyleOnce(cssUrl).catch(handleLazyAssetError);
 
   const runInit = () => {
     const libUrl = resolveGnixAssetUrl("/js/host/mermaid/mermaid.min.js");
@@ -330,7 +488,7 @@ function handleMermaid() {
   if (window.initMermaidDiagram) {
     runInit();
   } else {
-    loadScriptOnce(adapterUrl, runInit);
+    loadScriptOnce(adapterUrl).then(runInit).catch(handleLazyAssetError);
   }
 }
 
@@ -343,14 +501,13 @@ function initArticleCommentPopover() {
     return;
   }
 
-  // Preload twikoo JS during idle time so comments render faster on click
   const tko = document.getElementById("tko");
-  if (tko?.dataset.jsUrl) {
-    const preload = () => runWhenActivated(() => loadScriptOnce(tko.dataset.jsUrl, () => {}));
-    if (typeof requestIdleCallback === "function") {
-      requestIdleCallback(preload, { timeout: 3000 });
-    } else {
-      setTimeout(preload, 200);
+  if (tko && tko.dataset.lazyPrewarmBound !== "true") {
+    const commentAssets = [tko.dataset.cssUrl ? { as: "style", url: tko.dataset.cssUrl } : null, tko.dataset.jsUrl ? { as: "script", url: tko.dataset.jsUrl } : null].filter(Boolean);
+
+    if (commentAssets.length) {
+      tko.dataset.lazyPrewarmBound = "true";
+      prewarmLazyAssetsOnIdle(commentAssets, { fetchPriority: "low", timeout: 3000 });
     }
   }
 
@@ -401,6 +558,7 @@ whenReady(initPageWhenActivated);
 document.addEventListener("gnix:content-ready", initPageWhenActivated);
 
 runWhenActivated(() => {
+  initGlobalIdlePrewarm();
   document.addEventListener("click", handlePreferenceTriggerClick, {
     capture: true,
     passive: false,

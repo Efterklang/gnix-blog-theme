@@ -1,12 +1,8 @@
 const PREFERENCE_POPUP_ID = "preference-popup";
+const { loadScriptOnce, loadStyleOnce, resolveGnixAssetUrl } = window.__gnixLazyAssets || {};
 
-function resolveGnixAssetUrl(path) {
-  if (!path || /^(?:[a-z][a-z\d+.-]*:)?\/\//i.test(path) || /^(?:data|mailto|tel):/i.test(path)) {
-    return path;
-  }
-
-  const root = window.__gnixAssetRoot || "/";
-  return `${root.replace(/\/?$/, "/")}${String(path).replace(/^\/+/, "")}`;
+if (!loadScriptOnce || !loadStyleOnce || !resolveGnixAssetUrl) {
+  throw new Error("Gnix lazy asset loader was not initialized");
 }
 
 const PREFERENCE_CSS_URL = resolveGnixAssetUrl("/css/preferences.css");
@@ -14,50 +10,6 @@ const PREFERENCE_SCRIPT_URL = resolveGnixAssetUrl("/js/preferences.js");
 
 let preferencePopupPromise = null;
 let preferencePopupReturnFocus = null;
-
-function findAssetElement(selector, url) {
-  const href = new URL(url, window.location.href).href;
-  return Array.from(document.querySelectorAll(selector)).find((element) => element.href === href || element.src === href) || null;
-}
-
-function loadStyleOnce(url) {
-  const existing = findAssetElement('link[rel~="stylesheet"], link[rel="preload"][as="style"]', url);
-  if (existing) return Promise.resolve(existing);
-
-  return new Promise((resolve, reject) => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = url;
-    link.addEventListener("load", () => resolve(link), { once: true });
-    link.addEventListener("error", reject, { once: true });
-    document.head.appendChild(link);
-  });
-}
-
-function loadScriptOnce(url) {
-  const existing = findAssetElement("script[src]", url);
-  if (existing && existing.dataset.loadState !== "loading") return Promise.resolve(existing);
-
-  return new Promise((resolve, reject) => {
-    const script = existing || document.createElement("script");
-    script.addEventListener(
-      "load",
-      () => {
-        script.dataset.loadState = "loaded";
-        resolve(script);
-      },
-      { once: true },
-    );
-    script.addEventListener("error", reject, { once: true });
-
-    if (!existing) {
-      script.defer = true;
-      script.src = url;
-      script.dataset.loadState = "loading";
-      document.head.appendChild(script);
-    }
-  });
-}
 
 function isPreferencePopupOpen(popup = document.getElementById(PREFERENCE_POPUP_ID)) {
   if (!popup) return false;
