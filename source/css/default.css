@@ -20,11 +20,6 @@
   animation: gnix-view-transition-in 160ms ease both;
 }
 
-html:has(.preference-page[data-preference-surface="page"])::view-transition-old(gnix-main-content),
-html:has(.preference-page[data-preference-surface="page"])::view-transition-new(gnix-main-content) {
-  animation: none;
-}
-
 @keyframes gnix-view-transition-out {
   from {
     opacity: 1;

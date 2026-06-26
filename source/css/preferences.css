@@ -1,31 +1,5 @@
 @charset "UTF-8";
 
-body:has(.preference-page[data-preference-surface="page"]) .navbar-main,
-body:has(.preference-page[data-preference-surface="page"]) .footer {
-  display: none;
-}
-
-html:has(.preference-page[data-preference-surface="page"]),
-body:has(.preference-page[data-preference-surface="page"]) {
-  scrollbar-width: none;
-}
-
-html:has(.preference-page[data-preference-surface="page"])::-webkit-scrollbar,
-body:has(.preference-page[data-preference-surface="page"])::-webkit-scrollbar {
-  display: none;
-}
-
-.section:has(.preference-page[data-preference-surface="page"]) {
-  min-height: 100vh;
-  padding: 0;
-}
-
-.main-content:has(.preference-page[data-preference-surface="page"]) {
-  width: 100%;
-  max-width: none;
-  view-transition-name: none;
-}
-
 html.has-preference-popup {
   overflow: hidden;
 }
@@ -272,12 +246,6 @@ html.has-preference-popup {
   }
 }
 
-.preference-panel__header > :is(.preference-choice-group, .preference-secondary-action) {
-  grid-column: 2;
-  align-self: center;
-  justify-self: end;
-}
-
 .preference-row {
   display: grid;
   grid-template-columns: minmax(10rem, 0.72fr) minmax(0, 1.28fr);
@@ -317,31 +285,6 @@ html.has-preference-popup {
     font-size: 0.74rem;
     font-weight: 520;
     line-height: 1.35;
-  }
-}
-
-.preference-secondary-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-height: 2rem;
-  padding: 0.4rem 0.55rem;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  color: var(--subtext0);
-  background: transparent;
-  font: 650 0.78rem / 1.2 var(--font-sans-serif);
-  cursor: pointer;
-
-  &:hover {
-    border-color: hsl(from var(--surface1) h s l / 0.58);
-    color: var(--text);
-    background: hsl(from var(--surface1) h s l / 0.32);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--mauve);
-    outline-offset: 2px;
   }
 }
 
@@ -1015,12 +958,6 @@ html.has-preference-popup {
 
   .preference-panel__header {
     gap: 0.65rem;
-  }
-
-  .preference-panel__header > :is(.preference-choice-group, .preference-secondary-action) {
-    grid-column: 1;
-    grid-row: auto;
-    justify-self: start;
   }
 
   .preference-choice-group--mode,

@@ -15,10 +15,6 @@ const PREFERENCE_SCRIPT_URL = resolveGnixAssetUrl("/js/preferences.js");
 let preferencePopupPromise = null;
 let preferencePopupReturnFocus = null;
 
-function getPreferenceCloseLabel() {
-  return (document.documentElement.lang || "").toLowerCase().startsWith("zh") ? "关闭" : "Close";
-}
-
 function findAssetElement(selector, url) {
   const href = new URL(url, window.location.href).href;
   return Array.from(document.querySelectorAll(selector)).find((element) => element.href === href || element.src === href) || null;
@@ -106,23 +102,6 @@ function showPreferencePopupElement(popup) {
   popup.querySelector(".preference-popup__panel")?.focus({ preventScroll: true });
 }
 
-function preparePreferencePopupPage(page) {
-  page.dataset.preferenceSurface = "popup";
-
-  const closeLabel = getPreferenceCloseLabel();
-  const backLink = page.querySelector("[data-preference-back-link]");
-  if (!backLink) return page;
-
-  backLink.removeAttribute("data-preference-back-link");
-  backLink.setAttribute("data-preference-popup-close", "");
-  backLink.setAttribute("href", "#");
-  backLink.setAttribute("role", "button");
-  backLink.setAttribute("aria-label", closeLabel);
-  const label = backLink.querySelector("span");
-  if (label) label.textContent = closeLabel;
-  return page;
-}
-
 function handlePreferencePopupClick(event) {
   if (!event.target.closest?.("[data-preference-popup-close]")) return;
   event.preventDefault();
@@ -145,9 +124,7 @@ function handlePreferencePopupToggle(event) {
 function bindPreferencePopup(popup) {
   if (popup.dataset.preferencePopupBound === "true") return;
 
-  const page = popup.querySelector("[data-preferences-page]");
-  if (!page) throw new Error("Preferences popup markup was not found");
-  preparePreferencePopupPage(page);
+  if (!popup.querySelector("[data-preferences-page]")) throw new Error("Preferences popup markup was not found");
 
   popup.addEventListener("click", handlePreferencePopupClick);
   popup.addEventListener("keydown", handlePreferencePopupKeydown);

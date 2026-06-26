@@ -169,25 +169,6 @@
     return normalized;
   }
 
-  function initPreferenceBackLink(root) {
-    const link = root.querySelector("[data-preference-back-link]");
-    if (!link) return;
-
-    link.addEventListener("click", (event) => {
-      let referrerUrl;
-      try {
-        referrerUrl = document.referrer ? new URL(document.referrer) : null;
-      } catch {
-        referrerUrl = null;
-      }
-
-      if (!referrerUrl || referrerUrl.origin !== window.location.origin || referrerUrl.href === window.location.href) return;
-
-      event.preventDefault();
-      window.history.back();
-    });
-  }
-
   function initThemePreferences(root) {
     const modeButtons = root.querySelectorAll("[data-theme-mode]");
     const schemeSelects = root.querySelectorAll(".theme-scheme-select[data-theme-scheme-kind]");
@@ -369,7 +350,6 @@
   function initPreferenceRoot(root) {
     if (!root || root.dataset.bound === "true") return;
     root.dataset.bound = "true";
-    initPreferenceBackLink(root);
     initThemePreferences(root);
     initArticleFontPreferences(root);
   }
