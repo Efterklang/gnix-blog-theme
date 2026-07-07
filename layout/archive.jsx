@@ -126,7 +126,6 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
         <h2 id={sectionId} class="archive-label">
           {title}
         </h2>
-        <span class="archive-group__count">{String(posts.length).padStart(2, "0")}</span>
       </header>
       <div class="timeline">
         {posts.map((post) => {
@@ -150,27 +149,33 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
   );
 }
 
-function renderTopicPicker({ tags, title, countLabel, closeLabel }) {
-  if (!tags.length) return null;
-
+function renderTopicPicker({ tags, title, topicListLabel, stats, closeLabel }) {
   return (
     <div id="archive-topic-picker" class="archive-topic-picker" popover="auto">
       <div class="archive-topic-picker__body" role="dialog" aria-labelledby="archive-topic-picker-title">
         <header class="archive-topic-picker__header">
           <div>
-            <p class="archive-topic-picker__eyebrow">{countLabel}</p>
             <h2 id="archive-topic-picker-title">{title}</h2>
+            {stats.length > 0 && (
+              <ul class="archive-topic-picker__stats">
+                {stats.map((stat) => (
+                  <li key={stat}>{stat}</li>
+                ))}
+              </ul>
+            )}
           </div>
           <button class="archive-topic-picker__close" type="button" popovertarget="archive-topic-picker" popovertargetaction="hide" aria-label={closeLabel}></button>
         </header>
-        <nav class="archive-topic-list" aria-label={title}>
-          {tags.map((tag) => (
-            <a key={tag.url} class="archive-topic-list__item" href={tag.url} aria-current={tag.current ? "page" : null}>
-              <span class="archive-topic-list__name">{tag.name}</span>
-              <span class="archive-topic-list__count">{tag.count}</span>
-            </a>
-          ))}
-        </nav>
+        {tags.length > 0 && (
+          <nav class="archive-topic-list" aria-label={topicListLabel}>
+            {tags.map((tag) => (
+              <a key={tag.url} class="archive-topic-list__item" href={tag.url} aria-current={tag.current ? "page" : null}>
+                <span class="archive-topic-list__name">{tag.name}</span>
+                <span class="archive-topic-list__count">{tag.count}</span>
+              </a>
+            ))}
+          </nav>
+        )}
       </div>
     </div>
   );
@@ -205,6 +210,8 @@ module.exports = class extends Component {
     const topicLabel = helper._p("archive.topic", topicTags.length);
     const topicCountLabel = `${topicTags.length} ${topicLabel}`;
     const sinceYear = years.length ? years[years.length - 1] : currentYear;
+    const sinceLabel = sinceYear ? helper.__("archive.since", sinceYear) : null;
+    const pickerStats = [writingsLabel, sinceLabel].filter(Boolean);
 
     let articleList;
     if (!page.year) {
@@ -248,24 +255,22 @@ module.exports = class extends Component {
     }
 
     const heroTitle = isTagPage ? page.tag : currentYear ? getArchiveRangeLabel(currentYear, currentMonth, null, archiveLabels) : helper.__("archive.posts");
+    const heroTitleLabel = [heroTitle, ...pickerStats, topicCountLabel].join(" / ");
     return (
       <main class="archive-page">
         <header class="archive-hero">
-          <h1 class="archive-hero__title archive-label">{heroTitle}</h1>
-          <p class="archive-hero__meta archive-label">
-            {writingsLabel}
-            {topicTags.length > 0 && (
-              <Fragment>
-                {" / "}
-                <button type="button" class="archive-hero__topics-button" popovertarget="archive-topic-picker" aria-label={`${topicsTitle}: ${topicTags.length}`}>
-                  {topicTags.length}
-                </button>
-                {` ${topicLabel}`}
-              </Fragment>
-            )}
-            {sinceYear && ` / ${helper.__("archive.since", sinceYear)}`}
-          </p>
-          {renderTopicPicker({ tags: topicTags, title: topicsTitle, countLabel: topicCountLabel, closeLabel: helper.__("archive.close_topic_picker") })}
+          <h1 class="archive-hero__heading">
+            <button type="button" class="archive-hero__title archive-label" popovertarget="archive-topic-picker" aria-haspopup="dialog" aria-label={heroTitleLabel}>
+              {heroTitle}
+            </button>
+          </h1>
+          {renderTopicPicker({
+            tags: topicTags,
+            title: heroTitle,
+            topicListLabel: topicsTitle,
+            stats: pickerStats,
+            closeLabel: helper.__("archive.close_topic_picker"),
+          })}
         </header>
 
         {!page.year && years.length > 1 && (
