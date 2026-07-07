@@ -92,59 +92,44 @@
 
 /* #region Hover overlay */
 
-.footer,
-.archive-hero,
-.archive-rail,
-.archive-era,
-.archive-group__header,
-.archive-item {
-  transition:
-    filter 180ms ease,
-    opacity 180ms ease;
-}
+@media (hover: hover) and (min-width: 721px) {
+  .footer,
+  .archive-hero,
+  .archive-rail,
+  .archive-era,
+  .archive-group__header,
+  .archive-item {
+    transition:
+      filter 180ms ease,
+      opacity 180ms ease;
+  }
 
-body:has(.archive-page) .navbar-main {
-  transition:
-    transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
-    filter 180ms ease,
-    opacity 180ms ease;
-}
+  body:has(.archive-page) .navbar-main {
+    transition:
+      transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
+      filter 180ms ease,
+      opacity 180ms ease;
+  }
 
-.archive-page:has(.archive-popup)::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 120;
-  background: hsl(from var(--mantle) h s l / 0.28);
-  -webkit-backdrop-filter: blur(8px) saturate(0.96);
-  backdrop-filter: blur(8px) saturate(0.96);
-  opacity: 0;
-  pointer-events: none;
-  visibility: hidden;
-  transition:
-    opacity 180ms ease,
-    visibility 180ms ease;
-}
-
-.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))::before {
-  opacity: 1;
-  visibility: visible;
-}
-
-body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within)) :where(.navbar-main, .footer),
-.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))
-  :where(.archive-hero, .archive-rail, .archive-era, .archive-group__header),
-.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))
-  .archive-item:not(:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))):not(:focus-within) {
-  filter: blur(6px);
-  opacity: 0.42;
-}
-
-@media (hover: none), (max-width: 720px) {
-  .archive-page:has(.archive-popup)::before,
-  .archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))::before {
+  .archive-page:has(.archive-popup)::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    background: hsl(from var(--mantle) h s l / 0.28);
+    -webkit-backdrop-filter: blur(8px) saturate(0.96);
+    backdrop-filter: blur(8px) saturate(0.96);
     opacity: 0;
+    pointer-events: none;
     visibility: hidden;
+    transition:
+      opacity 180ms ease,
+      visibility 180ms ease;
+  }
+
+  .archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))::before {
+    opacity: 1;
+    visibility: visible;
   }
 
   body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within)) :where(.navbar-main, .footer),
@@ -152,8 +137,8 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
     :where(.archive-hero, .archive-rail, .archive-era, .archive-group__header),
   .archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))
     .archive-item:not(:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))):not(:focus-within) {
-    filter: none;
-    opacity: 1;
+    filter: blur(6px);
+    opacity: 0.42;
   }
 }
 
@@ -353,9 +338,20 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .footer,
+  .archive-hero,
+  .archive-rail,
+  .archive-rail__link,
+  .archive-rail__year,
+  .archive-era,
+  .archive-group__header,
   .archive-hero__title,
+  .archive-item,
+  .archive-popup,
   .archive-topic-picker__close,
-  .archive-topic-list__item {
+  .archive-topic-list__item,
+  body:has(.archive-page) .navbar-main,
+  .archive-page::before {
     transition: none;
   }
 }
