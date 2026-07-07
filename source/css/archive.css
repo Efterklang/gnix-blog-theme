@@ -110,7 +110,7 @@ body:has(.archive-page) .navbar-main {
     opacity 180ms ease;
 }
 
-.archive-page:has(.archive-item.has-preview)::before {
+.archive-page:has(.archive-popup)::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -126,33 +126,31 @@ body:has(.archive-page) .navbar-main {
     visibility 180ms ease;
 }
 
-.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item.has-preview:focus-within, .archive-popup:hover, .archive-popup:focus-within))::before {
+.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))::before {
   opacity: 1;
   visibility: visible;
 }
 
-body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .archive-item.has-preview:focus-within, .archive-popup:hover, .archive-popup:focus-within))
-  :where(.navbar-main, .footer),
-.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item.has-preview:focus-within, .archive-popup:hover, .archive-popup:focus-within))
+body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within)) :where(.navbar-main, .footer),
+.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))
   :where(.archive-hero, .archive-rail, .archive-era, .archive-group__header),
-.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item.has-preview:focus-within, .archive-popup:hover, .archive-popup:focus-within))
+.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))
   .archive-item:not(:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))):not(:focus-within) {
   filter: blur(6px);
   opacity: 0.42;
 }
 
 @media (hover: none), (max-width: 720px) {
-  .archive-page:has(.archive-item.has-preview)::before,
-  .archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item.has-preview:focus-within, .archive-popup:hover, .archive-popup:focus-within))::before {
+  .archive-page:has(.archive-popup)::before,
+  .archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))::before {
     opacity: 0;
     visibility: hidden;
   }
 
-  body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .archive-item.has-preview:focus-within, .archive-popup:hover, .archive-popup:focus-within))
-    :where(.navbar-main, .footer),
-  .archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item.has-preview:focus-within, .archive-popup:hover, .archive-popup:focus-within))
+  body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within)) :where(.navbar-main, .footer),
+  .archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))
     :where(.archive-hero, .archive-rail, .archive-era, .archive-group__header),
-  .archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item.has-preview:focus-within, .archive-popup:hover, .archive-popup:focus-within))
+  .archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))
     .archive-item:not(:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))):not(:focus-within) {
     filter: none;
     opacity: 1;
@@ -563,12 +561,10 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
     }
   }
 
-  /* Each previewable item is its own anchor; anchor-scope keeps the shared
-     name local to this subtree so every popup binds to its own item. */
-  &.has-preview {
-    anchor-name: --archive-anchor;
-    anchor-scope: --archive-anchor;
-  }
+  /* Each item is its own anchor; anchor-scope keeps the shared name local to
+     this subtree so every popup binds to its own item. */
+  anchor-name: --archive-anchor;
+  anchor-scope: --archive-anchor;
 
   & + & {
     border-top: 0.5px solid color-mix(in oklch, var(--surface0) 80%, transparent);
@@ -623,8 +619,8 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
   }
 }
 
-.archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) > .archive-popup,
-.archive-item.has-preview:focus-within > .archive-popup {
+.archive-item:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) > .archive-popup,
+.archive-item:focus-within > .archive-popup {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -635,14 +631,14 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
     visibility 0s linear 180ms;
 }
 
-.archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)),
-.archive-item.has-preview:focus-within {
+.archive-item:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)),
+.archive-item:focus-within {
   z-index: 140;
 }
 
 @starting-style {
-  .archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) > .archive-popup,
-  .archive-item.has-preview:focus-within > .archive-popup {
+  .archive-item:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) > .archive-popup,
+  .archive-item:focus-within > .archive-popup {
     opacity: 0;
     transform: translateY(var(--popup-hidden-shift));
   }

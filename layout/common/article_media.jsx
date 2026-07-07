@@ -14,10 +14,9 @@ module.exports = class extends Component {
   render() {
     const { url, title, date, dateXml, excerpt, readTime } = this.props;
     const formattedDate = formatDate(date, dateXml);
-    const hasPreview = Boolean(excerpt);
 
     return (
-      <article class={hasPreview ? "archive-item has-preview" : "archive-item"}>
+      <article class="archive-item">
         <div class="archive-item__row">
           <p class="article-meta">
             <time dateTime={dateXml || null}>{formattedDate}</time>
@@ -26,15 +25,13 @@ module.exports = class extends Component {
             {title}
           </a>
         </div>
-        {hasPreview && (
-          <div class="archive-popup">
-            <p class="archive-popup__eyebrow">
-              <span class="archive-popup__index"></span>
-              {readTime && <span class="archive-popup__read">{readTime}</span>}
-            </p>
-            {excerpt && <div class="archive-popup__excerpt" dangerouslySetInnerHTML={{ __html: excerpt }}></div>}
-          </div>
-        )}
+        <div class="archive-popup">
+          <p class="archive-popup__eyebrow">
+            <span class="archive-popup__index"></span>
+            {readTime && <span class="archive-popup__read">{readTime}</span>}
+          </p>
+          {excerpt && <div class="archive-popup__excerpt" dangerouslySetInnerHTML={{ __html: excerpt }}></div>}
+        </div>
       </article>
     );
   }
