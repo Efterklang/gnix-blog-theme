@@ -66,7 +66,11 @@ function toTitleCase(str) {
 
 async function resolveTitle(token, md) {
   const title = token.attrGet("data-callout-title");
-  if (title) return md.renderInlineAsync(title.trim());
+  if (title) {
+    // markdown-it-ts has no md.renderInlineAsync; compose it like markdown-it's renderInline
+    const env = {};
+    return md.renderer.renderAsync(md.parseInline(title.trim(), env), md.options, env);
+  }
   const type = token.attrGet("data-callout");
   return type ? toTitleCase(type) : "";
 }

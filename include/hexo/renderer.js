@@ -1,7 +1,6 @@
 const path = require("node:path");
-const { createMarkdownExit } = require("markdown-exit");
 const mermaidDiagram = require("./mdit/mermaid");
-const ratex = require("markdown-exit-ratex");
+const ratex = require("./mdit/ratex");
 const code = require("./mdit/shiki");
 const obsidianCallouts = require("./mdit/obsidian-callouts");
 const anchor = require("markdown-it-anchor");
@@ -54,12 +53,22 @@ class MarkdownRenderer {
       ...(hexo.config.markdown_exit || {}),
     };
 
-    this.md = createMarkdownExit(this.config.render_options);
-    this.initPlugins();
+    this.mdReady = null;
+  }
+
+  // markdown-it-ts is ESM-only, so the instance is created through a lazy dynamic import
+  async getMarkdownIt() {
+    this.mdReady ??= (async () => {
+      const { default: MarkdownIt } = await import("markdown-it-ts");
+      this.md = MarkdownIt(this.config.render_options);
+      this.initPlugins();
+      return this.md;
+    })();
+    return this.mdReady;
   }
 
   initPlugins() {
-    console.time("MarkdownExit: Load Default Plugins");
+    console.time("MarkdownIt: Load Default Plugins");
     this.md.use(this.titlebasedLink);
 
     if (this.config.defaultPlugins !== false) {
@@ -69,18 +78,18 @@ class MarkdownRenderer {
         .use(resolveDefault(taskLists))
         .use(resolveDefault(code), this.config.code_options)
         .use(mermaidDiagram)
-        .use(resolveDefault(ratex), this.config.ratex_options)
+        .use(ratex, this.config.ratex_options)
         .use(obsidianCallouts, this.config.callout_options)
         .use(wrapMarkdownItTable)
         .use(resolveDefault(anchor), {
           permalink: resolveDefault(anchor).permalink.headerLink(),
         });
     }
-    console.timeEnd("MarkdownExit: Load Default Plugins");
+    console.timeEnd("MarkdownIt: Load Default Plugins");
 
-    console.time("MarkdownExit: Load User Plugins");
+    console.time("MarkdownIt: Load User Plugins");
     this.loadUserPlugins();
-    console.timeEnd("MarkdownExit: Load User Plugins");
+    console.timeEnd("MarkdownIt: Load User Plugins");
   }
 
   resolvePluginFunction(plugin) {
@@ -123,7 +132,8 @@ class MarkdownRenderer {
 
   async render(data) {
     if (!data.text) return "";
-    return this.md.renderAsync(data.text);
+    const md = await this.getMarkdownIt();
+    return md.renderAsync(data.text);
   }
 }
 

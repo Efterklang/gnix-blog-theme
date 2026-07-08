@@ -3,6 +3,18 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "7.08",
+        cn: [
+          "Markdown 渲染引擎从 markdown-exit 迁移到 markdown-it-ts：保持 markdown-it 插件生态与 renderAsync 异步渲染接口，解析性能进一步提升",
+          "将 markdown-exit-ratex 插件内联到主题 include/hexo/mdit/ratex.js，并直接调用捆绑的 RaTeX 平台二进制渲染 SVG 公式，移除对外部插件包的依赖",
+        ],
+        en: [
+          "Migrate the Markdown rendering engine from markdown-exit to markdown-it-ts: keeps the markdown-it plugin ecosystem and the renderAsync async rendering interface while further improving parse performance",
+          "Inline the markdown-exit-ratex plugin into the theme's include/hexo/mdit/ratex.js and spawn the bundled RaTeX platform binary directly for SVG math, removing the external plugin package dependency",
+        ],
+        category: "refactor",
+      },
+      {
         date: "6.18",
         cn: [
           "新增 Sunny 浅色主题（归入浅色配色方案）：提供温暖的米色基础配色，并叠加受 dany.works 启发的氛围——金色阳光光晕与全屏 multiply 视频光影",

@@ -41,12 +41,11 @@
     "inferno-create-element": "^9.1.0",
     "inferno-server": "^9.1.0",
     "js-yaml": "^4.2.0",
-    "markdown-exit": "^1.1.0-beta.2",
-    "markdown-exit-ratex": "^0.2.2",
     "markdown-it-anchor": "^9.2.0",
     "markdown-it-footnote": "^4.0.0",
     "markdown-it-mark": "^4.0.0",
     "markdown-it-task-lists": "^2.1.1",
+    "markdown-it-ts": "^1.0.4",
     "shiki": "^4.2.0"
   },
   "peerDependencies": {
