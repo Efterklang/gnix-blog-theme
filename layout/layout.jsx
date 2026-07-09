@@ -26,9 +26,7 @@ module.exports = class extends Component {
         <body>
           <Sunny site={site} config={config} helper={helper} page={page} />
           <Navbar site={site} config={config} helper={helper} page={page} />
-          <section class="section">
-            <div class="main-content" dangerouslySetInnerHTML={{ __html: body }}></div>
-          </section>
+          <div class="main-content" dangerouslySetInnerHTML={{ __html: body }}></div>
           <Footer site={site} config={config} helper={helper} page={page} />
           <PreferencesPopup site={site} config={config} helper={helper} page={page} />
           <Scripts site={site} config={config} helper={helper} page={page} />

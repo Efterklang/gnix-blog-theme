@@ -5,6 +5,18 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "7.09",
         cn: [
+          "精简页面 DOM 层级：移除 section.section 与 div.card 两个包裹层，文章链路由 section > .main-content > .card > article.card-content > .content 精简为 .main-content > article.article > .content；封面与评论/文章信息弹层改为 article 的兄弟节点，视觉布局保持不变",
+          "如有依赖 .section / .card / .card-content 类名的自定义样式，请迁移到 .main-content / .article",
+        ],
+        en: [
+          "Flatten the page DOM: remove the section.section and div.card wrappers, reducing the article chain from section > .main-content > .card > article.card-content > .content to .main-content > article.article > .content; the cover and the comment/article-info popovers become siblings of the article element, with no visual change",
+          "Custom styles targeting the .section / .card / .card-content class names should migrate to .main-content / .article",
+        ],
+        category: "refactor",
+      },
+      {
+        date: "7.09",
+        cn: [
           "脚注引用悬浮预览：鼠标悬停正文中的脚注角标时，原地弹出脚注原文（保留链接与格式）；内容由构建期 markdown-it 插件（include/hexo/mdit/footnote-tooltip.js）内嵌进 HTML，纯 CSS 显示，运行时零 JS",
           "预览仅在具备 hover 的精确指针设备上启用，触屏仍保持点击跳转到页底脚注的原有行为",
         ],

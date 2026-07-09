@@ -33,77 +33,53 @@ module.exports = class extends Component {
 
     return (
       <Fragment>
-        {/* Main content */}
-        <div class="card">
-          {/* Cover image */}
-          {cover ? <ArticleCover page={page} cover={cover} helper={helper} /> : null}
-          <article class={`card-content article${"direction" in page ? ` ${page.direction}` : ""}`}>
-            {/* Metadata - Medium style */}
-            {page.layout !== "page" ? (
-              <div class="article-header-meta">
-                <div class="article-meta-info">
-                  {page.date && (
-                    <time class="article-date" datetime={page.date.toISOString()}>
-                      {dateFormatters.shortDay.format(page.date)}
-                    </time>
-                  )}
-                  {page.date && wordCount > 0 && <span class="meta-separator">·</span>}
-                  {wordCount > 0 && <span class="article-reading-time">{helper.__("article.reading_time", readTime)}</span>}
-                  {(page.date || wordCount > 0) && <span class="meta-separator">·</span>}
-                  <span
-                    class="article-visit-count"
-                    data-flag-title={page.title}
-                    dangerouslySetInnerHTML={{
-                      __html: pageViewsHtml,
-                    }}
-                  ></span>
-                </div>
-              </div>
-            ) : null}
-
-            {/* Title */}
-            {page.title !== "" ? <h1 class="article-title">{page.title}</h1> : null}
-
-            {page.excerpt && <div class="article-excerpt" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div>}
-
-            <div class="article-meta-bar">
-              <div class="article-tags">
-                {page.tags?.length
-                  ? page.tags.map((tag, i) => (
-                      <Fragment>
-                        {i > 0 && <span class="meta-separator">·</span>}
-                        <a class="article-tag" rel="tag" href={helper.localized_tag_url(tag, helper.language_key(page))}>
-                          {tag.name}
-                        </a>
-                      </Fragment>
-                    ))
-                  : null}
-              </div>
-              <div class="article-title-actions">
-                {hasComment && (
-                  <button type="button" class="article-action-btn" popovertarget="article-comment-popover" aria-label={commentsLabel} title={commentsLabel}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      role="img"
-                      aria-label={commentsLabel}
-                    >
-                      <title>{commentsLabel}</title>
-                      <path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" />
-                      <path d="M8 12h.01" />
-                      <path d="M12 12h.01" />
-                      <path d="M16 12h.01" />
-                    </svg>
-                  </button>
+        {/* Cover image */}
+        {cover ? <ArticleCover page={page} cover={cover} helper={helper} /> : null}
+        <article class={`article${"direction" in page ? ` ${page.direction}` : ""}`}>
+          {/* Metadata - Medium style */}
+          {page.layout !== "page" ? (
+            <div class="article-header-meta">
+              <div class="article-meta-info">
+                {page.date && (
+                  <time class="article-date" datetime={page.date.toISOString()}>
+                    {dateFormatters.shortDay.format(page.date)}
+                  </time>
                 )}
-                <button type="button" class="article-action-btn" popovertarget="article-info-popover" aria-label={articleInfoLabel} title={articleInfoLabel}>
+                {page.date && wordCount > 0 && <span class="meta-separator">·</span>}
+                {wordCount > 0 && <span class="article-reading-time">{helper.__("article.reading_time", readTime)}</span>}
+                {(page.date || wordCount > 0) && <span class="meta-separator">·</span>}
+                <span
+                  class="article-visit-count"
+                  data-flag-title={page.title}
+                  dangerouslySetInnerHTML={{
+                    __html: pageViewsHtml,
+                  }}
+                ></span>
+              </div>
+            </div>
+          ) : null}
+
+          {/* Title */}
+          {page.title !== "" ? <h1 class="article-title">{page.title}</h1> : null}
+
+          {page.excerpt && <div class="article-excerpt" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div>}
+
+          <div class="article-meta-bar">
+            <div class="article-tags">
+              {page.tags?.length
+                ? page.tags.map((tag, i) => (
+                    <Fragment>
+                      {i > 0 && <span class="meta-separator">·</span>}
+                      <a class="article-tag" rel="tag" href={helper.localized_tag_url(tag, helper.language_key(page))}>
+                        {tag.name}
+                      </a>
+                    </Fragment>
+                  ))
+                : null}
+            </div>
+            <div class="article-title-actions">
+              {hasComment && (
+                <button type="button" class="article-action-btn" popovertarget="article-comment-popover" aria-label={commentsLabel} title={commentsLabel}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -115,31 +91,52 @@ module.exports = class extends Component {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     role="img"
-                    aria-label={articleInfoLabel}
+                    aria-label={commentsLabel}
                   >
-                    <title>{articleInfoLabel}</title>
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M12 16v-4" />
-                    <path d="M12 8h.01" />
+                    <title>{commentsLabel}</title>
+                    <path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" />
+                    <path d="M8 12h.01" />
+                    <path d="M12 12h.01" />
+                    <path d="M16 12h.01" />
                   </svg>
                 </button>
-              </div>
+              )}
+              <button type="button" class="article-action-btn" popovertarget="article-info-popover" aria-label={articleInfoLabel} title={articleInfoLabel}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  role="img"
+                  aria-label={articleInfoLabel}
+                >
+                  <title>{articleInfoLabel}</title>
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 16v-4" />
+                  <path d="M12 8h.01" />
+                </svg>
+              </button>
             </div>
+          </div>
 
-            <div class="content" dangerouslySetInnerHTML={{ __html: page.content }}></div>
-          </article>
+          <div class="content" dangerouslySetInnerHTML={{ __html: page.content }}></div>
+        </article>
 
-          {hasComment && (
-            <div id="article-comment-popover" popover="auto" class="article-popover article-comment-popover">
-              <button class="article-popover-backdrop" type="button" popovertarget="article-comment-popover" popovertargetaction="hide" tabindex="-1" aria-label={closeLabel}></button>
-              <div class="article-popover-body article-comment-popover-body">
-                <Comment config={config} page={page} helper={helper} embedded />
-              </div>
+        {hasComment && (
+          <div id="article-comment-popover" popover="auto" class="article-popover article-comment-popover">
+            <button class="article-popover-backdrop" type="button" popovertarget="article-comment-popover" popovertargetaction="hide" tabindex="-1" aria-label={closeLabel}></button>
+            <div class="article-popover-body article-comment-popover-body">
+              <Comment config={config} page={page} helper={helper} />
             </div>
-          )}
+          </div>
+        )}
 
-          <ArticleInfo page={page} config={config} helper={helper} />
-        </div>
+        <ArticleInfo page={page} config={config} helper={helper} />
       </Fragment>
     );
   }

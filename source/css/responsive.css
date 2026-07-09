@@ -10,15 +10,11 @@
     padding: 8px 12px;
   }
 
-  .section {
+  .main-content {
     padding: 0;
   }
 
-  .main-content {
-    width: 100%;
-  }
-
-  .card-content {
+  .article {
     padding: 1rem 0.875rem 0;
   }
 

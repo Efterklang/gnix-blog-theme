@@ -565,16 +565,6 @@ html {
   }
 }
 
-.card {
-  max-width: 100%;
-  position: relative;
-  overflow: visible;
-}
-
-.card-content {
-  padding: 1.25em 1.25rem 0 1.25rem;
-}
-
 /* #region Navbar */
 
 .navbar {
@@ -678,19 +668,16 @@ html {
 
 /* #endregion Navbar */
 
-.section {
-  padding: 3rem 1.5rem;
-  flex-grow: 1;
-}
-
 .main-content {
   view-transition-name: gnix-main-content;
-  -webkit-justify-content: center;
-  justify-content: center;
   flex-grow: 1;
+  box-sizing: border-box;
+  width: 100%;
+  /* 50em 正文列宽 + 两侧 1.5rem 内边距 */
+  max-width: calc(50em + 3rem);
   margin: 0 auto;
+  padding: 3rem 1.5rem;
   position: relative;
-  max-width: 50em;
   counter-reset: h2-counter;
 }
 

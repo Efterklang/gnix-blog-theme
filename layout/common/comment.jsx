@@ -2,7 +2,7 @@ const { Component, loadComponent } = require("../../include/util/common");
 
 module.exports = class extends Component {
   render() {
-    const { config, page, helper, embedded = false } = this.props;
+    const { config, page, helper } = this.props;
     const { comment } = config;
     if (!comment || typeof comment.type !== "string") {
       return null;
@@ -13,17 +13,9 @@ module.exports = class extends Component {
       return <Comment config={config} page={page} helper={helper} comment={comment} />;
     })();
 
-    if (embedded) {
-      return (
-        <div class="article-comment-panel" id="comments">
-          {content}
-        </div>
-      );
-    }
-
     return (
-      <div class="card" id="comments">
-        <div class="card-content">{content}</div>
+      <div class="article-comment-panel" id="comments">
+        {content}
       </div>
     );
   }
