@@ -3,6 +3,18 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "7.09",
+        cn: [
+          "脚注引用悬浮预览：鼠标悬停正文中的脚注角标时，原地弹出脚注原文（保留链接与格式）；内容由构建期 markdown-it 插件（include/hexo/mdit/footnote-tooltip.js）内嵌进 HTML，纯 CSS 显示，运行时零 JS",
+          "预览仅在具备 hover 的精确指针设备上启用，触屏仍保持点击跳转到页底脚注的原有行为",
+        ],
+        en: [
+          "Footnote hover previews: hovering a footnote marker in the article body pops up the footnote's content in place (links and formatting preserved); the content is embedded into the HTML at build time by a markdown-it plugin (include/hexo/mdit/footnote-tooltip.js) and shown with pure CSS — zero runtime JS",
+          "Previews are enabled only on hover-capable fine-pointer devices; on touch screens tapping a marker still jumps to the footnote at the bottom of the page as before",
+        ],
+        category: "feature",
+      },
+      {
         date: "7.08",
         cn: [
           "Markdown 渲染引擎从 markdown-exit 迁移到 markdown-it-ts：保持 markdown-it 插件生态与 renderAsync 异步渲染接口，解析性能进一步提升",

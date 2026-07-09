@@ -358,6 +358,62 @@ article.card-content .content :is(h1, h2, h3, h4, h5, h6, strong, b, th) {
   font-size: 0.9em;
 }
 
+/* Hover preview for footnote refs; content is injected at build time by
+   include/hexo/mdit/footnote-tooltip.js. Hover-capable pointers only —
+   on touch, simulated hover would eat the first tap on the ref link. */
+@media (hover: hover) and (pointer: fine) {
+  sup.footnote-ref {
+    position: relative;
+
+    .footnote-tooltip {
+      position: absolute;
+      bottom: calc(100% + 0.4em);
+      left: 50%;
+      transform: translateX(-50%) translateY(0.25em);
+      width: max-content;
+      max-width: min(24rem, 70vw);
+      padding: 0.6em 0.85em;
+      border: 1px solid var(--surface0);
+      border-radius: 0.5em;
+      background: var(--mantle);
+      box-shadow: 0 8px 24px hsl(from var(--crust) h s l / 0.5);
+      color: var(--subtext1);
+      font-size: 0.8rem;
+      font-style: normal;
+      font-weight: var(--article-font-weight);
+      line-height: 1.6;
+      text-align: left;
+      white-space: normal;
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity 0.15s ease,
+        transform 0.15s ease,
+        visibility 0.15s;
+      pointer-events: none;
+      z-index: 10;
+
+      /* invisible bridge across the gap so hover survives the mouse travel */
+      &::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        height: 0.5em;
+      }
+    }
+
+    &:hover .footnote-tooltip,
+    &:focus-within .footnote-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+  }
+}
+
 .table-wrapper {
   max-width: 100%;
   margin: 1.5em 0;

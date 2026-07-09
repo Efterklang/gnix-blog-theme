@@ -5,6 +5,7 @@ const code = require("./mdit/shiki");
 const obsidianCallouts = require("./mdit/obsidian-callouts");
 const anchor = require("markdown-it-anchor");
 const footnote = require("markdown-it-footnote");
+const footnoteTooltip = require("./mdit/footnote-tooltip");
 const mark = require("markdown-it-mark");
 const taskLists = require("markdown-it-task-lists");
 const createTitlebasedLink = require("./mdit/titlebased-link");
@@ -74,6 +75,7 @@ class MarkdownRenderer {
     if (this.config.defaultPlugins !== false) {
       this.md
         .use(resolveDefault(footnote))
+        .use(footnoteTooltip)
         .use(resolveDefault(mark))
         .use(resolveDefault(taskLists))
         .use(resolveDefault(code), this.config.code_options)
