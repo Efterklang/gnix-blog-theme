@@ -2,6 +2,12 @@
 
 /* #region Content */
 
+/* 文章页跟随宽度偏好（--article-max-width 由 :root[data-article-width] 决定），
+   其余页面不加载本文件，保持 default.css 的固定列宽 */
+.main-content {
+  max-width: calc(var(--article-max-width) + 3rem);
+}
+
 .article {
   padding: 1.25em 1.25rem 0 1.25rem;
 }
@@ -677,58 +683,6 @@ em,
     0 20px 60px -15px rgba(0, 0, 0, 0.3),
     0 0 0 1px var(--surface0);
   overflow-y: auto;
-}
-
-.language-switch-popover {
-  width: min(40rem, 90vw);
-}
-
-.language-switch-popover-body {
-  p {
-    margin: 0;
-    color: var(--subtext1);
-    line-height: 1.7;
-  }
-}
-
-.language-switch-popover-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1.25rem;
-}
-
-.language-switch-popover-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.25rem;
-  padding: 0.4rem 0.85rem;
-  border: 1px solid var(--surface1);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  cursor: pointer;
-  font: inherit;
-  text-decoration: none;
-  line-height: 1.2;
-
-  &:hover {
-    border-color: var(--mauve);
-    color: var(--mauve);
-  }
-
-  &.is-primary {
-    border-color: var(--blue);
-    background: var(--blue);
-    color: var(--base);
-
-    &:hover {
-      border-color: var(--mauve);
-      background: var(--mauve);
-      color: var(--base);
-    }
-  }
 }
 
 .article-info-list {

@@ -65,6 +65,8 @@
   --article-line-height: 1.6;
   --article-font-weight: 400;
   --article-bold-font-weight: 700;
+  /* 文章页正文栏宽（article.css 消费，其余页面保持默认列宽） */
+  --article-max-width: 50em;
   /* misc */
   --radius: 12px;
   --navbar-height: 3.5rem;
@@ -104,6 +106,18 @@
   }
   &[data-article-font-weight="medium"] {
     --article-font-weight: 500;
+  }
+  &[data-article-width="narrow"] {
+    --article-max-width: 42em;
+  }
+  &[data-article-width="medium-narrow"] {
+    --article-max-width: 46em;
+  }
+  &[data-article-width="medium-wide"] {
+    --article-max-width: 56em;
+  }
+  &[data-article-width="wide"] {
+    --article-max-width: 64em;
   }
 }
 

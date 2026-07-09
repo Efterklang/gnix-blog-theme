@@ -1,49 +1,152 @@
 const { Component } = require("../../include/util/common");
-const { LINE_HEIGHT } = require("../../include/util/article_font");
 const { DEFAULT_PREFERENCES, THEME_OPTIONS } = require("../../include/util/theme");
+const { DEFAULT_SETTINGS: ARTICLE_FONT_DEFAULTS } = require("../../include/util/article_font");
+const { getLanguage, getLanguageKeys, getPageLanguageKey, isExternalUrl, isI18nEnabled } = require("../../include/util/i18n");
 
 function translate(helper, key, fallback) {
   const value = helper.__(key);
   return value === key ? fallback : value;
 }
 
-function icon(name) {
+function icon(name, size = 18) {
   const common = {
     "aria-hidden": "true",
     fill: "none",
     focusable: "false",
-    height: "18",
+    height: String(size),
     stroke: "currentColor",
     "stroke-linecap": "round",
     "stroke-linejoin": "round",
-    "stroke-width": "2",
+    "stroke-width": "1.75",
     viewBox: "0 0 24 24",
-    width: "18",
+    width: String(size),
     xmlns: "http://www.w3.org/2000/svg",
   };
 
   switch (name) {
-    case "arrow-left":
+    case "minus":
       return (
         <svg {...common}>
-          <title>arrow-left</title>
-          <path d="m12 19-7-7 7-7" />
-          <path d="M19 12H5" />
+          <title>minus</title>
+          <path d="M5 12h14" />
         </svg>
       );
-    case "chevron-down":
+    case "plus":
       return (
         <svg {...common}>
-          <title>chevron-down</title>
-          <path d="m6 9 6 6 6-6" />
+          <title>plus</title>
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
         </svg>
       );
-    case "rotate-ccw":
+    case "fold-horizontal":
       return (
         <svg {...common}>
-          <title>rotate-ccw</title>
-          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-          <path d="M3 3v5h5" />
+          <title>fold-horizontal</title>
+          <path d="M18 16 14 12 18 8" />
+          <path d="M1 12h9" />
+          <path d="M14 12h9" />
+          <path d="M6 16 10 12 6 8" />
+        </svg>
+      );
+    case "move-horizontal":
+      return (
+        <svg {...common}>
+          <title>move-horizontal</title>
+          <path d="m18 8 4 4-4 4" />
+          <path d="M2 12h20" />
+          <path d="m6 8-4 4 4 4" />
+        </svg>
+      );
+    case "rows-tight":
+      return (
+        <svg {...common}>
+          <title>rows-tight</title>
+          <path d="M4 6h16" />
+          <path d="M4 10h16" />
+          <path d="M4 14h16" />
+          <path d="M4 18h16" />
+        </svg>
+      );
+    case "rows-loose":
+      return (
+        <svg {...common}>
+          <title>rows-loose</title>
+          <path d="M4 6h16" />
+          <path d="M4 12h16" />
+          <path d="M4 18h16" />
+        </svg>
+      );
+    case "sun":
+      return (
+        <svg {...common}>
+          <title>sun</title>
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2" />
+          <path d="M12 20v2" />
+          <path d="m4.93 4.93 1.41 1.41" />
+          <path d="m17.66 17.66 1.41 1.41" />
+          <path d="M2 12h2" />
+          <path d="M20 12h2" />
+          <path d="m6.34 17.66-1.41 1.41" />
+          <path d="m19.07 4.93-1.41 1.41" />
+        </svg>
+      );
+    case "moon":
+      return (
+        <svg {...common}>
+          <title>moon</title>
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+        </svg>
+      );
+    case "palette":
+      return (
+        <svg {...common}>
+          <title>palette</title>
+          <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
+          <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
+          <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
+          <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
+          <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
+        </svg>
+      );
+    case "type":
+      return (
+        <svg {...common}>
+          <title>type</title>
+          <path d="M4 7V4h16v3" />
+          <path d="M9 20h6" />
+          <path d="M12 4v16" />
+        </svg>
+      );
+    case "languages":
+      return (
+        <svg {...common}>
+          <title>languages</title>
+          <path d="m5 8 6 6" />
+          <path d="m4 14 6-6 2-3" />
+          <path d="M2 5h12" />
+          <path d="M7 2h1" />
+          <path d="m22 22-5-10-5 10" />
+          <path d="M14 18h6" />
+        </svg>
+      );
+    case "settings-2":
+      return (
+        <svg {...common}>
+          <title>settings-2</title>
+          <path d="M14 17H5" />
+          <path d="M19 7h-9" />
+          <circle cx="17" cy="17" r="3" />
+          <circle cx="7" cy="7" r="3" />
+        </svg>
+      );
+    case "settings":
+      return (
+        <svg {...common}>
+          <title>settings</title>
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+          <circle cx="12" cy="12" r="3" />
         </svg>
       );
     default:
@@ -57,14 +160,6 @@ const THEME_MODE_OPTIONS = [
   ["dark", "Dark"],
 ];
 
-const FONT_SIZE_OPTIONS = [
-  ["small", "preferences.font_size_small", "Small"],
-  ["medium-small", "preferences.font_size_medium_small", "Medium Small"],
-  ["medium", "preferences.font_size_medium", "Medium"],
-  ["medium-large", "preferences.font_size_medium_large", "Medium Large"],
-  ["large", "preferences.font_size_large", "Large"],
-];
-
 const FONT_TYPE_OPTIONS = [
   ["serif", "preferences.typeface_serif", "Serif"],
   ["sans-serif", "preferences.typeface_sans_serif", "Sans Serif"],
@@ -72,271 +167,174 @@ const FONT_TYPE_OPTIONS = [
   ["handwriting", "preferences.typeface_handwriting", "Handwriting"],
 ];
 
-const FONT_WEIGHT_OPTIONS = [
-  ["light", "preferences.weight_light", "Light"],
-  ["regular", "preferences.weight_regular", "Regular"],
-  ["medium", "preferences.weight_medium", "Medium"],
-];
+// 与 navbar 原语言切换同源的规则：优先 front-matter i18n 映射；
+// 文章/页面缺少翻译时置灰，其余页面回退到对应语言的首页路径
+function getLanguageOptions(page, config, helper) {
+  if (!isI18nEnabled(config)) return null;
 
-function renderThemeSchemeControl(helper, kind, themes, idPrefix) {
-  const isLight = kind === "light";
-  const title = translate(helper, isLight ? "preferences.light_theme" : "preferences.dark_theme", isLight ? "Light Theme" : "Dark Theme");
-  const selectLabel = translate(helper, isLight ? "preferences.light_scheme" : "preferences.dark_scheme", isLight ? "Light Scheme" : "Dark Scheme");
-  const defaultThemeValue = DEFAULT_PREFERENCES[kind];
-  const selectId = `${idPrefix}-${kind}-theme-select`;
+  const languageKeys = getLanguageKeys(config);
+  if (languageKeys.length < 2) return null;
 
+  const currentKey = getPageLanguageKey(page, config);
+  const isDocumentPage = ["page", "post"].includes(page?.layout);
+
+  return languageKeys.map((key) => {
+    const language = getLanguage(config, key);
+    const item = {
+      key,
+      locale: language.locale,
+      label: language.label,
+      current: key === currentKey,
+      url: null,
+      available: true,
+    };
+    if (item.current) return item;
+
+    const pageI18n = page?.i18n && typeof page.i18n === "object" ? page.i18n : null;
+    const alternate = pageI18n ? pageI18n[key] || pageI18n[language.locale] : null;
+    if (alternate) {
+      item.url = isExternalUrl(alternate) ? alternate : helper.url_for(alternate);
+    } else if (isDocumentPage) {
+      item.available = false;
+    } else {
+      item.url = helper.localized_url_for(page?.path || "/", key);
+    }
+    return item;
+  });
+}
+
+function renderStepper(control, decreaseIcon, increaseIcon, decreaseLabel, increaseLabel) {
   return (
-    <div class="theme-scheme-control">
-      <label class="theme-scheme-title" for={selectId}>
-        {title}
-      </label>
-      <span class="theme-scheme-select-shell">
-        <select id={selectId} class="theme-scheme-select" data-theme-scheme-kind={kind} aria-label={selectLabel}>
-          {themes.map((theme) => (
-            <option value={theme.value} selected={theme.value === defaultThemeValue}>
-              {theme.name}
-            </option>
-          ))}
-        </select>
-      </span>
+    <div class="preference-quick__stepper">
+      <button type="button" class="preference-quick__step-btn" data-article-step={control} data-step-dir="-1" title={decreaseLabel} aria-label={decreaseLabel}>
+        {icon(decreaseIcon)}
+      </button>
+      <button type="button" class="preference-quick__step-btn" data-article-step={control} data-step-dir="1" title={increaseLabel} aria-label={increaseLabel}>
+        {icon(increaseIcon)}
+      </button>
     </div>
   );
 }
 
-function renderThemeModePreview(value) {
-  const panes =
-    value === "system"
-      ? [
-          ["light", DEFAULT_PREFERENCES.light],
-          ["dark", DEFAULT_PREFERENCES.dark],
-        ]
-      : [[value, DEFAULT_PREFERENCES[value]]];
-
-  return (
-    <span class={`theme-mode-preview theme-mode-preview--${value}`} aria-hidden="true">
-      {panes.map(([scheme, theme]) => (
-        <span class={`theme-mode-preview__pane theme-mode-preview__pane--${scheme}`} data-theme-preview-scheme={scheme} data-theme={theme}>
-          <span class="theme-mode-preview__surface"></span>
-        </span>
-      ))}
-    </span>
-  );
-}
-
-class Preferences extends Component {
-  render() {
-    const { helper, closeLabel } = this.props;
-    const lightThemes = THEME_OPTIONS.filter((theme) => theme.colorScheme === "light");
-    const darkThemes = THEME_OPTIONS.filter((theme) => theme.colorScheme === "night");
-    const resolvedCloseLabel = closeLabel || translate(helper, "article.close", "Close");
-    const idPrefix = "preference-popup";
-    const pageTitleId = `${idPrefix}-title`;
-    const appearanceSectionId = `${idPrefix}-section-appearance`;
-    const themeTitleId = `${idPrefix}-theme-title`;
-    const typographySectionId = `${idPrefix}-section-typography`;
-    const fontTitleId = `${idPrefix}-font-title`;
-    const lineHeightSliderId = `${idPrefix}-article-line-height-slider`;
-    const customFontPanelId = `${idPrefix}-font-custom-panel`;
-
-    return (
-      <div class="preference-page" data-preferences-page data-preference-surface="popup">
-        <div class="preference-shell">
-          <header class="preference-page-header">
-            <h1 id={pageTitleId}>{translate(helper, "preferences.title", "Preferences")}</h1>
-            <div class="preference-header-actions">
-              <button type="button" class="preference-reset-action" data-preference-reset-all>
-                {icon("rotate-ccw")}
-                <span>{translate(helper, "preferences.reset", "Reset")}</span>
-              </button>
-              <button type="button" class="preference-back-link" aria-label={resolvedCloseLabel} data-preference-popup-close>
-                {icon("arrow-left")}
-                <span>{resolvedCloseLabel}</span>
-              </button>
-            </div>
-          </header>
-
-          <section id={appearanceSectionId} class="preference-panel" aria-labelledby={themeTitleId}>
-            <header class="preference-panel__header">
-              <h2 id={themeTitleId}>{translate(helper, "preferences.theme_eyebrow", "Theme")}</h2>
-            </header>
-
-            <div class="preference-theme-controls">
-              <fieldset class="preference-choice-group preference-choice-group--mode">
-                <legend class="preference-sr-only">{translate(helper, "preferences.theme_mode", "Mode")}</legend>
-                {THEME_MODE_OPTIONS.map(([value, fallback]) => (
-                  <button type="button" class="preference-choice-button preference-choice-button--theme-mode" data-theme-mode={value} aria-pressed="false">
-                    {renderThemeModePreview(value)}
-                    <span class="theme-mode-label">{translate(helper, `preferences.theme_mode_${value}`, fallback)}</span>
-                  </button>
-                ))}
-              </fieldset>
-
-              <div class="preference-theme-schemes">
-                {renderThemeSchemeControl(helper, "light", lightThemes, idPrefix)}
-                {renderThemeSchemeControl(helper, "dark", darkThemes, idPrefix)}
-              </div>
-            </div>
-          </section>
-
-          <section id={typographySectionId} class="preference-panel" aria-labelledby={fontTitleId}>
-            <header class="preference-panel__header">
-              <h2 id={fontTitleId}>{translate(helper, "preferences.font_title", "Typography")}</h2>
-            </header>
-
-            <div class="preference-row">
-              <div class="preference-row__label">
-                <span>{translate(helper, "preferences.font_size", "Size")}</span>
-              </div>
-              <fieldset class="preference-choice-group preference-choice-group--font-size font-size-selector">
-                <legend class="preference-sr-only">{translate(helper, "preferences.font_size", "Size")}</legend>
-                {FONT_SIZE_OPTIONS.map(([value, key, fallback]) => (
-                  <button type="button" class="preference-choice-button preference-choice-button--size font-size-btn" data-size={value} aria-label={translate(helper, key, fallback)}>
-                    <span class="font-size-preview">A</span>
-                  </button>
-                ))}
-              </fieldset>
-            </div>
-
-            <div class="preference-row">
-              <div class="preference-row__label">
-                <span>{translate(helper, "preferences.line_height", "Line Height")}</span>
-              </div>
-              <div class="font-line-height-stack">
-                <div class="font-line-height-control">
-                  <span class="font-line-height-label">{translate(helper, "preferences.compact", "Compact")}</span>
-                  <input
-                    id={lineHeightSliderId}
-                    class="font-line-height-slider"
-                    type="range"
-                    min={String(LINE_HEIGHT.min)}
-                    max={String(LINE_HEIGHT.max)}
-                    step="0.05"
-                    value="1.7"
-                    aria-label={translate(helper, "preferences.line_height", "Line Height")}
-                  />
-                  <span class="font-line-height-label">{translate(helper, "preferences.relaxed", "Relaxed")}</span>
-                </div>
-                <output class="font-line-height-value" for={lineHeightSliderId}>
-                  1.70
-                </output>
-              </div>
-            </div>
-
-            <div class="preference-row preference-row--control-only">
-              <fieldset class="preference-choice-group preference-choice-group--font-type font-type-selector">
-                <legend class="preference-sr-only">{translate(helper, "preferences.typeface", "Typeface")}</legend>
-                {FONT_TYPE_OPTIONS.map(([value, key, fallback]) => (
-                  <button type="button" class="preference-choice-button preference-choice-button--type font-type-btn" data-font={value}>
-                    <span class="font-type-preview">Aa</span>
-                    <span class="font-type-name">{translate(helper, key, fallback)}</span>
-                  </button>
-                ))}
-              </fieldset>
-            </div>
-
-            <div class="preference-row">
-              <div class="preference-row__label">
-                <span>{translate(helper, "preferences.weight", "Weight")}</span>
-              </div>
-              <fieldset class="preference-choice-group preference-choice-group--segmented preference-choice-group--font-weight font-weight-selector">
-                <legend class="preference-sr-only">{translate(helper, "preferences.weight", "Weight")}</legend>
-                {FONT_WEIGHT_OPTIONS.map(([value, key, fallback]) => (
-                  <button type="button" class="preference-choice-button preference-choice-button--segmented font-weight-btn" data-weight={value} aria-label={translate(helper, key, fallback)}>
-                    <span class="font-option-name">{translate(helper, key, fallback)}</span>
-                  </button>
-                ))}
-              </fieldset>
-            </div>
-
-            <div class="preference-row preference-row--stacked">
-              <button type="button" class="font-custom-toggle" aria-expanded="false" aria-controls={customFontPanelId} aria-label={translate(helper, "preferences.custom_fonts", "Custom Fonts")}>
-                <span class="preference-row__label">
-                  <span>{translate(helper, "preferences.custom_fonts", "Custom Fonts")}</span>
-                  <small>{translate(helper, "preferences.custom_fonts_description", "Load web font CSS and map families")}</small>
-                </span>
-                <span class="font-custom-toggle-icon" aria-hidden="true">
-                  {icon("chevron-down")}
-                </span>
-              </button>
-              <div id={customFontPanelId} class="font-custom-panel" hidden>
-                <form class="font-custom-form">
-                  <label class="font-custom-field">
-                    <span>{translate(helper, "preferences.web_font_css", "Web Font CSS URL")}</span>
-                    <small>{translate(helper, "preferences.font_css_help", "Paste one web font CSS URL per line. Each URL can load one or more font families.")}</small>
-                    <textarea
-                      class="font-custom-imports"
-                      name="font-custom-imports"
-                      rows="3"
-                      placeholder="https://fonts.googleapis.com/css2?family=..."
-                      aria-label={translate(helper, "preferences.web_font_css", "Web Font CSS URL")}
-                    ></textarea>
-                  </label>
-                  <div class="font-custom-family-grid">
-                    <label class="font-custom-field">
-                      <span>{translate(helper, "preferences.typeface_serif", "Serif")}</span>
-                      <input class="font-custom-family-input" name="font-custom-family-serif" type="text" data-font-family="serif" placeholder={'"Noto Serif SC", serif'} autocomplete="off" />
-                    </label>
-                    <label class="font-custom-field">
-                      <span>{translate(helper, "preferences.typeface_sans_serif", "Sans Serif")}</span>
-                      <input class="font-custom-family-input" name="font-custom-family-sans-serif" type="text" data-font-family="sans-serif" placeholder={'"Inter", sans-serif'} autocomplete="off" />
-                    </label>
-                    <label class="font-custom-field">
-                      <span>{translate(helper, "preferences.typeface_mono", "Monospace")}</span>
-                      <input class="font-custom-family-input" name="font-custom-family-mono" type="text" data-font-family="mono" placeholder={'"Fira Code", monospace'} autocomplete="off" />
-                    </label>
-                    <label class="font-custom-field">
-                      <span>{translate(helper, "preferences.typeface_handwriting", "Handwriting")}</span>
-                      <input
-                        class="font-custom-family-input"
-                        name="font-custom-family-handwriting"
-                        type="text"
-                        data-font-family="handwriting"
-                        placeholder={'"LXGW WenKai", cursive'}
-                        autocomplete="off"
-                      />
-                    </label>
-                  </div>
-                  <div class="font-custom-actions">
-                    <button type="submit" class="font-custom-apply">
-                      {translate(helper, "preferences.apply", "Apply")}
-                    </button>
-                    <button type="button" class="font-custom-reset">
-                      {translate(helper, "preferences.reset_fonts", "Reset Fonts")}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-
-            <div class="preference-row preference-row--preview">
-              <div class="font-preview-copy">
-                <p class="font-preview-title">
-                  <span class="font-preview-marker">[{translate(helper, "preferences.preview", "Preview")}]</span> {translate(helper, "preferences.preview_title", "When You Are Old")}
-                </p>
-                <p class="font-preview-excerpt">{translate(helper, "preferences.preview_copy", "When you are old and grey and full of sleep, and nodding by the fire, take down this book,")}</p>
-                <p class="font-preview-excerpt">
-                  {translate(helper, "preferences.preview_copy_secondary", "And slowly read, and dream of the soft look your eyes had once, and of their shadows deep.")}
-                </p>
-              </div>
-            </div>
-          </section>
-        </div>
-      </div>
-    );
-  }
-}
-
 module.exports = class extends Component {
   render() {
-    const { helper } = this.props;
+    const { config, helper, page } = this.props;
     const title = translate(helper, "preferences.title", "Preferences");
-    const closeLabel = translate(helper, "article.close", "Close");
+    const langKey = helper.language_key(page);
+    const settingsUrl = helper.localized_url_for("/preferences/", langKey);
+    const fontSettingsUrl = `${settingsUrl}#preferences-typography`;
+    const languageOptions = getLanguageOptions(page, config, helper);
+
+    const modeLabel = translate(helper, "preferences.theme_mode", "Mode");
+    const paletteLabel = translate(helper, "preferences.color_palette", "Color Palette");
+    const typefaceLabel = translate(helper, "preferences.typeface", "Typeface");
+    const fontSettingsLabel = translate(helper, "article.font_settings", "Font Settings");
+    const languageLabel = translate(helper, "preferences.language", "Language");
+    const unavailableLabel = translate(helper, "preferences.language_unavailable", "Not translated");
+    const lightThemes = THEME_OPTIONS.filter((theme) => theme.colorScheme === "light");
+    const darkThemes = THEME_OPTIONS.filter((theme) => theme.colorScheme === "night");
 
     return (
-      <div id="preference-popup" class="preference-popup" popover="manual" role="dialog" aria-modal="true" aria-label={title} hidden>
-        <button type="button" class="preference-popup__backdrop" data-preference-popup-close aria-label={closeLabel} tabindex="-1"></button>
-        <div class="preference-popup__panel" tabindex="-1">
-          <Preferences helper={helper} closeLabel={closeLabel} />
+      <div id="preference-popup" class="preference-popup" popover="manual" role="dialog" aria-label={title} tabindex="-1" hidden>
+        <div class="preference-quick" data-preferences-page data-preference-surface="quick">
+          <div class="preference-quick__steppers">
+            {renderStepper(
+              "size",
+              "minus",
+              "plus",
+              translate(helper, "preferences.decrease_font_size", "Decrease font size"),
+              translate(helper, "preferences.increase_font_size", "Increase font size"),
+            )}
+            {renderStepper(
+              "width",
+              "fold-horizontal",
+              "move-horizontal",
+              translate(helper, "preferences.decrease_width", "Decrease article width"),
+              translate(helper, "preferences.increase_width", "Increase article width"),
+            )}
+            {renderStepper(
+              "lineHeight",
+              "rows-tight",
+              "rows-loose",
+              translate(helper, "preferences.decrease_line_height", "Decrease line height"),
+              translate(helper, "preferences.increase_line_height", "Increase line height"),
+            )}
+          </div>
+
+          <div class="preference-quick__selects">
+            <div class="preference-quick__select-row">
+              <span class="preference-quick__select-icon preference-quick__select-icon--sun" aria-hidden="true">
+                {icon("sun")}
+              </span>
+              <span class="preference-quick__select-icon preference-quick__select-icon--moon" aria-hidden="true">
+                {icon("moon")}
+              </span>
+              <select class="preference-quick__select" data-theme-mode-select aria-label={modeLabel}>
+                {THEME_MODE_OPTIONS.map(([value, fallback]) => (
+                  <option value={value} selected={value === "system"}>
+                    {translate(helper, `preferences.theme_mode_${value}`, fallback)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div class="preference-quick__select-row">
+              <span class="preference-quick__select-icon" aria-hidden="true">
+                {icon("palette")}
+              </span>
+              {/* 选项由 preferences.js 按当前生效的配色方案（light/dark）重建 */}
+              <select class="preference-quick__select" data-theme-palette-select aria-label={paletteLabel}>
+                <optgroup label={translate(helper, "preferences.light_theme", "Light Theme")}>
+                  {lightThemes.map((theme) => (
+                    <option value={theme.value} selected={theme.value === DEFAULT_PREFERENCES.light}>
+                      {theme.name}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label={translate(helper, "preferences.dark_theme", "Dark Theme")}>
+                  {darkThemes.map((theme) => (
+                    <option value={theme.value}>{theme.name}</option>
+                  ))}
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="preference-quick__select-row">
+              <span class="preference-quick__select-icon" aria-hidden="true">
+                {icon("type")}
+              </span>
+              <select class="preference-quick__select" data-article-font-select aria-label={typefaceLabel}>
+                {FONT_TYPE_OPTIONS.map(([value, key, fallback]) => (
+                  <option value={value} selected={value === ARTICLE_FONT_DEFAULTS.type}>
+                    {translate(helper, key, fallback)}
+                  </option>
+                ))}
+              </select>
+              <a class="preference-quick__row-action" href={fontSettingsUrl} title={fontSettingsLabel} aria-label={fontSettingsLabel}>
+                {icon("settings-2", 16)}
+              </a>
+            </div>
+
+            {languageOptions ? (
+              <div class="preference-quick__select-row">
+                <span class="preference-quick__select-icon" aria-hidden="true">
+                  {icon("languages")}
+                </span>
+                <select class="preference-quick__select" data-language-select aria-label={languageLabel}>
+                  {languageOptions.map((item) => (
+                    <option value={item.current || !item.url ? "" : item.url} selected={item.current} disabled={!item.current && !item.available} lang={item.locale}>
+                      {item.available ? item.label : `${item.label} · ${unavailableLabel}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
+          </div>
+
+          <a class="preference-quick__settings" href={settingsUrl}>
+            {icon("settings")}
+            <span>{translate(helper, "preferences.open_settings", "Settings")}</span>
+          </a>
         </div>
       </div>
     );

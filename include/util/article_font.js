@@ -5,11 +5,13 @@ const DEFAULT_SETTINGS = Object.freeze({
   type: "serif",
   lineHeight: 1.7,
   weight: "regular",
+  width: "medium",
 });
 
 const SIZE_OPTIONS = Object.freeze(["small", "medium-small", "medium", "medium-large", "large"]);
 const FONT_OPTIONS = Object.freeze(["serif", "sans-serif", "mono", "handwriting"]);
 const WEIGHT_OPTIONS = Object.freeze(["light", "regular", "medium"]);
+const WIDTH_OPTIONS = Object.freeze(["narrow", "medium-narrow", "medium", "medium-wide", "wide"]);
 const LINE_HEIGHT = Object.freeze({
   min: 1.45,
   max: 1.9,
@@ -31,6 +33,7 @@ function getClientArticleFontConfig() {
     sizeOptions: SIZE_OPTIONS,
     fontOptions: FONT_OPTIONS,
     weightOptions: WEIGHT_OPTIONS,
+    widthOptions: WIDTH_OPTIONS,
     lineHeight: LINE_HEIGHT,
     customFonts: {
       familyOptions: CUSTOM_FONT_FAMILY_OPTIONS,
@@ -103,6 +106,7 @@ function getArticleFontInitScript() {
     type: hasOption(config.fontOptions, candidate.type) ? candidate.type : defaults.type,
     lineHeight: normalizeLineHeight(candidate.lineHeight),
     weight: hasOption(config.weightOptions, candidate.weight) ? candidate.weight : defaults.weight,
+    width: hasOption(config.widthOptions, candidate.width) ? candidate.width : defaults.width,
     customFonts: customFonts
   };
   var html = document.documentElement;
@@ -113,6 +117,7 @@ function getArticleFontInitScript() {
   html.setAttribute("data-article-font-family", settings.type);
   html.setAttribute("data-article-line-height", String(settings.lineHeight));
   html.setAttribute("data-article-font-weight", settings.weight);
+  html.setAttribute("data-article-width", settings.width);
   html.style.setProperty("--article-line-height", String(settings.lineHeight));
 })();
 `;
@@ -127,6 +132,7 @@ module.exports = {
   SIZE_OPTIONS,
   STORAGE_KEY,
   WEIGHT_OPTIONS,
+  WIDTH_OPTIONS,
   getArticleFontInitScript,
   getClientArticleFontConfig,
 };

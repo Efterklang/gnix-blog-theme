@@ -37,12 +37,16 @@
 
   const articleFontConfig = window.__GNIX_ARTICLE_FONT_CONFIG__ || {};
   const ARTICLE_FONT_STORAGE_KEY = articleFontConfig.storageKey || "gnix-article-font";
-  const ARTICLE_FONT_DEFAULT_SETTINGS = articleFontConfig.defaultSettings || { size: "medium", type: "serif", lineHeight: 1.7, weight: "regular" };
-  const ARTICLE_SIZE_OPTIONS = new Set(articleFontConfig.sizeOptions || ["small", "medium-small", "medium", "medium-large", "large"]);
+  const ARTICLE_FONT_DEFAULT_SETTINGS = articleFontConfig.defaultSettings || { size: "medium", type: "serif", lineHeight: 1.7, weight: "regular", width: "medium" };
+  const ARTICLE_SIZE_LIST = articleFontConfig.sizeOptions || ["small", "medium-small", "medium", "medium-large", "large"];
+  const ARTICLE_WIDTH_LIST = articleFontConfig.widthOptions || ["narrow", "medium-narrow", "medium", "medium-wide", "wide"];
+  const ARTICLE_SIZE_OPTIONS = new Set(ARTICLE_SIZE_LIST);
   const ARTICLE_FONT_OPTIONS = new Set(articleFontConfig.fontOptions || ["serif", "sans-serif", "mono", "handwriting"]);
   const ARTICLE_WEIGHT_OPTIONS = new Set(articleFontConfig.weightOptions || ["light", "regular", "medium"]);
+  const ARTICLE_WIDTH_OPTIONS = new Set(ARTICLE_WIDTH_LIST);
   const ARTICLE_LINE_HEIGHT_MIN = articleFontConfig.lineHeight?.min ?? 1.45;
   const ARTICLE_LINE_HEIGHT_MAX = articleFontConfig.lineHeight?.max ?? 1.9;
+  const ARTICLE_LINE_HEIGHT_STEP = 0.05;
   const ARTICLE_CUSTOM_FONT_OPTIONS = articleFontConfig.customFonts?.familyOptions || {
     serif: "--font-serif",
     "sans-serif": "--font-sans-serif",
@@ -132,6 +136,7 @@
       type: ARTICLE_FONT_OPTIONS.has(candidate.type) ? candidate.type : ARTICLE_FONT_DEFAULT_SETTINGS.type,
       lineHeight: normalizeArticleLineHeight(candidate.lineHeight),
       weight: ARTICLE_WEIGHT_OPTIONS.has(candidate.weight) ? candidate.weight : ARTICLE_FONT_DEFAULT_SETTINGS.weight,
+      width: ARTICLE_WIDTH_OPTIONS.has(candidate.width) ? candidate.width : ARTICLE_FONT_DEFAULT_SETTINGS.width,
       customFonts: normalizeStoredCustomFonts(candidate.customFonts),
     };
   }
@@ -164,6 +169,7 @@
     html.dataset.articleFontFamily = normalized.type;
     html.dataset.articleLineHeight = String(normalized.lineHeight);
     html.dataset.articleFontWeight = normalized.weight;
+    html.dataset.articleWidth = normalized.width;
     html.style.setProperty("--article-line-height", String(normalized.lineHeight));
     window.dispatchEvent(new CustomEvent("gnix:article-font-settings-change", { detail: normalized }));
     return normalized;
@@ -171,14 +177,50 @@
 
   function initThemePreferences(root) {
     const modeButtons = root.querySelectorAll("[data-theme-mode]");
+    const modeSelects = root.querySelectorAll("[data-theme-mode-select]");
+    const paletteSelects = root.querySelectorAll("[data-theme-palette-select]");
     const schemeSelects = root.querySelectorAll(".theme-scheme-select[data-theme-scheme-kind]");
     const themePreviewPanes = root.querySelectorAll("[data-theme-preview-scheme]");
+    const themeList = Array.isArray(themeConfig.themes) ? themeConfig.themes : [];
+
+    // 快捷面板的调色板始终编辑“当前生效”的 scheme：
+    // light/dark 模式编辑对应方案，system 模式按系统偏好落到 light 或 dark
+    function resolveSchemeKind(preferences) {
+      if (preferences.mode === "light") return "light";
+      if (preferences.mode === "dark") return "dark";
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+
+    function rebuildPaletteSelect(select, preferences) {
+      const kind = resolveSchemeKind(preferences);
+      const colorScheme = kind === "light" ? "light" : "night";
+      const themes = themeList.filter((theme) => theme.colorScheme === colorScheme);
+      if (!themes.length) return;
+
+      select.dataset.themePaletteKind = kind;
+      select.textContent = "";
+      themes.forEach((theme) => {
+        const option = document.createElement("option");
+        option.value = theme.value;
+        option.textContent = theme.name;
+        select.appendChild(option);
+      });
+      select.value = preferences[kind];
+    }
 
     function sync(preferences = getThemePreferences()) {
       modeButtons.forEach((button) => {
         const active = button.dataset.themeMode === preferences.mode;
         button.classList.toggle("is-active", active);
         button.setAttribute("aria-pressed", String(active));
+      });
+
+      modeSelects.forEach((select) => {
+        select.value = preferences.mode;
+      });
+
+      paletteSelects.forEach((select) => {
+        rebuildPaletteSelect(select, preferences);
       });
 
       schemeSelects.forEach((select) => {
@@ -200,6 +242,23 @@
       });
     });
 
+    modeSelects.forEach((select) => {
+      select.addEventListener("change", () => {
+        const preferences = getThemePreferences();
+        preferences.mode = select.value;
+        sync(applyThemePreferences(preferences));
+      });
+    });
+
+    paletteSelects.forEach((select) => {
+      select.addEventListener("change", () => {
+        const preferences = getThemePreferences();
+        const kind = select.dataset.themePaletteKind || resolveSchemeKind(preferences);
+        preferences[kind] = select.value;
+        sync(applyThemePreferences(preferences));
+      });
+    });
+
     schemeSelects.forEach((select) => {
       select.addEventListener("change", () => {
         const preferences = getThemePreferences();
@@ -217,8 +276,11 @@
 
   function initArticleFontPreferences(root) {
     let settings = getArticleFontSettings();
+    let suppressSyncEvent = false;
     const lineHeightSlider = root.querySelector(".font-line-height-slider");
     const lineHeightValue = root.querySelector(".font-line-height-value");
+    const fontTypeSelects = root.querySelectorAll("[data-article-font-select]");
+    const stepButtons = root.querySelectorAll("[data-article-step]");
     const customFontForm = root.querySelector(".font-custom-form");
     const customFontImportInput = root.querySelector(".font-custom-imports");
     const customFontResetButton = root.querySelector(".font-custom-reset");
@@ -246,10 +308,31 @@
       if (lineHeightValue) lineHeightValue.textContent = settings.lineHeight.toFixed(2);
     }
 
+    function isStepDisabled(control, dir) {
+      if (control === "lineHeight") {
+        return dir < 0 ? settings.lineHeight <= ARTICLE_LINE_HEIGHT_MIN + 1e-9 : settings.lineHeight >= ARTICLE_LINE_HEIGHT_MAX - 1e-9;
+      }
+      const list = control === "width" ? ARTICLE_WIDTH_LIST : ARTICLE_SIZE_LIST;
+      const index = list.indexOf(control === "width" ? settings.width : settings.size);
+      if (index === -1) return false;
+      return dir < 0 ? index === 0 : index === list.length - 1;
+    }
+
+    function updateStepperStates() {
+      stepButtons.forEach((btn) => {
+        btn.disabled = isStepDisabled(btn.dataset.articleStep, Number(btn.dataset.stepDir) || 0);
+      });
+    }
+
     function updateActiveStates() {
       updateButtonStates(".font-size-btn", (btn) => btn.dataset.size === settings.size);
       updateButtonStates(".font-type-btn", (btn) => btn.dataset.font === settings.type);
       updateButtonStates(".font-weight-btn", (btn) => btn.dataset.weight === settings.weight);
+      updateButtonStates(".font-width-btn", (btn) => btn.dataset.width === settings.width);
+      fontTypeSelects.forEach((select) => {
+        select.value = settings.type;
+      });
+      updateStepperStates();
       updateLineHeightUI();
     }
 
@@ -276,8 +359,27 @@
     function commitSettings(nextSettings) {
       settings = normalizeArticleFontSettings(nextSettings);
       saveArticleFontSettings(settings);
+      suppressSyncEvent = true;
       applyArticleFontSettings(settings);
+      suppressSyncEvent = false;
       updateActiveStates();
+    }
+
+    function stepArticleSetting(control, dir) {
+      if (!dir) return;
+      if (control === "lineHeight") {
+        const next = Math.round((settings.lineHeight + dir * ARTICLE_LINE_HEIGHT_STEP) * 100) / 100;
+        commitSettings({ ...settings, lineHeight: normalizeArticleLineHeight(next) });
+        return;
+      }
+
+      const isWidth = control === "width";
+      const list = isWidth ? ARTICLE_WIDTH_LIST : ARTICLE_SIZE_LIST;
+      const current = isWidth ? settings.width : settings.size;
+      const index = list.indexOf(current);
+      const nextIndex = Math.min(list.length - 1, Math.max(0, (index === -1 ? Math.floor(list.length / 2) : index) + dir));
+      if (list[nextIndex] === current) return;
+      commitSettings({ ...settings, [isWidth ? "width" : "size"]: list[nextIndex] });
     }
 
     syncCustomFontPanelState(false);
@@ -289,6 +391,12 @@
       });
     }
 
+    stepButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        stepArticleSetting(btn.dataset.articleStep, Number(btn.dataset.stepDir) || 0);
+      });
+    });
+
     root.querySelectorAll(".font-size-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         if (!ARTICLE_SIZE_OPTIONS.has(btn.dataset.size)) return;
@@ -296,10 +404,24 @@
       });
     });
 
+    root.querySelectorAll(".font-width-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (!ARTICLE_WIDTH_OPTIONS.has(btn.dataset.width)) return;
+        commitSettings({ ...settings, width: btn.dataset.width });
+      });
+    });
+
     root.querySelectorAll(".font-type-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         if (!ARTICLE_FONT_OPTIONS.has(btn.dataset.font)) return;
         commitSettings({ ...settings, type: btn.dataset.font });
+      });
+    });
+
+    fontTypeSelects.forEach((select) => {
+      select.addEventListener("change", () => {
+        if (!ARTICLE_FONT_OPTIONS.has(select.value)) return;
+        commitSettings({ ...settings, type: select.value });
       });
     });
 
@@ -342,9 +464,39 @@
       });
     });
 
+    // 弹窗与设置页可能同时存在于一个文档中，跨根保持 UI 一致
+    window.addEventListener("gnix:article-font-settings-change", (event) => {
+      if (suppressSyncEvent || !event.detail) return;
+      settings = normalizeArticleFontSettings(event.detail);
+      updateActiveStates();
+      updateCustomFontUI();
+    });
+
     applyArticleFontSettings(settings);
     updateActiveStates();
     updateCustomFontUI();
+  }
+
+  function initNavigationControls(root) {
+    root.querySelectorAll("[data-language-select]").forEach((select) => {
+      select.addEventListener("change", () => {
+        const url = select.value;
+        if (!url) return;
+        // 先恢复当前语言选项，避免 bfcache 返回时残留目标语言
+        select.value = "";
+        window.location.assign(url);
+      });
+    });
+
+    root.querySelectorAll("[data-preference-back]").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (window.history.length > 1) {
+          window.history.back();
+          return;
+        }
+        window.location.assign(button.dataset.homeUrl || "/");
+      });
+    });
   }
 
   function initPreferenceRoot(root) {
@@ -352,6 +504,7 @@
     root.dataset.bound = "true";
     initThemePreferences(root);
     initArticleFontPreferences(root);
+    initNavigationControls(root);
   }
 
   function initPreferencesPage() {

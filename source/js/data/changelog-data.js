@@ -5,6 +5,22 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "7.09",
         cn: [
+          "偏好设置入口重构为 Obsidian Web Clipper 风格的快捷弹窗：字号 / 文章宽度 / 行高三组 stepper、主题模式 / 配色方案 / 字体 / 语言四个下拉，以及进入完整设置页的 Settings 按钮；桌面端悬浮于导航栏右下、无遮罩且不锁定滚动，可实时对照正文查看排版效果，移动端呈现为底部面板",
+          "新增文章宽度设置：五档栏宽（42em–64em）仅作用于文章页正文列，偏好持久化于 localStorage 并由首屏内联脚本即时生效",
+          "语言切换移入快捷弹窗（下拉列出全部语言，缺少翻译的条目置灰不可选），并移除 navbar 的语言切换图标",
+          "完整设置迁移至独立页面 /preferences/（含 en 路由与 hreflang）：保留主题模式预览卡、浅色/深色方案、字号、行高滑杆、字重、自定义字体 CSS 与实时预览，并新增文章宽度档位；弹窗中字体行的设置图标可直达 Typography 区块",
+        ],
+        en: [
+          "Rebuild the preferences entry as an Obsidian Web Clipper style quick popup: three steppers (font size / article width / line height), four icon selects (theme mode / color palette / typeface / language), and a Settings button leading to the full settings page; on desktop it floats below the navbar with no backdrop or scroll lock so typography changes can be compared against the article in real time, while on mobile it becomes a bottom sheet",
+          "Add an article width preference: five column widths (42em–64em) that only affect the article column, persisted in localStorage and applied by the inline boot script before first paint",
+          "Move language switching into the quick popup (a select listing every language, with untranslated entries disabled) and remove the navbar language icon",
+          "Move the full settings to a standalone /preferences/ page (with an en route and hreflang links): it keeps the theme mode preview cards, light/dark schemes, font size, line-height slider, weight, custom web font CSS, and the live preview, and gains the article width control; the font-row settings icon in the popup deep-links to the Typography section",
+        ],
+        category: "feature",
+      },
+      {
+        date: "7.09",
+        cn: [
           "精简页面 DOM 层级：移除 section.section 与 div.card 两个包裹层，文章链路由 section > .main-content > .card > article.card-content > .content 精简为 .main-content > article.article > .content；封面与评论/文章信息弹层改为 article 的兄弟节点，视觉布局保持不变",
           "如有依赖 .section / .card / .card-content 类名的自定义样式，请迁移到 .main-content / .article",
         ],

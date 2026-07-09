@@ -24,8 +24,36 @@ function restorePopupFocus() {
   }
 }
 
+// 无遮罩弹窗：页面保持可滚动可见，方便对照正文预览排版调整；
+// 点击弹窗外或按 Esc 时关闭（监听器仅在弹窗打开期间挂载）
+function handleDocumentPointerDown(event) {
+  const popup = document.getElementById(PREFERENCE_POPUP_ID);
+  if (!popup || !isPreferencePopupOpen(popup)) return;
+  const target = event.target;
+  if (popup.contains(target)) return;
+  if (target.closest?.("[data-preference-trigger]")) return;
+  closePreferencePopup();
+}
+
+function handleDocumentKeydown(event) {
+  if (event.key !== "Escape") return;
+  event.preventDefault();
+  closePreferencePopup();
+}
+
+function addDismissListeners() {
+  document.addEventListener("pointerdown", handleDocumentPointerDown, true);
+  document.addEventListener("keydown", handleDocumentKeydown, true);
+}
+
+function removeDismissListeners() {
+  document.removeEventListener("pointerdown", handleDocumentPointerDown, true);
+  document.removeEventListener("keydown", handleDocumentKeydown, true);
+}
+
 function closePreferencePopup() {
   const popup = document.getElementById(PREFERENCE_POPUP_ID);
+  removeDismissListeners();
   if (!popup || !isPreferencePopupOpen(popup)) return;
 
   if (typeof popup.hidePopover === "function") {
@@ -35,7 +63,6 @@ function closePreferencePopup() {
     popup.dataset.open = "false";
   }
 
-  document.documentElement.classList.remove("has-preference-popup");
   restorePopupFocus();
 }
 
@@ -50,8 +77,8 @@ function showPreferencePopupElement(popup) {
     popup.dataset.open = "true";
   }
 
-  document.documentElement.classList.add("has-preference-popup");
-  popup.querySelector(".preference-popup__panel")?.focus({ preventScroll: true });
+  addDismissListeners();
+  popup.focus({ preventScroll: true });
 }
 
 function handlePreferencePopupClick(event) {
@@ -60,16 +87,10 @@ function handlePreferencePopupClick(event) {
   closePreferencePopup();
 }
 
-function handlePreferencePopupKeydown(event) {
-  if (event.key !== "Escape") return;
-  event.preventDefault();
-  closePreferencePopup();
-}
-
 function handlePreferencePopupToggle(event) {
   if (event.newState !== "closed") return;
 
-  document.documentElement.classList.remove("has-preference-popup");
+  removeDismissListeners();
   restorePopupFocus();
 }
 
@@ -79,7 +100,6 @@ function bindPreferencePopup(popup) {
   if (!popup.querySelector("[data-preferences-page]")) throw new Error("Preferences popup markup was not found");
 
   popup.addEventListener("click", handlePreferencePopupClick);
-  popup.addEventListener("keydown", handlePreferencePopupKeydown);
   popup.addEventListener("toggle", handlePreferencePopupToggle);
   popup.dataset.preferencePopupBound = "true";
 }
