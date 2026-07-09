@@ -225,6 +225,48 @@ function animateCurrentHashTarget() {
   requestAnimationFrame(() => animateAnchorTarget(getHashTarget(location.hash)));
 }
 
+const FOOTNOTE_HOVER_TOOLTIP_MEDIA = "(hover: hover) and (pointer: fine)";
+let openFootnoteRef = null;
+
+function closeFootnoteTooltip() {
+  if (!openFootnoteRef) return;
+
+  openFootnoteRef.classList.remove("is-footnote-tooltip-open");
+  openFootnoteRef.querySelector(":scope > a")?.setAttribute("aria-expanded", "false");
+  openFootnoteRef = null;
+}
+
+function toggleFootnoteTooltip(ref) {
+  if (openFootnoteRef === ref) {
+    closeFootnoteTooltip();
+    return;
+  }
+
+  closeFootnoteTooltip();
+  openFootnoteRef = ref;
+  ref.classList.add("is-footnote-tooltip-open");
+  ref.querySelector(":scope > a")?.setAttribute("aria-expanded", "true");
+}
+
+function handleFootnoteTooltipClick(event) {
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  if (window.matchMedia(FOOTNOTE_HOVER_TOOLTIP_MEDIA).matches) return;
+  if (event.target.closest?.(".footnote-tooltip")) return;
+
+  const ref = event.target.closest?.("sup.footnote-ref");
+  if (!ref) {
+    closeFootnoteTooltip();
+    return;
+  }
+
+  const link = event.target.closest?.("a");
+  const tooltip = ref.querySelector(":scope > .footnote-tooltip");
+  if (!link || !tooltip) return;
+
+  event.preventDefault();
+  toggleFootnoteTooltip(ref);
+}
+
 function handleAnchorJumpClick(event) {
   if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
@@ -438,6 +480,8 @@ function handlePreferenceTriggerClick(event) {
 }
 
 function handleKeyDown(e) {
+  if (e.key === "Escape") closeFootnoteTooltip();
+
   const isModifier = e.metaKey || e.ctrlKey;
   if (!isModifier) return;
 
@@ -611,6 +655,10 @@ function initNavbar() {
 whenReady(() => runWhenActivated(initNavbar));
 
 whenReady(() => {
+  document.addEventListener("click", handleFootnoteTooltipClick, {
+    capture: true,
+    passive: false,
+  });
   document.addEventListener("click", handleAnchorJumpClick);
   window.addEventListener("hashchange", animateCurrentHashTarget);
   window.addEventListener("popstate", animateCurrentHashTarget);

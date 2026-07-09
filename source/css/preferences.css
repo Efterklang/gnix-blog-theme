@@ -236,7 +236,7 @@ html.night .preference-quick__select {
     left: 0;
     width: auto;
     max-height: min(82dvh, 100dvh - 3rem);
-    padding: 0.95rem 0.95rem calc(0.95rem + env(safe-area-inset-bottom));
+    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
     border: 1px solid hsl(from var(--surface1) h s l / 0.74);
     border-bottom: 0;
     border-radius: 18px 18px 0 0;
@@ -247,7 +247,7 @@ html.night .preference-quick__select {
   }
 
   .preference-quick {
-    gap: 0.9rem;
+    gap: 1.05rem;
   }
 
   .preference-quick__steppers {
@@ -265,6 +265,10 @@ html.night .preference-quick__select {
 
   .preference-quick__settings {
     height: 2.6rem;
+  }
+
+  .preference-standalone {
+    padding: 1.35rem 1.15rem 2rem;
   }
 }
 
