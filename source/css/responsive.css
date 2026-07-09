@@ -217,9 +217,8 @@
   }
 
   .navbar {
-    -webkit-backdrop-filter: blur(5px);
-    backdrop-filter: blur(5px);
-    background: hsl(from var(--mantle) h s l / 0.01);
+    backdrop-filter: blur(10px);
+    background: hsl(from var(--mantle) h s l / 0.7);
   }
 
   .navbar-start .navbar-item {
@@ -228,10 +227,6 @@
     letter-spacing: 0.18em;
     text-transform: lowercase;
     padding: 0 0.9rem;
-  }
-
-  .navbar-container {
-    max-width: 1260px;
   }
 
   .navbar-menu,
