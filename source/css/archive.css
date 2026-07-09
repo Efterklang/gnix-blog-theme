@@ -63,26 +63,17 @@
 .archive-hero__title {
   max-width: 100%;
   padding-inline: 0.15rem 0.5rem;
-  border-radius: 4px;
   color: var(--text);
   cursor: pointer;
   font-size: 2rem;
   letter-spacing: 0.02em;
   line-height: 0.95;
   text-align: left;
-  transition:
-    color 160ms ease,
-    background-color 160ms ease;
+  transition: color 160ms ease;
 
   &:hover,
   &:focus-visible {
-    background: color-mix(in oklch, var(--archive-accent) 8%, transparent);
-    color: color-mix(in oklch, var(--archive-accent) 76%, var(--text));
-  }
-
-  &:focus-visible {
-    outline: 2px solid color-mix(in oklch, var(--archive-accent) 70%, transparent);
-    outline-offset: 3px;
+    color: var(--lavender);
   }
 }
 
@@ -93,45 +84,6 @@
 /* #region Hover overlay */
 
 @media (hover: hover) and (min-width: 721px) {
-  .footer,
-  .archive-hero,
-  .archive-rail,
-  .archive-era,
-  .archive-group__header,
-  .archive-item {
-    transition:
-      filter 180ms ease,
-      opacity 180ms ease;
-  }
-
-  body:has(.archive-page) .navbar-main {
-    transition:
-      transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
-      filter 180ms ease,
-      opacity 180ms ease;
-  }
-
-  .archive-page:has(.archive-popup)::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 120;
-    background: hsl(from var(--mantle) h s l / 0.28);
-    -webkit-backdrop-filter: blur(8px) saturate(0.96);
-    backdrop-filter: blur(8px) saturate(0.96);
-    opacity: 0;
-    pointer-events: none;
-    visibility: hidden;
-    transition:
-      opacity 180ms ease,
-      visibility 180ms ease;
-  }
-
-  .archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))::before {
-    opacity: 1;
-    visibility: visible;
-  }
-
   body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within)) :where(.navbar-main, .footer),
   .archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))
     :where(.archive-hero, .archive-rail, .archive-era, .archive-group__header),
