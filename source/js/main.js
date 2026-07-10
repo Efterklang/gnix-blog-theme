@@ -248,6 +248,32 @@ function toggleFootnoteTooltip(ref) {
   ref.querySelector(":scope > a")?.setAttribute("aria-expanded", "true");
 }
 
+// hover tooltip 是纯 CSS 居中定位，而 .content 有 overflow: auto，
+// ref 靠近两端时 tooltip 会被裁剪；hover 时测量并写入水平偏移量
+function clampFootnoteTooltip(event) {
+  if (!window.matchMedia(FOOTNOTE_HOVER_TOOLTIP_MEDIA).matches) return;
+  if (event.target.closest?.(".footnote-tooltip")) return;
+
+  const ref = event.target.closest?.("sup.footnote-ref");
+  const tooltip = ref?.querySelector(":scope > .footnote-tooltip");
+  if (!tooltip) return;
+
+  const clip = ref.closest(".content");
+  if (!clip) return;
+
+  tooltip.style.setProperty("--footnote-tooltip-shift", "0px");
+  const rect = tooltip.getBoundingClientRect();
+  const clipRect = clip.getBoundingClientRect();
+  const margin = 4;
+  const minLeft = Math.max(clipRect.left, 0) + margin;
+  const maxRight = Math.min(clipRect.right, window.innerWidth) - margin;
+
+  let shift = 0;
+  if (rect.left < minLeft) shift = minLeft - rect.left;
+  else if (rect.right > maxRight) shift = maxRight - rect.right;
+  tooltip.style.setProperty("--footnote-tooltip-shift", `${shift}px`);
+}
+
 function handleFootnoteTooltipClick(event) {
   if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   if (window.matchMedia(FOOTNOTE_HOVER_TOOLTIP_MEDIA).matches) return;
@@ -659,6 +685,8 @@ whenReady(() => {
     capture: true,
     passive: false,
   });
+  document.addEventListener("mouseover", clampFootnoteTooltip, { passive: true });
+  document.addEventListener("focusin", clampFootnoteTooltip, { passive: true });
   document.addEventListener("click", handleAnchorJumpClick);
   window.addEventListener("hashchange", animateCurrentHashTarget);
   window.addEventListener("popstate", animateCurrentHashTarget);

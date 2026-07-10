@@ -412,7 +412,9 @@ sup.footnote-ref.is-footnote-tooltip-open .footnote-tooltip {
       position: absolute;
       bottom: calc(100% + 0.4em);
       left: 50%;
-      transform: translateX(-50%) translateY(0.25em);
+      /* --footnote-tooltip-shift 由 main.js 在 hover 时测量设置，
+         防止靠近 .content（overflow: auto）两端时被裁剪 */
+      transform: translateX(calc(-50% + var(--footnote-tooltip-shift, 0px))) translateY(0.25em);
       width: max-content;
       max-width: min(24rem, 70vw);
       padding: 0.6em 0.85em;
@@ -451,7 +453,7 @@ sup.footnote-ref.is-footnote-tooltip-open .footnote-tooltip {
     &:focus-within .footnote-tooltip {
       opacity: 1;
       visibility: visible;
-      transform: translateX(-50%) translateY(0);
+      transform: translateX(calc(-50% + var(--footnote-tooltip-shift, 0px))) translateY(0);
       pointer-events: auto;
     }
   }

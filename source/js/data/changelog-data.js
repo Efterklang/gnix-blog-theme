@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "7.10",
+        cn: [
+          "修复脚注悬浮预览在正文两端被截断的问题：hover 时 JS 测量并水平钳制 tooltip，使其始终位于正文可视区域内",
+        ],
+        en: [
+          "Fix footnote hover previews being clipped near the edges of the article body: the tooltip is now measured on hover and horizontally clamped to stay within the content area",
+        ],
+        category: "fix",
+      },
+      {
         date: "7.09",
         cn: [
           "偏好设置入口重构为 Obsidian Web Clipper 风格的快捷弹窗：字号 / 文章宽度 / 行高三组 stepper、主题模式 / 配色方案 / 字体 / 语言四个下拉，以及进入完整设置页的 Settings 按钮；桌面端悬浮于导航栏右下、无遮罩且不锁定滚动，可实时对照正文查看排版效果，移动端呈现为底部面板",
