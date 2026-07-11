@@ -25,7 +25,7 @@ class Navbar extends Component {
             <a id="navbar-logo-link" href={siteUrl}>
               ga.o
             </a>
-            <div class="navbar-menu" id="navbar-menu">
+            <div class="navbar-menu" id="navbar-menu" popover="auto">
               {Object.keys(menu).length ? (
                 <div class="navbar-start">
                   {Object.keys(menu).map((name) => {
@@ -71,7 +71,7 @@ class Navbar extends Component {
                 ) : null}
               </div>
             </div>
-            <button type="button" class="navbar-burger" aria-label={menuTitle} aria-expanded="false" aria-controls="navbar-menu">
+            <button type="button" class="navbar-burger" popovertarget="navbar-menu" aria-label={menuTitle}>
               <span aria-hidden="true"></span>
               <span aria-hidden="true"></span>
               <span aria-hidden="true"></span>

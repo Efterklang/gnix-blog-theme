@@ -45,22 +45,23 @@
 @media screen and (max-width: 1023px) {
   /* This is used for mobile and tablet devices */
   /* #region Navbar */
-  html.navbar-menu-open {
+  html:has(.navbar-menu:popover-open) {
     overflow: hidden;
   }
 
-  /* Navbar Burger */
-  .navbar-menu {
-    display: none;
-  }
-
-  .navbar-menu.is-active {
+  /* 关闭态由 [popover] 的 UA 样式隐藏；打开态需中和 UA 的 inset/margin/border/padding/color */
+  .navbar-menu:popover-open {
     display: block;
     position: fixed;
+    inset: auto;
     top: calc(var(--navbar-height) + env(safe-area-inset-top));
     left: 0;
     width: 100%;
     height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top));
+    margin: 0;
+    border: none;
+    padding: 0;
+    color: inherit;
     background-color: var(--mantle);
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -113,15 +114,15 @@
     }
   }
 
-  .navbar-burger.is-active span:nth-child(1) {
+  .navbar-menu:popover-open ~ .navbar-burger span:nth-child(1) {
     transform: translateY(5px) rotate(45deg);
   }
 
-  .navbar-burger.is-active span:nth-child(2) {
+  .navbar-menu:popover-open ~ .navbar-burger span:nth-child(2) {
     opacity: 0;
   }
 
-  .navbar-burger.is-active span:nth-child(3) {
+  .navbar-menu:popover-open ~ .navbar-burger span:nth-child(3) {
     transform: translateY(-5px) rotate(-45deg);
   }
 
@@ -239,6 +240,14 @@
   }
 
   .navbar-menu {
+    /* 中和 [popover] 的 UA 默认样式，桌面端菜单常显于导航条内 */
+    position: static;
+    inset: auto;
+    width: auto;
+    height: auto;
+    margin: 0;
+    border: none;
+    color: inherit;
     flex-grow: 1;
     flex-shrink: 0;
     overflow-x: auto;

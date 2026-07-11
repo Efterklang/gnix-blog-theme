@@ -7,20 +7,11 @@ function runWhenActivated(callback) {
   )(callback);
 }
 
-function whenReady(callback) {
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", callback, { once: true });
-  } else {
-    callback();
-  }
-}
-
 function getLocalizedUiText(key) {
   const isZh = (document.documentElement.lang || "").toLowerCase().startsWith("zh");
   const messages = {
     copied: isZh ? "已复制" : "Copied",
     copyCode: isZh ? "复制代码" : "Copy code",
-    toggleWrap: isZh ? "切换自动换行" : "Toggle word wrap",
   };
   return messages[key] || key;
 }
@@ -194,37 +185,6 @@ window.__gnixLazyAssets = {
   resolveGnixAssetUrl,
 };
 
-function getHashTarget(hash) {
-  if (!hash || hash === "#") return null;
-  let id = hash.slice(1);
-  try {
-    id = decodeURIComponent(id);
-  } catch {}
-  if (!id) return null;
-  const byId = document.getElementById(id);
-  if (byId) return byId;
-
-  const escaped = window.CSS?.escape ? CSS.escape(id) : id.replace(/["\\]/g, "\\$&");
-  try {
-    return document.querySelector(`[name="${escaped}"]`);
-  } catch {
-    return null;
-  }
-}
-
-function animateAnchorTarget(target) {
-  if (!target) return;
-  target.classList.remove("gnix-anchor-target");
-  requestAnimationFrame(() => {
-    target.classList.add("gnix-anchor-target");
-  });
-}
-
-function animateCurrentHashTarget() {
-  if (!location.hash) return;
-  requestAnimationFrame(() => animateAnchorTarget(getHashTarget(location.hash)));
-}
-
 const FOOTNOTE_HOVER_TOOLTIP_MEDIA = "(hover: hover) and (pointer: fine)";
 let openFootnoteRef = null;
 
@@ -291,27 +251,6 @@ function handleFootnoteTooltipClick(event) {
 
   event.preventDefault();
   toggleFootnoteTooltip(ref);
-}
-
-function handleAnchorJumpClick(event) {
-  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-
-  const link = event.target.closest?.("a[href*='#']");
-  if (!link || link.target || link.hasAttribute("download")) return;
-
-  const url = new URL(link.href, location.href);
-  if (url.origin !== location.origin || url.pathname !== location.pathname || url.search !== location.search) return;
-
-  const target = getHashTarget(url.hash);
-  if (!target) return;
-
-  event.preventDefault();
-  target.scrollIntoView({
-    block: "start",
-    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-  });
-  history.pushState(null, "", url.hash);
-  animateAnchorTarget(target);
 }
 
 const PREFERENCE_POPUP_MODULE_URL = resolveGnixAssetUrl("/js/preferences-popup.js");
@@ -408,14 +347,7 @@ function addHighlightTool() {
     const pre = figure.querySelector(SELECTORS.pre);
     const toolbar = figure.querySelector(".shiki-tools");
     const expandBtn = figure.querySelector(SELECTORS.expandBtn);
-    const wrapToggle = figure.querySelector(".toggle-wrap");
     const copyButton = figure.querySelector(".copy-button");
-
-    if (wrapToggle) {
-      const label = getLocalizedUiText("toggleWrap");
-      wrapToggle.setAttribute("title", label);
-      wrapToggle.setAttribute("aria-label", label);
-    }
 
     if (copyButton) {
       copyButton.setAttribute("role", "button");
@@ -454,17 +386,21 @@ function addHighlightTool() {
 
     // Expand button handler
     if (expandBtn) {
+      let expandTimer = null;
+
       expandBtn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
 
-        const showLines = parseInt(figure.dataset.maxLines || "10", 10);
+        const showLines = parseInt(figure.dataset.maxLines, 10);
         const isExpanded = figure.classList.contains(CLS.expanded);
+        const computed = getComputedStyle(pre);
+        const lineHeight = parseFloat(computed.lineHeight) || 20;
+        const padding = (parseFloat(computed.paddingTop) || 0) + (parseFloat(computed.paddingBottom) || 0);
+
+        clearTimeout(expandTimer);
 
         if (isExpanded) {
-          const computed = getComputedStyle(pre);
-          const lineHeight = parseFloat(computed.lineHeight) || 20;
-          const padding = (parseFloat(computed.paddingTop) || 0) + (parseFloat(computed.paddingBottom) || 0);
           figure.classList.remove(CLS.expanded);
           pre.style.maxHeight = `${showLines * lineHeight + padding}px`;
           expandBtn.classList.remove(CLS.expandDone);
@@ -473,7 +409,7 @@ function addHighlightTool() {
           pre.style.maxHeight = `${pre.scrollHeight}px`;
           expandBtn.classList.add(CLS.expandDone);
 
-          setTimeout(() => {
+          expandTimer = setTimeout(() => {
             pre.style.maxHeight = "none";
           }, 300);
         }
@@ -483,9 +419,11 @@ function addHighlightTool() {
     // Initialize collapsed state
     if (figure.dataset.collapsible === "true" && pre) {
       requestAnimationFrame(() => {
-        const lineHeight = parseFloat(getComputedStyle(pre).lineHeight) || 20;
-        const showLines = parseInt(figure.dataset.maxLines || "10", 10);
-        pre.style.maxHeight = `${showLines * lineHeight}px`;
+        const computed = getComputedStyle(pre);
+        const lineHeight = parseFloat(computed.lineHeight) || 20;
+        const padding = (parseFloat(computed.paddingTop) || 0) + (parseFloat(computed.paddingBottom) || 0);
+        const showLines = parseInt(figure.dataset.maxLines, 10);
+        pre.style.maxHeight = `${showLines * lineHeight + padding}px`;
         pre.style.overflow = "hidden";
       });
     }
@@ -620,12 +558,11 @@ function initPage() {
   initArticleCommentPopover();
 }
 
-function initPageWhenActivated() {
-  runWhenActivated(initPage);
-}
-
-whenReady(initPageWhenActivated);
-document.addEventListener("gnix:decrypted-content-ready", initPageWhenActivated);
+// #region boot
+// main.js 以 <script type="module"> 加载，具备 defer 语义：执行到这里时 DOM 必已解析完毕，
+// 无需 DOMContentLoaded 门控；prerender 页面经 runWhenActivated 推迟到激活后初始化
+runWhenActivated(initPage);
+document.addEventListener("gnix:decrypted-content-ready", () => runWhenActivated(initPage));
 
 runWhenActivated(() => {
   initGlobalIdlePrewarm();
@@ -639,56 +576,11 @@ runWhenActivated(() => {
   });
 });
 
-function setNavbarMenuOpen(container, open) {
-  const burger = container.querySelector(".navbar-burger");
-  const menu = container.querySelector(".navbar-menu");
-  if (!burger || !menu) return;
-
-  burger.classList.toggle("is-active", open);
-  menu.classList.toggle("is-active", open);
-  burger.setAttribute("aria-expanded", String(open));
-  document.documentElement.classList.toggle("navbar-menu-open", open);
-}
-
-function handleNavbarClick(event) {
-  const container = event.currentTarget;
-  const target = event.target;
-
-  if (target.closest(".navbar-burger")) {
-    const burger = container.querySelector(".navbar-burger");
-    const isActive = burger?.classList.contains("is-active");
-    setNavbarMenuOpen(container, !isActive);
-  } else if (target.closest(".navbar-item")) {
-    setNavbarMenuOpen(container, false);
-  }
-}
-
-function handleNavbarKeyDown(event) {
-  if (event.key !== "Escape") return;
-  const container = document.querySelector(".navbar-container");
-  if (!container) return;
-  setNavbarMenuOpen(container, false);
-}
-
-function initNavbar() {
-  const container = document.querySelector(".navbar-container");
-  if (!container || container.dataset.bound === "true") return;
-  container.dataset.bound = "true";
-  container.addEventListener("click", handleNavbarClick);
-  document.addEventListener("keydown", handleNavbarKeyDown);
-}
-
-whenReady(() => runWhenActivated(initNavbar));
-
-whenReady(() => {
-  document.addEventListener("click", handleFootnoteTooltipClick, {
-    capture: true,
-    passive: false,
-  });
-  document.addEventListener("mouseover", clampFootnoteTooltip, { passive: true });
-  document.addEventListener("focusin", clampFootnoteTooltip, { passive: true });
-  document.addEventListener("click", handleAnchorJumpClick);
-  window.addEventListener("hashchange", animateCurrentHashTarget);
-  window.addEventListener("popstate", animateCurrentHashTarget);
-  animateCurrentHashTarget();
+// 以下监听不经激活门控：prerender 阶段用户无法交互，提前绑定无副作用
+document.addEventListener("click", handleFootnoteTooltipClick, {
+  capture: true,
+  passive: false,
 });
+document.addEventListener("mouseover", clampFootnoteTooltip, { passive: true });
+document.addEventListener("focusin", clampFootnoteTooltip, { passive: true });
+// #endregion
