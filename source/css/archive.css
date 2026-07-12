@@ -37,28 +37,18 @@
 
 /* #region Hero */
 
+/* The h1 itself: contains only the picker-trigger button. */
 .archive-hero {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.85rem;
-  align-items: end;
-  padding: 0.35rem 0 1.1rem;
-  border-bottom: 0.5px solid color-mix(in oklch, var(--surface0) 86%, transparent);
-
-  @media (max-width: 720px) {
-    gap: 0.35rem;
-    align-items: start;
-    padding-bottom: 1.1rem;
-  }
-}
-
-.archive-hero__heading {
-  justify-self: start;
   margin: 0;
   min-width: 0;
   max-width: 100%;
   font: inherit;
+  padding: 0.35rem 0 1.1rem;
+  border-bottom: 0.5px solid color-mix(in oklch, var(--surface0) 86%, transparent);
+
+  @media (max-width: 720px) {
+    padding-bottom: 1.1rem;
+  }
 }
 
 .archive-hero__title {
@@ -416,17 +406,19 @@
 
 /* #region Era marker */
 
+/* Spacing works with the page grid gap (1.5rem) between era and groups. */
 .archive-era {
-  display: flex;
-  align-items: baseline;
   justify-content: center;
-  margin: 1.5rem 0 0.25rem;
+  margin: 1.35rem 0 0.45rem;
   padding-top: 0.25rem;
   color: var(--archive-muted);
   text-transform: uppercase;
   scroll-margin-top: 4.5rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5em;
+  font-size: 0.76rem;
 
-  &:first-child {
+  &:first-of-type {
     margin-top: 0;
   }
 
@@ -435,26 +427,15 @@
   }
 }
 
-.archive-era__year {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.5em;
-  font-size: 0.76rem;
-}
-
 /* #endregion */
-
-.archive-stack {
-  display: grid;
-  gap: 1.35rem;
-}
 
 .archive-group {
   --archive-accent: var(--lavender);
   position: relative;
-  padding: 1.1rem 0 0;
+  padding: 0.95rem 0 0;
 
   .archive-era + & {
-    padding-top: 0.35rem;
+    padding-top: 0;
   }
 
   &.spring {
@@ -471,42 +452,16 @@
   }
 }
 
+/* The season h2 itself (also carries .archive-label). */
 .archive-group__header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  margin: 0 0 0.85rem;
   text-transform: lowercase;
-  gap: 1rem;
-  align-items: baseline;
-  margin-bottom: 0.85rem;
-
-  @media (max-width: 480px) {
-    gap: 0.6rem;
-  }
-}
-
-.timeline {
-  position: relative;
-  display: grid;
-  gap: 0.15rem;
-  padding-left: 1.25rem;
 }
 
 .archive-item {
   position: relative;
+  margin-left: 1.25rem;
   text-align: left;
-
-  & > .archive-item__row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    align-items: baseline;
-    padding: 0.55rem 0.35rem 0.55rem 0;
-
-    @media (max-width: 480px) {
-      gap: 0.45rem;
-      padding: 0.7rem 0.5rem 0.7rem 0;
-    }
-  }
 
   /* Each item is its own anchor; anchor-scope keeps the shared name local to
      this subtree so every popup binds to its own item. */
@@ -514,6 +469,7 @@
   anchor-scope: --archive-anchor;
 
   & + & {
+    margin-top: 0.15rem;
     border-top: 0.5px solid color-mix(in oklch, var(--surface0) 80%, transparent);
   }
 }
@@ -644,16 +600,20 @@
 /* #endregion */
 
 a.archive-title {
-  justify-self: start;
+  display: block;
   inline-size: fit-content;
   font-size: var(--article-font-size);
   font-family: var(--article-font-family);
   max-inline-size: 100%;
   color: var(--text);
-  padding-inline: 0;
+  padding: 0.55rem 0.35rem 0.55rem 0;
   line-height: 1.45;
   overflow-wrap: anywhere;
   transition: color 140ms ease;
+
+  @media (max-width: 480px) {
+    padding: 0.7rem 0.5rem 0.7rem 0;
+  }
 
   &:hover,
   &:focus-visible {

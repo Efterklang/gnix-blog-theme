@@ -122,29 +122,25 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
 
   return (
     <section class={["archive-group", marker].filter(Boolean).join(" ")} aria-labelledby={sectionId}>
-      <header class="archive-group__header">
-        <h2 id={sectionId} class="archive-label">
-          {title}
-        </h2>
-      </header>
-      <div class="timeline">
-        {posts.map((post) => {
-          const postDate = getPostDateParts(post.date, date_xml, date);
-          const excerpt = post.excerpt || null;
-          const readMinutes = excerpt ? estimateReadMinutes(post._content) : 0;
-          return (
-            <ArticleMedia
-              key={post.path}
-              url={url_for(post.link || post.path)}
-              title={post.title}
-              date={postDate.label}
-              dateXml={postDate.xml}
-              excerpt={excerpt}
-              readTime={readMinutes ? formatReadTime(readMinutes) : null}
-            />
-          );
-        })}
-      </div>
+      <h2 id={sectionId} class="archive-group__header archive-label">
+        {title}
+      </h2>
+      {posts.map((post) => {
+        const postDate = getPostDateParts(post.date, date_xml, date);
+        const excerpt = post.excerpt || null;
+        const readMinutes = excerpt ? estimateReadMinutes(post._content) : 0;
+        return (
+          <ArticleMedia
+            key={post.path}
+            url={url_for(post.link || post.path)}
+            title={post.title}
+            date={postDate.label}
+            dateXml={postDate.xml}
+            excerpt={excerpt}
+            readTime={readMinutes ? formatReadTime(readMinutes) : null}
+          />
+        );
+      })}
     </section>
   );
 }
@@ -228,8 +224,8 @@ module.exports = class extends Component {
       const yearBlocks = groupSeasonGroupsByYear(seasonGroups);
       articleList = yearBlocks.map((block) => (
         <Fragment key={block.year}>
-          <div class="archive-era" id={`archive-year-${block.year}`}>
-            <span class="archive-era__year archive-label">{block.year}</span>
+          <div class="archive-era archive-label" id={`archive-year-${block.year}`}>
+            {block.year}
           </div>
           {block.groups.map((group) => (
             <Fragment key={`${group.year}-${group.season}`}>
@@ -267,26 +263,24 @@ module.exports = class extends Component {
     const heroTitleLabel = [heroTitle, ...pickerStats, topicCountLabel].join(" / ");
     return (
       <main class="archive-page">
-        <header class="archive-hero">
-          <h1 class="archive-hero__heading">
-            <button type="button" class="archive-hero__title archive-label" popovertarget="archive-topic-picker" aria-haspopup="dialog" aria-label={heroTitleLabel}>
-              {heroTitle}
-            </button>
-          </h1>
-          {renderTopicPicker({
-            tags: topicTags,
-            allPosts: {
-              name: archiveLabels.allPosts,
-              count: allPostsCount,
-              url: helper.localized_url_for("/"),
-              current: !isTagPage && !page.year,
-            },
-            title: heroTitle,
-            topicListLabel: topicsTitle,
-            stats: pickerStats,
-            closeLabel: helper.__("archive.close_topic_picker"),
-          })}
-        </header>
+        <h1 class="archive-hero">
+          <button type="button" class="archive-hero__title archive-label" popovertarget="archive-topic-picker" aria-haspopup="dialog" aria-label={heroTitleLabel}>
+            {heroTitle}
+          </button>
+        </h1>
+        {renderTopicPicker({
+          tags: topicTags,
+          allPosts: {
+            name: archiveLabels.allPosts,
+            count: allPostsCount,
+            url: helper.localized_url_for("/"),
+            current: !isTagPage && !page.year,
+          },
+          title: heroTitle,
+          topicListLabel: topicsTitle,
+          stats: pickerStats,
+          closeLabel: helper.__("archive.close_topic_picker"),
+        })}
 
         {!page.year && years.length > 1 && (
           <aside class="archive-rail" aria-label={helper.__("archive.jump_to_year")}>
@@ -302,7 +296,7 @@ module.exports = class extends Component {
           </aside>
         )}
 
-        <div class="archive-stack">{articleList}</div>
+        {articleList}
       </main>
     );
   }

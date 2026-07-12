@@ -17,11 +17,9 @@ module.exports = class extends Component {
 
     return (
       <article class="archive-item">
-        <div class="archive-item__row">
-          <a class="archive-title" href={url}>
-            {title}
-          </a>
-        </div>
+        <a class="archive-title" href={url}>
+          {title}
+        </a>
         <div class="archive-popup">
           <p class="archive-popup__eyebrow">
             <time class="archive-popup__date" dateTime={dateXml || null}>

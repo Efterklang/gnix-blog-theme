@@ -5,6 +5,18 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "7.12",
         cn: [
+          "精简归档页 DOM 层级：h1 直接作为 hero（移除 header.archive-hero 与 h1 包裹层）、移除 .archive-stack 包裹层、season 分组的 header 包裹层与 .timeline 容器、条目内的 .archive-item__row 包裹层，以及年份标记内的 span；标签弹窗与年份侧栏结构不变",
+          "如有依赖 .archive-stack / .timeline / .archive-item__row / .archive-era__year / .archive-hero__heading 的自定义样式，请迁移到 .archive-page / .archive-group / .archive-item / .archive-era / .archive-hero",
+        ],
+        en: [
+          "Flatten the archive page DOM: the h1 is now the hero itself (dropping the header.archive-hero and h1 wrappers), and the .archive-stack wrapper, the season group's header wrapper and .timeline container, the per-item .archive-item__row wrapper, and the span inside the year marker are all removed; the tag picker popup and year rail markup are unchanged",
+          "Custom styles targeting .archive-stack / .timeline / .archive-item__row / .archive-era__year / .archive-hero__heading should migrate to .archive-page / .archive-group / .archive-item / .archive-era / .archive-hero",
+        ],
+        category: "refactor",
+      },
+      {
+        date: "7.12",
+        cn: [
           "归档页标签弹窗新增 All Posts 入口（含总文章数），可从任意标签/年份归档一键回到全部文章",
           "归档列表行简化为仅标题；发布日期移入悬浮预览弹层，取代原先的 N° 00x 序号，显示在阅读时长左侧",
         ],
