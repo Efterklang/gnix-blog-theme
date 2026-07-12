@@ -171,7 +171,7 @@ html.night .preference-quick__select-icon--moon {
 
   &:focus-visible {
     outline: 2px solid var(--mauve);
-    outline-offset: 2px;
+    outline-offset: -2px;
   }
 }
 
@@ -199,7 +199,7 @@ html.night .preference-quick__select {
 
   &:focus-visible {
     outline: 2px solid var(--mauve);
-    outline-offset: 2px;
+    outline-offset: -2px;
   }
 }
 
@@ -223,7 +223,7 @@ html.night .preference-quick__select {
 
   &:focus-visible {
     outline: 2px solid var(--mauve);
-    outline-offset: 2px;
+    outline-offset: -2px;
   }
 }
 

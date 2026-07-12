@@ -18,16 +18,15 @@ module.exports = class extends Component {
     return (
       <article class="archive-item">
         <div class="archive-item__row">
-          <p class="article-meta">
-            <time dateTime={dateXml || null}>{formattedDate}</time>
-          </p>
-          <a class="archive-title archive-label" href={url}>
+          <a class="archive-title" href={url}>
             {title}
           </a>
         </div>
         <div class="archive-popup">
           <p class="archive-popup__eyebrow">
-            <span class="archive-popup__index"></span>
+            <time class="archive-popup__date" dateTime={dateXml || null}>
+              {formattedDate}
+            </time>
             {readTime && <span class="archive-popup__read">{readTime}</span>}
           </p>
           {excerpt && <div class="archive-popup__excerpt" dangerouslySetInnerHTML={{ __html: excerpt }}></div>}

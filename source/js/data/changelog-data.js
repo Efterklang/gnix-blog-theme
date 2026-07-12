@@ -3,6 +3,18 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "7.12",
+        cn: [
+          "归档页标签弹窗新增 All Posts 入口（含总文章数），可从任意标签/年份归档一键回到全部文章",
+          "归档列表行简化为仅标题；发布日期移入悬浮预览弹层，取代原先的 N° 00x 序号，显示在阅读时长左侧",
+        ],
+        en: [
+          "Add an All Posts entry (with total post count) to the archive tag picker popup, allowing a one-click return to the full archive from any tag or year view",
+          "Archive list rows are simplified to the title only; the publish date moves into the hover preview popup, replacing the previous N° 00x running index to the left of the read time",
+        ],
+        category: "uiux",
+      },
+      {
         date: "7.10",
         cn: [
           "修复脚注悬浮预览在正文两端被截断的问题：hover 时 JS 测量并水平钳制 tooltip，使其始终位于正文可视区域内",

@@ -33,9 +33,9 @@ function estimateReadMinutes(content) {
 }
 
 function getSeason(month) {
-  if (month >= 2 && month <= 4) return "Spring";
-  if (month >= 5 && month <= 7) return "Summer";
-  if (month >= 8 && month <= 10) return "Autumn";
+  if (month >= 3 && month <= 5) return "Spring";
+  if (month >= 6 && month <= 8) return "Summer";
+  if (month >= 9 && month <= 11) return "Autumn";
   return "Winter";
 }
 
@@ -149,7 +149,7 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
   );
 }
 
-function renderTopicPicker({ tags, title, topicListLabel, stats, closeLabel }) {
+function renderTopicPicker({ tags, allPosts, title, topicListLabel, stats, closeLabel }) {
   return (
     <div id="archive-topic-picker" class="archive-topic-picker" popover="auto">
       <div class="archive-topic-picker__body" role="dialog" aria-labelledby="archive-topic-picker-title">
@@ -166,8 +166,14 @@ function renderTopicPicker({ tags, title, topicListLabel, stats, closeLabel }) {
           </div>
           <button class="archive-topic-picker__close" type="button" popovertarget="archive-topic-picker" popovertargetaction="hide" aria-label={closeLabel}></button>
         </header>
-        {tags.length > 0 && (
+        {(allPosts || tags.length > 0) && (
           <nav class="archive-topic-list" aria-label={topicListLabel}>
+            {allPosts && (
+              <a class="archive-topic-list__item archive-topic-list__item--all" href={allPosts.url} aria-current={allPosts.current ? "page" : null}>
+                <span class="archive-topic-list__name">{allPosts.name}</span>
+                <span class="archive-topic-list__count">{allPosts.count}</span>
+              </a>
+            )}
             {tags.map((tag) => (
               <a key={tag.url} class="archive-topic-list__item" href={tag.url} aria-current={tag.current ? "page" : null}>
                 <span class="archive-topic-list__name">{tag.name}</span>
@@ -206,6 +212,9 @@ module.exports = class extends Component {
     const currentYear = page.year ? Number(page.year) : null;
     const currentMonth = page.month ? Number(page.month) : null;
     const isTagPage = Boolean(page.tag);
+    const langKey = helper.language_key(page);
+    const allSitePosts = helper.is_i18n_enabled() ? filterByLanguage(site?.posts, langKey, config || {}) : site?.posts;
+    const allPostsCount = allSitePosts?.length || totalVisiblePosts;
     const writingsLabel = `${totalVisiblePosts} ${helper._p("archive.writing", totalVisiblePosts)}`;
     const topicLabel = helper._p("archive.topic", topicTags.length);
     const topicCountLabel = `${topicTags.length} ${topicLabel}`;
@@ -266,6 +275,12 @@ module.exports = class extends Component {
           </h1>
           {renderTopicPicker({
             tags: topicTags,
+            allPosts: {
+              name: archiveLabels.allPosts,
+              count: allPostsCount,
+              url: helper.localized_url_for("/"),
+              current: !isTagPage && !page.year,
+            },
             title: heroTitle,
             topicListLabel: topicsTitle,
             stats: pickerStats,
