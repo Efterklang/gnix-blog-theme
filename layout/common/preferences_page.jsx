@@ -31,13 +31,6 @@ function icon(name) {
           <path d="M19 12H5" />
         </svg>
       );
-    case "chevron-down":
-      return (
-        <svg {...common}>
-          <title>chevron-down</title>
-          <path d="m6 9 6 6 6-6" />
-        </svg>
-      );
     case "rotate-ccw":
       return (
         <svg {...common}>
@@ -143,7 +136,6 @@ module.exports = class extends Component {
     const themeTitleId = `${idPrefix}-theme-title`;
     const fontTitleId = `${idPrefix}-font-title`;
     const lineHeightSliderId = `${idPrefix}-article-line-height-slider`;
-    const customFontPanelId = `${idPrefix}-font-custom-panel`;
 
     return (
       <div class="preference-page" data-preferences-page data-preference-surface="page">
@@ -206,6 +198,20 @@ module.exports = class extends Component {
 
             <div class="preference-row">
               <div class="preference-row__label">
+                <span>{translate(helper, "preferences.weight", "Weight")}</span>
+              </div>
+              <fieldset class="preference-choice-group preference-choice-group--segmented preference-choice-group--font-weight font-weight-selector">
+                <legend class="preference-sr-only">{translate(helper, "preferences.weight", "Weight")}</legend>
+                {FONT_WEIGHT_OPTIONS.map(([value, key, fallback]) => (
+                  <button type="button" class="preference-choice-button preference-choice-button--segmented font-weight-btn" data-weight={value} aria-label={translate(helper, key, fallback)}>
+                    <span class="font-option-name">{translate(helper, key, fallback)}</span>
+                  </button>
+                ))}
+              </fieldset>
+            </div>
+
+            <div class="preference-row">
+              <div class="preference-row__label">
                 <span>{translate(helper, "preferences.content_width", "Article Width")}</span>
                 <small>{translate(helper, "preferences.content_width_description", "Only affects the article column")}</small>
               </div>
@@ -256,31 +262,12 @@ module.exports = class extends Component {
               </fieldset>
             </div>
 
-            <div class="preference-row">
-              <div class="preference-row__label">
-                <span>{translate(helper, "preferences.weight", "Weight")}</span>
-              </div>
-              <fieldset class="preference-choice-group preference-choice-group--segmented preference-choice-group--font-weight font-weight-selector">
-                <legend class="preference-sr-only">{translate(helper, "preferences.weight", "Weight")}</legend>
-                {FONT_WEIGHT_OPTIONS.map(([value, key, fallback]) => (
-                  <button type="button" class="preference-choice-button preference-choice-button--segmented font-weight-btn" data-weight={value} aria-label={translate(helper, key, fallback)}>
-                    <span class="font-option-name">{translate(helper, key, fallback)}</span>
-                  </button>
-                ))}
-              </fieldset>
-            </div>
-
             <div class="preference-row preference-row--stacked">
-              <button type="button" class="font-custom-toggle" aria-expanded="false" aria-controls={customFontPanelId} aria-label={translate(helper, "preferences.custom_fonts", "Custom Fonts")}>
-                <span class="preference-row__label">
-                  <span>{translate(helper, "preferences.custom_fonts", "Custom Fonts")}</span>
-                  <small>{translate(helper, "preferences.custom_fonts_description", "Load web font CSS and map families")}</small>
-                </span>
-                <span class="font-custom-toggle-icon" aria-hidden="true">
-                  {icon("chevron-down")}
-                </span>
-              </button>
-              <div id={customFontPanelId} class="font-custom-panel" hidden>
+              <div class="preference-row__label">
+                <span>{translate(helper, "preferences.custom_fonts", "Custom Fonts")}</span>
+                <small>{translate(helper, "preferences.custom_fonts_description", "Load web font CSS and map families")}</small>
+              </div>
+              <div class="font-custom-panel">
                 <form class="font-custom-form">
                   <label class="font-custom-field">
                     <span>{translate(helper, "preferences.web_font_css", "Web Font CSS URL")}</span>
@@ -318,14 +305,9 @@ module.exports = class extends Component {
                       />
                     </label>
                   </div>
-                  <div class="font-custom-actions">
-                    <button type="submit" class="font-custom-apply">
-                      {translate(helper, "preferences.apply", "Apply")}
-                    </button>
-                    <button type="button" class="font-custom-reset">
-                      {translate(helper, "preferences.reset_fonts", "Reset Fonts")}
-                    </button>
-                  </div>
+                  <button type="button" class="font-custom-reset">
+                    {translate(helper, "preferences.reset_fonts", "Reset Fonts")}
+                  </button>
                 </form>
               </div>
             </div>

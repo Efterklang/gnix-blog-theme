@@ -256,7 +256,6 @@ function handleFootnoteTooltipClick(event) {
 const PREFERENCE_POPUP_MODULE_URL = resolveGnixAssetUrl("/js/preferences-popup.js");
 const GLOBAL_IDLE_PREWARM_ASSETS = [
   { as: "script", url: PREFERENCE_POPUP_MODULE_URL },
-  { as: "style", url: "/css/preferences.css" },
   { as: "script", url: "/js/preferences.js" },
 ];
 

@@ -286,8 +286,6 @@
     const customFontResetButton = root.querySelector(".font-custom-reset");
     const allSettingsResetButtons = root.querySelectorAll("[data-preference-reset-all]");
     const customFontFamilyInputs = root.querySelectorAll(".font-custom-family-input");
-    const customFontToggleButton = root.querySelector(".font-custom-toggle");
-    const customFontPanel = root.querySelector(".font-custom-panel");
 
     function updateButtonStates(selector, isActive) {
       root.querySelectorAll(selector).forEach((btn) => {
@@ -295,12 +293,6 @@
         btn.classList.toggle("is-active", active);
         btn.setAttribute("aria-pressed", String(active));
       });
-    }
-
-    function syncCustomFontPanelState(expanded) {
-      if (!customFontToggleButton || !customFontPanel) return;
-      customFontToggleButton.setAttribute("aria-expanded", String(expanded));
-      customFontPanel.hidden = !expanded;
     }
 
     function updateLineHeightUI() {
@@ -382,15 +374,6 @@
       commitSettings({ ...settings, [isWidth ? "width" : "size"]: list[nextIndex] });
     }
 
-    syncCustomFontPanelState(false);
-
-    if (customFontToggleButton && customFontPanel) {
-      customFontToggleButton.addEventListener("click", () => {
-        const expanded = customFontToggleButton.getAttribute("aria-expanded") === "true";
-        syncCustomFontPanelState(!expanded);
-      });
-    }
-
     stepButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         stepArticleSetting(btn.dataset.articleStep, Number(btn.dataset.stepDir) || 0);
@@ -441,11 +424,30 @@
       });
     });
 
+    // 自定义字体无独立 Apply 按钮：输入完成（change，即失焦或按 Enter 提交）
+    // 时直接应用；提交后回写规范化的值
+    function commitCustomFonts() {
+      commitSettings({ ...settings, customFonts: readCustomFontsFromUI() });
+      updateCustomFontUI();
+    }
+
     if (customFontForm) {
       customFontForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        commitSettings({ ...settings, customFonts: readCustomFontsFromUI() });
-        updateCustomFontUI();
+        commitCustomFonts();
+      });
+
+      [customFontImportInput, ...customFontFamilyInputs].forEach((input) => {
+        input?.addEventListener("change", commitCustomFonts);
+      });
+
+      // 无 submit 按钮时浏览器不会对多字段表单做隐式提交，手动响应 Enter
+      customFontFamilyInputs.forEach((input) => {
+        input.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter") return;
+          event.preventDefault();
+          commitCustomFonts();
+        });
       });
     }
 

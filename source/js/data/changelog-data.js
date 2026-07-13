@@ -3,6 +3,26 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "7.13",
+        cn: [
+          "拆分偏好设置样式：导航栏快捷弹窗的样式移入常驻的 default.css，preferences.css 仅保留 /preferences 独立页样式且只在该页面加载；弹窗打开时不再懒加载 CSS，空闲预热列表同步移除该样式表",
+        ],
+        en: [
+          "Split the preferences styles: the navbar quick popup styles move into the always-loaded default.css, while preferences.css keeps only the standalone /preferences page styles and is loaded on that page only; opening the popup no longer lazy-loads CSS, and the stylesheet is dropped from the idle prewarm list",
+        ],
+        category: "refactor",
+      },
+      {
+        date: "7.13",
+        cn: [
+          "设置页 Typography 区块调整：字重移到字号下方；自定义字体区块常驻显示（移除折叠开关）；移除 Apply 按钮，输入框失焦或按 Enter 后自动应用自定义字体",
+        ],
+        en: [
+          "Tweak the Typography section of the settings page: the weight row moves below the size row; the custom fonts block is always visible (the collapse toggle is removed); the Apply button is gone — custom fonts now apply automatically when an input loses focus or on Enter",
+        ],
+        category: "uiux",
+      },
+      {
         date: "7.12",
         cn: [
           "归档页标签弹窗重设计为沉浸式「幕帘」下拉：点击标题后 hero 区域保持原位，标签列表从其下方展开至视口底部、逐个上浮浮现，无卡片底色，直接浮于模糊淡出的文章列表之上（导航栏与页脚同步模糊），hero 标题染上强调色、分隔线在幕帘打开期间隐藏。浏览器不支持 CSS 锚点定位时回退为原先的居中弹窗",

@@ -1,11 +1,11 @@
 const PREFERENCE_POPUP_ID = "preference-popup";
-const { loadScriptOnce, loadStyleOnce, resolveGnixAssetUrl } = window.__gnixLazyAssets || {};
+const { loadScriptOnce, resolveGnixAssetUrl } = window.__gnixLazyAssets || {};
 
-if (!loadScriptOnce || !loadStyleOnce || !resolveGnixAssetUrl) {
+if (!loadScriptOnce || !resolveGnixAssetUrl) {
   throw new Error("Gnix lazy asset loader was not initialized");
 }
 
-const PREFERENCE_CSS_URL = resolveGnixAssetUrl("/css/preferences.css");
+// 弹窗样式常驻 default.css，这里只需按需加载行为脚本
 const PREFERENCE_SCRIPT_URL = resolveGnixAssetUrl("/js/preferences.js");
 
 let preferencePopupPromise = null;
@@ -111,8 +111,6 @@ async function ensurePreferencePopup() {
   if (!existing) throw new Error("Preferences popup container was not found");
 
   preferencePopupPromise = (async () => {
-    await loadStyleOnce(PREFERENCE_CSS_URL);
-
     bindPreferencePopup(existing);
 
     await loadScriptOnce(PREFERENCE_SCRIPT_URL);

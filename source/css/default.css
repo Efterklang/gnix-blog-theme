@@ -974,6 +974,293 @@ input.searchbox-input {
   }
 }
 
+/* #region Preference quick popup（仿 Obsidian Web Clipper reader 设置面板）
+
+   弹窗骨架在所有页面随 navbar 渲染，故样式常驻 default.css；
+   /preferences 独立页的样式在 preferences.css，仅该页面加载。
+
+   无遮罩、无面板底色：弹窗打开时页面保持可见、可滚动，方便对照正文
+   查看排版调整效果；控件用不透明的 --mantle 填充 + 描边与页面区分。
+   与 :popover-open 并列声明用于压过上方的全局 popover 样式
+   （inset: 0 + 全屏模糊背景）。 */
+
+.preference-popup,
+.preference-popup:popover-open {
+  position: fixed;
+  inset: auto;
+  top: calc(var(--navbar-height) + env(safe-area-inset-top) + 0.6rem);
+  right: 0.9rem;
+  z-index: 1000;
+  width: min(17rem, calc(100vw - 1.8rem));
+  height: auto;
+  max-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 2rem);
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  border: 0;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  color: var(--text);
+  scrollbar-width: none;
+  transform-origin: top right;
+  animation: preference-popup-in 160ms ease;
+}
+
+.preference-popup[hidden] {
+  display: none;
+}
+
+.preference-popup::backdrop {
+  background: transparent;
+}
+
+.preference-popup:focus {
+  outline: none;
+}
+
+.preference-popup::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes preference-popup-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+
+.preference-quick {
+  display: grid;
+  gap: 1.05rem;
+  font-family: var(--font-sans-serif);
+}
+
+.preference-quick__steppers {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.45rem;
+}
+
+.preference-quick__stepper {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
+  border-radius: 10px;
+  background: var(--mantle);
+}
+
+.preference-quick__step-btn {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 2.35rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--subtext0);
+  cursor: pointer;
+
+  & + .preference-quick__step-btn {
+    border-left: 1px solid hsl(from var(--surface1) h s l / 0.8);
+  }
+
+  &:hover:not(:disabled) {
+    color: var(--text);
+    background: color-mix(in oklch, var(--mantle) 90%, var(--text));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: -2px;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+}
+
+.preference-quick__selects {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.preference-quick__select-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.preference-quick__select-icon {
+  position: absolute;
+  left: 0.6rem;
+  z-index: 1;
+  display: inline-flex;
+  color: var(--subtext0);
+  pointer-events: none;
+}
+
+.preference-quick__select-row:hover .preference-quick__select-icon {
+  color: var(--text);
+}
+
+/* 主题模式行按当前生效配色展示太阳/月亮（html 根类由 theme init 脚本维护） */
+.preference-quick__select-icon--moon {
+  display: none;
+}
+
+html.night .preference-quick__select-icon--sun {
+  display: none;
+}
+
+html.night .preference-quick__select-icon--moon {
+  display: inline-flex;
+}
+
+.preference-quick__select {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  height: 2.35rem;
+  padding: 0 1.9rem 0 2.25rem;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
+  border-radius: 10px;
+  color: var(--text);
+  background-color: var(--mantle);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-opacity='0.5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 13px;
+  font: 550 0.86rem / 1.2 var(--font-sans-serif);
+  cursor: pointer;
+
+  &:hover {
+    border-color: hsl(from var(--surface2) h s l / 0.9);
+    background-color: color-mix(in oklch, var(--mantle) 92%, var(--text));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: -2px;
+  }
+}
+
+html.night .preference-quick__select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-opacity='0.55' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
+}
+
+.preference-quick__row-action {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
+  border-radius: 10px;
+  color: var(--subtext0);
+  background: var(--mantle);
+
+  &:hover {
+    color: var(--text);
+    border-color: hsl(from var(--surface2) h s l / 0.9);
+    background: color-mix(in oklch, var(--mantle) 90%, var(--text));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: -2px;
+  }
+}
+
+.preference-quick__settings {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  height: 2.35rem;
+  padding: 0 0.7rem;
+  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
+  border-radius: 10px;
+  color: var(--subtext0);
+  background: var(--mantle);
+  font: 550 0.86rem / 1.2 var(--font-sans-serif);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--text);
+    background: color-mix(in oklch, var(--mantle) 90%, var(--text));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: -2px;
+  }
+}
+
+@media (max-width: 768px) {
+  .preference-popup,
+  .preference-popup:popover-open {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    max-height: min(82dvh, 100dvh - 3rem);
+    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+    border: 1px solid hsl(from var(--surface1) h s l / 0.74);
+    border-bottom: 0;
+    border-radius: 18px 18px 0 0;
+    background: var(--base);
+    box-shadow: 0 -18px 50px -30px rgba(0, 0, 0, 0.45);
+    transform-origin: bottom center;
+    animation: preference-popup-up 200ms ease;
+  }
+
+  .preference-quick {
+    gap: 1.05rem;
+  }
+
+  .preference-quick__steppers {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .preference-quick__step-btn {
+    height: 2.55rem;
+  }
+
+  .preference-quick__select,
+  .preference-quick__row-action {
+    height: 2.55rem;
+  }
+
+  .preference-quick__settings {
+    height: 2.6rem;
+  }
+}
+
+@keyframes preference-popup-up {
+  from {
+    opacity: 0;
+    transform: translateY(10%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preference-popup,
+  .preference-popup:popover-open {
+    animation: none;
+  }
+}
+
+/* #endregion Preference quick popup */
+
 /* #region Sunny atmosphere */
 
 /* Atmosphere layers are injected only when Sunny is active. Visuals mirror
