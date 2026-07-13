@@ -145,33 +145,31 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
   );
 }
 
-function renderTopicPicker({ tags, allPosts, title, topicListLabel, stats, closeLabel }) {
+function renderTopicPicker({ tags, allPosts, topicListLabel, stats }) {
+  const staggerBase = allPosts ? 1 : 0;
   return (
     <div id="archive-topic-picker" class="archive-topic-picker" popover="auto">
       <div class="archive-topic-picker__body" role="dialog" aria-labelledby="archive-topic-picker-title">
         <header class="archive-topic-picker__header">
-          <div>
-            <h2 id="archive-topic-picker-title">{title}</h2>
-            {stats.length > 0 && (
-              <ul class="archive-topic-picker__stats">
-                {stats.map((stat) => (
-                  <li key={stat}>{stat}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <button class="archive-topic-picker__close" type="button" popovertarget="archive-topic-picker" popovertargetaction="hide" aria-label={closeLabel}></button>
+          <h2 id="archive-topic-picker-title">{topicListLabel}</h2>
+          {stats.length > 0 && (
+            <ul class="archive-topic-picker__stats">
+              {stats.map((stat) => (
+                <li key={stat}>{stat}</li>
+              ))}
+            </ul>
+          )}
         </header>
         {(allPosts || tags.length > 0) && (
           <nav class="archive-topic-list" aria-label={topicListLabel}>
             {allPosts && (
-              <a class="archive-topic-list__item archive-topic-list__item--all" href={allPosts.url} aria-current={allPosts.current ? "page" : null}>
+              <a class="archive-topic-list__item archive-topic-list__item--all" style="--i:0" href={allPosts.url} aria-current={allPosts.current ? "page" : null}>
                 <span class="archive-topic-list__name">{allPosts.name}</span>
                 <span class="archive-topic-list__count">{allPosts.count}</span>
               </a>
             )}
-            {tags.map((tag) => (
-              <a key={tag.url} class="archive-topic-list__item" href={tag.url} aria-current={tag.current ? "page" : null}>
+            {tags.map((tag, index) => (
+              <a key={tag.url} class="archive-topic-list__item" style={`--i:${index + staggerBase}`} href={tag.url} aria-current={tag.current ? "page" : null}>
                 <span class="archive-topic-list__name">{tag.name}</span>
                 <span class="archive-topic-list__count">{tag.count}</span>
               </a>
@@ -268,6 +266,7 @@ module.exports = class extends Component {
             {heroTitle}
           </button>
         </h1>
+        <button class="archive-hero__close" type="button" popovertarget="archive-topic-picker" popovertargetaction="hide" aria-label={helper.__("archive.close_topic_picker")}></button>
         {renderTopicPicker({
           tags: topicTags,
           allPosts: {
@@ -276,10 +275,8 @@ module.exports = class extends Component {
             url: helper.localized_url_for("/"),
             current: !isTagPage && !page.year,
           },
-          title: heroTitle,
           topicListLabel: topicsTitle,
           stats: pickerStats,
-          closeLabel: helper.__("archive.close_topic_picker"),
         })}
 
         {!page.year && years.length > 1 && (

@@ -5,6 +5,20 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "7.12",
         cn: [
+          "归档页标签弹窗重设计为沉浸式「幕帘」下拉：点击标题后 hero 区域保持原位，标签列表从其下方展开至视口底部、逐个上浮浮现，无卡片底色，直接浮于模糊淡出的文章列表之上（导航栏与页脚同步模糊），hero 标题染上强调色、分隔线在幕帘打开期间隐藏。浏览器不支持 CSS 锚点定位时回退为原先的居中弹窗",
+          "弹窗头部精简为一行小字（标签栏目名 + 文章统计）；关闭按钮改为 hero 右侧的裸 × 符号，仅在幕帘打开时浮现",
+          "归档列表行重新加回发布日期：以等宽小字显示在标题前，长标题换行时以悬挂缩进对齐标题文字；悬浮预览中的日期保持不变",
+        ],
+        en: [
+          "Redesign the archive tag picker as an immersive curtain dropdown: clicking the title keeps the hero in place while the tag list floats in below it down to the bottom of the viewport with a staggered rise-in, with no card surface, directly over the blurred, faded post list (navbar and footer blur along with it); the hero title picks up the accent color and the hero divider is hidden while the curtain is open. Browsers without CSS anchor positioning fall back to the previous centered dialog",
+          "Slim down the picker header to a single small-print row (topics label + post stats); the close control becomes a bare × at the hero's right edge, shown only while the curtain is open",
+          "Bring the publish date back to archive list rows, shown in small mono type before the title, with a hanging indent so wrapped title lines stay aligned; the date in the hover preview is unchanged",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.12",
+        cn: [
           "精简归档页 DOM 层级：h1 直接作为 hero（移除 header.archive-hero 与 h1 包裹层）、移除 .archive-stack 包裹层、season 分组的 header 包裹层与 .timeline 容器、条目内的 .archive-item__row 包裹层，以及年份标记内的 span；标签弹窗与年份侧栏结构不变",
           "如有依赖 .archive-stack / .timeline / .archive-item__row / .archive-era__year / .archive-hero__heading 的自定义样式，请迁移到 .archive-page / .archive-group / .archive-item / .archive-era / .archive-hero",
         ],
