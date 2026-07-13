@@ -114,8 +114,6 @@ preferences:
   language: "语言"
   language_unavailable: "暂无翻译"
   open_settings: "设置"
-  fullscreen: "全屏"
-  exit_fullscreen: "退出全屏"
   line_height: "行高"
   compact: "紧凑"
   relaxed: "舒展"

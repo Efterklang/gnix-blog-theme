@@ -114,8 +114,6 @@ preferences:
   language: "Language"
   language_unavailable: "Not translated"
   open_settings: "Settings"
-  fullscreen: "Fullscreen"
-  exit_fullscreen: "Exit Fullscreen"
   line_height: "Line Height"
   compact: "Compact"
   relaxed: "Relaxed"

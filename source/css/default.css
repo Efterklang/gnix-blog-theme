@@ -1188,36 +1188,6 @@ html.night .preference-quick__select {
   }
 }
 
-.preference-quick__actions {
-  display: grid;
-  gap: 0.45rem;
-}
-
-.preference-quick__fullscreen {
-  width: 100%;
-  cursor: pointer;
-}
-
-.preference-quick__fullscreen[hidden] {
-  display: none;
-}
-
-/* 进入/退出全屏两组图标文案互斥显示，状态由 JS 同步到 aria-pressed */
-.preference-quick__fullscreen-state {
-  display: inline-flex;
-  gap: 0.55rem;
-  align-items: center;
-}
-
-.preference-quick__fullscreen-state--exit,
-.preference-quick__fullscreen[aria-pressed="true"] .preference-quick__fullscreen-state--enter {
-  display: none;
-}
-
-.preference-quick__fullscreen[aria-pressed="true"] .preference-quick__fullscreen-state--exit {
-  display: inline-flex;
-}
-
 .preference-quick__settings {
   display: flex;
   align-items: center;

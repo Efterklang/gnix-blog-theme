@@ -5,22 +5,10 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "7.13",
         cn: [
-          "修复移动端切换全屏后偏好弹窗样式残缺的问题：浏览器进入全屏会强制隐藏 popover，现在点击全屏选项后直接关闭弹窗，并在 popover 被强制关闭时同步 hidden 状态兜底",
-        ],
-        en: [
-          "Fix the preferences popup lingering in a broken state after toggling fullscreen on mobile: entering fullscreen force-hides popovers, so the popup now closes itself when the fullscreen option is tapped, and the hidden state is synced whenever the popover is force-closed as a safety net",
-        ],
-        category: "fix",
-      },
-      {
-        date: "7.13",
-        cn: [
           "导航栏偏好设置图标更换为 Type（文字排版）字形，更贴合弹窗内容",
-          "偏好快捷弹窗新增全屏切换：进入/退出状态图标与文案联动，浏览器不支持元素全屏时（如 iPhone Safari）自动隐藏该选项",
         ],
         en: [
           "Swap the navbar preferences icon for the Type glyph, better matching the popup's typography focus",
-          "Add a fullscreen toggle to the preferences quick popup: the icon and label follow the enter/exit state, and the option hides itself on browsers without element fullscreen support (e.g. iPhone Safari)",
         ],
         category: "uiux",
       },
