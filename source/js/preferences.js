@@ -529,9 +529,29 @@
       }
     }
 
+    // 进入全屏会让浏览器强制隐藏 popover，弹窗会以残缺样式留在页面上；
+    // 点击后直接关掉宿主弹窗，切换全屏时页面保持干净
+    function closeHostPopup(button) {
+      const popup = button.closest(".preference-popup");
+      if (!popup) return;
+      if (typeof popup.hidePopover === "function") {
+        try {
+          popup.hidePopover();
+        } catch {
+          /* 已处于关闭态 */
+        }
+      } else {
+        popup.hidden = true;
+        popup.dataset.open = "false";
+      }
+    }
+
     buttons.forEach((button) => {
       button.hidden = false;
-      button.addEventListener("click", toggleFullscreen);
+      button.addEventListener("click", () => {
+        toggleFullscreen();
+        closeHostPopup(button);
+      });
     });
 
     document.addEventListener("fullscreenchange", syncFullscreenState);

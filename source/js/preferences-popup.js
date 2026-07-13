@@ -90,6 +90,9 @@ function handlePreferencePopupClick(event) {
 function handlePreferencePopupToggle(event) {
   if (event.newState !== "closed") return;
 
+  // 浏览器可能绕过 closePreferencePopup 强制关闭 popover（如进入全屏时
+  // 规范要求 hide all popovers），同步 hidden 避免弹窗以基础样式残留可见
+  event.target.hidden = true;
   removeDismissListeners();
   restorePopupFocus();
 }
