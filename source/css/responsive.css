@@ -84,10 +84,18 @@
     }
   }
 
+  /* burger 顶替 logo 常驻左侧；偏好/搜索常驻右侧动作区 */
+  #navbar-logo-link {
+    display: none;
+  }
+
+  .navbar-actions > .navbar-item {
+    padding: 0 0.75rem;
+  }
+
   .navbar-burger {
     position: relative;
-    width: 4rem;
-    margin-left: auto;
+    width: 3.5rem;
     color: var(--text);
     > span {
       background-color: currentColor;
@@ -114,15 +122,15 @@
     }
   }
 
-  .navbar-menu:popover-open ~ .navbar-burger span:nth-child(1) {
+  .navbar-container:has(.navbar-menu:popover-open) .navbar-burger span:nth-child(1) {
     transform: translateY(5px) rotate(45deg);
   }
 
-  .navbar-menu:popover-open ~ .navbar-burger span:nth-child(2) {
+  .navbar-container:has(.navbar-menu:popover-open) .navbar-burger span:nth-child(2) {
     opacity: 0;
   }
 
-  .navbar-menu:popover-open ~ .navbar-burger span:nth-child(3) {
+  .navbar-container:has(.navbar-menu:popover-open) .navbar-burger span:nth-child(3) {
     transform: translateY(-5px) rotate(-45deg);
   }
 

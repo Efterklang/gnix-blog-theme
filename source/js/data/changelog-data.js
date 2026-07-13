@@ -5,6 +5,18 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "7.13",
         cn: [
+          "文章宽度偏好现在同样作用于归档/标签页：列表列宽跟随收窄/加宽档位，左侧年份侧栏定位同步跟随（原先硬编码 50em）",
+          "导航栏重排：偏好设置与搜索移入常驻动作区，移动端不再折叠进 burger 菜单、一步可达；移动端 burger 移到左侧顶替 logo，右侧仅保留偏好与搜索两个图标；外部链接仍在 burger 菜单内展示，桌面端布局不变",
+        ],
+        en: [
+          "The article width preference now also applies to archive/tag pages: the list column follows the narrow/wide steps, and the year rail tracks it as well (previously hardcoded to 50em)",
+          "Navbar rework: preferences and search move into an always-visible actions area, reachable in one tap on mobile instead of being folded into the burger menu; on mobile the burger replaces the logo on the left, leaving only the two action icons on the right; external links stay inside the burger menu, and the desktop layout is unchanged",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.13",
+        cn: [
           "拆分偏好设置样式：导航栏快捷弹窗的样式移入常驻的 default.css，preferences.css 仅保留 /preferences 独立页样式且只在该页面加载；弹窗打开时不再懒加载 CSS，空闲预热列表同步移除该样式表",
         ],
         en: [

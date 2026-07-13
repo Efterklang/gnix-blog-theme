@@ -22,6 +22,11 @@ class Navbar extends Component {
       <Fragment>
         <nav class="navbar navbar-main">
           <div class="navbar-container">
+            <button type="button" class="navbar-burger" popovertarget="navbar-menu" aria-label={menuTitle}>
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+            </button>
             <a id="navbar-logo-link" href={siteUrl}>
               ga.o
             </a>
@@ -38,44 +43,39 @@ class Navbar extends Component {
                   })}
                 </div>
               ) : null}
-              <div class="navbar-end">
-                {Object.keys(links).length ? (
-                  <Fragment>
-                    {Object.keys(links).map((name) => {
-                      const link = links[name];
-                      return (
-                        <a class="navbar-item" target="_blank" rel="noopener" title={name} href={link.url}>
-                          {renderLinkIcon(link)}
-                        </a>
-                      );
-                    })}
-                  </Fragment>
-                ) : null}
-                <button type="button" id="preferences-link" class="navbar-item" title={preferencesTitle} aria-label={preferencesTitle} data-preference-trigger>
+              {Object.keys(links).length ? (
+                <div class="navbar-end">
+                  {Object.keys(links).map((name) => {
+                    const link = links[name];
+                    return (
+                      <a class="navbar-item" target="_blank" rel="noopener" title={name} href={link.url}>
+                        {renderLinkIcon(link)}
+                      </a>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+            <div class="navbar-actions">
+              <button type="button" id="preferences-link" class="navbar-item" title={preferencesTitle} aria-label={preferencesTitle} data-preference-trigger>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <title>{preferencesTitle}</title>
+                  <path d="M14 17H5" />
+                  <path d="M19 7h-9" />
+                  <circle cx="17" cy="17" r="3" />
+                  <circle cx="7" cy="7" r="3" />
+                </svg>
+              </button>
+              {isSearchEnabled ? (
+                <button type="button" class="navbar-item search" popovertarget="searchbox" title={searchTitle} aria-label={searchTitle}>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <title>{preferencesTitle}</title>
-                    <path d="M14 17H5" />
-                    <path d="M19 7h-9" />
-                    <circle cx="17" cy="17" r="3" />
-                    <circle cx="7" cy="7" r="3" />
+                    <title>{searchTitle}</title>
+                    <path d="m21 21-4.34-4.34" />
+                    <circle cx="11" cy="11" r="8" />
                   </svg>
                 </button>
-                {isSearchEnabled ? (
-                  <button type="button" class="navbar-item search" popovertarget="searchbox" title={searchTitle} aria-label={searchTitle}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <title>{searchTitle}</title>
-                      <path d="m21 21-4.34-4.34" />
-                      <circle cx="11" cy="11" r="8" />
-                    </svg>
-                  </button>
-                ) : null}
-              </div>
+              ) : null}
             </div>
-            <button type="button" class="navbar-burger" popovertarget="navbar-menu" aria-label={menuTitle}>
-              <span aria-hidden="true"></span>
-              <span aria-hidden="true"></span>
-              <span aria-hidden="true"></span>
-            </button>
           </div>
         </nav>
       </Fragment>

@@ -1,3 +1,9 @@
+/* 归档页跟随文章宽度偏好（--article-max-width 由 :root[data-article-width] 决定），
+   本文件仅在归档/标签页加载，不影响其他页面 */
+.main-content {
+  max-width: calc(var(--article-max-width) + 3rem);
+}
+
 .archive-page {
   --archive-muted: color-mix(in oklch, var(--subtext1) 78%, var(--base));
   --archive-accent: var(--lavender);
@@ -471,7 +477,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar-main, .footer) {
 .archive-rail {
   position: fixed;
   top: 50%;
-  left: max(1rem, calc((100vw - 50em) / 2 - var(--archive-rail-width) - 1rem));
+  left: max(1rem, calc((100vw - var(--article-max-width)) / 2 - var(--archive-rail-width) - 1rem));
   transform: translateY(-50%);
   z-index: 10;
   pointer-events: none;

@@ -647,7 +647,15 @@ html {
   }
 }
 
-.navbar-end {
+/* 常驻动作区（偏好、搜索）：桌面与移动端都固定在导航条右侧，
+   不随移动端 burger 菜单折叠 */
+.navbar-actions {
+  display: flex;
+  align-items: stretch;
+  margin-left: auto;
+}
+
+:is(.navbar-end, .navbar-actions) {
   svg {
     width: 1.1em;
     opacity: 0.78;
