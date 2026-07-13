@@ -5,6 +5,18 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "7.13",
         cn: [
+          "导航栏偏好设置图标更换为 Type（文字排版）字形，更贴合弹窗内容",
+          "偏好快捷弹窗新增全屏切换：进入/退出状态图标与文案联动，浏览器不支持元素全屏时（如 iPhone Safari）自动隐藏该选项",
+        ],
+        en: [
+          "Swap the navbar preferences icon for the Type glyph, better matching the popup's typography focus",
+          "Add a fullscreen toggle to the preferences quick popup: the icon and label follow the enter/exit state, and the option hides itself on browsers without element fullscreen support (e.g. iPhone Safari)",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.13",
+        cn: [
           "文章宽度偏好现在同样作用于归档/标签页：列表列宽跟随收窄/加宽档位，左侧年份侧栏定位同步跟随（原先硬编码 50em）",
           "导航栏重排：偏好设置与搜索移入常驻动作区，移动端不再折叠进 burger 菜单、一步可达；移动端 burger 移到左侧顶替 logo，右侧仅保留偏好与搜索两个图标；外部链接仍在 burger 菜单内展示，桌面端布局不变",
         ],

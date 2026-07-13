@@ -131,6 +131,26 @@ function icon(name, size = 18) {
           <path d="M14 18h6" />
         </svg>
       );
+    case "maximize":
+      return (
+        <svg {...common}>
+          <title>maximize</title>
+          <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+          <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+          <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+          <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+        </svg>
+      );
+    case "minimize":
+      return (
+        <svg {...common}>
+          <title>minimize</title>
+          <path d="M8 3v3a2 2 0 0 1-2 2H3" />
+          <path d="M21 8h-3a2 2 0 0 1-2-2V3" />
+          <path d="M3 16h3a2 2 0 0 1 2 2v3" />
+          <path d="M16 21v-3a2 2 0 0 1 2-2h3" />
+        </svg>
+      );
     case "settings-2":
       return (
         <svg {...common}>
@@ -331,10 +351,24 @@ module.exports = class extends Component {
             ) : null}
           </div>
 
-          <a class="preference-quick__settings" href={settingsUrl}>
-            {icon("settings")}
-            <span>{translate(helper, "preferences.open_settings", "Settings")}</span>
-          </a>
+          <div class="preference-quick__actions">
+            {/* 默认隐藏，preferences.js 检测到浏览器支持元素全屏后显示；
+                进入/退出两组图标文案由 aria-pressed 驱动切换 */}
+            <button type="button" class="preference-quick__settings preference-quick__fullscreen" data-fullscreen-toggle aria-pressed="false" hidden>
+              <span class="preference-quick__fullscreen-state preference-quick__fullscreen-state--enter">
+                {icon("maximize")}
+                <span>{translate(helper, "preferences.fullscreen", "Fullscreen")}</span>
+              </span>
+              <span class="preference-quick__fullscreen-state preference-quick__fullscreen-state--exit">
+                {icon("minimize")}
+                <span>{translate(helper, "preferences.exit_fullscreen", "Exit Fullscreen")}</span>
+              </span>
+            </button>
+            <a class="preference-quick__settings" href={settingsUrl}>
+              {icon("settings")}
+              <span>{translate(helper, "preferences.open_settings", "Settings")}</span>
+            </a>
+          </div>
         </div>
       </div>
     );

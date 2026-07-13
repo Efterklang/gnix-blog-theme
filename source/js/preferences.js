@@ -501,12 +501,51 @@
     });
   }
 
+  // 全屏切换：按钮默认 hidden，仅在浏览器支持元素全屏时显示
+  // （iPhone Safari 不支持，保持隐藏）；带 webkit 前缀兜底旧 Safari
+  function initFullscreenControls(root) {
+    const buttons = root.querySelectorAll("[data-fullscreen-toggle]");
+    if (!buttons.length) return;
+    if (!(document.fullscreenEnabled || document.webkitFullscreenEnabled)) return;
+
+    const isFullscreen = () => Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+
+    function syncFullscreenState() {
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(isFullscreen()));
+      });
+    }
+
+    function toggleFullscreen() {
+      try {
+        if (isFullscreen()) {
+          (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        } else {
+          const target = document.documentElement;
+          (target.requestFullscreen || target.webkitRequestFullscreen).call(target)?.catch?.(() => {});
+        }
+      } catch {
+        /* 请求被浏览器拒绝（如非用户手势）时静默忽略 */
+      }
+    }
+
+    buttons.forEach((button) => {
+      button.hidden = false;
+      button.addEventListener("click", toggleFullscreen);
+    });
+
+    document.addEventListener("fullscreenchange", syncFullscreenState);
+    document.addEventListener("webkitfullscreenchange", syncFullscreenState);
+    syncFullscreenState();
+  }
+
   function initPreferenceRoot(root) {
     if (!root || root.dataset.bound === "true") return;
     root.dataset.bound = "true";
     initThemePreferences(root);
     initArticleFontPreferences(root);
     initNavigationControls(root);
+    initFullscreenControls(root);
   }
 
   function initPreferencesPage() {
