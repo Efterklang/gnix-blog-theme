@@ -444,24 +444,17 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar-main, .footer) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .footer,
-  .archive-hero,
-  .archive-rail,
   .archive-rail__link,
   .archive-rail__year,
-  .archive-era,
   .archive-group__header,
   .archive-hero__title,
-  .archive-item,
   .archive-popup,
   .archive-topic-picker,
   .archive-hero__close,
   .archive-page:has(.archive-topic-picker:popover-open) .archive-hero__close,
   .archive-topic-list__item,
   .archive-page :is(.archive-era, .archive-group, .archive-rail),
-  body:has(.archive-page) :is(.navbar-main, .footer),
-  body:has(.archive-page) .navbar-main,
-  .archive-page::before {
+  body:has(.archive-page) :is(.navbar-main, .footer) {
     transition: none;
   }
 
@@ -571,25 +564,14 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar-main, .footer) {
 
 /* #region Era marker */
 
-/* Spacing works with the page grid gap (1.5rem) between era and groups. */
 .archive-era {
   justify-content: center;
-  margin: 1.35rem 0 0.45rem;
-  padding-top: 0.25rem;
+  margin: 1.8rem 0 0.45rem;
   color: var(--archive-muted);
-  text-transform: uppercase;
   scroll-margin-top: 4.5rem;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.5em;
   font-size: 0.76rem;
-
-  &:first-of-type {
-    margin-top: 0;
-  }
-
-  @media (max-width: 720px) {
-    margin-top: 1.1rem;
-  }
 }
 
 /* #endregion */
@@ -635,7 +617,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar-main, .footer) {
 
   & + & {
     margin-top: 0.15rem;
-    border-top: 0.5px solid color-mix(in oklch, var(--surface0) 80%, transparent);
+    border-top: 0.5px solid var(--surface0);
   }
 }
 

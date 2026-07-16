@@ -470,31 +470,6 @@ hr {
 }
 
 @font-face {
-  font-family: "NewYork";
-  src: local("New York"), local("New York Text"), local("New York Display");
-  font-weight: 400 700;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: doto;
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("font/woff2/doto.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: Paris2024;
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src:
-    local("paris2024"),
-    url("font/woff2/Paris2024-Variable.woff2") format("woff2");
-}
-
-@font-face {
   font-family: homemade-apple;
   font-display: swap;
   src:
@@ -558,27 +533,6 @@ html {
   }
 }
 
-.gnix-anchor-target {
-  animation: gnix-anchor-target 900ms ease-out;
-}
-
-@keyframes gnix-anchor-target {
-  0% {
-    background-color: hsl(from var(--yellow) h s l / 0.28);
-    box-shadow: 0 0 0 0.35em hsl(from var(--yellow) h s l / 0.18);
-  }
-  100% {
-    background-color: transparent;
-    box-shadow: 0 0 0 0 transparent;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .gnix-anchor-target {
-    animation: none;
-  }
-}
-
 /* #region Navbar */
 
 .navbar {
@@ -610,11 +564,6 @@ html {
 .navbar-main {
   /* Keep the sticky nav out of native history snapshots to avoid stale-style flashes on back/forward navigation. */
   view-transition-name: none;
-  transition: transform 240ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.navbar-main.navbar--hidden {
-  transform: translateY(-100%);
 }
 
 #navbar-logo-link {
