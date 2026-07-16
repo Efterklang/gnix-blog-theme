@@ -67,8 +67,8 @@ const ARTICLE_WIDTH_OPTIONS = [
 ];
 
 const FONT_TYPE_OPTIONS = [
-  ["serif", "preferences.typeface_serif", "Serif"],
   ["sans-serif", "preferences.typeface_sans_serif", "Sans Serif"],
+  ["serif", "preferences.typeface_serif", "Serif"],
   ["mono", "preferences.typeface_mono", "Monospace"],
   ["handwriting", "preferences.typeface_handwriting", "Handwriting"],
 ];

@@ -3,6 +3,18 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "7.16",
+        cn: [
+          "修复偏好弹窗步进按钮的聚焦环以直角溢出容器圆角边框的问题：两端按钮补上与容器对齐的圆角，聚焦环与悬停背景现在沿圆角绘制",
+          "偏好弹窗的四个下拉框补充 id 属性，消除浏览器「表单控件缺少 id/name」的提示",
+        ],
+        en: [
+          "Fix the preferences popup stepper buttons' focus ring overflowing the container's rounded border with square corners: the outer buttons now carry matching corner radii, so the focus ring and hover background follow the curve",
+          "Give the four selects in the preferences popup id attributes, silencing the browser's \"form field should have an id or name\" warning",
+        ],
+        category: "fix",
+      },
+      {
         date: "7.13",
         cn: [
           "导航栏偏好设置图标更换为 Type（文字排版）字形，更贴合弹窗内容",

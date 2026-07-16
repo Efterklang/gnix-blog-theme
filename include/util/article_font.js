@@ -2,14 +2,14 @@ const STORAGE_KEY = "gnix-article-font";
 
 const DEFAULT_SETTINGS = Object.freeze({
   size: "medium",
-  type: "serif",
+  type: "sans-serif",
   lineHeight: 1.7,
   weight: "regular",
   width: "medium",
 });
 
 const SIZE_OPTIONS = Object.freeze(["small", "medium-small", "medium", "medium-large", "large"]);
-const FONT_OPTIONS = Object.freeze(["serif", "sans-serif", "mono", "handwriting"]);
+const FONT_OPTIONS = Object.freeze(["sans-serif", "serif", "mono", "handwriting"]);
 const WEIGHT_OPTIONS = Object.freeze(["light", "regular", "medium"]);
 const WIDTH_OPTIONS = Object.freeze(["narrow", "medium-narrow", "medium", "medium-wide", "wide"]);
 const LINE_HEIGHT = Object.freeze({

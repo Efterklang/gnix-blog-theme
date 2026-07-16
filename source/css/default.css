@@ -61,7 +61,7 @@
   --font-mono: "SF Mono", "Maple Mono NF CN Local", "Maple Mono NF CN", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", XingKai SC, cursive;
   --article-font-size: 1rem;
-  --article-font-family: var(--font-serif);
+  --article-font-family: var(--font-sans-serif);
   --article-line-height: 1.6;
   --article-font-weight: 400;
   --article-bold-font-weight: 700;
@@ -1019,6 +1019,16 @@ input.searchbox-input {
   background: transparent;
   color: var(--subtext0);
   cursor: pointer;
+
+  /* 外侧圆角随容器（10px 减去 1px 边框）：聚焦环不受容器 overflow 裁剪，
+     按钮需自带圆角，悬停背景与 -2px 聚焦环才不会以直角溢出 stepper 的圆角边框 */
+  &:first-child {
+    border-radius: 9px 0 0 9px;
+  }
+
+  &:last-child {
+    border-radius: 0 9px 9px 0;
+  }
 
   & + .preference-quick__step-btn {
     border-left: 1px solid hsl(from var(--surface1) h s l / 0.8);

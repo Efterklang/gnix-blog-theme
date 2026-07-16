@@ -161,8 +161,8 @@ const THEME_MODE_OPTIONS = [
 ];
 
 const FONT_TYPE_OPTIONS = [
-  ["serif", "preferences.typeface_serif", "Serif"],
   ["sans-serif", "preferences.typeface_sans_serif", "Sans Serif"],
+  ["serif", "preferences.typeface_serif", "Serif"],
   ["mono", "preferences.typeface_mono", "Monospace"],
   ["handwriting", "preferences.typeface_handwriting", "Handwriting"],
 ];
@@ -269,7 +269,7 @@ module.exports = class extends Component {
               <span class="preference-quick__select-icon preference-quick__select-icon--moon" aria-hidden="true">
                 {icon("moon")}
               </span>
-              <select class="preference-quick__select" data-theme-mode-select aria-label={modeLabel}>
+              <select id="preference-quick-mode-select" class="preference-quick__select" data-theme-mode-select aria-label={modeLabel}>
                 {THEME_MODE_OPTIONS.map(([value, fallback]) => (
                   <option value={value} selected={value === "system"}>
                     {translate(helper, `preferences.theme_mode_${value}`, fallback)}
@@ -283,7 +283,7 @@ module.exports = class extends Component {
                 {icon("palette")}
               </span>
               {/* 选项由 preferences.js 按当前生效的配色方案（light/dark）重建 */}
-              <select class="preference-quick__select" data-theme-palette-select aria-label={paletteLabel}>
+              <select id="preference-quick-palette-select" class="preference-quick__select" data-theme-palette-select aria-label={paletteLabel}>
                 <optgroup label={translate(helper, "preferences.light_theme", "Light Theme")}>
                   {lightThemes.map((theme) => (
                     <option value={theme.value} selected={theme.value === DEFAULT_PREFERENCES.light}>
@@ -303,7 +303,7 @@ module.exports = class extends Component {
               <span class="preference-quick__select-icon" aria-hidden="true">
                 {icon("type")}
               </span>
-              <select class="preference-quick__select" data-article-font-select aria-label={typefaceLabel}>
+              <select id="preference-quick-font-select" class="preference-quick__select" data-article-font-select aria-label={typefaceLabel}>
                 {FONT_TYPE_OPTIONS.map(([value, key, fallback]) => (
                   <option value={value} selected={value === ARTICLE_FONT_DEFAULTS.type}>
                     {translate(helper, key, fallback)}
@@ -320,7 +320,7 @@ module.exports = class extends Component {
                 <span class="preference-quick__select-icon" aria-hidden="true">
                   {icon("languages")}
                 </span>
-                <select class="preference-quick__select" data-language-select aria-label={languageLabel}>
+                <select id="preference-quick-language-select" class="preference-quick__select" data-language-select aria-label={languageLabel}>
                   {languageOptions.map((item) => (
                     <option value={item.current || !item.url ? "" : item.url} selected={item.current} disabled={!item.current && !item.available} lang={item.locale}>
                       {item.available ? item.label : `${item.label} · ${unavailableLabel}`}
