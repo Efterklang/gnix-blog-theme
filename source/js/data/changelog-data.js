@@ -5,6 +5,16 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "7.16",
         cn: [
+          "集成 S3/Bitiful 渐进式图片加载：Markdown 图片渲染支持 thumbhash 模糊占位图、自动 srcset 响应式尺寸、Obsidian 风格 `![alt|宽]` / `![alt|宽x高]` 尺寸语法，以及 JSON 元数据缓存（可通过 markdown_exit.image_options 配置）",
+        ],
+        en: [
+          "Integrate S3/Bitiful progressive image loading: Markdown images now support thumbhash blur placeholders, automatic responsive srcset, Obsidian-style `![alt|width]` / `![alt|widthxheight]` sizing, and JSON metadata caching (configurable via markdown_exit.image_options)",
+        ],
+        category: "feature",
+      },
+      {
+        date: "7.16",
+        cn: [
           "修复偏好弹窗步进按钮的聚焦环以直角溢出容器圆角边框的问题：两端按钮补上与容器对齐的圆角，聚焦环与悬停背景现在沿圆角绘制",
           "偏好弹窗的四个下拉框补充 id 属性，消除浏览器「表单控件缺少 id/name」的提示",
         ],

@@ -46,7 +46,9 @@
     "markdown-it-mark": "^4.0.0",
     "markdown-it-task-lists": "^2.1.1",
     "markdown-it-ts": "^1.0.4",
-    "shiki": "^4.3.1"
+    "sharp": "^0.34.5",
+    "shiki": "^4.3.1",
+    "thumbhash": "^0.1.1"
   },
   "peerDependencies": {
     "hexo": "^8.1.2"

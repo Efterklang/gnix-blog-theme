@@ -3,6 +3,7 @@ const mermaidDiagram = require("./mdit/mermaid");
 const ratex = require("./mdit/ratex");
 const code = require("./mdit/shiki");
 const obsidianCallouts = require("./mdit/obsidian-callouts");
+const s3Image = require("./mdit/image");
 const anchor = require("markdown-it-anchor");
 const footnote = require("markdown-it-footnote");
 const footnoteTooltip = require("./mdit/footnote-tooltip");
@@ -82,6 +83,7 @@ class MarkdownRenderer {
         .use(mermaidDiagram)
         .use(ratex, this.config.ratex_options)
         .use(obsidianCallouts, this.config.callout_options)
+        .use(s3Image, this.config.image_options)
         .use(wrapMarkdownItTable)
         .use(resolveDefault(anchor), {
           permalink: resolveDefault(anchor).permalink.headerLink(),
