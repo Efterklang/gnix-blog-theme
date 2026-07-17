@@ -192,17 +192,6 @@
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .navbar-start .navbar-item {
-      opacity: 1;
-      animation: none;
-    }
-
-    .navbar-burger > span {
-      transition-duration: 1ms;
-    }
-  }
-
   /* #endregion Navbar */
 
   .searchbox-container {

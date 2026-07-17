@@ -12,11 +12,11 @@ function formatDate(date, dateXml) {
 
 module.exports = class extends Component {
   render() {
-    const { url, title, date, dateXml, excerpt, readTime } = this.props;
+    const { url, title, date, dateXml, excerpt, readTime, order } = this.props;
     const formattedDate = formatDate(date, dateXml);
 
     return (
-      <article class="archive-item">
+      <article class="archive-item" style={typeof order === "number" ? `--i:${order}` : null}>
         <a class="archive-title" href={url}>
           <time class="archive-title__date" dateTime={dateXml || null}>
             {formattedDate}

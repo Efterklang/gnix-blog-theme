@@ -32,10 +32,6 @@ function getSunnyInlineScript(url_for) {
       return html && html.dataset.theme === "sunny";
     }
 
-    function prefersReducedMotion() {
-      return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    }
-
     function clearBoot() {
       if (boot && typeof boot.clear === "function") {
         boot.clear();
@@ -52,7 +48,7 @@ function getSunnyInlineScript(url_for) {
 
     function clearWhenReady() {
       if (!video) return;
-      if (!isSunny() || prefersReducedMotion()) {
+      if (!isSunny()) {
         clearBoot();
         return;
       }
@@ -66,7 +62,7 @@ function getSunnyInlineScript(url_for) {
 
     function syncVideo() {
       if (!video) return;
-      if (isSunny() && !prefersReducedMotion()) {
+      if (isSunny()) {
         var playback = video.play && video.play();
         if (playback && typeof playback.catch === "function") playback.catch(function() {});
         clearWhenReady();

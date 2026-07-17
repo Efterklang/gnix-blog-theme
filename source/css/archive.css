@@ -29,7 +29,6 @@
   align-items: center;
   min-width: 0;
   position: relative;
-  padding: 0 0.5rem;
   border: none;
   background: transparent;
   color: var(--subtext0);
@@ -39,6 +38,22 @@
   letter-spacing: 0.05em;
   overflow-wrap: anywhere;
   transition: color 220ms ease;
+}
+
+/* 页面呈现时文章行自上而下逐条浮现（--i 为跨分组的连续序号，节奏与标签幕帘的
+   逐项级联一致；年份标记与季节标题不参与，直接呈现）。.gnix-revealed 由 head
+   内联脚本在 pagereveal（不支持时内联立即）添加，保证 prerender 激活时动画
+   从首个可见帧才开始；无 JS 时不加类，列表直接可见 */
+:root.gnix-revealed .archive-page .archive-item {
+  animation: archive-entry-in 300ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(40ms + var(--i, 0) * 25ms);
+}
+
+@keyframes archive-entry-in {
+  from {
+    opacity: 0;
+    translate: 0 -0.45rem;
+  }
 }
 
 /* #region Hero */
@@ -230,11 +245,6 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar-main, .footer) {
     overscroll-behavior: contain;
   }
 
-  .archive-hero__close {
-    top: 1.1rem;
-    right: 1.1rem;
-  }
-
   .archive-topic-picker__body {
     width: min(680px, 92vw);
     max-height: min(74vh, 38rem);
@@ -291,74 +301,6 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar-main, .footer) {
   line-height: 1.35;
   list-style: none;
   text-transform: lowercase;
-}
-
-/* Bare × at the hero's right edge, vertically centered on the title; only
-   visible (and clickable) while the topic curtain is open. Fixed positioning
-   keeps it out of the page grid flow. */
-.archive-hero__close {
-  position: fixed;
-  position-anchor: --archive-hero-title;
-  align-self: anchor-center;
-  right: anchor(--archive-hero right);
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--archive-muted);
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition:
-    opacity 200ms ease,
-    color 150ms ease,
-    transform 150ms ease,
-    visibility 0s linear 200ms;
-
-  &::before,
-  &::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 1rem;
-    height: 1.5px;
-    border-radius: 999px;
-    background: currentColor;
-    transform: translate(-50%, -50%) rotate(45deg);
-  }
-
-  &::after {
-    transform: translate(-50%, -50%) rotate(-45deg);
-  }
-
-  &:hover,
-  &:focus-visible {
-    color: var(--text);
-  }
-
-  &:active {
-    transform: translateY(1px);
-  }
-
-  &:focus-visible {
-    outline: 2px solid color-mix(in oklch, var(--archive-accent) 70%, transparent);
-    outline-offset: 3px;
-    border-radius: 50%;
-  }
-}
-
-.archive-page:has(.archive-topic-picker:popover-open) .archive-hero__close {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transition:
-    opacity 220ms ease 120ms,
-    color 150ms ease,
-    transform 150ms ease,
-    visibility 0s;
 }
 
 .archive-topic-list {
@@ -440,26 +382,6 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar-main, .footer) {
   .archive-topic-list {
     grid-template-columns: 1fr;
     padding: 0.55rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .archive-rail__link,
-  .archive-rail__year,
-  .archive-group__header,
-  .archive-hero__title,
-  .archive-popup,
-  .archive-topic-picker,
-  .archive-hero__close,
-  .archive-page:has(.archive-topic-picker:popover-open) .archive-hero__close,
-  .archive-topic-list__item,
-  .archive-page :is(.archive-era, .archive-group, .archive-rail),
-  body:has(.archive-page) :is(.navbar-main, .footer) {
-    transition: none;
-  }
-
-  .archive-topic-picker:popover-open .archive-topic-list__item {
-    animation: none;
   }
 }
 
@@ -607,7 +529,6 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar-main, .footer) {
 
 .archive-item {
   position: relative;
-  margin-left: 1.25rem;
   text-align: left;
 
   /* Each item is its own anchor; anchor-scope keeps the shared name local to

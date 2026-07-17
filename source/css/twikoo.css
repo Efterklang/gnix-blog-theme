@@ -1510,28 +1510,3 @@
     }
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .tk-fade-in,
-  .tk-expand,
-  .tk-extra,
-  .tk-nick-link,
-  .tk-avatar.tk-clickable,
-  .tk-ruser,
-  .tk-admin-close,
-  .tk-panel-logout,
-  .el-button,
-  .el-textarea__inner,
-  .el-input__inner,
-  .el-input .el-input__clear,
-  .el-input__prefix,
-  .el-input__suffix,
-  .el-input__icon,
-  .tk-submit-action-icon.OwO .OwO-logo {
-    transition: none;
-  }
-
-  .tk-fade-in {
-    animation: none;
-  }
-}

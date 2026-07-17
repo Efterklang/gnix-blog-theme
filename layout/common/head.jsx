@@ -193,6 +193,20 @@ const PRERENDER_HELPER_SCRIPT = `(function() {
   };
 })();`;
 
+/* 首帧渲染前给 <html> 打上 gnix-revealed，作为 CSS 入场动画（如归档列表逐条浮现）的触发器。
+   pagereveal 在预渲染页激活后的首个渲染机会触发，动画不会在后台预渲染阶段提前跑完；
+   不支持 pagereveal 的浏览器（也不支持 prerender）内联立即执行，同样早于首帧 */
+const PAGE_REVEAL_SCRIPT = `(function() {
+  function reveal() {
+    document.documentElement.classList.add("gnix-revealed");
+  }
+  if ("onpagereveal" in window) {
+    window.addEventListener("pagereveal", reveal, { once: true });
+  } else {
+    reveal();
+  }
+})();`;
+
 function getSunnyBootScript(url_for) {
   const mp4Url = typeof url_for === "function" ? url_for("/media/leaves.mp4") : "/media/leaves.mp4";
   const css = `
@@ -225,11 +239,6 @@ html.gnix-sunny-booting body > :not(.gnix-sunny-atmosphere) {
 :root[data-theme="sunny"] .gnix-sunny-glow,
 :root[data-theme="sunny"] .gnix-sunny-leaves.is-ready {
   opacity: 1;
-}
-@media (prefers-reduced-motion: reduce) {
-  :root[data-theme="sunny"] .gnix-sunny-leaves {
-    opacity: 0;
-  }
 }`;
 
   return `
@@ -357,6 +366,7 @@ module.exports = class extends Component {
         <script dangerouslySetInnerHTML={{ __html: articleFontUtilsScript }}></script>
         <script dangerouslySetInnerHTML={{ __html: articleFontInitScript }}></script>
         <script dangerouslySetInnerHTML={{ __html: PRERENDER_HELPER_SCRIPT }}></script>
+        <script dangerouslySetInnerHTML={{ __html: PAGE_REVEAL_SCRIPT }}></script>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {meta?.length ? <MetaTags meta={meta} /> : null}
         <title>{getPageTitle(page, config.title, helper)}</title>

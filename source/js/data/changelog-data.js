@@ -3,6 +3,26 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "7.17",
+        cn: [
+          "重做页面切换动画：移除原先几乎不可感知的 view-transition 整块交叉淡化（也不再采用正文整体上浮的粗颗粒方案），归档/标签页改为页面呈现时文章行自上而下逐条浮现，跨分组连续 stagger、节奏与标签幕帘一致，年份标记与季节标题直接呈现；动画由 pagereveal 事件触发，预渲染页激活时同样从首个可见帧开始，无 JS 时列表直接可见",
+        ],
+        en: [
+          "Rework the page transition: drop the previous nearly imperceptible whole-block view-transition crossfade (and skip the coarse whole-content rise variant), archive/tag pages now reveal post rows one by one from the top with a continuous cross-group stagger matching the topic curtain's rhythm, while year markers and season headers render immediately; the animation is driven by the pagereveal event, so prerendered activations still animate from the first visible frame, and without JS the list simply renders visible",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.17",
+        cn: [
+          "移除全站 prefers-reduced-motion 降级分支：删除各页面 CSS、图片组/图片轮播/设备展示组件与 Sunny 主题视频中对「减弱动态效果」系统偏好的特判，动画与过渡行为对所有访客一致",
+        ],
+        en: [
+          "Remove the site-wide prefers-reduced-motion fallbacks: page CSS, the image-group / image-carousel / device-carousel components, and the Sunny theme video no longer special-case the system \"reduce motion\" preference, so animations and transitions behave the same for every visitor",
+        ],
+        category: "refactor",
+      },
+      {
         date: "7.16",
         cn: [
           "集成 S3/Bitiful 渐进式图片加载：Markdown 图片渲染支持 thumbhash 模糊占位图、自动 srcset 响应式尺寸、Obsidian 风格 `![alt|宽]` / `![alt|宽x高]` 尺寸语法，以及 JSON 元数据缓存（可通过 markdown_exit.image_options 配置）",

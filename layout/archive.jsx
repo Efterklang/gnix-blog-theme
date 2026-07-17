@@ -114,7 +114,7 @@ function getPostDateParts(postDate, dateXml, date) {
   };
 }
 
-function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, date_xml, date, labels, formatReadTime }) {
+function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, date_xml, date, labels, formatReadTime, nextOrder }) {
   const title = sectionTitle || getArchiveRangeLabel(year, month, season, labels);
   const kicker = year ? String(year) : "archive";
   const marker = season ? season.toLowerCase() : "all";
@@ -138,6 +138,7 @@ function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, 
             dateXml={postDate.xml}
             excerpt={excerpt}
             readTime={readMinutes ? formatReadTime(readMinutes) : null}
+            order={nextOrder()}
           />
         );
       })}
@@ -217,6 +218,9 @@ module.exports = class extends Component {
     const pickerStats = [writingsLabel, sinceLabel].filter(Boolean);
 
     let articleList;
+    // 文章行共用一条跨分组的连续序号，供入场动画自上而下逐条浮现（年份/季节标题不参与）
+    let entryOrder = 0;
+    const nextOrder = () => entryOrder++;
     if (!page.year) {
       const seasonGroups = groupPostsBySeason(visiblePosts);
       const yearBlocks = groupSeasonGroupsByYear(seasonGroups);
@@ -237,6 +241,7 @@ module.exports = class extends Component {
                 date,
                 labels: archiveLabels,
                 formatReadTime,
+                nextOrder,
               })}
             </Fragment>
           ))}
@@ -254,6 +259,7 @@ module.exports = class extends Component {
         date,
         labels: archiveLabels,
         formatReadTime,
+        nextOrder,
       });
     }
 
@@ -266,7 +272,6 @@ module.exports = class extends Component {
             {heroTitle}
           </button>
         </h1>
-        <button class="archive-hero__close" type="button" popovertarget="archive-topic-picker" popovertargetaction="hide" aria-label={helper.__("archive.close_topic_picker")}></button>
         {renderTopicPicker({
           tags: topicTags,
           allPosts: {

@@ -78,10 +78,3 @@
 .accordion > details.accordion-item > summary ~ :last-child {
   margin-bottom: 16px;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .accordion > details.accordion-item > summary::before,
-  .accordion > details.accordion-item::details-content {
-    transition: none;
-  }
-}

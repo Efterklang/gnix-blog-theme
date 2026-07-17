@@ -1,50 +1,5 @@
 @charset "UTF-8";
 
-@view-transition {
-  navigation: auto;
-}
-
-::view-transition-old(root) {
-  animation: none;
-}
-
-::view-transition-new(root) {
-  animation: none;
-}
-
-::view-transition-old(gnix-main-content) {
-  animation: gnix-view-transition-out 160ms ease both;
-}
-
-::view-transition-new(gnix-main-content) {
-  animation: gnix-view-transition-in 160ms ease both;
-}
-
-@keyframes gnix-view-transition-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes gnix-view-transition-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(gnix-main-content),
-  ::view-transition-new(gnix-main-content) {
-    animation-duration: 1ms;
-  }
-}
-
 :root {
   /* color */
   --subtext1: color-mix(in oklch, var(--text) 90%, var(--base));
@@ -527,12 +482,6 @@ html {
   scroll-margin-top: calc(var(--navbar-height) + env(safe-area-inset-top) + 1rem);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-}
-
 /* #region Navbar */
 
 .navbar {
@@ -559,11 +508,6 @@ html {
     border: none;
     cursor: pointer;
   }
-}
-
-.navbar-main {
-  /* Keep the sticky nav out of native history snapshots to avoid stale-style flashes on back/forward navigation. */
-  view-transition-name: none;
 }
 
 #navbar-logo-link {
@@ -640,7 +584,6 @@ html {
 /* #endregion Navbar */
 
 .main-content {
-  view-transition-name: gnix-main-content;
   flex-grow: 1;
   box-sizing: border-box;
   width: 100%;
@@ -1219,13 +1162,6 @@ html.night .preference-quick__select {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .preference-popup,
-  .preference-popup:popover-open {
-    animation: none;
-  }
-}
-
 /* #endregion Preference quick popup */
 
 /* #region Sunny atmosphere */
@@ -1264,17 +1200,6 @@ html.night .preference-quick__select {
 
 :root[data-theme="sunny"] .gnix-sunny-leaves.is-ready {
   opacity: var(--gnix-sunny-leaves-opacity, 1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :root[data-theme="sunny"] .gnix-sunny-leaves {
-    opacity: 0;
-  }
-
-  .gnix-sunny-glow,
-  .gnix-sunny-leaves {
-    transition: none;
-  }
 }
 
 /* #endregion Sunny atmosphere */

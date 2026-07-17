@@ -185,13 +185,6 @@ class DeviceCarousel extends HTMLElement {
         word-break: break-all;
         line-height: 1.5;
       }
-
-      /* Pause animation when not visible to save resources */
-      @media (prefers-reduced-motion: reduce) {
-        .showcase-track {
-          animation: none;
-        }
-      }
     `;
 
     // Get devices from slots or use defaults

@@ -219,17 +219,6 @@ const STYLES = `
       opacity: 1;
     }
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    .rail {
-      scroll-behavior: auto;
-    }
-
-    .caption,
-    .nav {
-      transition: none;
-    }
-  }
 `;
 
 const DOCUMENT_STYLES = `
@@ -396,10 +385,9 @@ class ImageGroup extends HTMLElement {
 
   _scroll(direction) {
     if (!this._rail) return;
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     this._rail.scrollBy({
       left: direction * Math.max(this._rail.clientWidth * 0.82, 180),
-      behavior: prefersReducedMotion ? "auto" : "smooth",
+      behavior: "smooth",
     });
   }
 
