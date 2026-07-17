@@ -5,6 +5,16 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "7.17",
         cn: [
+          "偏好弹窗改用原生 Popover API 驱动：导航栏按钮通过 popovertarget 声明式开合，点击外部/Esc 关闭交由浏览器 light-dismiss 处理，进入全屏等浏览器强制关闭场景不再需要 hidden 兜底；删除自定义弹窗控制模块及其懒加载/空闲预热链路，preferences.js 改为全站 defer 常驻加载",
+        ],
+        en: [
+          "Drive the preferences popup with the native Popover API: the navbar button toggles it declaratively via popovertarget, outside-click/Esc dismissal is handled by the browser's light-dismiss, and browser-forced closes such as entering fullscreen no longer need the hidden fallback; the custom popup controller module and its lazy-load/idle-prewarm chain are removed, with preferences.js now simply deferred on every page",
+        ],
+        category: "refactor",
+      },
+      {
+        date: "7.17",
+        cn: [
           "重做页面切换动画：移除原先几乎不可感知的 view-transition 整块交叉淡化（也不再采用正文整体上浮的粗颗粒方案），归档/标签页改为页面呈现时文章行自上而下逐条浮现，跨分组连续 stagger、节奏与标签幕帘一致，年份标记与季节标题直接呈现；动画由 pagereveal 事件触发，预渲染页激活时同样从首个可见帧开始，无 JS 时列表直接可见",
         ],
         en: [

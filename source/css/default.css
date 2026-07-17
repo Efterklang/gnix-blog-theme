@@ -881,10 +881,11 @@ input.searchbox-input {
 
    无遮罩、无面板底色：弹窗打开时页面保持可见、可滚动，方便对照正文
    查看排版调整效果；控件用不透明的 --mantle 填充 + 描边与页面区分。
-   与 :popover-open 并列声明用于压过上方的全局 popover 样式
-   （inset: 0 + 全屏模糊背景）。 */
+   开关由原生 popover（navbar 按钮 popovertarget / 快捷键 togglePopover）
+   驱动；可见样式只挂在 :popover-open 下（特定性压过上方全局 popover
+   样式的 inset: 0 + 全屏模糊背景），关闭态回落到 UA 的 display: none，
+   即使 popover 被浏览器强制关闭（如进入全屏）也不会残留。 */
 
-.preference-popup,
 .preference-popup:popover-open {
   position: fixed;
   inset: auto;
@@ -907,16 +908,8 @@ input.searchbox-input {
   animation: preference-popup-in 160ms ease;
 }
 
-.preference-popup[hidden] {
-  display: none;
-}
-
 .preference-popup::backdrop {
   background: transparent;
-}
-
-.preference-popup:focus {
-  outline: none;
 }
 
 .preference-popup::-webkit-scrollbar {
@@ -1115,7 +1108,6 @@ html.night .preference-quick__select {
 }
 
 @media (max-width: 768px) {
-  .preference-popup,
   .preference-popup:popover-open {
     top: auto;
     right: 0;

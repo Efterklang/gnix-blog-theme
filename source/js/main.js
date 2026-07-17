@@ -176,15 +176,6 @@ function prewarmLazyAssetsOnIdle(assets, options = {}) {
   return runOnIdle(() => prewarmLazyAssets(assets, prewarmOptions), { fallbackDelay, timeout });
 }
 
-window.__gnixLazyAssets = {
-  ...(window.__gnixLazyAssets || {}),
-  loadScriptOnce,
-  loadStyleOnce,
-  prewarmLazyAssets,
-  prewarmLazyAssetsOnIdle,
-  resolveGnixAssetUrl,
-};
-
 const FOOTNOTE_HOVER_TOOLTIP_MEDIA = "(hover: hover) and (pointer: fine)";
 let openFootnoteRef = null;
 
@@ -253,36 +244,8 @@ function handleFootnoteTooltipClick(event) {
   toggleFootnoteTooltip(ref);
 }
 
-const PREFERENCE_POPUP_MODULE_URL = resolveGnixAssetUrl("/js/preferences-popup.js");
-const GLOBAL_IDLE_PREWARM_ASSETS = [
-  { as: "script", url: PREFERENCE_POPUP_MODULE_URL },
-  { as: "script", url: "/js/preferences.js" },
-];
-
-let preferencePopupModulePromise = null;
-let globalIdlePrewarmScheduled = false;
-
-function loadPreferencePopupModule() {
-  preferencePopupModulePromise ||= import(PREFERENCE_POPUP_MODULE_URL);
-  return preferencePopupModulePromise;
-}
-
-function togglePreferencePopup() {
-  return loadPreferencePopupModule().then((module) => module.togglePreferencePopup());
-}
-
-function handlePreferencePopupError(error) {
-  console.warn("[gnix] Unable to open preferences popup", error);
-}
-
 function handleLazyAssetError(error) {
   console.warn("[gnix] Unable to load lazy asset", error);
-}
-
-function initGlobalIdlePrewarm() {
-  if (globalIdlePrewarmScheduled) return;
-  globalIdlePrewarmScheduled = true;
-  prewarmLazyAssetsOnIdle(GLOBAL_IDLE_PREWARM_ASSETS, { fetchPriority: "low", timeout: 4000 });
 }
 
 function twikoo_handler() {
@@ -432,16 +395,6 @@ function addHighlightTool() {
 
 // #region Keyboard Shortcuts
 
-function handlePreferenceTriggerClick(event) {
-  if (event.defaultPrevented) return;
-
-  const trigger = event.target.closest?.("[data-preference-trigger]");
-  if (!trigger || trigger.disabled) return;
-
-  event.preventDefault();
-  togglePreferencePopup().catch(handlePreferencePopupError);
-}
-
 function handleKeyDown(e) {
   if (e.key === "Escape") closeFootnoteTooltip();
 
@@ -454,7 +407,7 @@ function handleKeyDown(e) {
   const isSettingsShortcut = !e.altKey && !e.shiftKey && (e.code === "Comma" || e.key === "," || e.key === "Comma");
   if (isSettingsShortcut) {
     e.preventDefault();
-    togglePreferencePopup().catch(handlePreferencePopupError);
+    document.getElementById("preference-popup")?.togglePopover();
     return;
   }
 
@@ -564,11 +517,6 @@ runWhenActivated(initPage);
 document.addEventListener("gnix:decrypted-content-ready", () => runWhenActivated(initPage));
 
 runWhenActivated(() => {
-  initGlobalIdlePrewarm();
-  document.addEventListener("click", handlePreferenceTriggerClick, {
-    capture: true,
-    passive: false,
-  });
   document.addEventListener("keydown", handleKeyDown, {
     capture: true, // 捕获阶段监听，优先于浏览器默认处理
     passive: false, // 允许调用 preventDefault

@@ -57,7 +57,7 @@ class Navbar extends Component {
               ) : null}
             </div>
             <div class="navbar-actions">
-              <button type="button" id="preferences-link" class="navbar-item" title={preferencesTitle} aria-label={preferencesTitle} data-preference-trigger>
+              <button type="button" id="preferences-link" class="navbar-item" title={preferencesTitle} aria-label={preferencesTitle} popovertarget="preference-popup">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <title>{preferencesTitle}</title>
                   <path d="M12 4v16" />

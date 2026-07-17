@@ -235,7 +235,7 @@ module.exports = class extends Component {
     const darkThemes = THEME_OPTIONS.filter((theme) => theme.colorScheme === "night");
 
     return (
-      <div id="preference-popup" class="preference-popup" popover="manual" role="dialog" aria-label={title} tabindex="-1" hidden>
+      <div id="preference-popup" class="preference-popup" popover="auto" role="dialog" aria-label={title}>
         <div class="preference-quick" data-preferences-page data-preference-surface="quick">
           <div class="preference-quick__steppers">
             {renderStepper(

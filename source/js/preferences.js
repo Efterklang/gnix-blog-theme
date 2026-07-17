@@ -513,7 +513,5 @@
     document.querySelectorAll("[data-preferences-page]").forEach(initPreferenceRoot);
   }
 
-  window.__gnixInitPreferencesPage = () => runWhenActivated(initPreferencesPage);
-
-  whenReady(window.__gnixInitPreferencesPage);
+  whenReady(() => runWhenActivated(initPreferencesPage));
 })(window, document);
