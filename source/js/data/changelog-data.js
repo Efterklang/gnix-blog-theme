@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "7.18",
+        cn: [
+          "修复色板派生色阶（subtext/surface/overlay）跨主题作用域失真的问题：这些由 --text/--base 混合而来的变量原声明在 :root 上，var() 在声明处求值后全站继承的是按页面当前主题算好的结果，嵌套 data-theme 作用域（设置页主题模式预览的明暗面板、主题卡片组件的取色流程）拿不到自身色板的派生色；现改为声明在 :where([data-theme]) 上按作用域重算，主题卡片的取色缓存键同步升级以淘汰旧数据",
+        ],
+        en: [
+          "Fix derived palette shades (subtext/surface/overlay) bleeding across theme scopes: these --text/--base color-mix variables were declared on :root, where var() resolves at the declaring element, so the site-wide inherited values were baked from the page's current theme and nested data-theme scopes (the light/dark panes of the settings page's theme-mode preview and the theme card component's color sampling) never saw their own palette's derived shades; they are now declared on :where([data-theme]) and recomputed per scope, with the theme card color cache key bumped to retire stale data",
+        ],
+        category: "fix",
+      },
+      {
         date: "7.17",
         cn: [
           "清理偏好设置脚本与样式：主题切换不再重复同步 UI（统一走 gnix:theme-change 事件）、调色板下拉仅在明暗方案切换时重建选项、自定义字体默认值缓存且快捷弹窗跳过相关计算（此前每次页面加载与每格行高拖动都会触发强制样式重算）；移除已无消费者的 data-article-line-height 属性及配套 legacy CSS，行高统一由 --article-line-height 变量驱动；设置页返回按钮补上手型光标",
