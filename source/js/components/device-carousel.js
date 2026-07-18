@@ -25,15 +25,6 @@ function escapeAttribute(value) {
   return escapeHtml(value).replace(/"/g, "&quot;");
 }
 
-function resolveGnixAssetUrl(path) {
-  if (!path || /^(?:[a-z][a-z\d+.-]*:)?\/\//i.test(path) || /^(?:data|mailto|tel):/i.test(path)) {
-    return path;
-  }
-
-  const root = window.__gnixAssetRoot || "/";
-  return `${root.replace(/\/?$/, "/")}${String(path).replace(/^\/+/, "")}`;
-}
-
 function renderSpecs(value) {
   return String(value || "")
     .split(/<br\s*\/?>|\n/i)
@@ -199,7 +190,7 @@ class DeviceCarousel extends HTMLElement {
       <div class="showcase-card">
         <div class="showcase-label">${escapeHtml(device.name)}</div>
         <div class="showcase-content">
-          <img src="${escapeAttribute(resolveGnixAssetUrl(device.image))}" alt="${escapeAttribute(device.alt)}" class="device-image" loading="lazy"/>
+          <img src="${escapeAttribute(device.image)}" alt="${escapeAttribute(device.alt)}" class="device-image" loading="lazy"/>
         </div>
         <div class="showcase-meta">${renderSpecs(device.specs)}</div>
       </div>

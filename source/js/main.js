@@ -16,19 +16,10 @@ function getLocalizedUiText(key) {
   return messages[key] || key;
 }
 
-function resolveGnixAssetUrl(path) {
-  if (!path || /^(?:[a-z][a-z\d+.-]*:)?\/\//i.test(path) || /^(?:data|mailto|tel):/i.test(path)) {
-    return path;
-  }
-
-  const root = window.__gnixAssetRoot || "/";
-  return `${root.replace(/\/?$/, "/")}${String(path).replace(/^\/+/, "")}`;
-}
-
 const lazyAssetPromises = new Map();
 
 function resolveAssetHref(path) {
-  return new URL(resolveGnixAssetUrl(path), window.location.href).href;
+  return new URL(path, window.location.href).href;
 }
 
 function getLazyAssetKey(kind, path) {
@@ -427,13 +418,10 @@ function handleMermaid() {
   const containers = document.querySelectorAll(".mermaid-container");
   if (containers.length === 0) return;
 
-  const cssUrl = resolveGnixAssetUrl("/css/optional/mermaid.css");
-  const adapterUrl = resolveGnixAssetUrl("/js/mdit/mermaid.js");
-
-  loadStyleOnce(cssUrl).catch(handleLazyAssetError);
+  loadStyleOnce("/css/optional/mermaid.css").catch(handleLazyAssetError);
 
   const runInit = () => {
-    const libUrl = resolveGnixAssetUrl("/js/host/mermaid/mermaid.min.js");
+    const libUrl = "/js/host/mermaid/mermaid.min.js";
 
     containers.forEach((container, index) => {
       if (!container.id) {
@@ -448,7 +436,7 @@ function handleMermaid() {
   if (window.initMermaidDiagram) {
     runInit();
   } else {
-    loadScriptOnce(adapterUrl).then(runInit).catch(handleLazyAssetError);
+    loadScriptOnce("/js/mdit/mermaid.js").then(runInit).catch(handleLazyAssetError);
   }
 }
 
