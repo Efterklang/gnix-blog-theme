@@ -17,7 +17,9 @@
   --font-handwriting: "Bradley Hand", "homemade-apple", XingKai SC, cursive;
   --article-font-size: 1rem;
   --article-font-family: var(--font-sans-serif);
-  --article-line-height: 1.6;
+  /* 行高实际值由 head 内联脚本 / preferences.js 写入行内
+     --article-line-height，此处仅作无 JS 时的回退，与默认设置保持一致 */
+  --article-line-height: 1.7;
   --article-font-weight: 400;
   --article-bold-font-weight: 700;
   /* 文章页正文栏宽（article.css 消费，其余页面保持默认列宽） */
@@ -41,20 +43,14 @@
   &[data-article-font-family="sans-serif"] {
     --article-font-family: var(--font-sans-serif);
   }
+  &[data-article-font-family="serif"] {
+    --article-font-family: var(--font-serif);
+  }
   &[data-article-font-family="mono"] {
     --article-font-family: var(--font-mono);
   }
   &[data-article-font-family="handwriting"] {
     --article-font-family: var(--font-handwriting);
-  }
-  &[data-article-line-height="compact"] {
-    --article-line-height: 1.55;
-  }
-  &[data-article-line-height="normal"] {
-    --article-line-height: 1.7;
-  }
-  &[data-article-line-height="relaxed"] {
-    --article-line-height: 1.85;
   }
   &[data-article-font-weight="light"] {
     --article-font-weight: 300;

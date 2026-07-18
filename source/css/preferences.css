@@ -34,7 +34,6 @@
 
 .preference-shell {
   display: grid;
-  gap: 0;
   width: min(100%, 54rem);
   margin: 0 auto;
 }
@@ -69,47 +68,8 @@
   min-width: 0;
 }
 
-.preference-back-link {
-  grid-area: action;
-  justify-self: end;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.42rem;
-  min-width: 0;
-  min-height: 2.25rem;
-  padding: 0.5rem 0.72rem;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  color: var(--subtext0);
-  background: transparent;
-  font: 650 0.84rem / 1.2 var(--font-sans-serif);
-  text-decoration: none;
-
-  span {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &:hover {
-    border-color: hsl(from var(--surface1) h s l / 0.6);
-    color: var(--text);
-    background: hsl(from var(--base) h s l / 0.36);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--mauve);
-    outline-offset: 2px;
-  }
-}
-
-.preference-header-actions .preference-back-link {
-  grid-area: auto;
-  justify-self: auto;
-}
-
+/* 返回与重置按钮同处 .preference-header-actions（flex 容器）内，共用一套外观 */
+.preference-back-link,
 .preference-reset-action {
   display: inline-flex;
   align-items: center;
@@ -123,6 +83,7 @@
   color: var(--subtext0);
   background: transparent;
   font: 650 0.84rem / 1.2 var(--font-sans-serif);
+  text-decoration: none;
   cursor: pointer;
 
   span {
@@ -232,8 +193,6 @@
 .preference-choice-group--segmented {
   display: grid;
   justify-self: end;
-  border-radius: 0;
-  background: transparent;
   gap: 0.32rem;
 }
 
@@ -421,10 +380,6 @@
   padding: 0.2rem 0 0.1rem;
 }
 
-.preference-theme-controls > .preference-choice-group--mode {
-  justify-self: stretch;
-}
-
 .preference-theme-schemes {
   display: grid;
   gap: 0.45rem;
@@ -591,8 +546,6 @@
   height: 1.5rem;
   margin: 0;
   appearance: none;
-  -webkit-appearance: none;
-  accent-color: var(--mauve);
   background: transparent;
   cursor: pointer;
 }
@@ -610,7 +563,6 @@
   border: 2px solid var(--surface0);
   border-radius: 50%;
   appearance: none;
-  -webkit-appearance: none;
   background: var(--text);
   box-shadow: 0 0 0 1px hsl(from var(--mauve) h s l / 0.25);
 }
@@ -735,7 +687,6 @@
 }
 
 .font-custom-field :is(input, textarea) {
-  box-sizing: border-box;
   width: 100%;
   min-width: 0;
   padding: 0.625rem 0.75rem;
@@ -847,8 +798,6 @@
 
 @media (max-width: 640px) {
   .preference-page-header {
-    grid-template-areas: "title action";
-    grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.24rem 0.65rem;
   }
 
@@ -856,19 +805,13 @@
     font-size: 1.35rem;
   }
 
-  .preference-page-header .preference-back-link {
-    justify-self: end;
+  .preference-page-header :is(.preference-back-link, .preference-reset-action) {
     min-height: 2rem;
     padding: 0.42rem 0.5rem;
   }
 
   .preference-header-actions {
     gap: 0.18rem;
-  }
-
-  .preference-page-header .preference-reset-action {
-    min-height: 2rem;
-    padding: 0.42rem 0.5rem;
   }
 
   .preference-panel__header,
@@ -880,19 +823,11 @@
     gap: 0.65rem;
   }
 
-  .preference-choice-group--mode,
   .preference-choice-group--font-size,
   .preference-choice-group--article-width,
   .preference-choice-group--font-weight {
     justify-self: stretch;
     width: 100%;
-    max-width: none;
-  }
-
-  .preference-theme-controls > .preference-choice-group--mode {
-    justify-self: stretch;
-    width: 100%;
-    max-width: none;
   }
 
   .theme-scheme-control {

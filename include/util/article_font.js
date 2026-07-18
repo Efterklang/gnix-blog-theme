@@ -115,7 +115,6 @@ function getArticleFontInitScript() {
   if (utils.applyCustomFontFamilies) utils.applyCustomFontFamilies(html, settings.customFonts.families, config.customFonts && config.customFonts.familyOptions);
   html.setAttribute("data-article-font-size", settings.size);
   html.setAttribute("data-article-font-family", settings.type);
-  html.setAttribute("data-article-line-height", String(settings.lineHeight));
   html.setAttribute("data-article-font-weight", settings.weight);
   html.setAttribute("data-article-width", settings.width);
   html.style.setProperty("--article-line-height", String(settings.lineHeight));

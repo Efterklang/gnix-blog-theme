@@ -5,6 +5,16 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "7.17",
         cn: [
+          "清理偏好设置脚本与样式：主题切换不再重复同步 UI（统一走 gnix:theme-change 事件）、调色板下拉仅在明暗方案切换时重建选项、自定义字体默认值缓存且快捷弹窗跳过相关计算（此前每次页面加载与每格行高拖动都会触发强制样式重算）；移除已无消费者的 data-article-line-height 属性及配套 legacy CSS，行高统一由 --article-line-height 变量驱动；设置页返回按钮补上手型光标",
+        ],
+        en: [
+          "Clean up the preferences script and styles: theme switches no longer double-sync the UI (everything goes through the gnix:theme-change event), the palette select only rebuilds its options when the light/dark scheme flips, and default custom font families are cached with the quick popup skipping that work entirely (previously every page load and every line-height slider tick forced a style recalc); the consumer-less data-article-line-height attribute and its legacy CSS are removed in favor of the --article-line-height variable, and the settings page back button gains a pointer cursor",
+        ],
+        category: "refactor",
+      },
+      {
+        date: "7.17",
+        cn: [
           "偏好弹窗改用原生 Popover API 驱动：导航栏按钮通过 popovertarget 声明式开合，点击外部/Esc 关闭交由浏览器 light-dismiss 处理，进入全屏等浏览器强制关闭场景不再需要 hidden 兜底；删除自定义弹窗控制模块及其懒加载/空闲预热链路，preferences.js 改为全站 defer 常驻加载",
         ],
         en: [
