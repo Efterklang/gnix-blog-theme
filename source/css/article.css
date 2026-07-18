@@ -900,7 +900,7 @@ em,
   font-weight: 600;
 }
 
-#icarus-toc-container {
+#toc {
   .toc {
     max-height: clamp(22rem, 72dvh, 80dvh);
     width: clamp(18rem, 86vw, 40rem);

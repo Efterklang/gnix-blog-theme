@@ -34,11 +34,9 @@ window.__CHANGELOG_DATA__ = [
       },
       {
         date: "7.17",
-        cn: [
-          "移除全站 prefers-reduced-motion 降级分支：删除各页面 CSS、图片组/图片轮播/设备展示组件与 Sunny 主题视频中对「减弱动态效果」系统偏好的特判，动画与过渡行为对所有访客一致",
-        ],
+        cn: ["移除全站 prefers-reduced-motion 降级分支：删除各页面 CSS、图片组/图片轮播/设备展示组件与 Sunny 主题视频中对「减弱动态效果」系统偏好的特判，动画与过渡行为对所有访客一致"],
         en: [
-          "Remove the site-wide prefers-reduced-motion fallbacks: page CSS, the image-group / image-carousel / device-carousel components, and the Sunny theme video no longer special-case the system \"reduce motion\" preference, so animations and transitions behave the same for every visitor",
+          'Remove the site-wide prefers-reduced-motion fallbacks: page CSS, the image-group / image-carousel / device-carousel components, and the Sunny theme video no longer special-case the system "reduce motion" preference, so animations and transitions behave the same for every visitor',
         ],
         category: "refactor",
       },
@@ -60,18 +58,14 @@ window.__CHANGELOG_DATA__ = [
         ],
         en: [
           "Fix the preferences popup stepper buttons' focus ring overflowing the container's rounded border with square corners: the outer buttons now carry matching corner radii, so the focus ring and hover background follow the curve",
-          "Give the four selects in the preferences popup id attributes, silencing the browser's \"form field should have an id or name\" warning",
+          'Give the four selects in the preferences popup id attributes, silencing the browser\'s "form field should have an id or name" warning',
         ],
         category: "fix",
       },
       {
         date: "7.13",
-        cn: [
-          "导航栏偏好设置图标更换为 Type（文字排版）字形，更贴合弹窗内容",
-        ],
-        en: [
-          "Swap the navbar preferences icon for the Type glyph, better matching the popup's typography focus",
-        ],
+        cn: ["导航栏偏好设置图标更换为 Type（文字排版）字形，更贴合弹窗内容"],
+        en: ["Swap the navbar preferences icon for the Type glyph, better matching the popup's typography focus"],
         category: "uiux",
       },
       {
@@ -88,9 +82,7 @@ window.__CHANGELOG_DATA__ = [
       },
       {
         date: "7.13",
-        cn: [
-          "拆分偏好设置样式：导航栏快捷弹窗的样式移入常驻的 default.css，preferences.css 仅保留 /preferences 独立页样式且只在该页面加载；弹窗打开时不再懒加载 CSS，空闲预热列表同步移除该样式表",
-        ],
+        cn: ["拆分偏好设置样式：导航栏快捷弹窗的样式移入常驻的 default.css，preferences.css 仅保留 /preferences 独立页样式且只在该页面加载；弹窗打开时不再懒加载 CSS，空闲预热列表同步移除该样式表"],
         en: [
           "Split the preferences styles: the navbar quick popup styles move into the always-loaded default.css, while preferences.css keeps only the standalone /preferences page styles and is loaded on that page only; opening the popup no longer lazy-loads CSS, and the stylesheet is dropped from the idle prewarm list",
         ],
@@ -98,9 +90,7 @@ window.__CHANGELOG_DATA__ = [
       },
       {
         date: "7.13",
-        cn: [
-          "设置页 Typography 区块调整：字重移到字号下方；自定义字体区块常驻显示（移除折叠开关）；移除 Apply 按钮，输入框失焦或按 Enter 后自动应用自定义字体",
-        ],
+        cn: ["设置页 Typography 区块调整：字重移到字号下方；自定义字体区块常驻显示（移除折叠开关）；移除 Apply 按钮，输入框失焦或按 Enter 后自动应用自定义字体"],
         en: [
           "Tweak the Typography section of the settings page: the weight row moves below the size row; the custom fonts block is always visible (the collapse toggle is removed); the Apply button is gone — custom fonts now apply automatically when an input loses focus or on Enter",
         ],
@@ -134,10 +124,7 @@ window.__CHANGELOG_DATA__ = [
       },
       {
         date: "7.12",
-        cn: [
-          "归档页标签弹窗新增 All Posts 入口（含总文章数），可从任意标签/年份归档一键回到全部文章",
-          "归档列表行简化为仅标题；发布日期移入悬浮预览弹层，取代原先的 N° 00x 序号，显示在阅读时长左侧",
-        ],
+        cn: ["归档页标签弹窗新增 All Posts 入口（含总文章数），可从任意标签/年份归档一键回到全部文章", "归档列表行简化为仅标题；发布日期移入悬浮预览弹层，取代原先的 N° 00x 序号，显示在阅读时长左侧"],
         en: [
           "Add an All Posts entry (with total post count) to the archive tag picker popup, allowing a one-click return to the full archive from any tag or year view",
           "Archive list rows are simplified to the title only; the publish date moves into the hover preview popup, replacing the previous N° 00x running index to the left of the read time",
@@ -146,12 +133,8 @@ window.__CHANGELOG_DATA__ = [
       },
       {
         date: "7.10",
-        cn: [
-          "修复脚注悬浮预览在正文两端被截断的问题：hover 时 JS 测量并水平钳制 tooltip，使其始终位于正文可视区域内",
-        ],
-        en: [
-          "Fix footnote hover previews being clipped near the edges of the article body: the tooltip is now measured on hover and horizontally clamped to stay within the content area",
-        ],
+        cn: ["修复脚注悬浮预览在正文两端被截断的问题：hover 时 JS 测量并水平钳制 tooltip，使其始终位于正文可视区域内"],
+        en: ["Fix footnote hover previews being clipped near the edges of the article body: the tooltip is now measured on hover and horizontally clamped to stay within the content area"],
         category: "fix",
       },
       {
@@ -399,12 +382,12 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "5.26",
         cn: [
-          "拆分 default.css：把内容渲染样式（.content 及其后代、表格、blockquote、task-list、medium-zoom、heimu）、文章元数据（标题/meta-bar/字体设置 popover/comment popover/info popover/语言切换 popover）、.cover-image、TOC 浮动按钮与 #icarus-toc-container 全部迁出到新建的 source/css/article.css；head.jsx 仅在 isArticleLike（post + page）时加载 article.css，归档/标签索引等页面不再拉取这部分样式",
+          "拆分 default.css：把内容渲染样式（.content 及其后代、表格、blockquote、task-list、medium-zoom、heimu）、文章元数据（标题/meta-bar/字体设置 popover/comment popover/info popover/语言切换 popover）、.cover-image、TOC 浮动按钮与 #toc 全部迁出到新建的 source/css/article.css；head.jsx 仅在 isArticleLike（post + page）时加载 article.css，归档/标签索引等页面不再拉取这部分样式",
           "default.css 从 2404 行减到 991 行，只保留主题色变量、字体 @font-face、reset、navbar、theme selector、footer、searchbox 和 :popover-open 基础样式（搜索框 + 主题选择器分支），属于站点级骨架",
           "把 :popover-open 的 .toc-body 和 .article-popover 分支随 TOC / 文章 popover 一起迁到 article.css，避免无 TOC 的页面解析这部分嵌套规则",
         ],
         en: [
-          "Split default.css: move content rendering styles (.content and descendants, tables, blockquote, task-list, medium-zoom, heimu), article metadata (title / meta-bar / font-settings popover / comment popover / info popover / language-switch popover), .cover-image, the floating TOC button and #icarus-toc-container into a new source/css/article.css; head.jsx only loads article.css when isArticleLike (post + page), so archive / tag-index pages no longer pull those styles",
+          "Split default.css: move content rendering styles (.content and descendants, tables, blockquote, task-list, medium-zoom, heimu), article metadata (title / meta-bar / font-settings popover / comment popover / info popover / language-switch popover), .cover-image, the floating TOC button and #toc into a new source/css/article.css; head.jsx only loads article.css when isArticleLike (post + page), so archive / tag-index pages no longer pull those styles",
           "default.css shrinks from 2404 to 991 lines, retaining only theme color variables, font @font-face, reset, navbar, theme selector, footer, searchbox, and the :popover-open base (searchbox + theme-selector branches) — the site-level scaffolding",
           "Move the .toc-body and .article-popover branches of :popover-open into article.css alongside the TOC and article popovers, so pages without TOC do not parse those nested rules",
         ],

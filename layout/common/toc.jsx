@@ -15,7 +15,7 @@ class FloatingToc extends Component {
     const tocLabel = helper.__("article.toc");
 
     return (
-      <div class="toc-container" id="icarus-toc-container" style={page.encrypt ? "display:none" : null}>
+      <div class="toc-container" id="toc" style={page.encrypt ? "display:none" : null}>
         <button class="toc-button" type="button" popovertarget="toc-body" aria-label={tocLabel}>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>

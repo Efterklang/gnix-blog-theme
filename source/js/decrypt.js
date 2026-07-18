@@ -25,7 +25,7 @@ async function decryptPayload(password, base64) {
 }
 
 function buildToc() {
-  const tocContainer = document.getElementById("icarus-toc-container");
+  const tocContainer = document.getElementById("toc");
   if (!tocContainer) return;
   const headings = document.querySelectorAll(".content h1[id], .content h2[id], .content h3[id], .content h4[id], .content h5[id], .content h6[id]");
   if (!headings.length) return;
