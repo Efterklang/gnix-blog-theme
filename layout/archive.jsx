@@ -32,6 +32,7 @@ function estimateReadMinutes(content) {
   return tokens ? Math.max(1, Math.ceil(tokens.length / 200)) : 0;
 }
 
+// month 为 1-12 的自然月（moment#month() 是 0 基，调用侧需 +1）
 function getSeason(month) {
   if (month >= 3 && month <= 5) return "Spring";
   if (month >= 6 && month <= 8) return "Summer";
@@ -45,13 +46,13 @@ function getArchiveRangeLabel(year, month = null, season = null, labels = {}) {
     const time = parseISO(`${year}-${String(month).padStart(2, "0")}-01T00:00:00.000Z`);
     return isValidDate(time) ? `${dateFormatters.longMonth.format(time)} ${year}` : String(year);
   }
-  return season ? `${labels.seasons?.[season] || season} ${year}` : String(year);
+  return season ? `${season} ${year}` : String(year);
 }
 
 function groupPostsBySeason(posts) {
   return posts.reduce((groups, post) => {
     const year = post.date.year();
-    const season = getSeason(post.date.month());
+    const season = getSeason(post.date.month() + 1);
     const lastGroup = groups[groups.length - 1];
 
     if (lastGroup && lastGroup.year === year && lastGroup.season === season) {
@@ -195,12 +196,6 @@ module.exports = class extends Component {
     const topicsTitle = helper._p("common.tag", Infinity);
     const archiveLabels = {
       allPosts: helper.__("archive.all_posts"),
-      seasons: {
-        Spring: helper.__("archive.season_spring"),
-        Summer: helper.__("archive.season_summer"),
-        Autumn: helper.__("archive.season_autumn"),
-        Winter: helper.__("archive.season_winter"),
-      },
     };
     const formatReadTime = (minutes) => helper.__("archive.read_time", minutes);
 
@@ -235,7 +230,7 @@ module.exports = class extends Component {
                 posts: group.posts,
                 year: group.year,
                 season: group.season,
-                sectionTitle: archiveLabels.seasons[group.season],
+                sectionTitle: group.season,
                 url_for,
                 date_xml,
                 date,
@@ -248,7 +243,7 @@ module.exports = class extends Component {
         </Fragment>
       ));
     } else {
-      const season = page.month ? getSeason(page.month - 1) : null;
+      const season = page.month ? getSeason(page.month) : null;
       articleList = renderSeasonGroup({
         posts: visiblePosts,
         year: page.year,

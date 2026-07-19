@@ -5,6 +5,16 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "7.19",
         cn: [
+          "修复归档页季节分组整体错位一个月的问题：moment 的 month() 返回 0 基月份，直接喂给按 1-12 自然月编写的季节判定后所有月份前移一档——12 月被归进 autumn、3 月被归进 winter；现统一按自然月划分（3-5 月 spring、6-8 月 summer、9-11 月 autumn、12-次年 2 月 winter）。季节标题同时去本地化：不再经 i18n 渲染「春/夏/秋/冬」（删除 season_* 语言键），各语言统一显示 spring/summer/autumn/winter 英文单词",
+        ],
+        en: [
+          "Fix the archive season grouping being shifted by one month: moment's month() is 0-based but the season rule was written for calendar months 1-12, so every month landed one slot early — December fell into autumn and March into winter; grouping now follows calendar months (March-May spring, June-August summer, September-November autumn, December-February winter). Season headers are also de-localized: they no longer render 春/夏/秋/冬 through i18n (the season_* language keys are removed) and every language shows the English words spring/summer/autumn/winter",
+        ],
+        category: "fix",
+      },
+      {
+        date: "7.19",
+        cn: [
           "归档页与文章页入场动画改仿 antfu.me 的 slide-enter：共享关键帧（default.css）令区块自下方 10px 上浮淡入；归档文章行以 1s 时长、60ms 步长逐条进场（替换原先自上方快速下落的 300ms 节奏），年份标记与季节标题仍直接呈现；文章页新增同源级联——仅正文块以 600ms 时长、60ms/块依次上浮且只错开前 20 块（其后的块以基础延迟进场），标题区与封面图不参与：标题、摘要即时可读，封面也不拖慢 LCP；入场动画以 backwards 而非 both 填充，动画结束后效果彻底移除——opacity/transform 动画处于 in effect 状态时元素会常驻 stacking context（transform 还会成为 fixed 后代的 containing block），both 填充曾让移动端脚注底部面板被钉进段落、又被后续段落绘制在上盖住而看似透明",
         ],
         en: [

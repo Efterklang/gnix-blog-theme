@@ -62,10 +62,6 @@ archive:
   jump_to_year: "Jump to year"
   close_topic_picker: "Close tag picker"
   all_posts: "All Posts"
-  season_spring: "Spring"
-  season_summer: "Summer"
-  season_autumn: "Autumn"
-  season_winter: "Winter"
 preferences:
   title: "Preferences"
   eyebrow: "Local settings"

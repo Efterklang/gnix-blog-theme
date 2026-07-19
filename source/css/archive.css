@@ -472,7 +472,9 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar-main, .footer) {
   scroll-margin-top: 4.5rem;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.5em;
+  font-family: var(--font-mono);
   font-size: 0.76rem;
+  user-select: none;
 }
 
 /* #endregion */
@@ -504,6 +506,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar-main, .footer) {
 .archive-group__header {
   margin: 0 0 0.85rem;
   text-transform: lowercase;
+  font-style: italic;
 }
 
 .archive-item {

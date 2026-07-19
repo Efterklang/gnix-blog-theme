@@ -62,10 +62,6 @@ archive:
   jump_to_year: "跳转到年份"
   close_topic_picker: "关闭标签选择器"
   all_posts: "全部文章"
-  season_spring: "春"
-  season_summer: "夏"
-  season_autumn: "秋"
-  season_winter: "冬"
 preferences:
   title: "偏好设置"
   eyebrow: "本地设置"
