@@ -40,19 +40,33 @@
   transition: color 220ms ease;
 }
 
-/* 页面呈现时文章行自上而下逐条浮现（--i 为跨分组的连续序号，节奏与标签幕帘的
-   逐项级联一致；年份标记与季节标题不参与，直接呈现）。.gnix-revealed 由 head
-   内联脚本在 pagereveal（不支持时内联立即）添加，保证 prerender 激活时动画
-   从首个可见帧才开始；无 JS 时不加类，列表直接可见 */
+/* 页面呈现时文章行自下方上浮、自上而下逐条进场（仿 antfu.me 列表页的 slide-enter
+   节奏；--i 为跨分组的连续序号，年份标记与季节标题不参与，直接呈现）。
+   淡入与位移拆开挂在两层：translate 若直接动画在 .archive-item 上，动画期间
+   （含 both 填充下所有仍在等待 delay 的条目）item 会成为其内部 fixed 定位
+   .archive-popup 的 containing block，anchor 定位失效、popup 掉到条目底部；
+   item 只动 opacity（不产生 containing block），位移由标题承担，视觉不变。
+   .gnix-revealed 由 head 内联脚本在 pagereveal（不支持时内联立即）添加，
+   保证 prerender 激活时动画从首个可见帧才开始；无 JS 时不加类，列表直接可见 */
 :root.gnix-revealed .archive-page .archive-item {
-  animation: archive-entry-in 300ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-  animation-delay: calc(40ms + var(--i, 0) * 25ms);
+  animation: archive-item-fade 1s both;
+  animation-delay: calc(var(--i, 0) * 60ms);
 }
 
-@keyframes archive-entry-in {
+:root.gnix-revealed .archive-page .archive-item > .archive-title {
+  animation: archive-title-rise 1s both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+@keyframes archive-item-fade {
   from {
     opacity: 0;
-    translate: 0 -0.45rem;
+  }
+}
+
+@keyframes archive-title-rise {
+  from {
+    translate: 0 10px;
   }
 }
 

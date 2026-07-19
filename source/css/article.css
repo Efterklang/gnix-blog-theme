@@ -12,6 +12,82 @@
   padding: 1.25em 1.25rem 0 1.25rem;
 }
 
+/* 文章页进场动画（仿 antfu.me 文章页的 slide-enter，关键帧共享于 default.css，
+   节奏较其原版 1s/90ms 收紧为 600ms/60ms）：仅正文块自下方 10px 依次上浮，
+   标题区（meta/标题/摘要/标签栏）、封面图及正文后的附属区块不参与，直接呈现
+   ——首屏标题即时可读，封面也不因动画拖慢 LCP；正文只错开前 20 块，其后的块
+   （远在首屏外）统一以基础延迟进场。.gnix-revealed 由 head 内联脚本在
+   pagereveal（不支持时内联立即）添加，保证 prerender 激活时动画从首个可见帧
+   才开始；无 JS 时不加类，内容直接可见 */
+:root.gnix-revealed .article {
+  > .content > * {
+    --enter-stage: 0;
+    animation: slide-enter 600ms both;
+    animation-delay: calc(var(--enter-stage) * 60ms);
+  }
+
+  > .content > :nth-child(1) {
+    --enter-stage: 1;
+  }
+  > .content > :nth-child(2) {
+    --enter-stage: 2;
+  }
+  > .content > :nth-child(3) {
+    --enter-stage: 3;
+  }
+  > .content > :nth-child(4) {
+    --enter-stage: 4;
+  }
+  > .content > :nth-child(5) {
+    --enter-stage: 5;
+  }
+  > .content > :nth-child(6) {
+    --enter-stage: 6;
+  }
+  > .content > :nth-child(7) {
+    --enter-stage: 7;
+  }
+  > .content > :nth-child(8) {
+    --enter-stage: 8;
+  }
+  > .content > :nth-child(9) {
+    --enter-stage: 9;
+  }
+  > .content > :nth-child(10) {
+    --enter-stage: 10;
+  }
+  > .content > :nth-child(11) {
+    --enter-stage: 11;
+  }
+  > .content > :nth-child(12) {
+    --enter-stage: 12;
+  }
+  > .content > :nth-child(13) {
+    --enter-stage: 13;
+  }
+  > .content > :nth-child(14) {
+    --enter-stage: 14;
+  }
+  > .content > :nth-child(15) {
+    --enter-stage: 15;
+  }
+  > .content > :nth-child(16) {
+    --enter-stage: 16;
+  }
+  > .content > :nth-child(17) {
+    --enter-stage: 17;
+  }
+  > .content > :nth-child(18) {
+    --enter-stage: 18;
+  }
+  > .content > :nth-child(19) {
+    --enter-stage: 19;
+  }
+  > .content > :nth-child(20) {
+    --enter-stage: 20;
+  }
+}
+
 .content {
   overflow: auto;
   word-wrap: break-word;

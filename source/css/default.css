@@ -1196,3 +1196,19 @@ html.night .preference-quick__select {
 }
 
 /* #endregion Sunny atmosphere */
+
+/* #region Slide-enter 进场动画
+
+   仿 antfu.me 的 slide-enter：块自下方 10px 上浮淡入，由文章页（article.css）在
+   .gnix-revealed 后触发。只声明 from，动画结束后不残留 translate。注意：不要把它
+   用在内部含 fixed/anchor 定位后代的容器上（如归档条目，其悬浮预览为 fixed）——
+   translate 动画期间容器会成为 containing block，使其定位失效；归档页因此在
+   archive.css 里拆成 opacity 与 translate 两个关键帧分层挂载 */
+@keyframes slide-enter {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+/* #endregion Slide-enter 进场动画 */

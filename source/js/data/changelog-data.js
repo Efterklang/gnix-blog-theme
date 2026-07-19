@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "7.19",
+        cn: [
+          "归档页与文章页入场动画改仿 antfu.me 的 slide-enter：共享关键帧（default.css）令区块自下方 10px 上浮淡入；归档文章行以 1s 时长、60ms 步长逐条进场（替换原先自上方快速下落的 300ms 节奏），年份标记与季节标题仍直接呈现；文章页新增同源级联——仅正文块以 600ms 时长、60ms/块依次上浮且只错开前 20 块（其后的块以基础延迟进场），标题区与封面图不参与：标题、摘要即时可读，封面也不拖慢 LCP",
+        ],
+        en: [
+          "Rework the archive and article entry animations after antfu.me's slide-enter: a shared keyframe (default.css) rises blocks from 10px below; archive post rows now cascade in over 1s at a 60ms step (replacing the previous quick 300ms drop from above) while year markers and season headers still render immediately; article pages gain the same cascade — only body blocks rise one by one over 600ms at 60ms per block, with just the first 20 staggered (later ones enter at the base delay), while the header area and cover image stay instant so the title and excerpt are immediately readable and LCP is untouched",
+        ],
+        category: "uiux",
+      },
+      {
         date: "7.18",
         cn: [
           "修复色板派生色阶（subtext/surface/overlay）跨主题作用域失真的问题：这些由 --text/--base 混合而来的变量原声明在 :root 上，var() 在声明处求值后全站继承的是按页面当前主题算好的结果，嵌套 data-theme 作用域（设置页主题模式预览的明暗面板、主题卡片组件的取色流程）拿不到自身色板的派生色；现改为声明在 :where([data-theme]) 上按作用域重算，主题卡片的取色缓存键同步升级以淘汰旧数据",
