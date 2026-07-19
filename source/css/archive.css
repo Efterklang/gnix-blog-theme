@@ -142,8 +142,7 @@ body:has(.archive-page) .footer {
   }
 
   :is(.archive-era, .archive-group, .archive-rail) {
-    filter: blur(7px);
-    opacity: 0.35;
+    opacity: 0;
     pointer-events: none;
   }
 }
@@ -151,14 +150,6 @@ body:has(.archive-page) .footer {
 body:has(.archive-topic-picker:popover-open) :is(.navbar-main, .footer) {
   filter: blur(7px);
   opacity: 0.35;
-}
-
-.archive-topic-picker {
-  color: var(--text);
-
-  &::backdrop {
-    background: transparent;
-  }
 }
 
 /* #region Hover overlay */
@@ -247,35 +238,6 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar-main, .footer) {
   from {
     opacity: 0;
     translate: 0 -0.45rem;
-  }
-}
-
-/* Fallback without anchor positioning: the original centered dialog. */
-@supports not (anchor-name: --a) {
-  :popover-open.archive-topic-picker {
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    overflow: hidden;
-    overscroll-behavior: contain;
-  }
-
-  .archive-topic-picker__body {
-    width: min(680px, 92vw);
-    max-height: min(74vh, 38rem);
-    border: 1px solid var(--surface0);
-    border-radius: 8px;
-    background: hsl(from var(--mantle) h s l / 0.9);
-    box-shadow: 0 20px 60px hsl(from var(--crust) h s l / 0.4);
-  }
-
-  @media (max-width: 480px) {
-    .archive-topic-picker__body {
-      width: 100%;
-      max-height: min(82vh, 42rem);
-    }
   }
 }
 
