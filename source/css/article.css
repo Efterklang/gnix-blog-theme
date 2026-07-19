@@ -22,7 +22,12 @@
 :root.gnix-revealed .article {
   > .content > * {
     --enter-stage: 0;
-    animation: slide-enter 600ms both;
+    /* backwards 而非 both：填充只需覆盖 delay 阶段（结束帧本就等于基态）。
+       both/forwards 会让动画永远处于 in effect 状态，按规范 opacity/transform
+       动画 in effect 期间元素常驻 stacking context——脚注的移动端底部面板
+       （fixed, z-index 1000）会被困在段落的 context 里，被 DOM 靠后的段落
+       （同样常驻 context、绘制在上）盖住，看似面板透明 */
+    animation: slide-enter 600ms backwards;
     animation-delay: calc(var(--enter-stage) * 60ms);
   }
 

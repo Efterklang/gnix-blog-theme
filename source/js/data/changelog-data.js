@@ -5,10 +5,10 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "7.19",
         cn: [
-          "归档页与文章页入场动画改仿 antfu.me 的 slide-enter：共享关键帧（default.css）令区块自下方 10px 上浮淡入；归档文章行以 1s 时长、60ms 步长逐条进场（替换原先自上方快速下落的 300ms 节奏），年份标记与季节标题仍直接呈现；文章页新增同源级联——仅正文块以 600ms 时长、60ms/块依次上浮且只错开前 20 块（其后的块以基础延迟进场），标题区与封面图不参与：标题、摘要即时可读，封面也不拖慢 LCP",
+          "归档页与文章页入场动画改仿 antfu.me 的 slide-enter：共享关键帧（default.css）令区块自下方 10px 上浮淡入；归档文章行以 1s 时长、60ms 步长逐条进场（替换原先自上方快速下落的 300ms 节奏），年份标记与季节标题仍直接呈现；文章页新增同源级联——仅正文块以 600ms 时长、60ms/块依次上浮且只错开前 20 块（其后的块以基础延迟进场），标题区与封面图不参与：标题、摘要即时可读，封面也不拖慢 LCP；入场动画以 backwards 而非 both 填充，动画结束后效果彻底移除——opacity/transform 动画处于 in effect 状态时元素会常驻 stacking context（transform 还会成为 fixed 后代的 containing block），both 填充曾让移动端脚注底部面板被钉进段落、又被后续段落绘制在上盖住而看似透明",
         ],
         en: [
-          "Rework the archive and article entry animations after antfu.me's slide-enter: a shared keyframe (default.css) rises blocks from 10px below; archive post rows now cascade in over 1s at a 60ms step (replacing the previous quick 300ms drop from above) while year markers and season headers still render immediately; article pages gain the same cascade — only body blocks rise one by one over 600ms at 60ms per block, with just the first 20 staggered (later ones enter at the base delay), while the header area and cover image stay instant so the title and excerpt are immediately readable and LCP is untouched",
+          "Rework the archive and article entry animations after antfu.me's slide-enter: a shared keyframe (default.css) rises blocks from 10px below; archive post rows now cascade in over 1s at a 60ms step (replacing the previous quick 300ms drop from above) while year markers and season headers still render immediately; article pages gain the same cascade — only body blocks rise one by one over 600ms at 60ms per block, with just the first 20 staggered (later ones enter at the base delay), while the header area and cover image stay instant so the title and excerpt are immediately readable and LCP is untouched; entry animations fill backwards instead of both so their effect is fully removed once finished — while an opacity/transform animation is in effect the element keeps a stacking context (and a transform additionally acts as the containing block for fixed descendants), which under both-fill pinned the mobile footnote bottom sheet inside its paragraph and let later paragraphs paint over it, making it look transparent",
         ],
         category: "uiux",
       },

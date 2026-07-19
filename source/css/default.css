@@ -1200,10 +1200,13 @@ html.night .preference-quick__select {
 /* #region Slide-enter 进场动画
 
    仿 antfu.me 的 slide-enter：块自下方 10px 上浮淡入，由文章页（article.css）在
-   .gnix-revealed 后触发。只声明 from，动画结束后不残留 translate。注意：不要把它
-   用在内部含 fixed/anchor 定位后代的容器上（如归档条目，其悬浮预览为 fixed）——
-   translate 动画期间容器会成为 containing block，使其定位失效；归档页因此在
-   archive.css 里拆成 opacity 与 translate 两个关键帧分层挂载 */
+   .gnix-revealed 后触发。只声明 from，动画结束后不残留 translate。两个注意点：
+   1. 不要把它用在内部含 fixed/anchor 定位后代的容器上（如归档条目，其悬浮预览为
+      fixed）——translate 动画期间容器会成为 containing block，使其定位失效；
+      归档页因此在 archive.css 里拆成 opacity 与 translate 两个关键帧分层挂载；
+   2. 填充一律用 backwards（只为覆盖 delay 阶段），不要用 both/forwards——
+      动画会永远处于 in effect 状态，元素常驻 stacking context，内部 fixed
+      元素的 z-index 被困住（文章页脚注底栏曾被后续段落盖住、看似透明） */
 @keyframes slide-enter {
   from {
     opacity: 0;

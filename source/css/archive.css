@@ -49,12 +49,15 @@
    .gnix-revealed 由 head 内联脚本在 pagereveal（不支持时内联立即）添加，
    保证 prerender 激活时动画从首个可见帧才开始；无 JS 时不加类，列表直接可见 */
 :root.gnix-revealed .archive-page .archive-item {
-  animation: archive-item-fade 1s both;
+  /* backwards 而非 both：both 会让动画结束后仍处于 in effect 状态，条目常驻
+     stacking context，内部 fixed 定位的悬浮预览会被 DOM 靠后的条目盖住
+     （文章页脚注底栏曾因此"变透明"，见 article.css） */
+  animation: archive-item-fade 1s backwards;
   animation-delay: calc(var(--i, 0) * 60ms);
 }
 
 :root.gnix-revealed .archive-page .archive-item > .archive-title {
-  animation: archive-title-rise 1s both;
+  animation: archive-title-rise 1s backwards;
   animation-delay: calc(var(--i, 0) * 60ms);
 }
 
