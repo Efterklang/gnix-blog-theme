@@ -34,6 +34,7 @@
   color: var(--subtext0);
   font: inherit;
   font-size: var(--article-font-size);
+  font-weight: var(--article-font-weight);
   font-family: var(--article-font-family);
   letter-spacing: 0.05em;
   overflow-wrap: anywhere;
@@ -655,6 +656,7 @@ a.archive-title {
   display: block;
   inline-size: fit-content;
   font-size: var(--article-font-size);
+  font-weight: var(--article-font-weight);
   font-family: var(--article-font-family);
   max-inline-size: 100%;
   color: var(--text);

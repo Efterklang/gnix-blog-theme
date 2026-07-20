@@ -1,7 +1,7 @@
 :root {
   /* font */
   --font-serif: Gentium, ChillKai, Baskerville, New York, Georgia, Noto Serif CJK, STFangsong, STSong, Songti SC, serif;
-  --font-sans-serif: Avenir, system-ui, sans-serif;
+  --font-sans-serif: Avenir Next, system-ui, sans-serif;
   --font-mono: "SF Mono", "Maple Mono NF CN Local", "Maple Mono NF CN", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", XingKai SC, cursive;
   --article-font-size: 1rem;
