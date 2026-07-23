@@ -10,6 +10,8 @@
 
 .article {
   padding: 1.25em 1.25rem 0 1.25rem;
+  /* Ref: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-autospace */
+  text-autospace: normal;
 }
 
 /* 文章页进场动画（仿 antfu.me 文章页的 slide-enter，关键帧共享于 default.css，
