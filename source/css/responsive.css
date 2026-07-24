@@ -12,6 +12,7 @@
 
   .main-content {
     padding: 0;
+    --cover-height: 25vh;
   }
 
   .article {
@@ -20,6 +21,10 @@
 
   .article-hero-full {
     min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 1rem);
+  }
+
+  .article-hero-with-cover {
+    min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 1rem - var(--cover-height));
   }
 
   .article-hero-meta {
@@ -42,7 +47,6 @@
   }
 
   .cover-image {
-    max-height: 25vh;
     border-radius: 0;
   }
 

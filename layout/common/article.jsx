@@ -18,8 +18,8 @@ module.exports = class extends Component {
     const skipLabel = helper.__("article.skip_to_content");
 
     const isPost = page.layout !== "page";
-    /* 无封面的文章页才做满高首屏；封面文章与独立页面用紧凑版头 */
-    const fullHero = isPost && !cover;
+    /* 文章页做满高首屏（封面文章由 CSS 扣除封面高度）；独立页面用紧凑版头 */
+    const fullHero = isPost;
     const createdDate = isPost && page.date ? helper.date(page.date, "YYYY-MM-DD") : null;
     const updatedDate = isPost && page.updated ? helper.date(page.updated, "YYYY-MM-DD") : null;
     const showUpdated = updatedDate && updatedDate !== createdDate;
@@ -29,7 +29,7 @@ module.exports = class extends Component {
         {/* Cover image */}
         {cover ? <ArticleCover page={page} cover={cover} helper={helper} /> : null}
         <article class={`article${"direction" in page ? ` ${page.direction}` : ""}`}>
-          <header class={`article-hero${fullHero ? " article-hero-full" : ""}`}>
+          <header class={`article-hero${fullHero ? " article-hero-full" : ""}${fullHero && cover ? " article-hero-with-cover" : ""}`}>
             <div class="article-hero-body">
               {page.title !== "" ? <h1 class="article-title">{page.title}</h1> : null}
               {page.excerpt && <div class="article-excerpt" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div>}

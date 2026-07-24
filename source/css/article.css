@@ -6,6 +6,8 @@
    其余页面不加载本文件，保持 default.css 的固定列宽 */
 .main-content {
   max-width: calc(var(--article-max-width) + 3rem);
+  /* 封面图高度，满高首屏的 min-height 计算需扣除它（移动端在 responsive.css 覆写） */
+  --cover-height: 380px;
 }
 
 .article {
@@ -617,10 +619,15 @@ a strong {
   padding: 2rem 0 1.25rem;
 }
 
-/* 无封面文章满高首屏：100dvh 扣去 navbar 与 main-content(3rem)/article(1.25em) 顶部内边距 */
+/* 文章页满高首屏：100dvh 扣去 navbar 与 main-content(3rem)/article(1.25em) 顶部内边距 */
 .article-hero-full {
   min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 4.25rem);
   padding: 0 0 1.5rem;
+}
+
+/* 封面文章的满高首屏再扣去封面高度，article-hero-meta 仍收在首屏底部 */
+.article-hero-with-cover {
+  min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 4.25rem - var(--cover-height));
 }
 
 .article-hero-body {
@@ -637,7 +644,8 @@ a strong {
   margin-bottom: 0;
 }
 
-.article-hero-full .article-title {
+/* 封面已占去 380px，标题维持常规字号以免把 meta 挤出首屏 */
+.article-hero-full:not(.article-hero-with-cover) .article-title {
   font-size: clamp(2.9rem, 2.5rem + 2vw, 3.5rem);
 }
 
@@ -811,7 +819,7 @@ em,
   position: relative;
   display: block;
   overflow: hidden;
-  height: 380px;
+  height: var(--cover-height);
   border-radius: var(--radius);
 
   img {
