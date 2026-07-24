@@ -239,6 +239,117 @@ function handleLazyAssetError(error) {
   console.warn("[gnix] Unable to load lazy asset", error);
 }
 
+// #region image zoom
+// 简易 medium-zoom：点击图片 FLIP 放大到视口中心。原图仅隐藏占位，
+// 动画作用于 fixed 定位的克隆节点——.content 有 overflow:auto，直接
+// transform 原图会被裁剪；克隆挂在 body 下也不受祖先 stacking context 影响。
+// 类名沿用 medium-zoom 以复用 article.css 中的 backdrop-filter 等覆盖样式
+const IMAGE_ZOOM_BACKGROUND = "hsla(from var(--mantle) / 0.9)";
+const IMAGE_ZOOM_MARGIN = 24;
+const IMAGE_ZOOM_DURATION_MS = 300;
+let activeImageZoom = null;
+
+function markImageZoomable(img) {
+  if (img.dataset.zoomable === "true") return;
+  img.dataset.zoomable = "true";
+  img.style.cursor = "zoom-in";
+}
+
+function openImageZoom(img) {
+  if (activeImageZoom) return;
+  const rect = img.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  const overlay = document.createElement("div");
+  overlay.className = "medium-zoom-overlay";
+  Object.assign(overlay.style, {
+    position: "fixed",
+    inset: "0",
+    zIndex: "150",
+    background: IMAGE_ZOOM_BACKGROUND,
+    opacity: "0",
+    transition: `opacity ${IMAGE_ZOOM_DURATION_MS}ms ease`,
+    cursor: "zoom-out",
+  });
+
+  const clone = img.cloneNode();
+  clone.removeAttribute("id");
+  clone.classList.add("medium-zoom-image--opened");
+  clone.loading = "eager";
+  Object.assign(clone.style, {
+    position: "fixed",
+    top: `${rect.top}px`,
+    left: `${rect.left}px`,
+    width: `${rect.width}px`,
+    height: `${rect.height}px`,
+    maxWidth: "none",
+    maxHeight: "none",
+    margin: "0",
+    zIndex: "151",
+    cursor: "zoom-out",
+    transform: "none",
+    transition: `transform ${IMAGE_ZOOM_DURATION_MS}ms cubic-bezier(0.2, 0, 0.2, 1)`,
+    willChange: "transform",
+  });
+
+  const viewportWidth = document.documentElement.clientWidth;
+  const viewportHeight = document.documentElement.clientHeight;
+  // 放大上限不超过图片原始尺寸，避免小图被拉糊
+  const maxWidth = Math.min(viewportWidth - IMAGE_ZOOM_MARGIN * 2, Math.max(img.naturalWidth || Infinity, rect.width));
+  const maxHeight = viewportHeight - IMAGE_ZOOM_MARGIN * 2;
+  const scale = Math.min(maxWidth / rect.width, maxHeight / rect.height);
+  const translateX = viewportWidth / 2 - (rect.left + rect.width / 2);
+  const translateY = viewportHeight / 2 - (rect.top + rect.height / 2);
+
+  document.body.append(overlay, clone);
+  img.style.visibility = "hidden";
+  activeImageZoom = { img, clone, overlay, closing: false };
+
+  requestAnimationFrame(() => {
+    overlay.style.opacity = "1";
+    clone.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+  });
+
+  window.addEventListener("scroll", closeImageZoom, { passive: true });
+}
+
+function closeImageZoom() {
+  const zoom = activeImageZoom;
+  if (!zoom || zoom.closing) return;
+  zoom.closing = true;
+  window.removeEventListener("scroll", closeImageZoom);
+
+  zoom.overlay.style.opacity = "0";
+  zoom.clone.style.transform = "none";
+
+  let cleaned = false;
+  const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
+    zoom.clone.remove();
+    zoom.overlay.remove();
+    zoom.img.style.visibility = "";
+    if (activeImageZoom === zoom) activeImageZoom = null;
+  };
+  zoom.clone.addEventListener("transitionend", cleanup, { once: true });
+  // 页面不可见时 transitionend 不触发，兜底回收
+  setTimeout(cleanup, IMAGE_ZOOM_DURATION_MS + 100);
+}
+
+function handleImageZoomClick(event) {
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+  if (activeImageZoom) {
+    closeImageZoom();
+    return;
+  }
+
+  const img = event.target.closest?.('img[data-zoomable="true"]');
+  if (!img || img.closest("a")) return;
+  openImageZoom(img);
+}
+// #endregion
+
 function twikoo_handler() {
   runWhenActivated(() => {
     const el = document.getElementById("tko");
@@ -387,7 +498,10 @@ function addHighlightTool() {
 // #region Keyboard Shortcuts
 
 function handleKeyDown(e) {
-  if (e.key === "Escape") closeFootnoteTooltip();
+  if (e.key === "Escape") {
+    closeFootnoteTooltip();
+    closeImageZoom();
+  }
 
   const isModifier = e.metaKey || e.ctrlKey;
   if (!isModifier) return;
@@ -486,14 +600,7 @@ function initTocPopover() {
 function initPage() {
   handleMermaid();
   addHighlightTool();
-  const zoomOpts = { background: "hsla(from var(--mantle) / 0.9)" };
-  const zoomImgs = [];
-  document.querySelectorAll(".content img").forEach((img) => {
-    if (img.dataset.zoomBound === "true") return;
-    img.dataset.zoomBound = "true";
-    zoomImgs.push(img);
-  });
-  if (zoomImgs.length) mediumZoom(zoomImgs, zoomOpts);
+  document.querySelectorAll(".content img").forEach(markImageZoomable);
   initTocPopover();
   initArticleCommentPopover();
 }
@@ -518,4 +625,7 @@ document.addEventListener("click", handleFootnoteTooltipClick, {
 });
 document.addEventListener("mouseover", clampFootnoteTooltip, { passive: true });
 document.addEventListener("focusin", clampFootnoteTooltip, { passive: true });
+// 图片缩放走事件委托：不依赖逐图绑定时机，Swup 导航/解密内容/延迟渲染的
+// 自定义元素只需打上 data-zoomable 标记即可
+document.addEventListener("click", handleImageZoomClick);
 // #endregion

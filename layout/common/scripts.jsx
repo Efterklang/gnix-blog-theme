@@ -9,7 +9,6 @@ module.exports = class extends Component {
     return (
       <Fragment>
         <Plugins site={site} config={config} page={page} helper={helper} head={false} />
-        <script defer src={url_for("/js/host/medium-zoom/dist/medium-zoom.min.js")}></script>
         <script type="module" src={url_for("/js/main.js")}></script>
         <script defer src={url_for("/js/preferences.js")}></script>
         {page.encrypt ? <script src={url_for("/js/decrypt.js")} type="module"></script> : null}

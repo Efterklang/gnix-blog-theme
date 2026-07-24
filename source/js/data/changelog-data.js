@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "7.24",
+        cn: [
+          "移除 medium-zoom 依赖，main.js 自实现简易图片缩放：点击图片 FLIP 放大至视口中心（放大上限不超过原图尺寸），overlay 淡入、再点/Esc/滚动关闭；动画作用于 fixed 定位的克隆节点而非原图——.content 有 overflow:auto，直接 transform 原图会被裁剪，原样式中 position:fixed 的覆盖 hack 也一并淘汰；交互改为对 img[data-zoomable] 的事件委托，逐图绑定的时序问题与 Swup 导航下多 instance 打架的历史隐患随之消失，text-image-section 组件与延迟渲染内容只需打上 data-zoomable 标记；类名沿用 medium-zoom-overlay/-image--opened 以复用 article.css 中的 backdrop-filter 覆盖样式；顺带修正链接内图片的行为：不再触发缩放，避免与跳转冲突",
+        ],
+        en: [
+          "Drop the medium-zoom dependency in favor of a minimal in-house image zoom in main.js: clicking an image FLIP-animates it to the viewport center (scaling capped at natural size) with a fading overlay, closed by another click, Escape, or scrolling; the animation runs on a fixed-position clone rather than the original — .content has overflow:auto so transforming the image in place gets clipped, which also retires the old position:fixed override hack; interaction is now event delegation on img[data-zoomable], eliminating per-image binding timing issues and the historical multi-instance fights under Swup navigation — the text-image-section component and lazily rendered content just set the data-zoomable marker; the medium-zoom-overlay/-image--opened class names are kept so the backdrop-filter overrides in article.css still apply; as a side fix, images inside links no longer trigger zoom, avoiding the conflict with navigation",
+        ],
+        category: "refactor",
+      },
+      {
         date: "7.19",
         cn: [
           "修复归档页季节分组整体错位一个月的问题：moment 的 month() 返回 0 基月份，直接喂给按 1-12 自然月编写的季节判定后所有月份前移一档——12 月被归进 autumn、3 月被归进 winter；现统一按自然月划分（3-5 月 spring、6-8 月 summer、9-11 月 autumn、12-次年 2 月 winter）。季节标题同时去本地化：不再经 i18n 渲染「春/夏/秋/冬」（删除 season_* 语言键），各语言统一显示 spring/summer/autumn/winter 英文单词",
