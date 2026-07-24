@@ -685,33 +685,6 @@ a strong {
   }
 }
 
-.article-header-meta {
-  font-family: var(--font-mono);
-  overflow: auto;
-  padding-bottom: 0.5em;
-  color: var(--subtext0);
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-
-  a {
-    color: var(--subtext0);
-
-    &:hover {
-      color: var(--blue);
-    }
-  }
-}
-
-.article-meta-info {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.2rem;
-}
-
 .meta-separator {
   color: var(--overlay0);
 }
@@ -823,8 +796,6 @@ em,
   height: 2rem;
   flex-shrink: 0;
   border-radius: 8px;
-  background: var(--base);
-  color: var(--subtext0);
   margin-top: 0.125rem;
 
   svg {

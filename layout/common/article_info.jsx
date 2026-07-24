@@ -1,5 +1,17 @@
 const { Component } = require("../../include/util/common");
 
+/**
+ * Get the word count of text.
+ */
+function getWordCount(content) {
+  if (typeof content === "undefined") {
+    return 0;
+  }
+  content = content.replace(/<\/?[a-z][^>]*>/gi, "");
+  content = content.trim();
+  return content ? (content.match(/[\u00ff-\uffff]|[a-zA-Z]+/g) || []).length : 0;
+}
+
 function getTranslationInfo(page, helper) {
   if (!page.i18n) return null;
   const t = page.i18n.translation;
@@ -51,6 +63,11 @@ module.exports = class extends Component {
     const updatedLabel = helper.__("article.updated_time");
     const licenseLabel = helper.__("article.license");
     const locationLabel = helper.__("article.location");
+    const readingTimeLabel = helper.__("article.reading_time_label");
+    const pageViewsLabel = helper.__("article.page_views");
+
+    const wordCount = page.layout !== "page" ? getWordCount(page._content) : 0;
+    const readTime = Math.ceil(wordCount / 200); // 假设每分钟阅读200字
 
     return (
       <div id="article-info-popover" popover="auto" class="article-popover article-info-popover">
@@ -227,6 +244,63 @@ module.exports = class extends Component {
                 <div class="article-info-content">
                   <span class="article-info-label">{updatedLabel}</span>
                   <span class="article-info-value">{helper.date(page.updated, "YYYY-MM-DD HH:mm")}</span>
+                </div>
+              </div>
+            )}
+            {wordCount > 0 && (
+              <div class="article-info-item">
+                <div class="article-info-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    role="img"
+                    aria-label={readingTimeLabel}
+                  >
+                    <title>{readingTimeLabel}</title>
+                    <line x1="10" x2="14" y1="2" y2="2" />
+                    <line x1="12" x2="15" y1="14" y2="11" />
+                    <circle cx="12" cy="14" r="8" />
+                  </svg>
+                </div>
+                <div class="article-info-content">
+                  <span class="article-info-label">{readingTimeLabel}</span>
+                  <span class="article-info-value">{helper.__("article.reading_time", readTime)}</span>
+                </div>
+              </div>
+            )}
+            {page.layout !== "page" && (
+              <div class="article-info-item">
+                <div class="article-info-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    role="img"
+                    aria-label={pageViewsLabel}
+                  >
+                    <title>{pageViewsLabel}</title>
+                    <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </div>
+                <div class="article-info-content">
+                  <span class="article-info-label">{pageViewsLabel}</span>
+                  <span class="article-info-value">
+                    <span id="busuanzi_page_pv">-</span>
+                  </span>
                 </div>
               </div>
             )}

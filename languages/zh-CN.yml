@@ -30,6 +30,8 @@ article:
   url: "链接"
   markdown_source: "Markdown 源码"
   reading_time: "%s 分钟"
+  reading_time_label: "阅读时长"
+  page_views: "浏览量"
   translation_info: "关于翻译"
   translation_original: "原文"
   translation_llm_reviewed: "LLM 翻译 · 已人工审阅"

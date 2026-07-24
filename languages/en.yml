@@ -30,6 +30,8 @@ article:
   url: "URL"
   markdown_source: "Markdown source"
   reading_time: "%s min"
+  reading_time_label: "Reading time"
+  page_views: "Page views"
   translation_info: "Translation"
   translation_original: "Original"
   translation_llm_reviewed: "LLM · reviewed"

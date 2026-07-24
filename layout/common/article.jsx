@@ -1,19 +1,7 @@
-const { Component, Fragment, dateFormatters } = require("../../include/util/common");
+const { Component, Fragment } = require("../../include/util/common");
 const Comment = require("./comment");
 const ArticleCover = require("./article_cover");
 const ArticleInfo = require("./article_info");
-
-/**
- * Get the word count of text.
- */
-function getWordCount(content) {
-  if (typeof content === "undefined") {
-    return 0;
-  }
-  content = content.replace(/<\/?[a-z][^>]*>/gi, "");
-  content = content.trim();
-  return content ? (content.match(/[\u00ff-\uffff]|[a-zA-Z]+/g) || []).length : 0;
-}
 
 module.exports = class extends Component {
   render() {
@@ -22,43 +10,17 @@ module.exports = class extends Component {
     const { url_for } = helper;
 
     const cover = page.cover ? url_for(page.cover) : null;
-    const wordCount = getWordCount(page._content);
-    const readTime = Math.ceil(wordCount / 200); // 假设每分钟阅读200字
     const hasComment = config.comment && typeof config.comment.type === "string";
     const translatedCommentsLabel = helper.__("article.comments");
     const commentsLabel = translatedCommentsLabel === "article.comments" ? "Comments" : translatedCommentsLabel;
     const articleInfoLabel = helper.__("article.article_info");
     const closeLabel = helper.__("article.close");
-    const pageViewsHtml = helper.__("plugin.page_views", '<span id="busuanzi_page_pv"></span>');
 
     return (
       <Fragment>
         {/* Cover image */}
         {cover ? <ArticleCover page={page} cover={cover} helper={helper} /> : null}
         <article class={`article${"direction" in page ? ` ${page.direction}` : ""}`}>
-          {/* Metadata - Medium style */}
-          {page.layout !== "page" ? (
-            <div class="article-header-meta">
-              <div class="article-meta-info">
-                {page.date && (
-                  <time class="article-date" datetime={page.date.toISOString()}>
-                    {dateFormatters.shortDay.format(page.date)}
-                  </time>
-                )}
-                {page.date && wordCount > 0 && <span class="meta-separator">·</span>}
-                {wordCount > 0 && <span class="article-reading-time">{helper.__("article.reading_time", readTime)}</span>}
-                {(page.date || wordCount > 0) && <span class="meta-separator">·</span>}
-                <span
-                  class="article-visit-count"
-                  data-flag-title={page.title}
-                  dangerouslySetInnerHTML={{
-                    __html: pageViewsHtml,
-                  }}
-                ></span>
-              </div>
-            </div>
-          ) : null}
-
           {/* Title */}
           {page.title !== "" ? <h1 class="article-title">{page.title}</h1> : null}
 

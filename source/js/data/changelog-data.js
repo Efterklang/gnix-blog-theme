@@ -5,6 +5,16 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "7.24",
         cn: [
+          "移除文章页标题上方的 header meta 信息栏（日期 · 阅读时长 · PV）：阅读时长与浏览量迁入文章信息弹层，作为带图标的列表项呈现于更新时间之后（新增 reading_time_label / page_views 语言键），日期在弹层内本有创建/更新时间覆盖故不再重复；字数统计逻辑随之移至 article_info，busuanzi 的 busuanzi_page_pv 占位按 id 填充不受位置影响，独立页面（layout: page）与此前一样不显示这两项；article-header-meta / article-meta-info 样式一并删除",
+        ],
+        en: [
+          "Remove the header meta bar (date · reading time · PV) above the article title: reading time and page views move into the article info popover as icon list items after the updated time (with new reading_time_label / page_views language keys), while the date is dropped since the popover already shows created/updated times; the word count logic moves to article_info accordingly, busuanzi's busuanzi_page_pv placeholder is filled by id so the relocation is transparent, standalone pages (layout: page) keep hiding both items as before, and the article-header-meta / article-meta-info styles are deleted",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.24",
+        cn: [
           "移除 medium-zoom 依赖，main.js 自实现简易图片缩放：点击图片 FLIP 放大至视口中心（放大上限不超过原图尺寸），overlay 淡入、再点/Esc/滚动关闭；动画作用于 fixed 定位的克隆节点而非原图——.content 有 overflow:auto，直接 transform 原图会被裁剪，原样式中 position:fixed 的覆盖 hack 也一并淘汰；交互改为对 img[data-zoomable] 的事件委托，逐图绑定的时序问题与 Swup 导航下多 instance 打架的历史隐患随之消失，text-image-section 组件与延迟渲染内容只需打上 data-zoomable 标记；类名沿用 medium-zoom-overlay/-image--opened 以复用 article.css 中的 backdrop-filter 覆盖样式；顺带修正链接内图片的行为：不再触发缩放，避免与跳转冲突",
         ],
         en: [
