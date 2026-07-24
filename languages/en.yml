@@ -27,7 +27,6 @@ article:
   location: "Location"
   author: "Author"
   article_title: "Title"
-  url: "URL"
   markdown_source: "Markdown source"
   reading_time: "%s min"
   reading_time_label: "Reading time"
@@ -37,6 +36,7 @@ article:
   translation_llm_reviewed: "LLM · reviewed"
   translation_llm_unreviewed: "LLM · unreviewed"
   toc: "Table of Contents"
+  skip_to_content: "Skip to content"
 code:
   copied: "Copied"
   copy_code: "Copy code"

@@ -18,6 +18,29 @@
     padding: 1rem 0.875rem 0;
   }
 
+  .article-hero-full {
+    min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 1rem);
+  }
+
+  .article-hero-meta {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 0.875rem;
+
+    .article-tags {
+      order: 1;
+      justify-content: center;
+    }
+
+    .article-hero-actions {
+      order: 2;
+    }
+
+    .article-colophon {
+      order: 3;
+    }
+  }
+
   .cover-image {
     max-height: 25vh;
     border-radius: 0;
@@ -197,15 +220,6 @@
   .searchbox-container {
     top: 15px;
     width: 90%;
-  }
-
-  .toc-button {
-    top: auto;
-    bottom: 3rem;
-    right: 1rem;
-    left: auto;
-    background-color: var(--base);
-    border: 2px solid var(--surface0);
   }
 }
 

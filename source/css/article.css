@@ -14,85 +14,13 @@
   text-autospace: normal;
 }
 
-/* 文章页进场动画（仿 antfu.me 文章页的 slide-enter，关键帧共享于 default.css，
-   节奏较其原版 1s/90ms 收紧为 600ms/60ms）：仅正文块自下方 10px 依次上浮，
-   标题区（meta/标题/摘要/标签栏）、封面图及正文后的附属区块不参与，直接呈现
-   ——首屏标题即时可读，封面也不因动画拖慢 LCP；正文只错开前 20 块，其后的块
-   （远在首屏外）统一以基础延迟进场。.gnix-revealed 由 head 内联脚本在
-   pagereveal（不支持时内联立即）添加，保证 prerender 激活时动画从首个可见帧
-   才开始；无 JS 时不加类，内容直接可见 */
-:root.gnix-revealed .article {
-  > .content > * {
-    --enter-stage: 0;
-    /* backwards 而非 both：填充只需覆盖 delay 阶段（结束帧本就等于基态）。
-       both/forwards 会让动画永远处于 in effect 状态，按规范 opacity/transform
-       动画 in effect 期间元素常驻 stacking context——脚注的移动端底部面板
-       （fixed, z-index 1000）会被困在段落的 context 里，被 DOM 靠后的段落
-       （同样常驻 context、绘制在上）盖住，看似面板透明 */
-    animation: slide-enter 600ms backwards;
-    animation-delay: calc(var(--enter-stage) * 60ms);
-  }
-
-  > .content > :nth-child(1) {
-    --enter-stage: 1;
-  }
-  > .content > :nth-child(2) {
-    --enter-stage: 2;
-  }
-  > .content > :nth-child(3) {
-    --enter-stage: 3;
-  }
-  > .content > :nth-child(4) {
-    --enter-stage: 4;
-  }
-  > .content > :nth-child(5) {
-    --enter-stage: 5;
-  }
-  > .content > :nth-child(6) {
-    --enter-stage: 6;
-  }
-  > .content > :nth-child(7) {
-    --enter-stage: 7;
-  }
-  > .content > :nth-child(8) {
-    --enter-stage: 8;
-  }
-  > .content > :nth-child(9) {
-    --enter-stage: 9;
-  }
-  > .content > :nth-child(10) {
-    --enter-stage: 10;
-  }
-  > .content > :nth-child(11) {
-    --enter-stage: 11;
-  }
-  > .content > :nth-child(12) {
-    --enter-stage: 12;
-  }
-  > .content > :nth-child(13) {
-    --enter-stage: 13;
-  }
-  > .content > :nth-child(14) {
-    --enter-stage: 14;
-  }
-  > .content > :nth-child(15) {
-    --enter-stage: 15;
-  }
-  > .content > :nth-child(16) {
-    --enter-stage: 16;
-  }
-  > .content > :nth-child(17) {
-    --enter-stage: 17;
-  }
-  > .content > :nth-child(18) {
-    --enter-stage: 18;
-  }
-  > .content > :nth-child(19) {
-    --enter-stage: 19;
-  }
-  > .content > :nth-child(20) {
-    --enter-stage: 20;
-  }
+/* 文章页进场动画（仿 antfu.me 的 slide-enter，关键帧共享于 default.css）：
+   只有首屏摘要自下方 10px 上浮淡入，标题、封面与正文直接呈现——首屏即时可读，
+   LCP 不受动画影响。.gnix-revealed 由 head 内联脚本在 pagereveal（不支持时
+   内联立即）添加，保证 prerender 激活时动画从首个可见帧才开始；无 JS 时不加类，
+   摘要直接可见 */
+:root.gnix-revealed .article-hero .article-excerpt {
+  animation: slide-enter 600ms backwards;
 }
 
 .content {
@@ -104,6 +32,7 @@
     color: var(--text);
     font-family: var(--article-font-family);
     text-decoration: none;
+    font-weight: 400;
     &::after {
       margin-left: 0.4em;
       opacity: 0;
@@ -443,10 +372,6 @@ article.article .content {
   font-weight: var(--article-font-weight);
 }
 
-article.article .content :is(h1, h2, h3, h4, h5, h6, strong, b, th) {
-  font-weight: var(--article-bold-font-weight);
-}
-
 .footnotes {
   font-size: 0.9em;
 }
@@ -659,11 +584,6 @@ input.task-list-item-checkbox {
   }
 }
 
-strong {
-  font-weight: bolder;
-  padding: 0 0.15em;
-}
-
 a strong {
   color: currentColor;
 }
@@ -689,18 +609,60 @@ a strong {
   color: var(--overlay0);
 }
 
-.article-meta-bar {
+/* 文章首屏：居中标题与摘要，底部一行小字（标签 / 版记+跳转箭头 / comments·info） */
+.article-hero {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding: 2rem 0 1.25rem;
+}
+
+/* 无封面文章满高首屏：100dvh 扣去 navbar 与 main-content(3rem)/article(1.25em) 顶部内边距 */
+.article-hero-full {
+  min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 4.25rem);
+  padding: 0 0 1.5rem;
+}
+
+.article-hero-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px dashed var(--surface0);
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.article-hero .article-title {
+  margin-bottom: 0;
+}
+
+.article-hero-full .article-title {
+  font-size: clamp(2.9rem, 2.5rem + 2vw, 3.5rem);
+}
+
+.article-hero .article-excerpt {
+  max-width: 36em;
+  line-height: 1.9;
+  text-wrap: pretty;
+}
+
+.article-hero-meta {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  & + .content {
-    margin-top: 1rem;
+  color: var(--subtext0);
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--text);
+    }
   }
 }
 
@@ -719,32 +681,46 @@ em,
   gap: 0.2rem;
 }
 
-.article-title-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  flex-shrink: 0;
+.article-colophon {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.article-action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.5rem;
-  padding: 0;
-  background: none;
-  border: none;
-  color: var(--subtext1);
-  cursor: pointer;
+.article-hero-arrow {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: .25em;
+  color: var(--subtext0);
   text-decoration: none;
+  aspect-ratio: 1;
+  border: 1px solid currentColor;
+  border-radius: 50%;
 
   &:hover {
-    color: var(--mauve);
+    color: var(--green);
   }
+}
 
-  svg {
-    width: 1.1rem;
-    height: 1.1rem;
+.article-hero-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+
+  button {
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    letter-spacing: 0.05em;
+    color: inherit;
+
+    &:hover {
+      color: var(--text);
+    }
   }
 }
 
@@ -765,71 +741,44 @@ em,
   position: relative;
   z-index: 1;
   width: fit-content;
-  padding: 1.25rem;
   max-width: 90vw;
   max-height: 70vh;
-  border-radius: 16px;
-  background: hsl(from var(--mantle) h s l / 0.7);
-  box-shadow:
-    0 20px 60px -15px rgba(0, 0, 0, 0.3),
-    0 0 0 1px var(--surface0);
   overflow-y: auto;
 }
 
+/* 印刷目录风格：右对齐标签 + 冒号、左对齐值，直接渲染在遮罩上 */
 .article-info-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-}
+  margin: 0;
+  padding: 0.25rem;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 26rem);
+  gap: 0.625rem 1.25rem;
+  align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
 
-.article-info-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-}
+  dt {
+    text-align: right;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 
-.article-info-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  flex-shrink: 0;
-  border-radius: 8px;
-  margin-top: 0.125rem;
-
-  svg {
-    width: 1rem;
-    height: 1rem;
+    &::after {
+      content: ":";
+    }
   }
-}
 
-.article-info-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  min-width: 20rem;
-  flex: 1;
-  padding-top: 0.125rem;
-}
+  dd {
+    margin: 0;
+    word-break: break-word;
 
-.article-info-label {
-  font-size: 0.75rem;
-  color: var(--subtext0);
-  font-weight: 500;
-}
+    a {
+      color: var(--lavender);
+      text-decoration: none;
 
-.article-info-value {
-  font-size: 0.875rem;
-  color: var(--text);
-  word-break: break-word;
-
-  a {
-    color: var(--lavender);
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 }
@@ -837,7 +786,11 @@ em,
 .article-comment-popover-body {
   width: min(920px, 92vw);
   max-height: min(72vh, 760px);
-  padding: 0;
+  border-radius: 16px;
+  background: hsl(from var(--mantle) h s l / 0.7);
+  box-shadow:
+    0 20px 60px -15px rgba(0, 0, 0, 0.3),
+    0 0 0 1px var(--surface0);
 }
 
 .article-comment-panel#comments {
@@ -924,14 +877,15 @@ em,
 
 .toc-button {
   position: fixed;
-  top: clamp(5rem, 16vh, 10rem);
-  left: max(1rem, calc(50% - 25em - 10rem));
+  bottom: 3rem;
+  right: clamp(1rem, 3vw, 3rem);
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background-color: transparent;
-  border: none;
+  background-color: var(--base);
+  border: 2px solid var(--surface0);
   cursor: pointer;
+  transition: opacity 0.3s ease;
 
   > span {
     background-color: hsl(from var(--text) h s l / 0.5);
@@ -953,6 +907,14 @@ em,
       top: calc(50% + 4px);
     }
   }
+}
+
+/* 满高首屏页在 JS 可用（gnix-revealed 由 head 内联脚本添加）时先隐藏 TOC 按钮，
+   滚过首屏后由 IntersectionObserver 给 .toc-container 加 .toc-visible 点亮；
+   无 JS 时不加 gnix-revealed，按钮始终可见 */
+:root.gnix-revealed:has(.article-hero-full) .toc-container:not(.toc-visible) .toc-button {
+  opacity: 0;
+  pointer-events: none;
 }
 
 :popover-open.toc-body {

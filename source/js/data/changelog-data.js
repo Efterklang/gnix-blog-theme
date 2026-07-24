@@ -5,10 +5,40 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "7.24",
         cn: [
-          "移除文章页标题上方的 header meta 信息栏（日期 · 阅读时长 · PV）：阅读时长与浏览量迁入文章信息弹层，作为带图标的列表项呈现于更新时间之后（新增 reading_time_label / page_views 语言键），日期在弹层内本有创建/更新时间覆盖故不再重复；字数统计逻辑随之移至 article_info，busuanzi 的 busuanzi_page_pv 占位按 id 填充不受位置影响，独立页面（layout: page）与此前一样不显示这两项；article-header-meta / article-meta-info 样式一并删除",
+          "移除文章正文逐块上浮的级联进场动画（此前正文前 20 块以 600ms 时长、60ms 步长依次进场），slide-enter 改为只作用于满高首屏的摘要：标题、封面与正文全部直接呈现，摘要自下方 10px 上浮淡入一次；归档页的列表进场动画不受影响",
         ],
         en: [
-          "Remove the header meta bar (date · reading time · PV) above the article title: reading time and page views move into the article info popover as icon list items after the updated time (with new reading_time_label / page_views language keys), while the date is dropped since the popover already shows created/updated times; the word count logic moves to article_info accordingly, busuanzi's busuanzi_page_pv placeholder is filled by id so the relocation is transparent, standalone pages (layout: page) keep hiding both items as before, and the article-header-meta / article-meta-info styles are deleted",
+          "Remove the article body's block-by-block cascade entry animation (previously the first 20 blocks entered over 600ms at a 60ms stagger); slide-enter now applies only to the hero excerpt — the title, cover, and body all render immediately while the excerpt rises once from 10px below; the archive list's entry animation is untouched",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.24",
+        cn: [
+          "从 main.js 拆分出 article.js：脚注 tooltip、图片缩放、代码块工具栏（复制/展开）、mermaid、TOC（弹层交互与满高首屏显隐）、评论弹层懒加载及文章页专属快捷键（Esc 关脚注/缩放、空格跳过首屏、Cmd/Ctrl+T 目录）整体迁出，由 scripts.jsx 仅在 post/page 布局注入；main.js 退为全站共享层——激活门控（runWhenActivated）、懒加载资源基础设施与全局快捷键（Cmd/Ctrl+, 设置、Cmd/Ctrl+K 搜索），并以 ES module 具名导出供 article.js 引入，非文章页从此不再解析执行这批用不到的交互代码",
+        ],
+        en: [
+          "Split article.js out of main.js: footnote tooltips, image zoom, the code block toolbar (copy/expand), mermaid, TOC (popover interaction plus the full-hero reveal), lazy comment popover loading, and article-only shortcuts (Esc to close footnote/zoom, Space to skip the first screen, Cmd/Ctrl+T for the TOC) all move out, injected by scripts.jsx only on post/page layouts; main.js becomes the site-wide shared layer — activation gating (runWhenActivated), the lazy asset infrastructure, and global shortcuts (Cmd/Ctrl+, for settings, Cmd/Ctrl+K for search) — with named ES module exports that article.js imports, so non-article pages no longer parse and run interaction code they never use",
+        ],
+        category: "refactor",
+      },
+      {
+        date: "7.24",
+        cn: [
+          "文章页新增满高首屏：标题、摘要与其下的 ↓ 箭头居中呈现——箭头为纯锚点（#article-content + 全局 scroll-behavior: smooth 与 scroll-margin-top）平滑跳至正文，首屏内按空格同效（正文开头进入视口上半部、焦点在控件上或有弹层打开时交还默认行为）；底部一行等宽小字分三段：左侧标签、中间版记（创建日期 · UPDATED 更新日期）、右侧小写的 comments / info 文字按钮（替换原图标按钮），整行统一 subtext0 着色；满高仅用于无封面文章，带封面文章与独立页面用同构的紧凑版头（无箭头，独立页面亦无版记）；TOC 按钮从左上挪到右下角（base 底色 + surface0 描边，右距 clamp 随视口贴边，移动端专属覆盖删除），满高首屏页内滚过首屏才淡入——初始隐藏由 :root.gnix-revealed:has(.article-hero-full) 承担、IntersectionObserver 点亮，无 JS 时常显；≤768px 首屏底栏纵向堆叠；原 meta bar 及其虚线分隔、article-action-btn 图标样式一并移除",
+        ],
+        en: [
+          "Article pages gain a full-height opening screen: the title, excerpt, and a ↓ arrow beneath them are centered — the arrow is a pure anchor (#article-content plus the global scroll-behavior: smooth and scroll-margin-top) that glides to the body, and pressing Space on the first screen does the same (falling back to default behavior once the body top enters the upper half of the viewport, when a control has focus, or while a popover is open); the bottom holds one monospace small-print row split three ways: tags on the left, a colophon in the middle (created date · UPDATED date), and lowercase comments / info text buttons on the right (replacing the icon buttons), the whole row tinted subtext0; full height applies only to cover-less posts, while cover posts and standalone pages share the same markup as a compact header (no arrow, and pages also omit the colophon); the TOC button moves from the upper left to the bottom right corner (base fill + surface0 ring, right offset clamped toward the edge, mobile-only override removed) and on full-hero pages only fades in after scrolling past the first screen — initially hidden via :root.gnix-revealed:has(.article-hero-full), lit up by an IntersectionObserver, always visible without JS; at ≤768px the bottom row stacks vertically; the old meta bar with its dashed rule and the article-action-btn icon styles are deleted",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.24",
+        cn: [
+          "重做文章信息呈现：移除标题上方的 header meta 信息栏（日期 · 阅读时长 · PV），阅读时长与浏览量并入文章信息弹层；弹层重绘为印刷图录式两栏清单——右对齐大写标签接冒号、左栏值，等宽字体，文字直接渲染在模糊遮罩上（卡片背景/边框/阴影与逐项图标全部移除，卡片外观样式移交评论弹层专用类），DOM 由 item/icon/content 三层嵌套精简为单个 dl 元素；条目删去与地址栏重复的 URL（article.url 语言键一并移除），顺序调整为标题、作者、阅读时长、创建、更新、翻译、Markdown 源码、浏览量、许可证、位置；busuanzi 的 busuanzi_page_pv 按 id 填充不受迁移影响，独立页面（layout: page）仍不显示阅读时长与浏览量",
+        ],
+        en: [
+          "Rework how article info is presented: the header meta bar (date · reading time · PV) above the title is removed, with reading time and page views folded into the article info popover; the popover is redrawn as a print-catalog style two-column list — right-aligned uppercase labels with colons, left-aligned values, monospace type, text rendered directly on the blurred overlay (card background/border/shadow and per-item icons are all gone, with the card chrome handed to the comment popover's own class) and the DOM collapsed from item/icon/content nesting into a single dl element; the URL entry duplicating the address bar is dropped (the article.url language key removed) and entries are reordered to title, author, reading time, created, updated, translation, markdown source, page views, license, location; busuanzi's busuanzi_page_pv is filled by id so the relocation is transparent, and standalone pages (layout: page) still hide reading time and page views",
         ],
         category: "uiux",
       },

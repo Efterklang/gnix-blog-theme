@@ -27,7 +27,6 @@ article:
   location: "位置"
   author: "作者"
   article_title: "标题"
-  url: "链接"
   markdown_source: "Markdown 源码"
   reading_time: "%s 分钟"
   reading_time_label: "阅读时长"
@@ -37,6 +36,7 @@ article:
   translation_llm_reviewed: "LLM 翻译 · 已人工审阅"
   translation_llm_unreviewed: "LLM 翻译 · 未人工审阅"
   toc: "目录"
+  skip_to_content: "跳至正文"
 code:
   copied: "已复制"
   copy_code: "复制代码"
