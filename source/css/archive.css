@@ -85,7 +85,6 @@
   max-width: 100%;
   font: inherit;
   padding: 0.35rem 0 1.1rem;
-  border-bottom: 0.5px solid color-mix(in oklch, var(--surface0) 86%, transparent);
 
   @media (max-width: 720px) {
     padding-bottom: 1.1rem;
@@ -132,12 +131,6 @@ body:has(.archive-page) .footer {
 }
 
 .archive-page:has(.archive-topic-picker:popover-open) {
-  /* Hidden instantly (no transition) while the curtain is open: the panel's
-     entry animation runs right on top of the hairline and makes it flicker. */
-  .archive-hero {
-    border-bottom-color: transparent;
-  }
-
   .archive-hero__title {
     color: var(--archive-accent);
   }
