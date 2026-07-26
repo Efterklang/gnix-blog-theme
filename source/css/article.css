@@ -66,11 +66,6 @@
     text-decoration: none;
   }
 
-  :is(h2, h3, h4, h5, h6) {
-    text-wrap: balance;
-    font-variant-numeric: oldstyle-nums;
-  }
-
   h2 {
     font-size: 1.5em;
     margin: 1rem 0;
@@ -693,12 +688,12 @@ em,
 
 .article-hero-arrow {
   font-family: var(--font-mono);
-  font-size: 1.25rem;
   line-height: 1;
-  padding: .25em;
+  padding: 0.25em;
   color: var(--subtext0);
   text-decoration: none;
-  aspect-ratio: 1;
+  width: 16px;
+  height: 16px;
   border: 1px solid currentColor;
   border-radius: 50%;
 
