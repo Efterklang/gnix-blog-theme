@@ -92,6 +92,13 @@
     background-color: var(--mantle);
     overflow-y: auto;
     overscroll-behavior: contain;
+
+    /* 全局 :popover-open::before 的全屏遮罩随 popover 渲染在 top layer，
+       会盖住导航条本体，burger 关闭键被压在遮罩下、点击也被拦截；
+       菜单不透明铺满导航条以下的视口，该遮罩纯属多余，直接去掉 */
+    &::before {
+      content: none;
+    }
   }
 
   .navbar-start {
@@ -232,10 +239,7 @@
     display: none;
   }
 
-  .navbar {
-    backdrop-filter: blur(10px);
-    background: hsl(from var(--mantle) h s l / 0.7);
-  }
+  /* 导航条底色/模糊由 default.css 的渐变背景 + .navbar-blur 渐进模糊统一处理 */
 
   .navbar-start .navbar-item {
     font-family: var(--font-sans-serif);

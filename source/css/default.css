@@ -491,8 +491,53 @@ html {
   left: 0;
   right: 0;
   z-index: 100;
-  background-color: var(--mantle);
-  border-bottom: 0.1px solid var(--surface0);
+  /* 底部不画 border：渐变底色 + .navbar-blur 的渐进模糊向正文自然消融 */
+  background: linear-gradient(
+    to bottom,
+    hsl(from var(--mantle) h s l / 0.95),
+    hsl(from var(--mantle) h s l / 0.7) 55%,
+    hsl(from var(--mantle) h s l / 0)
+  );
+}
+
+/* 渐进模糊：多层 backdrop-filter 配三角渐变 mask 交叉淡化，
+   模糊半径自上而下 16→2px 递减、底缘趋近 0，滚过的内容逐渐融进导航条。
+   注意 .navbar 自身不能再挂 filter/backdrop-filter，否则会成为
+   backdrop root，切断各层对页面内容的取样 */
+.navbar-blur {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  > div {
+    position: absolute;
+    inset: 0;
+  }
+
+  > div:nth-child(1) {
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    mask-image: linear-gradient(to bottom, #000, transparent 25%);
+  }
+
+  > div:nth-child(2) {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    mask-image: linear-gradient(to bottom, transparent, #000 25%, transparent 50%);
+  }
+
+  > div:nth-child(3) {
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    mask-image: linear-gradient(to bottom, transparent 25%, #000 50%, transparent 75%);
+  }
+
+  > div:nth-child(4) {
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    mask-image: linear-gradient(to bottom, transparent 50%, #000 75%, transparent);
+  }
 }
 
 .navbar-container {

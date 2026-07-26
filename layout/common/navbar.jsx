@@ -21,6 +21,12 @@ class Navbar extends Component {
     return (
       <Fragment>
         <nav class="navbar navbar-main">
+          <div class="navbar-blur" aria-hidden="true">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
           <div class="navbar-container">
             <button type="button" class="navbar-burger" popovertarget="navbar-menu" aria-label={menuTitle}>
               <span aria-hidden="true"></span>
