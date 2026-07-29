@@ -1,13 +1,13 @@
 /**
  * Article media component, used in article lists such as archive page and recent posts widget
  */
-const { Component, dateFormatters, isValidDate, parseISO } = require("../../include/util/common");
+const { Component, formatMonthDay, isValidDate, parseISO } = require("../../include/util/common");
 
 function formatDate(date, dateXml) {
   if (date) return date;
 
   const parsedDate = parseISO(dateXml);
-  return isValidDate(parsedDate) ? dateFormatters.shortDay.format(parsedDate) : "";
+  return isValidDate(parsedDate) ? formatMonthDay(parsedDate) : "";
 }
 
 module.exports = class extends Component {

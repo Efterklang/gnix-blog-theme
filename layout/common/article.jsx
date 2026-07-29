@@ -35,7 +35,11 @@ module.exports = class extends Component {
               {page.excerpt && <div class="article-excerpt" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div>}
               {fullHero && (
                 <a class="article-hero-arrow" href="#article-content" aria-label={skipLabel} title={skipLabel}>
-                  ↓
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 8v8" />
+                    <path d="m8 12 4 4 4-4" />
+                  </svg>
                 </a>
               )}
             </div>

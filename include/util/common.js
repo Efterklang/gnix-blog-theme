@@ -33,6 +33,13 @@ module.exports = {
   view,
   cacheComponent,
 
+  // dev 热更新用：缓存元素引用着旧组件类，清 require 缓存时须一并清空
+  clearComponentCache: () => {
+    for (const key of Object.keys(cache)) {
+      delete cache[key];
+    }
+  },
+
   // 通用的组件加载函数
   loadComponent: (componentPath, fallback = null) => {
     try {
@@ -49,8 +56,13 @@ module.exports = {
 
   isValidDate: (val) => val instanceof Date && !Number.isNaN(val.getTime()),
   parseISO: (str) => new Date(str),
+  // 列表日期统一为纯数字 mm.dd（05.13）：数据注脚的最低调形态，
+  // 与季节标签、年份轴的数字语汇一致，也没有大小写强调问题
+  formatMonthDay: (d) => {
+    const pad2 = (n) => String(n).padStart(2, "0");
+    return `${pad2(d.getMonth() + 1)}.${pad2(d.getDate())}`;
+  },
   dateFormatters: {
-    shortDay: new Intl.DateTimeFormat("en", { month: "short", day: "2-digit" }),
     longMonth: new Intl.DateTimeFormat("en", { month: "long" }),
   },
 };

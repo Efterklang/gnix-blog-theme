@@ -1,3 +1,6 @@
+const path = require("node:path");
+const { clearComponentCache } = require("../include/util/common");
+
 const LIVE_RELOAD_PATH = "/__hexo_live_reload";
 const clients = new Set();
 const reloadDebounceMs = 150;
@@ -21,6 +24,34 @@ function broadcastReload() {
 if (isHexoServerCommand(hexo)) {
   let reloadTimer = null;
   let lastBroadcastAt = 0;
+
+  /* JSX 模板热更新：渲染走 require(data.path)（见 include/hexo/renderer.js），
+     但 Node 的 require 缓存与 cacheComponent 的元素缓存都钉着旧组件；
+     侦测到 layout 下 jsx 变动后，在下一轮生成前整体清掉两层缓存，
+     渲染时 esbuild 按需重新编译。include/ 下的 js 不在 Box 监听范围，
+     改动仍需重启 server */
+  const layoutDir = path.join(hexo.theme_dir, "layout") + path.sep;
+  let layoutDirty = false;
+
+  hexo.theme.on("processAfter", (file) => {
+    if (file.path?.endsWith(".jsx")) {
+      layoutDirty = true;
+    }
+  });
+
+  hexo.on("generateBefore", () => {
+    if (!layoutDirty) {
+      return;
+    }
+    layoutDirty = false;
+
+    for (const id of Object.keys(require.cache)) {
+      if (id.startsWith(layoutDir)) {
+        delete require.cache[id];
+      }
+    }
+    clearComponentCache();
+  });
 
   function scheduleReload() {
     if (reloadTimer) {

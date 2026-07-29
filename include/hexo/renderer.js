@@ -170,11 +170,15 @@ Module._extensions[".jsx"] = (module, filename) => {
 };
 
 function compile(data) {
-  const Component = require(data.path);
   const DOCTYPE = "<!doctype html>\n";
   const startTag = "<html";
 
   return (locals) => {
+    // require 放在渲染闭包内：hexo 启动时就预编译并缓存了所有视图的
+    // 编译结果，若在此处外提前 require，组件类会被闭包钉死；
+    // dev 下热更新脚本清掉 require 缓存后，这里能拿到重新编译的模块，
+    // 缓存命中时只是一次查表，生产构建无感知
+    const Component = require(data.path);
     const element = createElement(Component, locals);
     const markup = renderToStaticMarkup(element);
     // test if the layout is root layout file so we can skip costly large string comparison

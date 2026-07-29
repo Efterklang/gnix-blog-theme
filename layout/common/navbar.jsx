@@ -1,4 +1,4 @@
-const { Component, Fragment, cacheComponent } = require("../../include/util/common");
+const { Component, cacheComponent } = require("../../include/util/common");
 
 const renderLinkIcon = (link) => {
   if (!link.icon) return null;
@@ -19,71 +19,65 @@ class Navbar extends Component {
     const { siteUrl, menu, links, preferencesTitle, searchTitle, menuTitle, isSearchEnabled } = this.props;
 
     return (
-      <Fragment>
-        <nav class="navbar navbar-main">
-          <div class="navbar-blur" aria-hidden="true">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-          <div class="navbar-container">
-            <button type="button" class="navbar-burger" popovertarget="navbar-menu" aria-label={menuTitle}>
-              <span aria-hidden="true"></span>
-              <span aria-hidden="true"></span>
-              <span aria-hidden="true"></span>
+      <nav class="navbar">
+        <div class="navbar-blur" aria-hidden="true">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+        <button type="button" class="navbar-burger" popovertarget="navbar-menu" aria-label={menuTitle}>
+          <span aria-hidden="true"></span>
+        </button>
+        <a id="navbar-logo-link" href={siteUrl}>
+          ga.o
+        </a>
+        <div class="navbar-menu" id="navbar-menu" popover="auto">
+          {Object.keys(menu).length ? (
+            <div class="navbar-start">
+              {Object.keys(menu).map((name) => {
+                const item = menu[name];
+                return (
+                  <a class="navbar-item" href={item.url}>
+                    {name}
+                  </a>
+                );
+              })}
+            </div>
+          ) : null}
+          {Object.keys(links).length ? (
+            <div class="navbar-end">
+              {Object.keys(links).map((name) => {
+                const link = links[name];
+                return (
+                  <a class="navbar-item" target="_blank" rel="noopener" title={name} href={link.url}>
+                    {renderLinkIcon(link)}
+                  </a>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
+        <div class="navbar-actions">
+          <button type="button" id="preferences-link" class="navbar-item" title={preferencesTitle} aria-label={preferencesTitle} popovertarget="preference-popup">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <title>{preferencesTitle}</title>
+              <path d="M12 4v16" />
+              <path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2" />
+              <path d="M9 20h6" />
+            </svg>
+          </button>
+          {isSearchEnabled ? (
+            <button type="button" class="navbar-item search" popovertarget="searchbox" title={searchTitle} aria-label={searchTitle}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <title>{searchTitle}</title>
+                <path d="m21 21-4.34-4.34" />
+                <circle cx="11" cy="11" r="8" />
+              </svg>
             </button>
-            <a id="navbar-logo-link" href={siteUrl}>
-              ga.o
-            </a>
-            <div class="navbar-menu" id="navbar-menu" popover="auto">
-              {Object.keys(menu).length ? (
-                <div class="navbar-start">
-                  {Object.keys(menu).map((name) => {
-                    const item = menu[name];
-                    return (
-                      <a class="navbar-item" href={item.url} data-navbar-menu={name}>
-                        {name}
-                      </a>
-                    );
-                  })}
-                </div>
-              ) : null}
-              {Object.keys(links).length ? (
-                <div class="navbar-end">
-                  {Object.keys(links).map((name) => {
-                    const link = links[name];
-                    return (
-                      <a class="navbar-item" target="_blank" rel="noopener" title={name} href={link.url}>
-                        {renderLinkIcon(link)}
-                      </a>
-                    );
-                  })}
-                </div>
-              ) : null}
-            </div>
-            <div class="navbar-actions">
-              <button type="button" id="preferences-link" class="navbar-item" title={preferencesTitle} aria-label={preferencesTitle} popovertarget="preference-popup">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <title>{preferencesTitle}</title>
-                  <path d="M12 4v16" />
-                  <path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2" />
-                  <path d="M9 20h6" />
-                </svg>
-              </button>
-              {isSearchEnabled ? (
-                <button type="button" class="navbar-item search" popovertarget="searchbox" title={searchTitle} aria-label={searchTitle}>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <title>{searchTitle}</title>
-                    <path d="m21 21-4.34-4.34" />
-                    <circle cx="11" cy="11" r="8" />
-                  </svg>
-                </button>
-              ) : null}
-            </div>
-          </div>
-        </nav>
-      </Fragment>
+          ) : null}
+        </div>
+      </nav>
     );
   }
 }

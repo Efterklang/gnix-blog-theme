@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "7.29",
+        cn: [
+          "归档页分组扁平化：撤去年份大标题一层（year → season → posts 收拢为 season+year → posts），分组标题直接写「季节缩写.两位年份」（spr.26 / aut.25）；冬季按气象季跨年归组，12 月与次年 1-2 月连成一段、标题记起讫年（win.25/26），此前同一自然年首尾各出现一段同名 Winter（section id 与 JSX key 还会重复）的问题随之消除；右侧年份轴保留自然年刻度，锚点改指向该年最新文章所在的分组，scroll-margin 移交分组承担；.archive-era 年份标记的样式与分组的相邻例外规则一并删除",
+        ],
+        en: [
+          "Flatten the archive grouping: the year-heading tier is gone (year → season → posts collapses to season+year → posts) and each group is titled with a season abbreviation plus a two-digit year (spr.26 / aut.25); winter now spans the year boundary like a meteorological season — December and the following January-February form one run titled with its span (win.25/26) — eliminating the two same-titled Winter sections (with duplicated section ids and JSX keys) that used to bracket each calendar year; the right-hand year rail keeps calendar-year ticks but anchors each year to the group holding that year's newest post, with scroll-margin handed to the groups; the .archive-era marker styles and the group's adjacent-to-era exception rule are removed",
+        ],
+        category: "uiux",
+      },
+      {
         date: "7.24",
         cn: [
           "移除文章正文逐块上浮的级联进场动画（此前正文前 20 块以 600ms 时长、60ms 步长依次进场），slide-enter 改为只作用于满高首屏的摘要：标题、封面与正文全部直接呈现，摘要自下方 10px 上浮淡入一次；归档页的列表进场动画不受影响",

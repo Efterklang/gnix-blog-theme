@@ -687,15 +687,14 @@ em,
 }
 
 .article-hero-arrow {
-  font-family: var(--font-mono);
-  line-height: 1;
+  display: inline-flex;
   padding: 0.25em;
   color: var(--subtext0);
-  text-decoration: none;
-  width: 16px;
-  height: 16px;
-  border: 1px solid currentColor;
-  border-radius: 50%;
+
+  > svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
 
   &:hover {
     color: var(--green);

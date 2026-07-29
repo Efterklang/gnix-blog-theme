@@ -267,11 +267,6 @@ body {
   font-family: var(--font-sans-serif);
 }
 
-.navbar-main,
-.navbar-menu {
-  user-select: none;
-}
-
 a {
   color: var(--lavender);
   text-decoration: none;
@@ -485,12 +480,12 @@ html {
 
 .navbar {
   min-height: var(--navbar-height);
+  display: flex;
   position: sticky;
   padding-top: env(safe-area-inset-top);
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 100;
+  user-select: none;
   /* 底部不画 border：渐变底色 + .navbar-blur 的渐进模糊向正文自然消融 */
   background: linear-gradient(
     to bottom,
@@ -498,6 +493,12 @@ html {
     hsl(from var(--mantle) h s l / 0.7) 55%,
     hsl(from var(--mantle) h s l / 0)
   );
+
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
 }
 
 /* 渐进模糊：多层 backdrop-filter 配三角渐变 mask 交叉淡化，
@@ -537,20 +538,6 @@ html {
     -webkit-backdrop-filter: blur(2px);
     backdrop-filter: blur(2px);
     mask-image: linear-gradient(to bottom, transparent 50%, #000 75%, transparent);
-  }
-}
-
-.navbar-container {
-  flex-grow: 1;
-  margin: 0 auto;
-  width: auto;
-  display: flex;
-  min-height: 3.5rem;
-
-  button {
-    background: none;
-    border: none;
-    cursor: pointer;
   }
 }
 

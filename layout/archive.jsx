@@ -1,4 +1,4 @@
-const { Component, Fragment, isValidDate, parseISO, dateFormatters } = require("../include/util/common");
+const { Component, Fragment, isValidDate, parseISO, dateFormatters, formatMonthDay } = require("../include/util/common");
 const ArticleMedia = require("./common/article_media");
 const { filterByLanguage } = require("../include/util/i18n");
 
@@ -40,42 +40,69 @@ function getSeason(month) {
   return "Winter";
 }
 
-function getArchiveRangeLabel(year, month = null, season = null, labels = {}) {
+// 冬季按气象季跨年：12 月与次年 1-2 月同属一段，startYear 记 12 月所在年；
+// 其余季节整段落在自然年内（startYear === endYear）
+function getSeasonSpan(date) {
+  const year = date.year();
+  const month = date.month() + 1;
+  const season = getSeason(month);
+  if (season !== "Winter") return { season, startYear: year, endYear: year };
+  const startYear = month === 12 ? year : year - 1;
+  return { season, startYear, endYear: startYear + 1 };
+}
+
+const SEASON_ABBR = { Spring: "Spr", Summer: "Sum", Autumn: "Aut", Winter: "Win" };
+
+// 分组标题：季节缩写 + 两位年份，跨年段记起讫年（Win.25/26），CSS 转小写呈现
+function getSeasonGroupLabel({ season, startYear, endYear }) {
+  const yy = (value) => String(value % 100).padStart(2, "0");
+  const range = startYear === endYear ? yy(startYear) : `${yy(startYear)}/${yy(endYear)}`;
+  return `${SEASON_ABBR[season]}.${range}`;
+}
+
+// 小写标签里 lining figures 比 x 高度高出一截；把数字段拆出来包 span，
+// 由 CSS 缩字号贴近小写腰高（近似 oldstyle figures，字体本身多半没有 onum）
+function renderLabelSegments(title) {
+  return String(title)
+    .split(/(\d+)/)
+    .filter(Boolean)
+    .map((segment) => (/^\d+$/.test(segment) ? <span class="archive-label__num">{segment}</span> : segment));
+}
+
+function getArchiveRangeLabel(year, month = null, labels = {}) {
   if (!year) return labels.allPosts || "All Posts";
   if (month) {
     const time = parseISO(`${year}-${String(month).padStart(2, "0")}-01T00:00:00.000Z`);
     return isValidDate(time) ? `${dateFormatters.longMonth.format(time)} ${year}` : String(year);
   }
-  return season ? `${season} ${year}` : String(year);
+  return String(year);
 }
 
 function groupPostsBySeason(posts) {
   return posts.reduce((groups, post) => {
-    const year = post.date.year();
-    const season = getSeason(post.date.month() + 1);
+    const span = getSeasonSpan(post.date);
     const lastGroup = groups[groups.length - 1];
 
-    if (lastGroup && lastGroup.year === year && lastGroup.season === season) {
+    if (lastGroup && lastGroup.season === span.season && lastGroup.startYear === span.startYear) {
       lastGroup.posts.push(post);
     } else {
-      groups.push({ year, season, posts: [post] });
+      groups.push({ ...span, posts: [post] });
     }
 
     return groups;
   }, []);
 }
 
-function groupSeasonGroupsByYear(seasonGroups) {
-  const years = [];
+// 年份轴锚点：每个自然年指向其最新一篇文章所在的分组（跨年冬季段可承接两个年份）
+function mapYearsToSectionIds(seasonGroups) {
+  const anchors = new Map();
   for (const group of seasonGroups) {
-    const last = years[years.length - 1];
-    if (last && last.year === group.year) {
-      last.groups.push(group);
-    } else {
-      years.push({ year: group.year, groups: [group] });
+    for (const post of group.posts) {
+      const year = post.date.year();
+      if (!anchors.has(year)) anchors.set(year, group.sectionId);
     }
   }
-  return years;
+  return anchors;
 }
 
 function collectArchiveYears(posts) {
@@ -110,21 +137,18 @@ function getPostDateParts(postDate, dateXml, date) {
   const parsed = parseISO(xml);
 
   return {
-    label: isValidDate(parsed) ? dateFormatters.shortDay.format(parsed) : date(postDate),
+    label: isValidDate(parsed) ? formatMonthDay(parsed) : date(postDate),
     xml,
   };
 }
 
-function renderSeasonGroup({ posts, year, season, month, sectionTitle, url_for, date_xml, date, labels, formatReadTime, nextOrder }) {
-  const title = sectionTitle || getArchiveRangeLabel(year, month, season, labels);
-  const kicker = year ? String(year) : "archive";
-  const marker = season ? season.toLowerCase() : "all";
-  const sectionId = `archive-${kicker}-${marker}-${month || "all"}`;
-
+function renderSeasonGroup({ posts, title, marker = "all", sectionId, url_for, date_xml, date, formatReadTime, nextOrder }) {
   return (
-    <section class={["archive-group", marker].filter(Boolean).join(" ")} aria-labelledby={sectionId}>
+    <section class={`archive-group ${marker}`} aria-labelledby={sectionId}>
       <h2 id={sectionId} class="archive-group__header archive-label">
-        {title}
+        {/* 单一 span 包住整段：h2 是 flex 容器，多个裸文字/数字节点会各自成 flex 项，
+            文字段的行尾空格（如 "June 2026"）会被裁掉，基线对齐也需额外处理 */}
+        <span>{renderLabelSegments(title)}</span>
       </h2>
       {posts.map((post) => {
         const postDate = getPostDateParts(post.date, date_xml, date);
@@ -213,52 +237,49 @@ module.exports = class extends Component {
     const pickerStats = [writingsLabel, sinceLabel].filter(Boolean);
 
     let articleList;
-    // 文章行共用一条跨分组的连续序号，供入场动画自上而下逐条浮现（年份/季节标题不参与）
+    let yearAnchors = null;
+    // 文章行共用一条跨分组的连续序号，供入场动画自上而下逐条浮现（季节标题不参与）
     let entryOrder = 0;
     const nextOrder = () => entryOrder++;
     if (!page.year) {
-      const seasonGroups = groupPostsBySeason(visiblePosts);
-      const yearBlocks = groupSeasonGroupsByYear(seasonGroups);
-      articleList = yearBlocks.map((block) => (
-        <Fragment key={block.year}>
-          <div class="archive-era archive-label" id={`archive-year-${block.year}`}>
-            {block.year}
-          </div>
-          {block.groups.map((group) => (
-            <Fragment key={`${group.year}-${group.season}`}>
-              {renderSeasonGroup({
-                posts: group.posts,
-                year: group.year,
-                season: group.season,
-                sectionTitle: group.season,
-                url_for,
-                date_xml,
-                date,
-                labels: archiveLabels,
-                formatReadTime,
-                nextOrder,
-              })}
-            </Fragment>
-          ))}
+      const seasonGroups = groupPostsBySeason(visiblePosts).map((group) => ({
+        ...group,
+        marker: group.season.toLowerCase(),
+        sectionId: `archive-${group.season.toLowerCase()}-${group.startYear}`,
+      }));
+      yearAnchors = mapYearsToSectionIds(seasonGroups);
+      articleList = seasonGroups.map((group) => (
+        <Fragment key={group.sectionId}>
+          {renderSeasonGroup({
+            posts: group.posts,
+            title: getSeasonGroupLabel(group),
+            marker: group.marker,
+            sectionId: group.sectionId,
+            url_for,
+            date_xml,
+            date,
+            formatReadTime,
+            nextOrder,
+          })}
         </Fragment>
       ));
     } else {
       const season = page.month ? getSeason(page.month) : null;
+      const marker = season ? season.toLowerCase() : "all";
       articleList = renderSeasonGroup({
         posts: visiblePosts,
-        year: page.year,
-        season,
-        month: page.month,
+        title: getArchiveRangeLabel(page.year, page.month, archiveLabels),
+        marker,
+        sectionId: `archive-${page.year}-${marker}-${page.month || "all"}`,
         url_for,
         date_xml,
         date,
-        labels: archiveLabels,
         formatReadTime,
         nextOrder,
       });
     }
 
-    const heroTitle = isTagPage ? page.tag : currentYear ? getArchiveRangeLabel(currentYear, currentMonth, null, archiveLabels) : helper.__("archive.posts");
+    const heroTitle = isTagPage ? page.tag : currentYear ? getArchiveRangeLabel(currentYear, currentMonth, archiveLabels) : helper.__("archive.posts");
     const heroTitleLabel = [heroTitle, ...pickerStats, topicCountLabel].join(" / ");
     return (
       <main class="archive-page">
@@ -284,7 +305,7 @@ module.exports = class extends Component {
             <ol class="archive-rail__list">
               {years.map((year) => (
                 <li key={year}>
-                  <a href={`#archive-year-${year}`} class="archive-rail__link">
+                  <a href={`#${yearAnchors.get(year)}`} class="archive-rail__link">
                     <span class="archive-rail__year">{year}</span>
                   </a>
                 </li>

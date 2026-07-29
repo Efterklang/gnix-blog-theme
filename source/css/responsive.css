@@ -74,6 +74,17 @@
   /* #region Navbar */
   html:has(.navbar-menu:popover-open) {
     overflow: hidden;
+
+    /* 菜单是不透明幕布，正文已被盖住，导航条的半透明渐变 + 渐进模糊
+       会在幕布上方留出一条透出内容的玻璃带，产生割裂；
+       展开期间切成实色与幕布连成整块，关闭后恢复消融效果 */
+    .navbar {
+      background: var(--mantle);
+    }
+
+    .navbar-blur {
+      display: none;
+    }
   }
 
   /* 关闭态由 [popover] 的 UA 样式隐藏；打开态需中和 UA 的 inset/margin/border/padding/color */
@@ -127,45 +138,56 @@
     padding: 0 0.75rem;
   }
 
+  /* 三条线：span 本体是中线，::before/::after 是上下线；
+     展开时上下线平移旋转成 X、中线经 background-color 淡出
+     （中线不能用 opacity 隐藏，伪元素会随宿主一起消失） */
   .navbar-burger {
     position: relative;
     width: 3.5rem;
-    color: var(--text);
-    > span {
-      background-color: currentColor;
-      height: 2px;
-      left: calc(50% - 8px);
+
+    > span,
+    > span::before,
+    > span::after {
+      background-color: var(--subtext0);
+      height: 1.5px;
+      width: 16px;
       position: absolute;
       transform-origin: center;
       transition-duration: 86ms;
-      transition-property: background-color, opacity, transform;
+      transition-property: background-color, transform;
       transition-timing-function: ease-out;
-      width: 16px;
+    }
 
-      &:nth-child(1) {
-        top: calc(50% - 6px);
-      }
+    > span {
+      left: calc(50% - 8px);
+      top: calc(50% - 1px);
+    }
 
-      &:nth-child(2) {
-        top: calc(50% - 1px);
-      }
+    > span::before,
+    > span::after {
+      content: "";
+      left: 0;
+    }
 
-      &:nth-child(3) {
-        top: calc(50% + 4px);
-      }
+    > span::before {
+      top: -5px;
+    }
+
+    > span::after {
+      top: 5px;
     }
   }
 
-  .navbar-container:has(.navbar-menu:popover-open) .navbar-burger span:nth-child(1) {
-    transform: translateY(5px) rotate(45deg);
-  }
+  .navbar:has(.navbar-menu:popover-open) .navbar-burger > span {
+    background-color: transparent;
 
-  .navbar-container:has(.navbar-menu:popover-open) .navbar-burger span:nth-child(2) {
-    opacity: 0;
-  }
+    &::before {
+      transform: translateY(5px) rotate(45deg);
+    }
 
-  .navbar-container:has(.navbar-menu:popover-open) .navbar-burger span:nth-child(3) {
-    transform: translateY(-5px) rotate(-45deg);
+    &::after {
+      transform: translateY(-5px) rotate(-45deg);
+    }
   }
 
   @keyframes fadeInUp {
@@ -261,14 +283,12 @@
   .navbar-menu {
     /* 中和 [popover] 的 UA 默认样式，桌面端菜单常显于导航条内 */
     position: static;
-    inset: auto;
     width: auto;
     height: auto;
     margin: 0;
     border: none;
     color: inherit;
     flex-grow: 1;
-    flex-shrink: 0;
     overflow-x: auto;
     background-color: transparent;
   }
