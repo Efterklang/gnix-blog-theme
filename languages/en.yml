@@ -60,7 +60,6 @@ archive:
     one: "topic"
     other: "topics"
   since: "since %s"
-  read_time: "%s min read"
   jump_to_year: "Jump to year"
   close_topic_picker: "Close tag picker"
   all_posts: "All Posts"

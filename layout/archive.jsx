@@ -142,7 +142,7 @@ function getPostDateParts(postDate, dateXml, date) {
   };
 }
 
-function renderSeasonGroup({ posts, title, marker = "all", sectionId, url_for, date_xml, date, formatReadTime, nextOrder }) {
+function renderSeasonGroup({ posts, title, marker = "all", sectionId, url_for, date_xml, date, nextOrder }) {
   return (
     <section class={`archive-group ${marker}`} aria-labelledby={sectionId}>
       <h2 id={sectionId} class="archive-group__header archive-label">
@@ -162,7 +162,7 @@ function renderSeasonGroup({ posts, title, marker = "all", sectionId, url_for, d
             date={postDate.label}
             dateXml={postDate.xml}
             excerpt={excerpt}
-            readTime={readMinutes ? formatReadTime(readMinutes) : null}
+            readTime={readMinutes ? `${readMinutes} min read` : null}
             order={nextOrder()}
           />
         );
@@ -221,7 +221,6 @@ module.exports = class extends Component {
     const archiveLabels = {
       allPosts: helper.__("archive.all_posts"),
     };
-    const formatReadTime = (minutes) => helper.__("archive.read_time", minutes);
 
     const currentYear = page.year ? Number(page.year) : null;
     const currentMonth = page.month ? Number(page.month) : null;
@@ -258,7 +257,6 @@ module.exports = class extends Component {
             url_for,
             date_xml,
             date,
-            formatReadTime,
             nextOrder,
           })}
         </Fragment>
@@ -274,7 +272,6 @@ module.exports = class extends Component {
         url_for,
         date_xml,
         date,
-        formatReadTime,
         nextOrder,
       });
     }

@@ -508,7 +508,6 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 /* #region Popup */
 
 .archive-popup {
-  --popup-accent: var(--archive-accent);
   --popup-gap: 12px;
   --popup-hidden-shift: 3px;
   position: fixed;
@@ -579,42 +578,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 }
 
-.archive-popup__eyebrow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  margin: 0 0 0.5rem;
-  padding-bottom: 0.45rem;
-  border-bottom: 0.5px solid color-mix(in oklch, var(--surface1) 65%, transparent);
-  color: var(--archive-muted);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.archive-popup__date {
-  color: color-mix(in oklch, var(--popup-accent) 80%, var(--text));
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Read time text is localized in the template; CSS only adds the separator. */
-.archive-popup__read {
-  &::before {
-    content: "·";
-    margin: 0 0.4em;
-    opacity: 0.4;
-  }
-}
-
 .archive-popup__excerpt {
-  margin: 0;
-  color: var(--archive-muted);
-  font-family: var(--font-serif);
-  font-size: 0.88rem;
-  line-height: 1.55;
-
   & :where(p, ul, ol) {
     margin: 0 0 0.35em;
 
@@ -626,6 +590,15 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   & :where(img, video, iframe, figure, pre) {
     display: none;
   }
+}
+
+.archive-popup__read {
+  margin: 0.5rem 0 0;
+  color: var(--archive-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-align: right;
 }
 
 /* #endregion */
