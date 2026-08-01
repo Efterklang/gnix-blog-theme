@@ -12,7 +12,7 @@
   display: grid;
   /* 间距做层级：条目密、组间松（约 3 倍条目节距），靠留白对比分组，不画线 */
   gap: 3.5rem;
-  padding: 1.25em 1.25rem 0;
+  padding: 1.25rem 1.25rem 0;
 
   @media (max-width: 720px) {
     gap: 2.25rem;
@@ -23,13 +23,11 @@
   }
 }
 
+/* season h2 与 hero 触发按钮共用；border/background/font 是按钮样式复位
+   （落在 h2 上无操作） */
 .archive-label {
   display: flex;
-  flex-grow: 0;
-  flex-shrink: 0;
   align-items: center;
-  min-width: 0;
-  position: relative;
   border: none;
   background: transparent;
   color: var(--subtext0);
@@ -39,11 +37,12 @@
   font-family: var(--article-font-family);
   letter-spacing: 0.05em;
   overflow-wrap: anywhere;
-  transition: color 220ms ease;
 }
 
-/* 页面呈现时文章行自下方上浮、自上而下逐条进场（仿 antfu.me 列表页的 slide-enter
-   节奏；--i 为跨分组的连续序号，年份标记与季节标题不参与，直接呈现）。
+/* 页面呈现时文章行自下方上浮、逐条进场（仿 antfu.me 列表页的 slide-enter
+   节奏；--i 为分组内序号，各分组并行起跑，年份标记与季节标题不参与，直接呈现。
+   序号不跨分组累计：全局连续序号会让页底条目背上前面所有条目的延迟，
+   滚动到深处刷新时要干等几秒才见到内容）。
    淡入与位移拆开挂在两层：translate 若直接动画在 .archive-item 上，动画期间
    （含 both 填充下所有仍在等待 delay 的条目）item 会成为其内部 fixed 定位
    .archive-popup 的 containing block，anchor 定位失效、popup 掉到条目底部；
@@ -86,14 +85,9 @@
   max-width: 100%;
   font: inherit;
   padding: 0.35rem 0 1.1rem;
-
-  @media (max-width: 720px) {
-    padding-bottom: 1.1rem;
-  }
 }
 
 .archive-hero__title {
-  anchor-name: --archive-hero-title;
   max-width: 100%;
   padding-inline: 0.15rem 0.5rem;
   color: var(--text);
@@ -113,22 +107,11 @@
 /* Softly recede everything below the hero while the topic curtain is open;
    the hero itself stays sharp and picks up the accent. */
 .archive-page :is(.archive-group, .archive-rail) {
-  transition:
-    filter 340ms ease,
-    opacity 340ms ease;
+  transition: opacity 340ms ease;
 }
 
-body:has(.archive-page) .navbar {
-  transition:
-    transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
-    filter 340ms ease,
-    opacity 340ms ease;
-}
-
-body:has(.archive-page) .footer {
-  transition:
-    filter 340ms ease,
-    opacity 340ms ease;
+body:has(.archive-page) :is(.navbar, .footer) {
+  transition: opacity 340ms ease;
 }
 
 .archive-page:has(.archive-topic-picker:popover-open) {
@@ -143,20 +126,34 @@ body:has(.archive-page) .footer {
 }
 
 body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
-  filter: blur(7px);
-  opacity: 0.35;
+  opacity: 0;
 }
 
 /* #region Hover overlay */
 
+/* 聚焦模式：悬停/聚焦条目时，一层 --mantle 实色 overlay 罩住页面其余全部
+   （navbar、footer、hero、年份轴、季节标题、其他条目），仅当前条目
+   （z-index 140）与其预览（141）浮在其上。旧实现是逐类隐藏：三条巨型
+   :has() 选择器枚举每类元素分别设 opacity: 0，淡出时序还不一致
+   （rail/navbar 有过渡、hero 与其他条目硬切）；单层 overlay 视觉等效，
+   只过渡一个 opacity。130 落在 navbar（100/101）与活动条目（140）之间 */
 @media (hover: hover) and (min-width: 721px) {
-  body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within)) :where(.navbar, .footer),
-  .archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))
-    :where(.archive-hero, .archive-rail, .archive-group__header),
-  .archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-item:focus-within, .archive-popup:hover, .archive-popup:focus-within))
-    .archive-item:not(:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))):not(:focus-within) {
-    filter: blur(6px);
-    opacity: 0.42;
+  .archive-page::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 130;
+    background: var(--mantle);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+  }
+
+  /* 与 popup 的展示条件同源（悬停标题/预览，或条目内持焦）；退场快于进场：
+     指针移开的瞬间活动条目落回 overlay 之下，短退场把这一帧落差融进整体淡出 */
+  .archive-page:has(:is(.archive-title, .archive-popup):hover, .archive-item:focus-within)::after {
+    opacity: 1;
+    transition-duration: 320ms;
   }
 }
 
@@ -286,7 +283,6 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0.65rem;
-  -webkit-overflow-scrolling: touch;
 }
 
 .archive-topic-list__item {
@@ -329,10 +325,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 }
 
-.archive-topic-list__item--all {
-  &::before {
-    content: "∗";
-  }
+.archive-topic-list__item--all::before {
+  content: "∗";
 }
 
 .archive-topic-list__name {
@@ -403,6 +397,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   transform: translateX(-0.12rem);
   transition:
     color 160ms ease,
+    opacity 160ms ease,
     transform 160ms ease;
 
   &::before {
@@ -459,7 +454,6 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 /* #endregion */
 
 .archive-group {
-  --archive-accent: var(--lavender);
   position: relative;
   padding: 0.95rem 0 0;
   /* 年份轴锚点落在分组上，跳转时给导航栏留出空隙 */
@@ -523,50 +517,27 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   min-inline-size: min(20rem, calc(100vw - 2rem));
   max-inline-size: min(34rem, calc(100vw - 24px));
   overflow: auto;
+  /* 摘要里长 URL 等不可断段会把 fit-content 顶到宽度上限后横向溢出成滚动条，
+     兜底折行 */
+  overflow-wrap: anywhere;
 
   padding: 0.85rem 1rem 0.9rem;
-  border: 1px dashed var(--surface0);
-  border-radius: 5px;
-  background: var(--mantle);
 
   /* Keep the fixed, anchored box present while hidden so the browser can settle
-     its anchor placement before the popup fades in. */
+     its anchor placement before the popup fades in.
+     退场不带延迟且整体压在 overlay 的 200ms 淡出之内：popup（141）浮在
+     overlay（130）之上，若比它晚收完，会孤零零悬在已复原的页面上多出一截 */
   opacity: 0;
   transform: translateY(var(--popup-hidden-shift));
   pointer-events: none;
   visibility: hidden;
   transition:
-    opacity 140ms ease 140ms,
-    transform 180ms cubic-bezier(0.22, 1, 0.36, 1) 140ms,
-    visibility 0s linear 280ms;
+    opacity 120ms ease,
+    transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 140ms;
 
   @media (hover: none), (max-width: 720px) {
     display: none !important;
-  }
-}
-
-.archive-item:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) > .archive-popup,
-.archive-item:focus-within > .archive-popup {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-  visibility: visible;
-  transition:
-    opacity 140ms ease 180ms,
-    transform 180ms cubic-bezier(0.22, 1, 0.36, 1) 180ms,
-    visibility 0s linear 180ms;
-}
-
-.archive-item:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)),
-.archive-item:focus-within {
-  z-index: 140;
-}
-
-@starting-style {
-  .archive-item:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) > .archive-popup,
-  .archive-item:focus-within > .archive-popup {
-    opacity: 0;
-    transform: translateY(var(--popup-hidden-shift));
   }
 }
 
@@ -579,6 +550,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 }
 
 .archive-popup__excerpt {
+  font-family: var(--article-font-family);
   & :where(p, ul, ol) {
     margin: 0 0 0.35em;
 
@@ -601,6 +573,27 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   text-align: right;
 }
 
+/* 展示条件收敛成一条：指针悬在标题/预览上，或条目内持有焦点。旧写法把
+   title:focus-visible、popup:focus-within 与条目 :focus-within 并列枚举
+   （前两者本就被后者包含），同一长条件在显隐、z-index、@starting-style
+   里重复了四遍；popup 常驻渲染（隐藏只切 visibility 不切 display），
+   从隐藏态出发的过渡天然生效，@starting-style 只对新入渲染树的元素
+   有意义，属冗余，一并移除 */
+.archive-item:is(:focus-within, :has(:is(.archive-title, .archive-popup):hover)) {
+  z-index: 140;
+
+  > .archive-popup {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    visibility: visible;
+    transition:
+      opacity 140ms ease 180ms,
+      transform 180ms cubic-bezier(0.22, 1, 0.36, 1) 180ms,
+      visibility 0s linear 180ms;
+  }
+}
+
 /* #endregion */
 
 a.archive-title {
@@ -609,7 +602,7 @@ a.archive-title {
   display: block;
   inline-size: fit-content;
   /* 列表静息态整体降半级（字号 ×0.95、颜色向底色收 18%），
-     高亮交给交互层：hover 聚焦模式（他项 blur）+ accent 变色 */
+     高亮交给交互层：hover 聚焦模式（mantle overlay 罩住他项）+ accent 变色 */
   font-size: calc(var(--article-font-size) * 0.95);
   font-weight: var(--article-font-weight);
   font-family: var(--article-font-family);
@@ -632,7 +625,6 @@ a.archive-title {
   &:hover,
   &:focus-visible {
     color: var(--archive-accent);
-    text-decoration-color: currentColor;
   }
 
   &:focus-visible {

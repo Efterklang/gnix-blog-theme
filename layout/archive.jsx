@@ -142,7 +142,7 @@ function getPostDateParts(postDate, dateXml, date) {
   };
 }
 
-function renderSeasonGroup({ posts, title, marker = "all", sectionId, url_for, date_xml, date, nextOrder }) {
+function renderSeasonGroup({ posts, title, marker = "all", sectionId, url_for, date_xml, date }) {
   return (
     <section class={`archive-group ${marker}`} aria-labelledby={sectionId}>
       <h2 id={sectionId} class="archive-group__header archive-label">
@@ -150,7 +150,7 @@ function renderSeasonGroup({ posts, title, marker = "all", sectionId, url_for, d
             文字段的行尾空格（如 "June 2026"）会被裁掉，基线对齐也需额外处理 */}
         <span>{renderLabelSegments(title)}</span>
       </h2>
-      {posts.map((post) => {
+      {posts.map((post, index) => {
         const postDate = getPostDateParts(post.date, date_xml, date);
         const excerpt = post.excerpt || null;
         const readMinutes = excerpt ? estimateReadMinutes(post._content) : 0;
@@ -163,7 +163,7 @@ function renderSeasonGroup({ posts, title, marker = "all", sectionId, url_for, d
             dateXml={postDate.xml}
             excerpt={excerpt}
             readTime={readMinutes ? `${readMinutes} min read` : null}
-            order={nextOrder()}
+            order={index}
           />
         );
       })}
@@ -237,9 +237,6 @@ module.exports = class extends Component {
 
     let articleList;
     let yearAnchors = null;
-    // 文章行共用一条跨分组的连续序号，供入场动画自上而下逐条浮现（季节标题不参与）
-    let entryOrder = 0;
-    const nextOrder = () => entryOrder++;
     if (!page.year) {
       const seasonGroups = groupPostsBySeason(visiblePosts).map((group) => ({
         ...group,
@@ -257,7 +254,6 @@ module.exports = class extends Component {
             url_for,
             date_xml,
             date,
-            nextOrder,
           })}
         </Fragment>
       ));
@@ -272,7 +268,6 @@ module.exports = class extends Component {
         url_for,
         date_xml,
         date,
-        nextOrder,
       });
     }
 
