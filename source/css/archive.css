@@ -95,7 +95,7 @@
   letter-spacing: 0.02em;
   /* 长主题名（overflow-wrap: anywhere）会折行，CJK 字形占满 em 框，行高低于 1 会互相咬合 */
   line-height: 1.1;
-  text-align: left;
+  text-align: start;
   transition: color 160ms ease;
 
   &:hover,
@@ -127,6 +127,15 @@ body:has(.archive-page) :is(.navbar, .footer) {
 
 body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   opacity: 0;
+  /* 隐形≠不可点：light-dismiss 的关闭点击会穿透，落在透明导航链接上就误跳转 */
+  pointer-events: none;
+}
+
+/* 幕帘开启时锁定文档滚动：幕帘锚定在 hero 上，页面一滚就跟着 hero 滑出视口，
+   身后内容又已 opacity: 0，只剩空白页；gutter 抵消滚动条消失引起的布局跳动 */
+:root:has(.archive-topic-picker:popover-open) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
 }
 
 /* #region Hover overlay */
@@ -176,7 +185,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
     inset: auto;
     top: anchor(bottom);
     bottom: 0;
-    left: anchor(left);
+    inset-inline-start: anchor(start);
     box-sizing: border-box;
     width: anchor-size(width);
     height: auto;
@@ -263,7 +272,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem 0.65rem;
-  margin: 0 0 0 auto;
+  margin: 0;
+  margin-inline-start: auto;
   padding: 0;
   color: var(--archive-muted);
   font-family: var(--font-mono);
@@ -283,6 +293,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0.65rem;
+  /* 幕帘贴视口底：留出 iOS home indicator 安全区，末行标签可滚出手势条 */
+  padding-bottom: calc(0.65rem + env(safe-area-inset-bottom));
 }
 
 .archive-topic-list__item {
@@ -344,8 +356,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 
   .archive-topic-list {
-    grid-template-columns: 1fr;
     padding: 0.55rem;
+    padding-bottom: calc(0.55rem + env(safe-area-inset-bottom));
   }
 }
 
@@ -575,7 +587,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 .archive-item {
   position: relative;
-  text-align: left;
+  text-align: start;
 
   /* Each item is its own anchor; anchor-scope keeps the shared name local to
      this subtree so every popup binds to its own item. */
@@ -593,13 +605,17 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   z-index: 141;
   box-sizing: border-box;
 
-  /* Default placement: above the item. */
-  top: anchor(top);
-  left: anchor(left);
-  translate: 0 calc(-100% - var(--popup-gap));
+  /* Default placement: above the item（底边贴条目顶，margin 作间隙）；
+     条目贴近视口顶放不下时 flip-block 翻到条目下方。高度设上限让 overflow: auto
+     真正生效——无约束时长摘要会把盒顶推出视口，被裁部分无从滚回 */
+  bottom: anchor(top);
+  inset-inline-start: anchor(start);
+  margin-block-end: var(--popup-gap);
+  position-try-fallbacks: flip-block;
   inline-size: fit-content;
   min-inline-size: min(20rem, calc(100vw - 2rem));
   max-inline-size: min(34rem, calc(100vw - 24px));
+  max-block-size: 50dvh;
   overflow: auto;
   /* 摘要里长 URL 等不可断段会把 fit-content 顶到宽度上限后横向溢出成滚动条，
      兜底折行 */
@@ -656,7 +672,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.08em;
-  text-align: right;
+  text-align: end;
 }
 
 /* 展示条件只认悬停（标题或预览本体）。曾并入 :focus-within，但点击标题进入
@@ -692,18 +708,18 @@ a.archive-title {
   font-family: var(--article-font-family);
   max-inline-size: 100%;
   color: color-mix(in oklch, var(--text) 82%, var(--base));
-  padding: 0.6rem 0.35rem 0.6rem 0;
   /* Hanging indent: wrapped title lines align with the title text, not the
      leading date column. */
-  padding-left: calc(var(--archive-date-col) + var(--archive-date-gap));
+  padding-block: 0.6rem;
+  padding-inline: calc(var(--archive-date-col) + var(--archive-date-gap)) 0.35rem;
   text-indent: calc(-1 * (var(--archive-date-col) + var(--archive-date-gap)));
   line-height: 1.45;
   overflow-wrap: anywhere;
   transition: color 140ms ease;
 
   @media (max-width: 480px) {
-    padding: 0.7rem 0.5rem 0.7rem 0;
-    padding-left: calc(var(--archive-date-col) + var(--archive-date-gap));
+    padding-block: 0.7rem;
+    padding-inline: calc(var(--archive-date-col) + var(--archive-date-gap)) 0.5rem;
   }
 
   &:hover,
@@ -718,7 +734,7 @@ a.archive-title {
 .archive-title__date {
   display: inline-block;
   min-width: var(--archive-date-col);
-  margin-right: var(--archive-date-gap);
+  margin-inline-end: var(--archive-date-gap);
   color: var(--archive-muted);
   font-family: var(--font-mono);
   font-size: 0.75rem;
