@@ -88,7 +88,8 @@
 
 .archive-hero__title {
   max-width: 100%;
-  padding-inline: 0.15rem 0.5rem;
+  /* 与季节标题、日期列共用起始对齐边（此前多出的 0.15rem 让大标题游离于共享边外） */
+  padding-inline: 0 0.5rem;
   color: var(--text);
   cursor: pointer;
   font-size: 2rem;
@@ -292,7 +293,9 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   max-height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 0.65rem;
+  /* 首列条目文本与 header 文本共边（两处都以 # 起头）：
+     条目自带 0.48rem 内边距，容器补足到 header 的 1rem */
+  padding: 0.65rem calc(1rem - 0.48rem);
   /* 幕帘贴视口底：留出 iOS home indicator 安全区，末行标签可滚出手势条 */
   padding-bottom: calc(0.65rem + env(safe-area-inset-bottom));
 }
@@ -356,7 +359,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 
   .archive-topic-list {
-    padding: 0.55rem;
+    padding: 0.55rem calc(0.85rem - 0.48rem);
     padding-bottom: calc(0.55rem + env(safe-area-inset-bottom));
   }
 }
