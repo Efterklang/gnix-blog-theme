@@ -51,13 +51,12 @@ function getSeasonSpan(date) {
   return { season, startYear, endYear: startYear + 1 };
 }
 
-const SEASON_ABBR = { Spring: "Spr", Summer: "Sum", Autumn: "Aut", Winter: "Win" };
-
-// 分组标题：季节缩写 + 两位年份，跨年段记起讫年（Win.25/26），CSS 转小写呈现
+// 分组标题：季节全名 + 撇号年份（summer ’26），跨年段记起讫年（winter ’25/26），
+// CSS 转小写呈现
 function getSeasonGroupLabel({ season, startYear, endYear }) {
   const yy = (value) => String(value % 100).padStart(2, "0");
   const range = startYear === endYear ? yy(startYear) : `${yy(startYear)}/${yy(endYear)}`;
-  return `${SEASON_ABBR[season]}.${range}`;
+  return `${season} ’${range}`;
 }
 
 // 小写标签里 lining figures 比 x 高度高出一截；把数字段拆出来包 span，

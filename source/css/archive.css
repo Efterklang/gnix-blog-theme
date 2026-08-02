@@ -387,7 +387,6 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
    不对称呼吸让标签视觉上归属下面的分组 */
 .archive-group__header {
   margin: 0 0 1.25rem;
-  justify-content: center;
   text-transform: lowercase;
   font-style: italic;
 }
