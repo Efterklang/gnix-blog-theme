@@ -27,7 +27,7 @@
 
 .content {
   overflow: auto;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   color: var(--subtext1);
   font-size: var(--article-font-size);
   font-family: var(--article-font-family);
@@ -90,7 +90,7 @@
       font-style: italic;
       letter-spacing: -0.01em;
       font-size: 0.7em;
-      font-weight: 100;
+      font-weight: 400;
       font-variant-numeric: oldstyle-nums;
       flex-shrink: 0;
     }
@@ -196,7 +196,6 @@
     font-family: var(--font-mono);
     font-size: 0.85em;
     color: var(--subtext0);
-    user-select: none;
     background: linear-gradient(180deg, var(--base) 0%, var(--mantle) 100%);
     border: 1px solid var(--surface0);
     border-bottom-width: 3px;
@@ -211,6 +210,11 @@
     &:active {
       top: 0;
     }
+  }
+
+  /* 键帽是正文内容，保持可复制；按压交互只属于按钮 */
+  button.physical-btn {
+    user-select: none;
   }
 
   ol {
@@ -308,7 +312,7 @@
     padding: 1rem;
     margin: 0 0 1rem 0;
     white-space: pre;
-    word-wrap: normal;
+    overflow-wrap: normal;
     line-height: 1.45;
   }
 
@@ -546,7 +550,7 @@ input.task-list-item-checkbox {
     border-color: var(--green);
   }
   &:checked::before {
-    content: "";
+    content: "✓";
     font-family: var(--font-mono);
     color: var(--base);
     position: absolute;
@@ -588,7 +592,7 @@ a strong {
 .article-title {
   font-family: var(--article-font-family);
   font-size: 1.75em;
-  font-weight: 500;
+  font-weight: 100;
   line-height: 1.2;
   margin-bottom: 0.3em;
   text-wrap: balance;

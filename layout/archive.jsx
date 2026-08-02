@@ -1,4 +1,4 @@
-const { Component, Fragment, isValidDate, parseISO, dateFormatters, formatMonthDay } = require("../include/util/common");
+const { Component, isValidDate, parseISO, dateFormatters, formatMonthDay } = require("../include/util/common");
 const ArticleMedia = require("./common/article_media");
 const { filterByLanguage } = require("../include/util/i18n");
 
@@ -93,18 +93,6 @@ function groupPostsBySeason(posts) {
   }, []);
 }
 
-// 年份轴锚点：每个自然年指向其最新一篇文章所在的分组（跨年冬季段可承接两个年份）
-function mapYearsToSectionIds(seasonGroups) {
-  const anchors = new Map();
-  for (const group of seasonGroups) {
-    for (const post of group.posts) {
-      const year = post.date.year();
-      if (!anchors.has(year)) anchors.set(year, group.sectionId);
-    }
-  }
-  return anchors;
-}
-
 function collectArchiveYears(posts) {
   return Array.from(new Set(posts.map((post) => post.date.year()))).sort((a, b) => b - a);
 }
@@ -142,14 +130,18 @@ function getPostDateParts(postDate, dateXml, date) {
   };
 }
 
-function renderSeasonGroup({ posts, title, marker = "all", sectionId, url_for, date_xml, date }) {
+// labelledBy 存在时分组作为 carousel 面板呈现：标题由上方的 tab 承担，
+// 组内不再渲染 h2，aria-labelledby 指向对应 tab
+function renderSeasonGroup({ posts, title, marker = "all", sectionId, labelledBy = null, url_for, date_xml, date }) {
   return (
-    <section class={`archive-group ${marker}`} aria-labelledby={sectionId}>
-      <h2 id={sectionId} class="archive-group__header archive-label">
-        {/* 单一 span 包住整段：h2 是 flex 容器，多个裸文字/数字节点会各自成 flex 项，
-            文字段的行尾空格（如 "June 2026"）会被裁掉，基线对齐也需额外处理 */}
-        <span>{renderLabelSegments(title)}</span>
-      </h2>
+    <section id={sectionId} class={`archive-group ${marker}`} aria-labelledby={labelledBy || `${sectionId}-title`}>
+      {!labelledBy && (
+        <h2 id={`${sectionId}-title`} class="archive-group__header archive-label">
+          {/* 单一 span 包住整段：h2 是 flex 容器，多个裸文字/数字节点会各自成 flex 项，
+              文字段的行尾空格（如 "June 2026"）会被裁掉，基线对齐也需额外处理 */}
+          <span>{renderLabelSegments(title)}</span>
+        </h2>
+      )}
       {posts.map((post, index) => {
         const postDate = getPostDateParts(post.date, date_xml, date);
         const excerpt = post.excerpt || null;
@@ -236,27 +228,45 @@ module.exports = class extends Component {
     const pickerStats = [writingsLabel, sinceLabel].filter(Boolean);
 
     let articleList;
-    let yearAnchors = null;
     if (!page.year) {
       const seasonGroups = groupPostsBySeason(visiblePosts).map((group) => ({
         ...group,
         marker: group.season.toLowerCase(),
         sectionId: `archive-${group.season.toLowerCase()}-${group.startYear}`,
       }));
-      yearAnchors = mapYearsToSectionIds(seasonGroups);
-      articleList = seasonGroups.map((group) => (
-        <Fragment key={group.sectionId}>
-          {renderSeasonGroup({
-            posts: group.posts,
-            title: getSeasonGroupLabel(group),
-            marker: group.marker,
-            sectionId: group.sectionId,
-            url_for,
-            date_xml,
-            date,
-          })}
-        </Fragment>
-      ));
+      // 横向 carousel：上方 tab 条承担各组标题与切换（tab 为锚链接，无 JS 时
+      // 浏览器原生把 snap 容器横向滚到目标组；archive.js 增强为平滑滚动 + 状态同步）
+      articleList = seasonGroups.length > 0 && (
+        <div class="archive-carousel">
+          <nav class="archive-carousel__tabs" aria-label={helper.__("archive.switch_group")}>
+            {seasonGroups.map((group, index) => (
+              <a
+                key={group.sectionId}
+                id={`${group.sectionId}-tab`}
+                class={`archive-carousel__tab archive-label ${group.marker}`}
+                href={`#${group.sectionId}`}
+                aria-current={index === 0 ? "true" : null}
+              >
+                <span>{renderLabelSegments(getSeasonGroupLabel(group))}</span>
+              </a>
+            ))}
+          </nav>
+          <div class="archive-carousel__track">
+            {seasonGroups.map((group) =>
+              renderSeasonGroup({
+                posts: group.posts,
+                title: getSeasonGroupLabel(group),
+                marker: group.marker,
+                sectionId: group.sectionId,
+                labelledBy: `${group.sectionId}-tab`,
+                url_for,
+                date_xml,
+                date,
+              }),
+            )}
+          </div>
+        </div>
+      );
     } else {
       const season = page.month ? getSeason(page.month) : null;
       const marker = season ? season.toLowerCase() : "all";
@@ -291,20 +301,6 @@ module.exports = class extends Component {
           topicListLabel: topicsTitle,
           stats: pickerStats,
         })}
-
-        {!page.year && years.length > 1 && (
-          <aside class="archive-rail" aria-label={helper.__("archive.jump_to_year")}>
-            <ol class="archive-rail__list">
-              {years.map((year) => (
-                <li key={year}>
-                  <a href={`#${yearAnchors.get(year)}`} class="archive-rail__link">
-                    <span class="archive-rail__year">{year}</span>
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </aside>
-        )}
 
         {articleList}
       </main>

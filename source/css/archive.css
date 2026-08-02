@@ -7,7 +7,6 @@
 .archive-page {
   --archive-muted: color-mix(in oklch, var(--subtext1) 78%, var(--base));
   --archive-accent: var(--lavender);
-  --archive-rail-width: 5rem;
   position: relative;
   display: grid;
   /* 间距做层级：条目密、组间松（约 3 倍条目节距），靠留白对比分组，不画线 */
@@ -94,7 +93,8 @@
   cursor: pointer;
   font-size: 2rem;
   letter-spacing: 0.02em;
-  line-height: 0.95;
+  /* 长主题名（overflow-wrap: anywhere）会折行，CJK 字形占满 em 框，行高低于 1 会互相咬合 */
+  line-height: 1.1;
   text-align: left;
   transition: color 160ms ease;
 
@@ -106,7 +106,7 @@
 
 /* Softly recede everything below the hero while the topic curtain is open;
    the hero itself stays sharp and picks up the accent. */
-.archive-page :is(.archive-group, .archive-rail) {
+.archive-page :is(.archive-carousel, .archive-group) {
   transition: opacity 340ms ease;
 }
 
@@ -119,7 +119,7 @@ body:has(.archive-page) :is(.navbar, .footer) {
     color: var(--archive-accent);
   }
 
-  :is(.archive-group, .archive-rail) {
+  :is(.archive-carousel, .archive-group) {
     opacity: 0;
     pointer-events: none;
   }
@@ -149,9 +149,9 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
     transition: opacity 200ms ease;
   }
 
-  /* 与 popup 的展示条件同源（悬停标题/预览，或条目内持焦）；退场快于进场：
+  /* 与 popup 的展示条件同源（悬停标题/预览）；退场快于进场：
      指针移开的瞬间活动条目落回 overlay 之下，短退场把这一帧落差融进整体淡出 */
-  .archive-page:has(:is(.archive-title, .archive-popup):hover, .archive-item:focus-within)::after {
+  .archive-page:has(:is(.archive-title, .archive-popup):hover)::after {
     opacity: 1;
     transition-duration: 320ms;
   }
@@ -246,7 +246,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
     margin: 0;
     color: var(--archive-muted);
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 500;
     letter-spacing: 0.16em;
     line-height: 1.35;
@@ -267,7 +267,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   padding: 0;
   color: var(--archive-muted);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
   line-height: 1.35;
   list-style: none;
@@ -317,11 +317,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   &[aria-current="page"] {
     background: color-mix(in oklch, var(--archive-accent) 10%, transparent);
     color: var(--archive-accent);
-  }
-
-  &:focus-visible {
-    outline: 2px solid color-mix(in oklch, var(--archive-accent) 70%, transparent);
-    outline-offset: 2px;
+    outline: none;
   }
 }
 
@@ -337,7 +333,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 .archive-topic-list__count {
   color: var(--archive-muted);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-style: normal;
   font-variant-numeric: tabular-nums;
 }
@@ -355,99 +351,181 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 /* #endregion */
 
-/* #region Right rail (year jump) */
+/* #region Carousel (season groups) */
 
-.archive-rail {
-  position: fixed;
-  top: 50%;
-  left: max(1rem, calc((100vw - var(--article-max-width)) / 2 - var(--archive-rail-width) - 1rem));
-  transform: translateY(-50%);
-  z-index: 10;
-  pointer-events: none;
+/* 分组横向 carousel：tab 条在上承担各组标题与切换，轨道 scroll-snap 逐组滑动。
+   tab 是指向分组 id 的锚链接——无 JS 时浏览器原生把 snap 容器横向滚到目标组，
+   archive.js 只做增强（平滑滚动、滚动位置回写 aria-current） */
+.archive-carousel {
+  display: grid;
+  gap: 1.25rem;
+  min-width: 0;
+}
 
-  @media (max-width: 1023px) {
+.archive-carousel__tabs {
+  display: flex;
+  gap: 0.35rem 0.4rem;
+  justify-content: safe center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0.35rem 0.25rem;
+  /* 组间留白原由 .archive-page gap + group padding 承担，收进 tab 条下方 */
+
+  &::-webkit-scrollbar {
     display: none;
   }
 }
 
-.archive-rail__list {
-  display: grid;
-  gap: 0.18rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  text-align: left;
-  pointer-events: auto;
+/* 单行滚动的溢出线索：滚动进度驱动两端渐隐 mask——在起点只淡出末端，滚到终点
+   只淡出起点，中途两端同淡；被裁的 tab 以半透明残影探出，替代隐藏的滚动条。
+   tab 全放得下时 scroll timeline 不激活、动画不生效，静息 mask 两端宽 0 视觉等于无。
+   无 SDA 的浏览器整段跳过，退回无线索的隐藏滚动条（与 anchor 定位同款 fail-soft）；
+   渐变无逻辑方向可用，to right 是有意的物理例外，站点语言均 LTR */
+@supports (animation-timeline: scroll(self inline)) {
+  .archive-carousel__tabs {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black var(--archive-tabs-fade-start),
+      black calc(100% - var(--archive-tabs-fade-end)),
+      transparent
+    );
+    animation: archive-tabs-fade linear both;
+    animation-timeline: scroll(self inline);
+  }
 }
 
-.archive-rail__link {
-  display: inline-grid;
-  grid-template-columns: 0.7rem auto;
-  gap: 0.28rem;
-  align-items: center;
-  min-height: 1.25rem;
-  padding: 0 0.2rem;
-  color: var(--overlay0);
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-  text-decoration: none;
-  transform: translateX(-0.12rem);
-  transition:
-    color 160ms ease,
-    opacity 160ms ease,
-    transform 160ms ease;
+/* 渐隐宽度须注册为 <length> 才能在关键帧间平滑插值（未注册的自定义属性离散跳变） */
+@property --archive-tabs-fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
 
+@property --archive-tabs-fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@keyframes archive-tabs-fade {
+  0% {
+    --archive-tabs-fade-start: 0px;
+    --archive-tabs-fade-end: 2.5rem;
+  }
+
+  12%,
+  88% {
+    --archive-tabs-fade-start: 2.5rem;
+    --archive-tabs-fade-end: 2.5rem;
+  }
+
+  100% {
+    --archive-tabs-fade-start: 2.5rem;
+    --archive-tabs-fade-end: 0px;
+  }
+}
+
+/* 每个 tab 携带季节 class（spring/summer/…）取到各自的 accent 色。
+   圆点分页：非当前组缩成季节色圆点——标签收进 max-inline-size: 0 的裁剪框，
+   仅视觉隐藏，锚链接与读屏语义不变；当前组（或键盘聚焦的组）展开显示标签，
+   carousel 滑动迁移 aria-current 时圆点↔标签平滑形变。行宽随之大幅缩短，
+   一般不再溢出，上方的滚动渐隐 mask 自动休眠，仅在分组极多的窄屏下兜底 */
+.archive-carousel__tab {
+  flex: none;
+  /* 圆点仅 6px，块向 0.55rem padding 把命中区撑到 ~24px */
+  padding: 0.55rem 0.4rem;
+  color: var(--archive-muted);
+  font-size: 0.8rem;
+  font-style: italic;
+  text-decoration: none;
+  text-transform: lowercase;
+  white-space: nowrap;
+  transition: color 160ms ease;
+
+  /* 圆点本体，兼作当前位置标记 */
   &::before {
     content: "";
-    width: 0.54rem;
-    height: 1px;
-    border-radius: 999px;
-    background: currentColor;
-    transform: scaleX(0.63);
-    transform-origin: left center;
-    transition: transform 160ms ease;
+    flex: none;
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: 50%;
+    background: var(--archive-accent);
+    opacity: 0.45;
+    transition:
+      opacity 160ms ease,
+      scale 200ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  :where(.archive-rail:hover, .archive-rail:focus-within) & {
-    opacity: 0.58;
-    transform: translateX(0);
+  > span {
+    overflow: hidden;
+    max-inline-size: 0;
+    opacity: 0;
+    transition:
+      max-inline-size 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      margin-inline-start 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 200ms ease;
   }
 
-  &:hover,
+  &.spring {
+    --archive-accent: var(--peach);
+  }
+  &.summer {
+    --archive-accent: var(--green);
+  }
+  &.autumn {
+    --archive-accent: var(--red);
+  }
+  &.winter {
+    --archive-accent: var(--blue);
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
   &:focus-visible {
-    color: color-mix(in oklch, var(--text) 88%, var(--base));
+    outline: none;
   }
 
-  &:hover::before,
-  &:focus-visible::before {
-    transform: scaleX(1);
-  }
-
+  &[aria-current],
   &:focus-visible {
-    outline: 2px solid color-mix(in oklch, var(--archive-accent) 70%, transparent);
-    outline-offset: 3px;
-    border-radius: 2px;
+    color: var(--archive-accent);
+
+    &::before {
+      opacity: 1;
+      scale: 1.25;
+    }
+
+    > span {
+      max-inline-size: 5rem;
+      margin-inline-start: 0.35rem;
+      opacity: 1;
+    }
   }
 }
 
-.archive-rail__year {
-  opacity: 0;
-  transform: translateX(-0.18rem);
-  transition:
-    opacity 160ms ease,
-    transform 160ms ease;
+/* 轨道：每组占满一屏宽，mandatory snap 保证停在组边界；容器高度取最高分组
+   （各组条目数不同，滑动时高度不跳变）。锚点跳转/hash 命中时由浏览器横向滚动 */
+.archive-carousel__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  align-items: start;
+  gap: 2.5rem;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
 
-  :where(.archive-rail:hover, .archive-rail:focus-within) & {
-    opacity: 0.78;
-    transform: translateX(0);
+  &::-webkit-scrollbar {
+    display: none;
   }
 
-  .archive-rail__link:hover &,
-  .archive-rail__link:focus-visible & {
-    opacity: 1;
+  > .archive-group {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 }
 
@@ -455,9 +533,15 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 .archive-group {
   position: relative;
+  min-width: 0;
   padding: 0.95rem 0 0;
-  /* 年份轴锚点落在分组上，跳转时给导航栏留出空隙 */
+  /* tab 锚点跳转把分组滚进视口时给导航栏留出空隙 */
   scroll-margin-top: 4.5rem;
+
+  /* carousel 面板：标题由上方 tab 承担，无组内 header，收掉头部呼吸留白 */
+  .archive-carousel__track > & {
+    padding-top: 0;
+  }
 
   &.spring {
     --archive-accent: var(--peach);
@@ -551,6 +635,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 .archive-popup__excerpt {
   font-family: var(--article-font-family);
+  font-style: italic;
+
   & :where(p, ul, ol) {
     margin: 0 0 0.35em;
 
@@ -568,18 +654,16 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   margin: 0.5rem 0 0;
   color: var(--archive-muted);
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-align: right;
 }
 
-/* 展示条件收敛成一条：指针悬在标题/预览上，或条目内持有焦点。旧写法把
-   title:focus-visible、popup:focus-within 与条目 :focus-within 并列枚举
-   （前两者本就被后者包含），同一长条件在显隐、z-index、@starting-style
-   里重复了四遍；popup 常驻渲染（隐藏只切 visibility 不切 display），
-   从隐藏态出发的过渡天然生效，@starting-style 只对新入渲染树的元素
-   有意义，属冗余，一并移除 */
-.archive-item:is(:focus-within, :has(:is(.archive-title, .archive-popup):hover)) {
+/* 展示条件只认悬停（标题或预览本体）。曾并入 :focus-within，但点击标题进入
+   文章后返回时浏览器会还原链接焦点，popup 常驻且不随指针移开消失，故移除；
+   popup 常驻渲染（隐藏只切 visibility 不切 display），从隐藏态出发的过渡
+   天然生效，无需 @starting-style */
+.archive-item:has(:is(.archive-title, .archive-popup):hover) {
   z-index: 140;
 
   > .archive-popup {
@@ -625,12 +709,7 @@ a.archive-title {
   &:hover,
   &:focus-visible {
     color: var(--archive-accent);
-  }
-
-  &:focus-visible {
-    outline: 2px solid color-mix(in oklch, var(--archive-accent) 70%, transparent);
-    outline-offset: 3px;
-    border-radius: 3px;
+    outline: none;
   }
 }
 
@@ -642,7 +721,7 @@ a.archive-title {
   margin-right: var(--archive-date-gap);
   color: var(--archive-muted);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
   text-indent: 0;
   transition: color 140ms ease;

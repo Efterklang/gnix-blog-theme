@@ -60,7 +60,7 @@ archive:
     one: "topic"
     other: "topics"
   since: "since %s"
-  jump_to_year: "Jump to year"
+  switch_group: "Switch archive group"
   close_topic_picker: "Close tag picker"
   all_posts: "All Posts"
 preferences:
