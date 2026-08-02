@@ -106,7 +106,7 @@
 
 /* Softly recede everything below the hero while the topic curtain is open;
    the hero itself stays sharp and picks up the accent. */
-.archive-page :is(.archive-carousel, .archive-group) {
+.archive-page .archive-group {
   transition: opacity 340ms ease;
 }
 
@@ -119,7 +119,7 @@ body:has(.archive-page) :is(.navbar, .footer) {
     color: var(--archive-accent);
   }
 
-  :is(.archive-carousel, .archive-group) {
+  .archive-group {
     opacity: 0;
     pointer-events: none;
   }
@@ -363,197 +363,10 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 /* #endregion */
 
-/* #region Carousel (season groups) */
-
-/* 分组横向 carousel：tab 条在上承担各组标题与切换，轨道 scroll-snap 逐组滑动。
-   tab 是指向分组 id 的锚链接——无 JS 时浏览器原生把 snap 容器横向滚到目标组，
-   archive.js 只做增强（平滑滚动、滚动位置回写 aria-current） */
-.archive-carousel {
-  display: grid;
-  gap: 1.25rem;
-  min-width: 0;
-}
-
-.archive-carousel__tabs {
-  display: flex;
-  gap: 0.35rem 0.4rem;
-  justify-content: safe center;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding: 0.35rem 0.25rem;
-  /* 组间留白原由 .archive-page gap + group padding 承担，收进 tab 条下方 */
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-/* 单行滚动的溢出线索：滚动进度驱动两端渐隐 mask——在起点只淡出末端，滚到终点
-   只淡出起点，中途两端同淡；被裁的 tab 以半透明残影探出，替代隐藏的滚动条。
-   tab 全放得下时 scroll timeline 不激活、动画不生效，静息 mask 两端宽 0 视觉等于无。
-   无 SDA 的浏览器整段跳过，退回无线索的隐藏滚动条（与 anchor 定位同款 fail-soft）；
-   渐变无逻辑方向可用，to right 是有意的物理例外，站点语言均 LTR */
-@supports (animation-timeline: scroll(self inline)) {
-  .archive-carousel__tabs {
-    mask-image: linear-gradient(
-      to right,
-      transparent,
-      black var(--archive-tabs-fade-start),
-      black calc(100% - var(--archive-tabs-fade-end)),
-      transparent
-    );
-    animation: archive-tabs-fade linear both;
-    animation-timeline: scroll(self inline);
-  }
-}
-
-/* 渐隐宽度须注册为 <length> 才能在关键帧间平滑插值（未注册的自定义属性离散跳变） */
-@property --archive-tabs-fade-start {
-  syntax: "<length>";
-  inherits: false;
-  initial-value: 0px;
-}
-
-@property --archive-tabs-fade-end {
-  syntax: "<length>";
-  inherits: false;
-  initial-value: 0px;
-}
-
-@keyframes archive-tabs-fade {
-  0% {
-    --archive-tabs-fade-start: 0px;
-    --archive-tabs-fade-end: 2.5rem;
-  }
-
-  12%,
-  88% {
-    --archive-tabs-fade-start: 2.5rem;
-    --archive-tabs-fade-end: 2.5rem;
-  }
-
-  100% {
-    --archive-tabs-fade-start: 2.5rem;
-    --archive-tabs-fade-end: 0px;
-  }
-}
-
-/* 每个 tab 携带季节 class（spring/summer/…）取到各自的 accent 色。
-   圆点分页：非当前组缩成季节色圆点——标签收进 max-inline-size: 0 的裁剪框，
-   仅视觉隐藏，锚链接与读屏语义不变；当前组（或键盘聚焦的组）展开显示标签，
-   carousel 滑动迁移 aria-current 时圆点↔标签平滑形变。行宽随之大幅缩短，
-   一般不再溢出，上方的滚动渐隐 mask 自动休眠，仅在分组极多的窄屏下兜底 */
-.archive-carousel__tab {
-  flex: none;
-  /* 圆点仅 6px，块向 0.55rem padding 把命中区撑到 ~24px */
-  padding: 0.55rem 0.4rem;
-  color: var(--archive-muted);
-  font-size: 0.8rem;
-  font-style: italic;
-  text-decoration: none;
-  text-transform: lowercase;
-  white-space: nowrap;
-  transition: color 160ms ease;
-
-  /* 圆点本体，兼作当前位置标记 */
-  &::before {
-    content: "";
-    flex: none;
-    inline-size: 6px;
-    block-size: 6px;
-    border-radius: 50%;
-    background: var(--archive-accent);
-    opacity: 0.45;
-    transition:
-      opacity 160ms ease,
-      scale 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  > span {
-    overflow: hidden;
-    max-inline-size: 0;
-    opacity: 0;
-    transition:
-      max-inline-size 260ms cubic-bezier(0.22, 1, 0.36, 1),
-      margin-inline-start 260ms cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 200ms ease;
-  }
-
-  &.spring {
-    --archive-accent: var(--peach);
-  }
-  &.summer {
-    --archive-accent: var(--green);
-  }
-  &.autumn {
-    --archive-accent: var(--red);
-  }
-  &.winter {
-    --archive-accent: var(--blue);
-  }
-
-  &:hover::before {
-    opacity: 1;
-  }
-
-  &:focus-visible {
-    outline: none;
-  }
-
-  &[aria-current],
-  &:focus-visible {
-    color: var(--archive-accent);
-
-    &::before {
-      opacity: 1;
-      scale: 1.25;
-    }
-
-    > span {
-      max-inline-size: 5rem;
-      margin-inline-start: 0.35rem;
-      opacity: 1;
-    }
-  }
-}
-
-/* 轨道：每组占满一屏宽，mandatory snap 保证停在组边界；容器高度取最高分组
-   （各组条目数不同，滑动时高度不跳变）。锚点跳转/hash 命中时由浏览器横向滚动 */
-.archive-carousel__track {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 100%;
-  align-items: start;
-  gap: 2.5rem;
-  min-width: 0;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  > .archive-group {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-}
-
-/* #endregion */
-
 .archive-group {
   position: relative;
   min-width: 0;
   padding: 0.95rem 0 0;
-  /* tab 锚点跳转把分组滚进视口时给导航栏留出空隙 */
-  scroll-margin-top: 4.5rem;
-
-  /* carousel 面板：标题由上方 tab 承担，无组内 header，收掉头部呼吸留白 */
-  .archive-carousel__track > & {
-    padding-top: 0;
-  }
 
   &.spring {
     --archive-accent: var(--peach);
@@ -605,13 +418,14 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   z-index: 141;
   box-sizing: border-box;
 
-  /* Default placement: above the item（底边贴条目顶，margin 作间隙）；
-     条目贴近视口顶放不下时 flip-block 翻到条目下方。高度设上限让 overflow: auto
-     真正生效——无约束时长摘要会把盒顶推出视口，被裁部分无从滚回 */
+  /* Default placement: above the item（底边贴条目顶，margin 作间隙）。高度设上限让
+     overflow: auto 真正生效——无约束时长摘要会把盒顶推出视口，被裁部分无从滚回 */
   bottom: anchor(top);
   inset-inline-start: anchor(start);
   margin-block-end: var(--popup-gap);
-  position-try-fallbacks: flip-block;
+  /* 上方放不下时不翻到条目下方（方位恒在上），改为压缩：盒顶贴视口顶、
+     底边仍贴条目顶，高度被这段空间截短，超出部分走内部滚动 */
+  position-try-fallbacks: --archive-popup-squeeze;
   inline-size: fit-content;
   min-inline-size: min(20rem, calc(100vw - 2rem));
   max-inline-size: min(34rem, calc(100vw - 24px));
@@ -647,6 +461,14 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   .archive-popup {
     display: none !important;
   }
+}
+
+/* 未声明的属性沿用元素基础值（bottom: anchor(top) 仍生效），top 与 bottom 同设
+   把可用区间约束在视口顶到条目顶之间；align-self: end 让 fit-content 高度的盒子
+   沉底贴回条目顶，间隙仍由 margin-block-end 承担 */
+@position-try --archive-popup-squeeze {
+  top: 0.75rem;
+  align-self: end;
 }
 
 .archive-popup__excerpt {

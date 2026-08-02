@@ -130,18 +130,14 @@ function getPostDateParts(postDate, dateXml, date) {
   };
 }
 
-// labelledBy 存在时分组作为 carousel 面板呈现：标题由上方的 tab 承担，
-// 组内不再渲染 h2，aria-labelledby 指向对应 tab
-function renderSeasonGroup({ posts, title, marker = "all", sectionId, labelledBy = null, url_for, date_xml, date }) {
+function renderSeasonGroup({ posts, title, marker = "all", sectionId, url_for, date_xml, date }) {
   return (
-    <section id={sectionId} class={`archive-group ${marker}`} aria-labelledby={labelledBy || `${sectionId}-title`}>
-      {!labelledBy && (
-        <h2 id={`${sectionId}-title`} class="archive-group__header archive-label">
-          {/* 单一 span 包住整段：h2 是 flex 容器，多个裸文字/数字节点会各自成 flex 项，
-              文字段的行尾空格（如 "June 2026"）会被裁掉，基线对齐也需额外处理 */}
-          <span>{renderLabelSegments(title)}</span>
-        </h2>
-      )}
+    <section id={sectionId} class={`archive-group ${marker}`} aria-labelledby={`${sectionId}-title`}>
+      <h2 id={`${sectionId}-title`} class="archive-group__header archive-label">
+        {/* 单一 span 包住整段：h2 是 flex 容器，多个裸文字/数字节点会各自成 flex 项，
+            文字段的行尾空格（如 "June 2026"）会被裁掉，基线对齐也需额外处理 */}
+        <span>{renderLabelSegments(title)}</span>
+      </h2>
       {posts.map((post, index) => {
         const postDate = getPostDateParts(post.date, date_xml, date);
         const excerpt = post.excerpt || null;
@@ -229,43 +225,17 @@ module.exports = class extends Component {
 
     let articleList;
     if (!page.year) {
-      const seasonGroups = groupPostsBySeason(visiblePosts).map((group) => ({
-        ...group,
-        marker: group.season.toLowerCase(),
-        sectionId: `archive-${group.season.toLowerCase()}-${group.startYear}`,
-      }));
-      // 横向 carousel：上方 tab 条承担各组标题与切换（tab 为锚链接，无 JS 时
-      // 浏览器原生把 snap 容器横向滚到目标组；archive.js 增强为平滑滚动 + 状态同步）
-      articleList = seasonGroups.length > 0 && (
-        <div class="archive-carousel">
-          <nav class="archive-carousel__tabs" aria-label={helper.__("archive.switch_group")}>
-            {seasonGroups.map((group, index) => (
-              <a
-                key={group.sectionId}
-                id={`${group.sectionId}-tab`}
-                class={`archive-carousel__tab archive-label ${group.marker}`}
-                href={`#${group.sectionId}`}
-                aria-current={index === 0 ? "true" : null}
-              >
-                <span>{renderLabelSegments(getSeasonGroupLabel(group))}</span>
-              </a>
-            ))}
-          </nav>
-          <div class="archive-carousel__track">
-            {seasonGroups.map((group) =>
-              renderSeasonGroup({
-                posts: group.posts,
-                title: getSeasonGroupLabel(group),
-                marker: group.marker,
-                sectionId: group.sectionId,
-                labelledBy: `${group.sectionId}-tab`,
-                url_for,
-                date_xml,
-                date,
-              }),
-            )}
-          </div>
-        </div>
+      // 各分组纵向平铺，组间以 .archive-page 的 grid gap 留白分隔
+      articleList = groupPostsBySeason(visiblePosts).map((group) =>
+        renderSeasonGroup({
+          posts: group.posts,
+          title: getSeasonGroupLabel(group),
+          marker: group.season.toLowerCase(),
+          sectionId: `archive-${group.season.toLowerCase()}-${group.startYear}`,
+          url_for,
+          date_xml,
+          date,
+        }),
       );
     } else {
       const season = page.month ? getSeason(page.month) : null;
