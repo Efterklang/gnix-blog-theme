@@ -269,6 +269,11 @@
     letter-spacing: 0.18em;
     text-transform: lowercase;
     padding: 0 0.9rem;
+    color: transparent;
+  }
+
+  .navbar:hover .navbar-item {
+    color: var(--subtext0);
   }
 
   .navbar-menu,
