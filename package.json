@@ -32,22 +32,22 @@
     "README.md"
   ],
   "dependencies": {
-    "@shikijs/colorized-brackets": "^4.4.1",
-    "@shikijs/transformers": "^4.4.1",
+    "@shikijs/colorized-brackets": "^4.4.2",
+    "@shikijs/transformers": "^4.4.2",
     "esbuild": "^0.28.1",
     "feedsmith": "^2.9.6",
     "hexo-util": "^4.0.0",
     "inferno": "^9.1.0",
     "inferno-create-element": "^9.1.0",
     "inferno-server": "^9.1.0",
-    "js-yaml": "^4.3.1",
+    "js-yaml": "^5.2.3",
     "markdown-it-anchor": "^9.2.1",
     "markdown-it-footnote": "^4.0.0",
     "markdown-it-mark": "^4.0.0",
     "markdown-it-task-lists": "^2.1.1",
     "markdown-it-ts": "^1.0.7",
-    "sharp": "^0.34.5",
-    "shiki": "^4.4.1",
+    "sharp": "^0.35.3",
+    "shiki": "^4.4.2",
     "thumbhash": "^0.1.1"
   },
   "peerDependencies": {
