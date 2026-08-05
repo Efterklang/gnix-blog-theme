@@ -1,11 +1,12 @@
 const path = require("node:path");
-const { createMarkdownExit } = require("markdown-exit");
 const mermaidDiagram = require("./mdit/mermaid");
-const ratex = require("markdown-exit-ratex");
+const ratex = require("./mdit/ratex");
 const code = require("./mdit/shiki");
 const obsidianCallouts = require("./mdit/obsidian-callouts");
+const s3Image = require("./mdit/image");
 const anchor = require("markdown-it-anchor");
 const footnote = require("markdown-it-footnote");
+const footnoteTooltip = require("./mdit/footnote-tooltip");
 const mark = require("markdown-it-mark");
 const taskLists = require("markdown-it-task-lists");
 const createTitlebasedLink = require("./mdit/titlebased-link");
@@ -54,33 +55,45 @@ class MarkdownRenderer {
       ...(hexo.config.markdown_exit || {}),
     };
 
-    this.md = createMarkdownExit(this.config.render_options);
-    this.initPlugins();
+    this.mdReady = null;
+  }
+
+  // markdown-it-ts is ESM-only, so the instance is created through a lazy dynamic import
+  async getMarkdownIt() {
+    this.mdReady ??= (async () => {
+      const { default: MarkdownIt } = await import("markdown-it-ts");
+      this.md = MarkdownIt(this.config.render_options);
+      this.initPlugins();
+      return this.md;
+    })();
+    return this.mdReady;
   }
 
   initPlugins() {
-    console.time("MarkdownExit: Load Default Plugins");
+    console.time("MarkdownIt: Load Default Plugins");
     this.md.use(this.titlebasedLink);
 
     if (this.config.defaultPlugins !== false) {
       this.md
         .use(resolveDefault(footnote))
+        .use(footnoteTooltip)
         .use(resolveDefault(mark))
         .use(resolveDefault(taskLists))
         .use(resolveDefault(code), this.config.code_options)
         .use(mermaidDiagram)
-        .use(resolveDefault(ratex), this.config.ratex_options)
+        .use(ratex, this.config.ratex_options)
         .use(obsidianCallouts, this.config.callout_options)
+        .use(s3Image, this.config.image_options)
         .use(wrapMarkdownItTable)
         .use(resolveDefault(anchor), {
           permalink: resolveDefault(anchor).permalink.headerLink(),
         });
     }
-    console.timeEnd("MarkdownExit: Load Default Plugins");
+    console.timeEnd("MarkdownIt: Load Default Plugins");
 
-    console.time("MarkdownExit: Load User Plugins");
+    console.time("MarkdownIt: Load User Plugins");
     this.loadUserPlugins();
-    console.timeEnd("MarkdownExit: Load User Plugins");
+    console.timeEnd("MarkdownIt: Load User Plugins");
   }
 
   resolvePluginFunction(plugin) {
@@ -123,7 +136,8 @@ class MarkdownRenderer {
 
   async render(data) {
     if (!data.text) return "";
-    return this.md.renderAsync(data.text);
+    const md = await this.getMarkdownIt();
+    return md.renderAsync(data.text);
   }
 }
 
@@ -156,11 +170,15 @@ Module._extensions[".jsx"] = (module, filename) => {
 };
 
 function compile(data) {
-  const Component = require(data.path);
   const DOCTYPE = "<!doctype html>\n";
   const startTag = "<html";
 
   return (locals) => {
+    // require 放在渲染闭包内：hexo 启动时就预编译并缓存了所有视图的
+    // 编译结果，若在此处外提前 require，组件类会被闭包钉死；
+    // dev 下热更新脚本清掉 require 缓存后，这里能拿到重新编译的模块，
+    // 缓存命中时只是一次查表，生产构建无感知
+    const Component = require(data.path);
     const element = createElement(Component, locals);
     const markup = renderToStaticMarkup(element);
     // test if the layout is root layout file so we can skip costly large string comparison

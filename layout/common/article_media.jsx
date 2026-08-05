@@ -1,38 +1,32 @@
 /**
  * Article media component, used in article lists such as archive page and recent posts widget
  */
-const { Component, dateFormatters, isValidDate, parseISO } = require("../../include/util/common");
+const { Component, formatMonthDay, isValidDate, parseISO } = require("../../include/util/common");
 
 function formatDate(date, dateXml) {
   if (date) return date;
 
   const parsedDate = parseISO(dateXml);
-  return isValidDate(parsedDate) ? dateFormatters.shortDay.format(parsedDate) : "";
+  return isValidDate(parsedDate) ? formatMonthDay(parsedDate) : "";
 }
 
 module.exports = class extends Component {
   render() {
-    const { url, title, date, dateXml, excerpt, readTime } = this.props;
+    const { url, title, date, dateXml, excerpt, readTime, order } = this.props;
     const formattedDate = formatDate(date, dateXml);
-    const hasPreview = Boolean(excerpt);
 
     return (
-      <article class={hasPreview ? "archive-item has-preview" : "archive-item"}>
-        <div class="archive-item__row">
-          <p class="article-meta">
-            <time dateTime={dateXml || null}>{formattedDate}</time>
-          </p>
-          <a class="archive-title archive-label" href={url}>
-            {title}
-          </a>
-        </div>
-        {hasPreview && (
+      <article class="archive-item" style={typeof order === "number" ? `--i:${order}` : null}>
+        <a class="archive-title" href={url}>
+          <time class="archive-title__date" dateTime={dateXml || null}>
+            {formattedDate}
+          </time>
+          {title}
+        </a>
+        {excerpt && (
           <div class="archive-popup">
-            <p class="archive-popup__eyebrow">
-              <span class="archive-popup__index"></span>
-              {readTime && <span class="archive-popup__read">{readTime}</span>}
-            </p>
-            {excerpt && <div class="archive-popup__excerpt" dangerouslySetInnerHTML={{ __html: excerpt }}></div>}
+            <div class="archive-popup__excerpt" dangerouslySetInnerHTML={{ __html: excerpt }}></div>
+            {readTime && <p class="archive-popup__read">{readTime}</p>}
           </div>
         )}
       </article>

@@ -3,6 +3,297 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "7.29",
+        cn: [
+          "归档页分组扁平化：撤去年份大标题一层（year → season → posts 收拢为 season+year → posts），分组标题直接写「季节缩写.两位年份」（spr.26 / aut.25）；冬季按气象季跨年归组，12 月与次年 1-2 月连成一段、标题记起讫年（win.25/26），此前同一自然年首尾各出现一段同名 Winter（section id 与 JSX key 还会重复）的问题随之消除；右侧年份轴保留自然年刻度，锚点改指向该年最新文章所在的分组，scroll-margin 移交分组承担；.archive-era 年份标记的样式与分组的相邻例外规则一并删除",
+        ],
+        en: [
+          "Flatten the archive grouping: the year-heading tier is gone (year → season → posts collapses to season+year → posts) and each group is titled with a season abbreviation plus a two-digit year (spr.26 / aut.25); winter now spans the year boundary like a meteorological season — December and the following January-February form one run titled with its span (win.25/26) — eliminating the two same-titled Winter sections (with duplicated section ids and JSX keys) that used to bracket each calendar year; the right-hand year rail keeps calendar-year ticks but anchors each year to the group holding that year's newest post, with scroll-margin handed to the groups; the .archive-era marker styles and the group's adjacent-to-era exception rule are removed",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.24",
+        cn: [
+          "移除文章正文逐块上浮的级联进场动画（此前正文前 20 块以 600ms 时长、60ms 步长依次进场），slide-enter 改为只作用于满高首屏的摘要：标题、封面与正文全部直接呈现，摘要自下方 10px 上浮淡入一次；归档页的列表进场动画不受影响",
+        ],
+        en: [
+          "Remove the article body's block-by-block cascade entry animation (previously the first 20 blocks entered over 600ms at a 60ms stagger); slide-enter now applies only to the hero excerpt — the title, cover, and body all render immediately while the excerpt rises once from 10px below; the archive list's entry animation is untouched",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.24",
+        cn: [
+          "从 main.js 拆分出 article.js：脚注 tooltip、图片缩放、代码块工具栏（复制/展开）、mermaid、TOC（弹层交互与满高首屏显隐）、评论弹层懒加载及文章页专属快捷键（Esc 关脚注/缩放、空格跳过首屏、Cmd/Ctrl+T 目录）整体迁出，由 scripts.jsx 仅在 post/page 布局注入；main.js 退为全站共享层——激活门控（runWhenActivated）、懒加载资源基础设施与全局快捷键（Cmd/Ctrl+, 设置、Cmd/Ctrl+K 搜索），并以 ES module 具名导出供 article.js 引入，非文章页从此不再解析执行这批用不到的交互代码",
+        ],
+        en: [
+          "Split article.js out of main.js: footnote tooltips, image zoom, the code block toolbar (copy/expand), mermaid, TOC (popover interaction plus the full-hero reveal), lazy comment popover loading, and article-only shortcuts (Esc to close footnote/zoom, Space to skip the first screen, Cmd/Ctrl+T for the TOC) all move out, injected by scripts.jsx only on post/page layouts; main.js becomes the site-wide shared layer — activation gating (runWhenActivated), the lazy asset infrastructure, and global shortcuts (Cmd/Ctrl+, for settings, Cmd/Ctrl+K for search) — with named ES module exports that article.js imports, so non-article pages no longer parse and run interaction code they never use",
+        ],
+        category: "refactor",
+      },
+      {
+        date: "7.24",
+        cn: [
+          "文章页新增满高首屏：标题、摘要与其下的 ↓ 箭头居中呈现——箭头为纯锚点（#article-content + 全局 scroll-behavior: smooth 与 scroll-margin-top）平滑跳至正文，首屏内按空格同效（正文开头进入视口上半部、焦点在控件上或有弹层打开时交还默认行为）；底部一行等宽小字分三段：左侧标签、中间版记（创建日期 · UPDATED 更新日期）、右侧小写的 comments / info 文字按钮（替换原图标按钮），整行统一 subtext0 着色；满高仅用于无封面文章，带封面文章与独立页面用同构的紧凑版头（无箭头，独立页面亦无版记）；TOC 按钮从左上挪到右下角（base 底色 + surface0 描边，右距 clamp 随视口贴边，移动端专属覆盖删除），满高首屏页内滚过首屏才淡入——初始隐藏由 :root.gnix-revealed:has(.article-hero-full) 承担、IntersectionObserver 点亮，无 JS 时常显；≤768px 首屏底栏纵向堆叠；原 meta bar 及其虚线分隔、article-action-btn 图标样式一并移除",
+        ],
+        en: [
+          "Article pages gain a full-height opening screen: the title, excerpt, and a ↓ arrow beneath them are centered — the arrow is a pure anchor (#article-content plus the global scroll-behavior: smooth and scroll-margin-top) that glides to the body, and pressing Space on the first screen does the same (falling back to default behavior once the body top enters the upper half of the viewport, when a control has focus, or while a popover is open); the bottom holds one monospace small-print row split three ways: tags on the left, a colophon in the middle (created date · UPDATED date), and lowercase comments / info text buttons on the right (replacing the icon buttons), the whole row tinted subtext0; full height applies only to cover-less posts, while cover posts and standalone pages share the same markup as a compact header (no arrow, and pages also omit the colophon); the TOC button moves from the upper left to the bottom right corner (base fill + surface0 ring, right offset clamped toward the edge, mobile-only override removed) and on full-hero pages only fades in after scrolling past the first screen — initially hidden via :root.gnix-revealed:has(.article-hero-full), lit up by an IntersectionObserver, always visible without JS; at ≤768px the bottom row stacks vertically; the old meta bar with its dashed rule and the article-action-btn icon styles are deleted",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.24",
+        cn: [
+          "重做文章信息呈现：移除标题上方的 header meta 信息栏（日期 · 阅读时长 · PV），阅读时长与浏览量并入文章信息弹层；弹层重绘为印刷图录式两栏清单——右对齐大写标签接冒号、左栏值，等宽字体，文字直接渲染在模糊遮罩上（卡片背景/边框/阴影与逐项图标全部移除，卡片外观样式移交评论弹层专用类），DOM 由 item/icon/content 三层嵌套精简为单个 dl 元素；条目删去与地址栏重复的 URL（article.url 语言键一并移除），顺序调整为标题、作者、阅读时长、创建、更新、翻译、Markdown 源码、浏览量、许可证、位置；busuanzi 的 busuanzi_page_pv 按 id 填充不受迁移影响，独立页面（layout: page）仍不显示阅读时长与浏览量",
+        ],
+        en: [
+          "Rework how article info is presented: the header meta bar (date · reading time · PV) above the title is removed, with reading time and page views folded into the article info popover; the popover is redrawn as a print-catalog style two-column list — right-aligned uppercase labels with colons, left-aligned values, monospace type, text rendered directly on the blurred overlay (card background/border/shadow and per-item icons are all gone, with the card chrome handed to the comment popover's own class) and the DOM collapsed from item/icon/content nesting into a single dl element; the URL entry duplicating the address bar is dropped (the article.url language key removed) and entries are reordered to title, author, reading time, created, updated, translation, markdown source, page views, license, location; busuanzi's busuanzi_page_pv is filled by id so the relocation is transparent, and standalone pages (layout: page) still hide reading time and page views",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.24",
+        cn: [
+          "移除 medium-zoom 依赖，main.js 自实现简易图片缩放：点击图片 FLIP 放大至视口中心（放大上限不超过原图尺寸），overlay 淡入、再点/Esc/滚动关闭；动画作用于 fixed 定位的克隆节点而非原图——.content 有 overflow:auto，直接 transform 原图会被裁剪，原样式中 position:fixed 的覆盖 hack 也一并淘汰；交互改为对 img[data-zoomable] 的事件委托，逐图绑定的时序问题与 Swup 导航下多 instance 打架的历史隐患随之消失，text-image-section 组件与延迟渲染内容只需打上 data-zoomable 标记；类名沿用 medium-zoom-overlay/-image--opened 以复用 article.css 中的 backdrop-filter 覆盖样式；顺带修正链接内图片的行为：不再触发缩放，避免与跳转冲突",
+        ],
+        en: [
+          "Drop the medium-zoom dependency in favor of a minimal in-house image zoom in main.js: clicking an image FLIP-animates it to the viewport center (scaling capped at natural size) with a fading overlay, closed by another click, Escape, or scrolling; the animation runs on a fixed-position clone rather than the original — .content has overflow:auto so transforming the image in place gets clipped, which also retires the old position:fixed override hack; interaction is now event delegation on img[data-zoomable], eliminating per-image binding timing issues and the historical multi-instance fights under Swup navigation — the text-image-section component and lazily rendered content just set the data-zoomable marker; the medium-zoom-overlay/-image--opened class names are kept so the backdrop-filter overrides in article.css still apply; as a side fix, images inside links no longer trigger zoom, avoiding the conflict with navigation",
+        ],
+        category: "refactor",
+      },
+      {
+        date: "7.19",
+        cn: [
+          "修复归档页季节分组整体错位一个月的问题：moment 的 month() 返回 0 基月份，直接喂给按 1-12 自然月编写的季节判定后所有月份前移一档——12 月被归进 autumn、3 月被归进 winter；现统一按自然月划分（3-5 月 spring、6-8 月 summer、9-11 月 autumn、12-次年 2 月 winter）。季节标题同时去本地化：不再经 i18n 渲染「春/夏/秋/冬」（删除 season_* 语言键），各语言统一显示 spring/summer/autumn/winter 英文单词",
+        ],
+        en: [
+          "Fix the archive season grouping being shifted by one month: moment's month() is 0-based but the season rule was written for calendar months 1-12, so every month landed one slot early — December fell into autumn and March into winter; grouping now follows calendar months (March-May spring, June-August summer, September-November autumn, December-February winter). Season headers are also de-localized: they no longer render 春/夏/秋/冬 through i18n (the season_* language keys are removed) and every language shows the English words spring/summer/autumn/winter",
+        ],
+        category: "fix",
+      },
+      {
+        date: "7.19",
+        cn: [
+          "归档页与文章页入场动画改仿 antfu.me 的 slide-enter：共享关键帧（default.css）令区块自下方 10px 上浮淡入；归档文章行以 1s 时长、60ms 步长逐条进场（替换原先自上方快速下落的 300ms 节奏），年份标记与季节标题仍直接呈现；文章页新增同源级联——仅正文块以 600ms 时长、60ms/块依次上浮且只错开前 20 块（其后的块以基础延迟进场），标题区与封面图不参与：标题、摘要即时可读，封面也不拖慢 LCP；入场动画以 backwards 而非 both 填充，动画结束后效果彻底移除——opacity/transform 动画处于 in effect 状态时元素会常驻 stacking context（transform 还会成为 fixed 后代的 containing block），both 填充曾让移动端脚注底部面板被钉进段落、又被后续段落绘制在上盖住而看似透明",
+        ],
+        en: [
+          "Rework the archive and article entry animations after antfu.me's slide-enter: a shared keyframe (default.css) rises blocks from 10px below; archive post rows now cascade in over 1s at a 60ms step (replacing the previous quick 300ms drop from above) while year markers and season headers still render immediately; article pages gain the same cascade — only body blocks rise one by one over 600ms at 60ms per block, with just the first 20 staggered (later ones enter at the base delay), while the header area and cover image stay instant so the title and excerpt are immediately readable and LCP is untouched; entry animations fill backwards instead of both so their effect is fully removed once finished — while an opacity/transform animation is in effect the element keeps a stacking context (and a transform additionally acts as the containing block for fixed descendants), which under both-fill pinned the mobile footnote bottom sheet inside its paragraph and let later paragraphs paint over it, making it look transparent",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.18",
+        cn: [
+          "修复色板派生色阶（subtext/surface/overlay）跨主题作用域失真的问题：这些由 --text/--base 混合而来的变量原声明在 :root 上，var() 在声明处求值后全站继承的是按页面当前主题算好的结果，嵌套 data-theme 作用域（设置页主题模式预览的明暗面板、主题卡片组件的取色流程）拿不到自身色板的派生色；现改为声明在 :where([data-theme]) 上按作用域重算，主题卡片的取色缓存键同步升级以淘汰旧数据",
+        ],
+        en: [
+          "Fix derived palette shades (subtext/surface/overlay) bleeding across theme scopes: these --text/--base color-mix variables were declared on :root, where var() resolves at the declaring element, so the site-wide inherited values were baked from the page's current theme and nested data-theme scopes (the light/dark panes of the settings page's theme-mode preview and the theme card component's color sampling) never saw their own palette's derived shades; they are now declared on :where([data-theme]) and recomputed per scope, with the theme card color cache key bumped to retire stale data",
+        ],
+        category: "fix",
+      },
+      {
+        date: "7.17",
+        cn: [
+          "清理偏好设置脚本与样式：主题切换不再重复同步 UI（统一走 gnix:theme-change 事件）、调色板下拉仅在明暗方案切换时重建选项、自定义字体默认值缓存且快捷弹窗跳过相关计算（此前每次页面加载与每格行高拖动都会触发强制样式重算）；移除已无消费者的 data-article-line-height 属性及配套 legacy CSS，行高统一由 --article-line-height 变量驱动；设置页返回按钮补上手型光标",
+        ],
+        en: [
+          "Clean up the preferences script and styles: theme switches no longer double-sync the UI (everything goes through the gnix:theme-change event), the palette select only rebuilds its options when the light/dark scheme flips, and default custom font families are cached with the quick popup skipping that work entirely (previously every page load and every line-height slider tick forced a style recalc); the consumer-less data-article-line-height attribute and its legacy CSS are removed in favor of the --article-line-height variable, and the settings page back button gains a pointer cursor",
+        ],
+        category: "refactor",
+      },
+      {
+        date: "7.17",
+        cn: [
+          "偏好弹窗改用原生 Popover API 驱动：导航栏按钮通过 popovertarget 声明式开合，点击外部/Esc 关闭交由浏览器 light-dismiss 处理，进入全屏等浏览器强制关闭场景不再需要 hidden 兜底；删除自定义弹窗控制模块及其懒加载/空闲预热链路，preferences.js 改为全站 defer 常驻加载",
+        ],
+        en: [
+          "Drive the preferences popup with the native Popover API: the navbar button toggles it declaratively via popovertarget, outside-click/Esc dismissal is handled by the browser's light-dismiss, and browser-forced closes such as entering fullscreen no longer need the hidden fallback; the custom popup controller module and its lazy-load/idle-prewarm chain are removed, with preferences.js now simply deferred on every page",
+        ],
+        category: "refactor",
+      },
+      {
+        date: "7.17",
+        cn: [
+          "重做页面切换动画：移除原先几乎不可感知的 view-transition 整块交叉淡化（也不再采用正文整体上浮的粗颗粒方案），归档/标签页改为页面呈现时文章行自上而下逐条浮现，跨分组连续 stagger、节奏与标签幕帘一致，年份标记与季节标题直接呈现；动画由 pagereveal 事件触发，预渲染页激活时同样从首个可见帧开始，无 JS 时列表直接可见",
+        ],
+        en: [
+          "Rework the page transition: drop the previous nearly imperceptible whole-block view-transition crossfade (and skip the coarse whole-content rise variant), archive/tag pages now reveal post rows one by one from the top with a continuous cross-group stagger matching the topic curtain's rhythm, while year markers and season headers render immediately; the animation is driven by the pagereveal event, so prerendered activations still animate from the first visible frame, and without JS the list simply renders visible",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.17",
+        cn: ["移除全站 prefers-reduced-motion 降级分支：删除各页面 CSS、图片组/图片轮播/设备展示组件与 Sunny 主题视频中对「减弱动态效果」系统偏好的特判，动画与过渡行为对所有访客一致"],
+        en: [
+          'Remove the site-wide prefers-reduced-motion fallbacks: page CSS, the image-group / image-carousel / device-carousel components, and the Sunny theme video no longer special-case the system "reduce motion" preference, so animations and transitions behave the same for every visitor',
+        ],
+        category: "refactor",
+      },
+      {
+        date: "7.16",
+        cn: [
+          "集成 S3/Bitiful 渐进式图片加载：Markdown 图片渲染支持 thumbhash 模糊占位图、自动 srcset 响应式尺寸、Obsidian 风格 `![alt|宽]` / `![alt|宽x高]` 尺寸语法，以及 JSON 元数据缓存（可通过 markdown_exit.image_options 配置）",
+        ],
+        en: [
+          "Integrate S3/Bitiful progressive image loading: Markdown images now support thumbhash blur placeholders, automatic responsive srcset, Obsidian-style `![alt|width]` / `![alt|widthxheight]` sizing, and JSON metadata caching (configurable via markdown_exit.image_options)",
+        ],
+        category: "feature",
+      },
+      {
+        date: "7.16",
+        cn: [
+          "修复偏好弹窗步进按钮的聚焦环以直角溢出容器圆角边框的问题：两端按钮补上与容器对齐的圆角，聚焦环与悬停背景现在沿圆角绘制",
+          "偏好弹窗的四个下拉框补充 id 属性，消除浏览器「表单控件缺少 id/name」的提示",
+        ],
+        en: [
+          "Fix the preferences popup stepper buttons' focus ring overflowing the container's rounded border with square corners: the outer buttons now carry matching corner radii, so the focus ring and hover background follow the curve",
+          'Give the four selects in the preferences popup id attributes, silencing the browser\'s "form field should have an id or name" warning',
+        ],
+        category: "fix",
+      },
+      {
+        date: "7.13",
+        cn: ["导航栏偏好设置图标更换为 Type（文字排版）字形，更贴合弹窗内容"],
+        en: ["Swap the navbar preferences icon for the Type glyph, better matching the popup's typography focus"],
+        category: "uiux",
+      },
+      {
+        date: "7.13",
+        cn: [
+          "文章宽度偏好现在同样作用于归档/标签页：列表列宽跟随收窄/加宽档位，左侧年份侧栏定位同步跟随（原先硬编码 50em）",
+          "导航栏重排：偏好设置与搜索移入常驻动作区，移动端不再折叠进 burger 菜单、一步可达；移动端 burger 移到左侧顶替 logo，右侧仅保留偏好与搜索两个图标；外部链接仍在 burger 菜单内展示，桌面端布局不变",
+        ],
+        en: [
+          "The article width preference now also applies to archive/tag pages: the list column follows the narrow/wide steps, and the year rail tracks it as well (previously hardcoded to 50em)",
+          "Navbar rework: preferences and search move into an always-visible actions area, reachable in one tap on mobile instead of being folded into the burger menu; on mobile the burger replaces the logo on the left, leaving only the two action icons on the right; external links stay inside the burger menu, and the desktop layout is unchanged",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.13",
+        cn: ["拆分偏好设置样式：导航栏快捷弹窗的样式移入常驻的 default.css，preferences.css 仅保留 /preferences 独立页样式且只在该页面加载；弹窗打开时不再懒加载 CSS，空闲预热列表同步移除该样式表"],
+        en: [
+          "Split the preferences styles: the navbar quick popup styles move into the always-loaded default.css, while preferences.css keeps only the standalone /preferences page styles and is loaded on that page only; opening the popup no longer lazy-loads CSS, and the stylesheet is dropped from the idle prewarm list",
+        ],
+        category: "refactor",
+      },
+      {
+        date: "7.13",
+        cn: ["设置页 Typography 区块调整：字重移到字号下方；自定义字体区块常驻显示（移除折叠开关）；移除 Apply 按钮，输入框失焦或按 Enter 后自动应用自定义字体"],
+        en: [
+          "Tweak the Typography section of the settings page: the weight row moves below the size row; the custom fonts block is always visible (the collapse toggle is removed); the Apply button is gone — custom fonts now apply automatically when an input loses focus or on Enter",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.12",
+        cn: [
+          "归档页标签弹窗重设计为沉浸式「幕帘」下拉：点击标题后 hero 区域保持原位，标签列表从其下方展开至视口底部、逐个上浮浮现，无卡片底色，直接浮于模糊淡出的文章列表之上（导航栏与页脚同步模糊），hero 标题染上强调色、分隔线在幕帘打开期间隐藏。浏览器不支持 CSS 锚点定位时回退为原先的居中弹窗",
+          "弹窗头部精简为一行小字（标签栏目名 + 文章统计）；关闭按钮改为 hero 右侧的裸 × 符号，仅在幕帘打开时浮现",
+          "归档列表行重新加回发布日期：以等宽小字显示在标题前，长标题换行时以悬挂缩进对齐标题文字；悬浮预览中的日期保持不变",
+        ],
+        en: [
+          "Redesign the archive tag picker as an immersive curtain dropdown: clicking the title keeps the hero in place while the tag list floats in below it down to the bottom of the viewport with a staggered rise-in, with no card surface, directly over the blurred, faded post list (navbar and footer blur along with it); the hero title picks up the accent color and the hero divider is hidden while the curtain is open. Browsers without CSS anchor positioning fall back to the previous centered dialog",
+          "Slim down the picker header to a single small-print row (topics label + post stats); the close control becomes a bare × at the hero's right edge, shown only while the curtain is open",
+          "Bring the publish date back to archive list rows, shown in small mono type before the title, with a hanging indent so wrapped title lines stay aligned; the date in the hover preview is unchanged",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.12",
+        cn: [
+          "精简归档页 DOM 层级：h1 直接作为 hero（移除 header.archive-hero 与 h1 包裹层）、移除 .archive-stack 包裹层、season 分组的 header 包裹层与 .timeline 容器、条目内的 .archive-item__row 包裹层，以及年份标记内的 span；标签弹窗与年份侧栏结构不变",
+          "如有依赖 .archive-stack / .timeline / .archive-item__row / .archive-era__year / .archive-hero__heading 的自定义样式，请迁移到 .archive-page / .archive-group / .archive-item / .archive-era / .archive-hero",
+        ],
+        en: [
+          "Flatten the archive page DOM: the h1 is now the hero itself (dropping the header.archive-hero and h1 wrappers), and the .archive-stack wrapper, the season group's header wrapper and .timeline container, the per-item .archive-item__row wrapper, and the span inside the year marker are all removed; the tag picker popup and year rail markup are unchanged",
+          "Custom styles targeting .archive-stack / .timeline / .archive-item__row / .archive-era__year / .archive-hero__heading should migrate to .archive-page / .archive-group / .archive-item / .archive-era / .archive-hero",
+        ],
+        category: "refactor",
+      },
+      {
+        date: "7.12",
+        cn: ["归档页标签弹窗新增 All Posts 入口（含总文章数），可从任意标签/年份归档一键回到全部文章", "归档列表行简化为仅标题；发布日期移入悬浮预览弹层，取代原先的 N° 00x 序号，显示在阅读时长左侧"],
+        en: [
+          "Add an All Posts entry (with total post count) to the archive tag picker popup, allowing a one-click return to the full archive from any tag or year view",
+          "Archive list rows are simplified to the title only; the publish date moves into the hover preview popup, replacing the previous N° 00x running index to the left of the read time",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "7.10",
+        cn: ["修复脚注悬浮预览在正文两端被截断的问题：hover 时 JS 测量并水平钳制 tooltip，使其始终位于正文可视区域内"],
+        en: ["Fix footnote hover previews being clipped near the edges of the article body: the tooltip is now measured on hover and horizontally clamped to stay within the content area"],
+        category: "fix",
+      },
+      {
+        date: "7.09",
+        cn: [
+          "偏好设置入口重构为 Obsidian Web Clipper 风格的快捷弹窗：字号 / 文章宽度 / 行高三组 stepper、主题模式 / 配色方案 / 字体 / 语言四个下拉，以及进入完整设置页的 Settings 按钮；桌面端悬浮于导航栏右下、无遮罩且不锁定滚动，可实时对照正文查看排版效果，移动端呈现为底部面板",
+          "新增文章宽度设置：五档栏宽（42em–64em）仅作用于文章页正文列，偏好持久化于 localStorage 并由首屏内联脚本即时生效",
+          "语言切换移入快捷弹窗（下拉列出全部语言，缺少翻译的条目置灰不可选），并移除 navbar 的语言切换图标",
+          "完整设置迁移至独立页面 /preferences/（含 en 路由与 hreflang）：保留主题模式预览卡、浅色/深色方案、字号、行高滑杆、字重、自定义字体 CSS 与实时预览，并新增文章宽度档位；弹窗中字体行的设置图标可直达 Typography 区块",
+        ],
+        en: [
+          "Rebuild the preferences entry as an Obsidian Web Clipper style quick popup: three steppers (font size / article width / line height), four icon selects (theme mode / color palette / typeface / language), and a Settings button leading to the full settings page; on desktop it floats below the navbar with no backdrop or scroll lock so typography changes can be compared against the article in real time, while on mobile it becomes a bottom sheet",
+          "Add an article width preference: five column widths (42em–64em) that only affect the article column, persisted in localStorage and applied by the inline boot script before first paint",
+          "Move language switching into the quick popup (a select listing every language, with untranslated entries disabled) and remove the navbar language icon",
+          "Move the full settings to a standalone /preferences/ page (with an en route and hreflang links): it keeps the theme mode preview cards, light/dark schemes, font size, line-height slider, weight, custom web font CSS, and the live preview, and gains the article width control; the font-row settings icon in the popup deep-links to the Typography section",
+        ],
+        category: "feature",
+      },
+      {
+        date: "7.09",
+        cn: [
+          "精简页面 DOM 层级：移除 section.section 与 div.card 两个包裹层，文章链路由 section > .main-content > .card > article.card-content > .content 精简为 .main-content > article.article > .content；封面与评论/文章信息弹层改为 article 的兄弟节点，视觉布局保持不变",
+          "如有依赖 .section / .card / .card-content 类名的自定义样式，请迁移到 .main-content / .article",
+        ],
+        en: [
+          "Flatten the page DOM: remove the section.section and div.card wrappers, reducing the article chain from section > .main-content > .card > article.card-content > .content to .main-content > article.article > .content; the cover and the comment/article-info popovers become siblings of the article element, with no visual change",
+          "Custom styles targeting the .section / .card / .card-content class names should migrate to .main-content / .article",
+        ],
+        category: "refactor",
+      },
+      {
+        date: "7.09",
+        cn: [
+          "脚注引用悬浮预览：鼠标悬停正文中的脚注角标时，原地弹出脚注原文（保留链接与格式）；内容由构建期 markdown-it 插件（include/hexo/mdit/footnote-tooltip.js）内嵌进 HTML，纯 CSS 显示，运行时零 JS",
+          "预览仅在具备 hover 的精确指针设备上启用，触屏仍保持点击跳转到页底脚注的原有行为",
+        ],
+        en: [
+          "Footnote hover previews: hovering a footnote marker in the article body pops up the footnote's content in place (links and formatting preserved); the content is embedded into the HTML at build time by a markdown-it plugin (include/hexo/mdit/footnote-tooltip.js) and shown with pure CSS — zero runtime JS",
+          "Previews are enabled only on hover-capable fine-pointer devices; on touch screens tapping a marker still jumps to the footnote at the bottom of the page as before",
+        ],
+        category: "feature",
+      },
+      {
+        date: "7.08",
+        cn: [
+          "Markdown 渲染引擎从 markdown-exit 迁移到 markdown-it-ts：保持 markdown-it 插件生态与 renderAsync 异步渲染接口，解析性能进一步提升",
+          "将 markdown-exit-ratex 插件内联到主题 include/hexo/mdit/ratex.js，并直接调用捆绑的 RaTeX 平台二进制渲染 SVG 公式，移除对外部插件包的依赖",
+        ],
+        en: [
+          "Migrate the Markdown rendering engine from markdown-exit to markdown-it-ts: keeps the markdown-it plugin ecosystem and the renderAsync async rendering interface while further improving parse performance",
+          "Inline the markdown-exit-ratex plugin into the theme's include/hexo/mdit/ratex.js and spawn the bundled RaTeX platform binary directly for SVG math, removing the external plugin package dependency",
+        ],
+        category: "refactor",
+      },
+      {
+        date: "6.18",
+        cn: [
+          "新增 Sunny 浅色主题（归入浅色配色方案）：提供温暖的米色基础配色，并叠加受 dany.works 启发的氛围——金色阳光光晕与全屏 multiply 视频光影",
+          "Sunny 视频光影静音播放，并在首屏内联启动；仅在 Sunny 模式下创建视频层与预加载媒体，避免影响其他主题性能",
+          "视频光影为来自 Wikimedia Commons 的 CC BY-SA 素材，已转码压缩，署名见 source/media/CREDITS.md",
+        ],
+        en: [
+          "Add a Sunny light theme (grouped under the light color scheme): a warm cream base palette layered with a dany.works-inspired atmosphere — a golden sun glow and a full-screen multiply-blended video texture",
+          "The Sunny video texture plays silently and boots inline on first paint; the video layer and media preload are created only in Sunny mode to avoid impacting other themes",
+          "The video texture is CC BY-SA media from Wikimedia Commons, transcoded and compressed; attribution lives in source/media/CREDITS.md",
+        ],
+        category: "feature",
+      },
+      {
         date: "6.15",
         cn: ["完善归档弹窗的弹出逻辑判定规则，弹窗展示时，页面底层所有背景元素统一施加模糊处理。"],
         en: [
@@ -181,12 +472,12 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "5.26",
         cn: [
-          "拆分 default.css：把内容渲染样式（.content 及其后代、表格、blockquote、task-list、medium-zoom、heimu）、文章元数据（标题/meta-bar/字体设置 popover/comment popover/info popover/语言切换 popover）、.cover-image、TOC 浮动按钮与 #icarus-toc-container 全部迁出到新建的 source/css/article.css；head.jsx 仅在 isArticleLike（post + page）时加载 article.css，归档/标签索引等页面不再拉取这部分样式",
+          "拆分 default.css：把内容渲染样式（.content 及其后代、表格、blockquote、task-list、medium-zoom、heimu）、文章元数据（标题/meta-bar/字体设置 popover/comment popover/info popover/语言切换 popover）、.cover-image、TOC 浮动按钮与 #toc 全部迁出到新建的 source/css/article.css；head.jsx 仅在 isArticleLike（post + page）时加载 article.css，归档/标签索引等页面不再拉取这部分样式",
           "default.css 从 2404 行减到 991 行，只保留主题色变量、字体 @font-face、reset、navbar、theme selector、footer、searchbox 和 :popover-open 基础样式（搜索框 + 主题选择器分支），属于站点级骨架",
           "把 :popover-open 的 .toc-body 和 .article-popover 分支随 TOC / 文章 popover 一起迁到 article.css，避免无 TOC 的页面解析这部分嵌套规则",
         ],
         en: [
-          "Split default.css: move content rendering styles (.content and descendants, tables, blockquote, task-list, medium-zoom, heimu), article metadata (title / meta-bar / font-settings popover / comment popover / info popover / language-switch popover), .cover-image, the floating TOC button and #icarus-toc-container into a new source/css/article.css; head.jsx only loads article.css when isArticleLike (post + page), so archive / tag-index pages no longer pull those styles",
+          "Split default.css: move content rendering styles (.content and descendants, tables, blockquote, task-list, medium-zoom, heimu), article metadata (title / meta-bar / font-settings popover / comment popover / info popover / language-switch popover), .cover-image, the floating TOC button and #toc into a new source/css/article.css; head.jsx only loads article.css when isArticleLike (post + page), so archive / tag-index pages no longer pull those styles",
           "default.css shrinks from 2404 to 991 lines, retaining only theme color variables, font @font-face, reset, navbar, theme selector, footer, searchbox, and the :popover-open base (searchbox + theme-selector branches) — the site-level scaffolding",
           "Move the .toc-body and .article-popover branches of :popover-open into article.css alongside the TOC and article popovers, so pages without TOC do not parse those nested rules",
         ],

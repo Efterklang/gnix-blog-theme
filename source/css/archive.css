@@ -1,14 +1,20 @@
+/* 归档页跟随文章宽度偏好（--article-max-width 由 :root[data-article-width] 决定），
+   本文件仅在归档/标签页加载，不影响其他页面 */
+.main-content {
+  max-width: calc(var(--article-max-width) + 3rem);
+}
+
 .archive-page {
   --archive-muted: color-mix(in oklch, var(--subtext1) 78%, var(--base));
   --archive-accent: var(--lavender);
-  --archive-rail-width: 5rem;
   position: relative;
   display: grid;
-  gap: 1.5rem;
-  padding: 1.25em 1.25rem 0;
+  /* 间距做层级：条目密、组间松（约 3 倍条目节距），靠留白对比分组，不画线 */
+  gap: 3.5rem;
+  padding: 1.25rem 1.25rem 0;
 
   @media (max-width: 720px) {
-    gap: 1.25rem;
+    gap: 2.25rem;
   }
 
   @media (max-width: 480px) {
@@ -16,272 +22,267 @@
   }
 }
 
+/* season h2 与 hero 触发按钮共用；border/background/font 是按钮样式复位
+   （落在 h2 上无操作） */
 .archive-label {
   display: flex;
-  flex-grow: 0;
-  flex-shrink: 0;
   align-items: center;
-  min-width: 0;
-  position: relative;
-  padding: 0 0.5rem;
   border: none;
   background: transparent;
   color: var(--subtext0);
   font: inherit;
+  font-size: var(--article-font-size);
+  font-weight: var(--article-font-weight);
   font-family: var(--article-font-family);
   letter-spacing: 0.05em;
   overflow-wrap: anywhere;
-  transition: color 220ms ease;
+}
+
+/* 页面呈现时文章行自下方上浮、逐条进场（仿 antfu.me 列表页的 slide-enter
+   节奏；--i 为分组内序号，各分组并行起跑，年份标记与季节标题不参与，直接呈现。
+   序号不跨分组累计：全局连续序号会让页底条目背上前面所有条目的延迟，
+   滚动到深处刷新时要干等几秒才见到内容）。
+   淡入与位移拆开挂在两层：translate 若直接动画在 .archive-item 上，动画期间
+   （含 both 填充下所有仍在等待 delay 的条目）item 会成为其内部 fixed 定位
+   .archive-popup 的 containing block，anchor 定位失效、popup 掉到条目底部；
+   item 只动 opacity（不产生 containing block），位移由标题承担，视觉不变。
+   .gnix-revealed 由 head 内联脚本在 pagereveal（不支持时内联立即）添加，
+   保证 prerender 激活时动画从首个可见帧才开始；无 JS 时不加类，列表直接可见 */
+:root.gnix-revealed .archive-page .archive-item {
+  /* backwards 而非 both：both 会让动画结束后仍处于 in effect 状态，条目常驻
+     stacking context，内部 fixed 定位的悬浮预览会被 DOM 靠后的条目盖住
+     （文章页脚注底栏曾因此"变透明"，见 article.css） */
+  animation: archive-item-fade 1s backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+:root.gnix-revealed .archive-page .archive-item > .archive-title {
+  animation: archive-title-rise 1s backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+@keyframes archive-item-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes archive-title-rise {
+  from {
+    translate: 0 10px;
+  }
 }
 
 /* #region Hero */
 
+/* The h1 itself: contains only the picker-trigger button. It anchors the
+   topic picker curtain that drops from its bottom divider. */
 .archive-hero {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.85rem 1.25rem;
-  align-items: end;
+  anchor-name: --archive-hero;
+  margin: 0;
+  min-width: 0;
+  max-width: 100%;
+  font: inherit;
   padding: 0.35rem 0 1.1rem;
-  border-bottom: 0.5px solid color-mix(in oklch, var(--surface0) 86%, transparent);
-
-  @media (max-width: 720px) {
-    grid-template-columns: 1fr;
-    gap: 0.35rem;
-    align-items: start;
-    padding-bottom: 1.1rem;
-  }
 }
 
 .archive-hero__title {
-  justify-self: start;
-  padding-inline: 0.15rem 0.5rem;
+  max-width: 100%;
+  /* 与季节标题、日期列共用起始对齐边（此前多出的 0.15rem 让大标题游离于共享边外） */
+  padding-inline: 0 0.5rem;
   color: var(--text);
+  cursor: pointer;
   font-size: 2rem;
   letter-spacing: 0.02em;
-  line-height: 0.95;
-}
-
-.archive-hero__meta {
-  display: block;
-  justify-self: end;
-  min-width: 0;
-  max-width: 100%;
-  padding-inline: 0.15rem;
-  color: var(--archive-muted);
-  font-size: 0.76rem;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-  line-height: 1.4;
-  text-align: right;
-  text-transform: lowercase;
-
-  @media (max-width: 720px) {
-    justify-self: start;
-    text-align: left;
-  }
-}
-
-.archive-hero__topics-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.02rem;
-  min-height: 1em;
-  padding: 0 0.08rem;
-  border: none;
-  border-bottom: 1px solid transparent;
-  border-radius: 0;
-  background: transparent;
-  color: color-mix(in oklch, var(--archive-accent) 76%, var(--text));
-  cursor: pointer;
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: inherit;
-  line-height: inherit;
-  text-transform: lowercase;
-  vertical-align: baseline;
-  transition:
-    border-color 140ms ease,
-    color 140ms ease;
-
-  &::before {
-    content: "#";
-    color: var(--archive-accent);
-    letter-spacing: 0;
-  }
+  /* 长主题名（overflow-wrap: anywhere）会折行，CJK 字形占满 em 框，行高低于 1 会互相咬合 */
+  line-height: 1.1;
+  text-align: start;
+  transition: color 160ms ease;
 
   &:hover,
   &:focus-visible {
-    border-color: color-mix(in oklch, var(--surface1) 72%, var(--text));
-    color: var(--text);
-  }
-
-  &:focus-visible {
-    outline: 2px solid color-mix(in oklch, var(--archive-accent) 70%, transparent);
-    outline-offset: 3px;
+    color: var(--lavender);
   }
 }
 
-.archive-topic-picker {
-  color: var(--text);
+/* Softly recede everything below the hero while the topic curtain is open;
+   the hero itself stays sharp and picks up the accent. */
+.archive-page .archive-group {
+  transition: opacity 340ms ease;
+}
+
+body:has(.archive-page) :is(.navbar, .footer) {
+  transition: opacity 340ms ease;
+}
+
+.archive-page:has(.archive-topic-picker:popover-open) {
+  .archive-hero__title {
+    color: var(--archive-accent);
+  }
+
+  .archive-group {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
+  opacity: 0;
+  /* 隐形≠不可点：light-dismiss 的关闭点击会穿透，落在透明导航链接上就误跳转 */
+  pointer-events: none;
+}
+
+/* 幕帘开启时锁定文档滚动：幕帘锚定在 hero 上，页面一滚就跟着 hero 滑出视口，
+   身后内容又已 opacity: 0，只剩空白页；gutter 抵消滚动条消失引起的布局跳动 */
+:root:has(.archive-topic-picker:popover-open) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
 }
 
 /* #region Hover overlay */
 
-.footer,
-.archive-hero,
-.archive-rail,
-.archive-era,
-.archive-group__header,
-.archive-item {
-  transition:
-    filter 180ms ease,
-    opacity 180ms ease;
-}
+/* 聚焦模式：悬停/聚焦条目时，一层 --mantle 实色 overlay 罩住页面其余全部
+   （navbar、footer、hero、年份轴、季节标题、其他条目），仅当前条目
+   （z-index 140）与其预览（141）浮在其上。旧实现是逐类隐藏：三条巨型
+   :has() 选择器枚举每类元素分别设 opacity: 0，淡出时序还不一致
+   （rail/navbar 有过渡、hero 与其他条目硬切）；单层 overlay 视觉等效，
+   只过渡一个 opacity。130 落在 navbar（100/101）与活动条目（140）之间 */
+@media (hover: hover) and (min-width: 721px) {
+  .archive-page::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 130;
+    background: var(--mantle);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+  }
 
-body:has(.archive-page) .navbar-main {
-  transition:
-    transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
-    filter 180ms ease,
-    opacity 180ms ease;
-}
-
-.archive-page:has(.archive-item.has-preview)::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 120;
-  background: hsl(from var(--mantle) h s l / 0.28);
-  -webkit-backdrop-filter: blur(8px) saturate(0.96);
-  backdrop-filter: blur(8px) saturate(0.96);
-  opacity: 0;
-  pointer-events: none;
-  visibility: hidden;
-  transition:
-    opacity 180ms ease,
-    visibility 180ms ease;
-}
-
-.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))::before {
-  opacity: 1;
-  visibility: visible;
-}
-
-body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) :where(.navbar-main, .footer),
-.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))
-  :where(.archive-hero, .archive-rail, .archive-era, .archive-group__header),
-.archive-page:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))
-  .archive-item:not(:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within))) {
-  filter: blur(6px);
-  opacity: 0.42;
+  /* 与 popup 的展示条件同源（悬停标题/预览）；退场快于进场：
+     指针移开的瞬间活动条目落回 overlay 之下，短退场把这一帧落差融进整体淡出 */
+  .archive-page:has(:is(.archive-title, .archive-popup):hover)::after {
+    opacity: 1;
+    transition-duration: 320ms;
+  }
 }
 
 /* #endregion */
 
-:popover-open.archive-topic-picker {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  overflow: hidden;
-  overscroll-behavior: contain;
-
-  &::backdrop {
-    background: transparent;
-  }
-}
-
 .archive-topic-picker__body {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  width: min(680px, 92vw);
-  max-height: min(74vh, 38rem);
   overflow: hidden;
-  border: 1px solid var(--surface0);
-  border-radius: 8px;
-  background: hsl(from var(--mantle) h s l / 0.9);
-  box-shadow: 0 20px 60px hsl(from var(--crust) h s l / 0.4);
 }
 
+/* Curtain mode: the picker hangs from the hero's bottom divider, filling down
+   to the viewport bottom over the receded page. The reveal is carried entirely
+   by the per-item stagger so every row animates the same way. Requires anchor
+   positioning. */
+@supports (anchor-name: --a) {
+  .archive-topic-picker {
+    position: fixed;
+    position-anchor: --archive-hero;
+    inset: auto;
+    top: anchor(bottom);
+    bottom: 0;
+    inset-inline-start: anchor(start);
+    box-sizing: border-box;
+    width: anchor-size(width);
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    border: none;
+    background: transparent;
+
+    /* Closed/exit state: tucked back up behind the hero divider. */
+    opacity: 0;
+    translate: 0 -0.6rem;
+    transition:
+      translate 240ms cubic-bezier(0.4, 0, 0.7, 0.2),
+      opacity 200ms ease,
+      display 260ms allow-discrete,
+      overlay 260ms allow-discrete;
+  }
+
+  .archive-topic-picker:popover-open {
+    opacity: 1;
+    translate: 0 0;
+    transition:
+      translate 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 220ms ease;
+  }
+
+  @starting-style {
+    .archive-topic-picker:popover-open {
+      opacity: 0;
+      translate: 0 -0.6rem;
+    }
+  }
+
+  /* Immersive: no card surface — the tag list floats directly over the
+     blurred, receded page, filling down to the bottom of the viewport. */
+  .archive-topic-picker__body {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Tags rise into place one after another, cascading through the whole list
+     (uncapped: a capped delay made late rows pop in together). */
+  .archive-topic-picker:popover-open .archive-topic-list__item {
+    animation: archive-topic-item-in 300ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc(40ms + var(--i, 0) * 5ms);
+  }
+}
+
+@keyframes archive-topic-item-in {
+  from {
+    opacity: 0;
+    translate: 0 -0.45rem;
+  }
+}
+
+/* Slim eyebrow row: the hero right above already names the page, so the
+   header only carries a small mono label and the stats. */
 .archive-topic-picker__header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 1rem;
-  align-items: start;
-  padding: 1rem 1rem 0.85rem;
-  border-bottom: 1px solid var(--surface0);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  align-items: center;
+  padding: 0.75rem 1rem 0.5rem;
 
   h2 {
-    margin: 0.18rem 0 0;
-    color: var(--text);
-    font-family: var(--font-serif);
-    font-size: 1.65rem;
-    font-style: italic;
-    font-synthesis: none;
+    margin: 0;
+    color: var(--archive-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
     font-weight: 500;
-    line-height: 1;
+    letter-spacing: 0.16em;
+    line-height: 1.35;
+    text-transform: uppercase;
+
+    &::before {
+      content: "# ";
+      color: var(--archive-accent);
+    }
   }
 }
 
-.archive-topic-picker__eyebrow {
+.archive-topic-picker__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.65rem;
   margin: 0;
+  margin-inline-start: auto;
+  padding: 0;
   color: var(--archive-muted);
   font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+  list-style: none;
   text-transform: lowercase;
-}
-
-.archive-topic-picker__close {
-  position: relative;
-  width: 2rem;
-  height: 2rem;
-  border: 1px solid color-mix(in oklch, var(--surface1) 78%, var(--text));
-  border-radius: 50%;
-  background: transparent;
-  color: var(--archive-muted);
-  cursor: pointer;
-  transition:
-    border-color 150ms ease,
-    color 150ms ease,
-    transform 150ms ease;
-
-  &::before,
-  &::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0.85rem;
-    height: 1.5px;
-    border-radius: 999px;
-    background: currentColor;
-    transform: translate(-50%, -50%) rotate(45deg);
-  }
-
-  &::after {
-    transform: translate(-50%, -50%) rotate(-45deg);
-  }
-
-  &:hover,
-  &:focus-visible {
-    border-color: color-mix(in oklch, var(--archive-accent) 58%, var(--surface1));
-    color: var(--text);
-  }
-
-  &:active {
-    transform: translateY(1px);
-  }
-
-  &:focus-visible {
-    outline: 2px solid color-mix(in oklch, var(--archive-accent) 70%, transparent);
-    outline-offset: 3px;
-  }
 }
 
 .archive-topic-list {
@@ -292,8 +293,11 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
   max-height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 0.65rem;
-  -webkit-overflow-scrolling: touch;
+  /* 首列条目文本与 header 文本共边（两处都以 # 起头）：
+     条目自带 0.48rem 内边距，容器补足到 header 的 1rem */
+  padding: 0.65rem calc(1rem - 0.48rem);
+  /* 幕帘贴视口底：留出 iOS home indicator 安全区，末行标签可滚出手势条 */
+  padding-bottom: calc(0.65rem + env(safe-area-inset-bottom));
 }
 
 .archive-topic-list__item {
@@ -328,12 +332,12 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
   &[aria-current="page"] {
     background: color-mix(in oklch, var(--archive-accent) 10%, transparent);
     color: var(--archive-accent);
+    outline: none;
   }
+}
 
-  &:focus-visible {
-    outline: 2px solid color-mix(in oklch, var(--archive-accent) 70%, transparent);
-    outline-offset: 2px;
-  }
+.archive-topic-list__item--all::before {
+  content: "∗";
 }
 
 .archive-topic-list__name {
@@ -344,192 +348,28 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
 .archive-topic-list__count {
   color: var(--archive-muted);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-style: normal;
   font-variant-numeric: tabular-nums;
 }
 
 @media (max-width: 480px) {
-  .archive-hero__topics-button {
-    min-height: 1.2rem;
-  }
-
-  .archive-topic-picker__body {
-    width: 100%;
-    max-height: min(82vh, 42rem);
-  }
-
   .archive-topic-picker__header {
-    padding: 0.9rem 0.9rem 0.75rem;
-
-    h2 {
-      font-size: 1.45rem;
-    }
+    padding: 0.65rem 0.85rem 0.6rem;
   }
 
   .archive-topic-list {
-    grid-template-columns: 1fr;
-    padding: 0.55rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .archive-hero__topics-button,
-  .archive-topic-picker__close,
-  .archive-topic-list__item {
-    transition: none;
+    padding: 0.55rem calc(0.85rem - 0.48rem);
+    padding-bottom: calc(0.55rem + env(safe-area-inset-bottom));
   }
 }
 
 /* #endregion */
-
-/* #region Right rail (year jump) */
-
-.archive-rail {
-  position: fixed;
-  top: 50%;
-  left: max(1rem, calc((100vw - 50em) / 2 - var(--archive-rail-width) - 1rem));
-  transform: translateY(-50%);
-  z-index: 10;
-  pointer-events: none;
-
-  @media (max-width: 1023px) {
-    display: none;
-  }
-}
-
-.archive-rail__list {
-  display: grid;
-  gap: 0.18rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  text-align: left;
-  pointer-events: auto;
-}
-
-.archive-rail__link {
-  display: inline-grid;
-  grid-template-columns: 0.7rem auto;
-  gap: 0.28rem;
-  align-items: center;
-  min-height: 1.25rem;
-  padding: 0 0.2rem;
-  color: var(--overlay0);
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-  text-decoration: none;
-  transform: translateX(-0.12rem);
-  transition:
-    color 160ms ease,
-    transform 160ms ease;
-
-  &::before {
-    content: "";
-    width: 0.54rem;
-    height: 1px;
-    border-radius: 999px;
-    background: currentColor;
-    transform: scaleX(0.63);
-    transform-origin: left center;
-    transition: transform 160ms ease;
-  }
-
-  :where(.archive-rail:hover, .archive-rail:focus-within) & {
-    opacity: 0.58;
-    transform: translateX(0);
-  }
-
-  &:hover,
-  &:focus-visible {
-    color: color-mix(in oklch, var(--text) 88%, var(--base));
-  }
-
-  &:hover::before,
-  &:focus-visible::before {
-    transform: scaleX(1);
-  }
-
-  &:focus-visible {
-    outline: 2px solid color-mix(in oklch, var(--archive-accent) 70%, transparent);
-    outline-offset: 3px;
-    border-radius: 2px;
-  }
-}
-
-.archive-rail__year {
-  opacity: 0;
-  transform: translateX(-0.18rem);
-  transition:
-    opacity 160ms ease,
-    transform 160ms ease;
-
-  :where(.archive-rail:hover, .archive-rail:focus-within) & {
-    opacity: 0.78;
-    transform: translateX(0);
-  }
-
-  .archive-rail__link:hover &,
-  .archive-rail__link:focus-visible & {
-    opacity: 1;
-  }
-}
-
-/* #endregion */
-
-/* #region Era marker */
-
-.archive-era {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  margin: 1.5rem 0 0.25rem;
-  padding-top: 0.25rem;
-  color: var(--archive-muted);
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  scroll-margin-top: 4.5rem;
-
-  &:first-child {
-    margin-top: 0;
-  }
-
-  @media (max-width: 720px) {
-    margin-top: 1.1rem;
-  }
-}
-
-.archive-era__year {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-}
-
-/* #endregion */
-
-.archive-stack {
-  display: grid;
-  gap: 1.35rem;
-  /* Global running index for popup "N° 001" labels (see @counter-style
-     archive-index). Lives here, above every group, so numbering is continuous
-     across season groups — which is also why .archive-group must NOT carry
-     content-visibility/contain (style containment would reset the counter
-     per group, and paint containment would clip the popup). */
-  counter-reset: archive-item;
-}
 
 .archive-group {
-  --archive-accent: var(--lavender);
   position: relative;
-  padding: 1.1rem 0 0;
-
-  .archive-era + & {
-    padding-top: 0.35rem;
-  }
+  min-width: 0;
+  padding: 0.95rem 0 0;
 
   &.spring {
     --archive-accent: var(--peach);
@@ -545,76 +385,34 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
   }
 }
 
+/* The season h2 itself (also carries .archive-label, hence flex).
+   上方留白由 .archive-page 的 gap + .archive-group 的 padding 承担（远大于下方），
+   不对称呼吸让标签视觉上归属下面的分组 */
 .archive-group__header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  margin: 0 0 1.25rem;
   text-transform: lowercase;
-  gap: 1rem;
-  align-items: baseline;
-  margin-bottom: 0.85rem;
-
-  @media (max-width: 480px) {
-    gap: 0.6rem;
-  }
+  font-style: italic;
 }
 
-.archive-group__count {
-  align-self: baseline;
-  font-size: 0.5rem;
-  font-family: var(--article-font-family);
-  color: var(--archive-muted);
-  font-variant-numeric: oldstyle-nums;
-}
-
-.timeline {
-  position: relative;
-  display: grid;
-  gap: 0.15rem;
-  padding-left: 1.25rem;
+/* lining figures 在小写标签里比 x 高度高出一截，缩字号贴近小写腰高
+   （近似 oldstyle figures 的观感；字体多半没有 onum，手动缩放最稳） */
+.archive-label__num {
+  font-size: 0.82em;
 }
 
 .archive-item {
   position: relative;
-  counter-increment: archive-item;
-  text-align: left;
+  text-align: start;
 
-  & > .archive-item__row {
-    display: grid;
-    grid-template-columns: 4.9rem minmax(0, 1fr);
-    gap: 0.85rem;
-    align-items: baseline;
-    padding: 0.55rem 0.35rem 0.55rem 0;
-
-    @media (max-width: 480px) {
-      grid-template-columns: 1fr;
-      gap: 0.1rem;
-      padding: 0.7rem 0.5rem 0.7rem 0;
-    }
-  }
-
-  /* Each previewable item is its own anchor; anchor-scope keeps the shared
-     name local to this subtree so every popup binds to its own item. */
-  &.has-preview {
-    anchor-name: --archive-anchor;
-    anchor-scope: --archive-anchor;
-  }
-
-  & + & {
-    border-top: 0.5px solid color-mix(in oklch, var(--surface0) 80%, transparent);
-  }
+  /* Each item is its own anchor; anchor-scope keeps the shared name local to
+     this subtree so every popup binds to its own item. */
+  anchor-name: --archive-anchor;
+  anchor-scope: --archive-anchor;
 }
 
 /* #region Popup */
 
-/* 3-digit zero-padded running index: "001", "012", "123". */
-@counter-style archive-index {
-  system: numeric;
-  symbols: "0" "1" "2" "3" "4" "5" "6" "7" "8" "9";
-  pad: 3 "0";
-}
-
 .archive-popup {
-  --popup-accent: var(--archive-accent);
   --popup-gap: 12px;
   --popup-hidden-shift: 3px;
   position: fixed;
@@ -622,56 +420,40 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
   z-index: 141;
   box-sizing: border-box;
 
-  /* Default placement: above the item. */
-  top: anchor(top);
-  left: anchor(left);
-  translate: 0 calc(-100% - var(--popup-gap));
+  /* Default placement: above the item（底边贴条目顶，margin 作间隙）。高度设上限让
+     overflow: auto 真正生效——无约束时长摘要会把盒顶推出视口，被裁部分无从滚回 */
+  bottom: anchor(top);
+  inset-inline-start: anchor(start);
+  margin-block-end: var(--popup-gap);
+  /* 上方放不下时不翻到条目下方（方位恒在上），改为压缩：盒顶贴视口顶、
+     底边仍贴条目顶，高度被这段空间截短，超出部分走内部滚动 */
+  position-try-fallbacks: --archive-popup-squeeze;
   inline-size: fit-content;
   min-inline-size: min(20rem, calc(100vw - 2rem));
   max-inline-size: min(34rem, calc(100vw - 24px));
+  max-block-size: 50dvh;
   overflow: auto;
+  /* 摘要里长 URL 等不可断段会把 fit-content 顶到宽度上限后横向溢出成滚动条，
+     兜底折行 */
+  overflow-wrap: anywhere;
 
   padding: 0.85rem 1rem 0.9rem;
-  border: 1px dashed var(--surface0);
-  border-radius: 5px;
-  background: var(--mantle);
 
   /* Keep the fixed, anchored box present while hidden so the browser can settle
-     its anchor placement before the popup fades in. */
+     its anchor placement before the popup fades in.
+     退场不带延迟且整体压在 overlay 的 200ms 淡出之内：popup（141）浮在
+     overlay（130）之上，若比它晚收完，会孤零零悬在已复原的页面上多出一截 */
   opacity: 0;
   transform: translateY(var(--popup-hidden-shift));
   pointer-events: none;
   visibility: hidden;
   transition:
-    opacity 140ms ease 140ms,
-    transform 180ms cubic-bezier(0.22, 1, 0.36, 1) 140ms,
-    visibility 0s linear 280ms;
+    opacity 120ms ease,
+    transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 140ms;
 
-  /* Touch / narrow screens: no hover preview at all. */
   @media (hover: none), (max-width: 720px) {
     display: none !important;
-  }
-}
-
-.archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) > .archive-popup {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-  visibility: visible;
-  transition:
-    opacity 140ms ease 180ms,
-    transform 180ms cubic-bezier(0.22, 1, 0.36, 1) 180ms,
-    visibility 0s linear 180ms;
-}
-
-.archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) {
-  z-index: 140;
-}
-
-@starting-style {
-  .archive-item.has-preview:has(:is(.archive-title:hover, .archive-title:focus-visible, .archive-popup:hover, .archive-popup:focus-within)) > .archive-popup {
-    opacity: 0;
-    transform: translateY(var(--popup-hidden-shift));
   }
 }
 
@@ -683,51 +465,17 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
   }
 }
 
-.archive-popup__eyebrow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  margin: 0 0 0.5rem;
-  padding-bottom: 0.45rem;
-  border-bottom: 0.5px solid color-mix(in oklch, var(--surface1) 65%, transparent);
-  color: var(--archive-muted);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.archive-popup__index {
-  color: color-mix(in oklch, var(--popup-accent) 80%, var(--text));
-  font-weight: 600;
-
-  &::before {
-    content: "N° " counter(archive-item, archive-index);
-  }
-}
-
-/* Read time arrives as the raw "5 min" from the template; CSS prepends the
-   separator and appends " read", and the eyebrow's text-transform uppercases
-   the lot — "· 5 MIN READ". Both pseudos only exist when the span is rendered
-   (i.e. when the post actually has a read time). */
-.archive-popup__read {
-  &::before {
-    content: "·";
-    margin: 0 0.4em;
-    opacity: 0.4;
-  }
-
-  &::after {
-    content: " read";
-  }
+/* 未声明的属性沿用元素基础值（bottom: anchor(top) 仍生效），top 与 bottom 同设
+   把可用区间约束在视口顶到条目顶之间；align-self: end 让 fit-content 高度的盒子
+   沉底贴回条目顶，间隙仍由 margin-block-end 承担 */
+@position-try --archive-popup-squeeze {
+  top: 0.75rem;
+  align-self: end;
 }
 
 .archive-popup__excerpt {
-  margin: 0;
-  color: var(--archive-muted);
-  font-family: var(--font-serif);
-  font-size: 0.88rem;
-  line-height: 1.55;
+  font-family: var(--article-font-family);
+  font-style: italic;
 
   & :where(p, ul, ol) {
     margin: 0 0 0.35em;
@@ -742,43 +490,84 @@ body:has(.archive-page :is(.archive-title:hover, .archive-title:focus-visible, .
   }
 }
 
-/* #endregion */
-
-.article-meta {
-  margin: 0;
+.archive-popup__read {
+  margin: 0.5rem 0 0;
   color: var(--archive-muted);
   font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.4;
-  white-space: nowrap;
-  text-transform: lowercase;
-  font-weight: lighter;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-align: end;
+}
 
-  @media (max-width: 480px) {
-    white-space: normal;
+/* 展示条件只认悬停（标题或预览本体）。曾并入 :focus-within，但点击标题进入
+   文章后返回时浏览器会还原链接焦点，popup 常驻且不随指针移开消失，故移除；
+   popup 常驻渲染（隐藏只切 visibility 不切 display），从隐藏态出发的过渡
+   天然生效，无需 @starting-style */
+.archive-item:has(:is(.archive-title, .archive-popup):hover) {
+  z-index: 140;
+
+  > .archive-popup {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    visibility: visible;
+    transition:
+      opacity 140ms ease 180ms,
+      transform 180ms cubic-bezier(0.22, 1, 0.36, 1) 180ms,
+      visibility 0s linear 180ms;
   }
 }
 
+/* #endregion */
+
 a.archive-title {
-  justify-self: start;
+  --archive-date-col: 3.2rem;
+  --archive-date-gap: 0.35rem;
+  display: block;
   inline-size: fit-content;
+  /* 列表静息态整体降半级（字号 ×0.95、颜色向底色收 18%），
+     高亮交给交互层：hover 聚焦模式（mantle overlay 罩住他项）+ accent 变色 */
+  font-size: calc(var(--article-font-size) * 0.95);
+  font-weight: var(--article-font-weight);
+  font-family: var(--article-font-family);
   max-inline-size: 100%;
-  font-size: 0.8rem;
-  padding-inline: 0;
+  color: color-mix(in oklch, var(--text) 82%, var(--base));
+  /* Hanging indent: wrapped title lines align with the title text, not the
+     leading date column. */
+  padding-block: 0.6rem;
+  padding-inline: calc(var(--archive-date-col) + var(--archive-date-gap)) 0.35rem;
+  text-indent: calc(-1 * (var(--archive-date-col) + var(--archive-date-gap)));
   line-height: 1.45;
   overflow-wrap: anywhere;
   transition: color 140ms ease;
 
+  @media (max-width: 480px) {
+    padding-block: 0.7rem;
+    padding-inline: calc(var(--archive-date-col) + var(--archive-date-gap)) 0.5rem;
+  }
+
   &:hover,
   &:focus-visible {
     color: var(--archive-accent);
-    text-decoration-color: currentColor;
+    outline: none;
   }
+}
 
-  &:focus-visible {
-    outline: 2px solid color-mix(in oklch, var(--archive-accent) 70%, transparent);
-    outline-offset: 3px;
-    border-radius: 3px;
+/* Leading date inside the title link; fixed min-width keeps titles aligned.
+   内容是纯数字 mm.dd（见 common.js formatMonthDay），mono + tabular 天然对齐 */
+.archive-title__date {
+  display: inline-block;
+  min-width: var(--archive-date-col);
+  margin-inline-end: var(--archive-date-gap);
+  color: var(--archive-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  text-indent: 0;
+  transition: color 140ms ease;
+
+  a.archive-title:hover &,
+  a.archive-title:focus-visible & {
+    color: color-mix(in oklch, var(--archive-accent) 72%, var(--archive-muted));
   }
 }

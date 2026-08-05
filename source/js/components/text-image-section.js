@@ -36,10 +36,11 @@ class TextImageSection extends HTMLElement {
   }
 
   initZoom() {
-    if (typeof mediumZoom !== "function") return;
+    // main.js 的委托监听会处理点击，这里只需打上标记
     const img = this.querySelector(".ti-figure img");
     if (img) {
-      mediumZoom(img, { background: "hsla(from var(--mantle) / 0.9)" });
+      img.dataset.zoomable = "true";
+      img.style.cursor = "zoom-in";
     }
   }
 

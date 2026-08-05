@@ -25,7 +25,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 GoogleAnalytics.Cacheable = cacheComponent(GoogleAnalytics, "plugin.google_tag_manager", (props) => {
   const { head, plugin } = props;
-  if (!plugin || !plugin.tracking_id) {
+  if (!plugin?.tracking_id) {
     return null;
   }
   return {

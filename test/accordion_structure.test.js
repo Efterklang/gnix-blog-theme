@@ -1,15 +1,17 @@
 const assert = require("node:assert/strict");
-const { createMarkdownExit } = require("markdown-exit");
 
-const md = createMarkdownExit({
-  breaks: true,
-  html: true,
-  langPrefix: "language-",
-  linkify: true,
-  quotes: "“”‘’",
-  typographer: true,
-  xhtmlOut: false,
-});
+async function createMd() {
+  const { default: MarkdownIt } = await import("markdown-it-ts");
+  return MarkdownIt({
+    breaks: true,
+    html: true,
+    langPrefix: "language-",
+    linkify: true,
+    quotes: "“”‘’",
+    typographer: true,
+    xhtmlOut: false,
+  });
+}
 
 function accordion(markdown) {
   return `<link rel="stylesheet" href="/css/optional/accordion.css">
@@ -62,18 +64,19 @@ function hasListOpenAtAccordionClose(html) {
   return false;
 }
 
-async function assertAccordionListBoundary(name, markdown, expected) {
+async function assertAccordionListBoundary(md, name, markdown, expected) {
   const html = await md.renderAsync(accordion(markdown));
   assert.equal(hasListOpenAtAccordionClose(html), expected, `${name}\n\n${html}`);
 }
 
 async function main() {
-  await assertAccordionListBoundary("plain paragraphs stay inside accordion-item", "Plain paragraph.\n\nAnother paragraph.", false);
-  await assertAccordionListBoundary("indented unordered list follows the documented accordion convention", "  Intro.\n\n  - one\n  - two", false);
-  await assertAccordionListBoundary("explicit HTML list keeps the custom element boundary stable", "Intro.\n\n<ul>\n  <li><p>one</p></li>\n  <li><p>two</p></li>\n</ul>", false);
-  await assertAccordionListBoundary("fenced code does not disturb accordion-item boundaries", "Text.\n\n```js\nconsole.log(1)\n```", false);
-  await assertAccordionListBoundary("nested ordered list remains aligned", "Intro.\n\n1. one\n   - nested\n2. two", false);
-  await assertAccordionListBoundary("unindented unordered list can leave list tags open across details", "Intro.\n\n- one\n- two", true);
+  const md = await createMd();
+  await assertAccordionListBoundary(md, "plain paragraphs stay inside accordion-item", "Plain paragraph.\n\nAnother paragraph.", false);
+  await assertAccordionListBoundary(md, "indented unordered list follows the documented accordion convention", "  Intro.\n\n  - one\n  - two", false);
+  await assertAccordionListBoundary(md, "explicit HTML list keeps the custom element boundary stable", "Intro.\n\n<ul>\n  <li><p>one</p></li>\n  <li><p>two</p></li>\n</ul>", false);
+  await assertAccordionListBoundary(md, "fenced code does not disturb accordion-item boundaries", "Text.\n\n```js\nconsole.log(1)\n```", false);
+  await assertAccordionListBoundary(md, "nested ordered list remains aligned", "Intro.\n\n1. one\n   - nested\n2. two", false);
+  await assertAccordionListBoundary(md, "unindented unordered list can leave list tags open across details", "Intro.\n\n- one\n- two", true);
 }
 
 main().catch((error) => {

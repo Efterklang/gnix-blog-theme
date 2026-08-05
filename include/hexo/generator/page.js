@@ -1,6 +1,6 @@
 module.exports = (hexo) => {
-  hexo.extend.generator.register("page", function (locals) {
-    return locals.pages.map((page) => {
+  hexo.extend.generator.register("page", (locals) =>
+    locals.pages.map((page) => {
       const { layout } = page;
 
       if (!layout || layout === "false" || layout === "off") {
@@ -19,6 +19,6 @@ module.exports = (hexo) => {
         layout: layouts,
         data: page,
       };
-    });
-  });
+    }),
+  );
 };

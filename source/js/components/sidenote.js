@@ -34,12 +34,12 @@ const STYLES = `
   }
 
   @media screen and (min-width: 1280px) {
-    .card-content.article > .content {
+    article.article > .content {
       overflow: visible;
       display: flow-root;
     }
 
-    .card-content.article > .content > side-note {
+    article.article > .content > side-note {
       float: right;
       clear: right;
       box-sizing: border-box;
@@ -49,11 +49,11 @@ const STYLES = `
       font-size: 0.8em;
     }
 
-    .card-content.article > .content.is-side-note-layout {
+    article.article > .content.is-side-note-layout {
       position: relative;
     }
 
-    .card-content.article > .content.is-side-note-layout > side-note {
+    article.article > .content.is-side-note-layout > side-note {
       float: none;
       clear: none;
       position: absolute;
@@ -74,7 +74,7 @@ function injectStyles() {
 }
 
 function getArticleContentBlocks() {
-  return document.querySelectorAll(".card-content.article > .content");
+  return document.querySelectorAll("article.article > .content");
 }
 
 function getSideNotes(content) {
@@ -191,7 +191,7 @@ class SideNote extends HTMLElement {
 
   unwrapMarkdownParagraph() {
     const parent = this.parentElement;
-    if (!parent || parent.tagName !== "P") return;
+    if (parent?.tagName !== "P") return;
 
     const onlyContainsThisSideNote = Array.from(parent.childNodes).every((node) => {
       return node === this || (node.nodeType === Node.TEXT_NODE && node.textContent.trim() === "");

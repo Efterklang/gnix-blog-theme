@@ -1,12 +1,4 @@
-const {
-  getI18nKey,
-  getLanguage,
-  getLanguageBasePath,
-  getPageLanguageKey,
-  inferI18nKeyFromSource,
-  isI18nEnabled,
-  parseLocalizedSource,
-} = require("../util/i18n");
+const { getI18nKey, getLanguage, getLanguageBasePath, getPageLanguageKey, inferI18nKeyFromSource, isI18nEnabled, parseLocalizedSource } = require("../util/i18n");
 
 let cachedConfig = null;
 let cachedHexo = null;

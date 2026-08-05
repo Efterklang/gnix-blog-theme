@@ -2,15 +2,43 @@
 
 /* #region Content */
 
+/* 文章页跟随宽度偏好（--article-max-width 由 :root[data-article-width] 决定），
+   其余页面不加载本文件，保持 default.css 的固定列宽 */
+.main-content {
+  max-width: calc(var(--article-max-width) + 3rem);
+  /* 封面图高度，满高首屏的 min-height 计算需扣除它（移动端在 responsive.css 覆写） */
+  --cover-height: 380px;
+}
+
+.article {
+  padding: 1.25em 1.25rem 0 1.25rem;
+  /* Ref: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-autospace */
+  text-autospace: normal;
+}
+
+/* 文章页进场动画（仿 antfu.me 的 slide-enter，关键帧共享于 default.css）：
+   只有首屏摘要自下方 10px 上浮淡入，标题、封面与正文直接呈现——首屏即时可读，
+   LCP 不受动画影响。.gnix-revealed 由 head 内联脚本在 pagereveal（不支持时
+   内联立即）添加，保证 prerender 激活时动画从首个可见帧才开始；无 JS 时不加类，
+   摘要直接可见 */
+:root.gnix-revealed .article-hero .article-excerpt {
+  animation: slide-enter 600ms backwards;
+}
+
 .content {
   overflow: auto;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   color: var(--subtext1);
+  font-size: var(--article-font-size);
+  font-family: var(--article-font-family);
+  line-height: var(--article-line-height);
+  font-weight: var(--article-font-weight);
 
   a.header-anchor {
     color: var(--text);
     font-family: var(--article-font-family);
     text-decoration: none;
+    font-weight: 400;
     &::after {
       margin-left: 0.4em;
       opacity: 0;
@@ -38,15 +66,9 @@
     text-decoration: none;
   }
 
-  :is(h2, h3, h4, h5, h6) {
-    text-wrap: balance;
-    font-variant-numeric: oldstyle-nums;
-  }
-
   h2 {
     font-size: 1.5em;
-    margin: 2.75rem 0 1rem;
-    line-height: 1.25;
+    margin: 1rem 0;
     letter-spacing: -0.01em;
     counter-increment: h2-counter;
     display: flex;
@@ -66,7 +88,7 @@
       color: var(--overlay0);
       font-family: var(--font-serif);
       font-style: italic;
-      letter-spacing: 0.04em;
+      letter-spacing: -0.01em;
       font-size: 0.7em;
       font-weight: 400;
       font-variant-numeric: oldstyle-nums;
@@ -174,7 +196,6 @@
     font-family: var(--font-mono);
     font-size: 0.85em;
     color: var(--subtext0);
-    user-select: none;
     background: linear-gradient(180deg, var(--base) 0%, var(--mantle) 100%);
     border: 1px solid var(--surface0);
     border-bottom-width: 3px;
@@ -189,6 +210,11 @@
     &:active {
       top: 0;
     }
+  }
+
+  /* 键帽是正文内容，保持可复制；按压交互只属于按钮 */
+  button.physical-btn {
+    user-select: none;
   }
 
   ol {
@@ -286,7 +312,7 @@
     padding: 1rem;
     margin: 0 0 1rem 0;
     white-space: pre;
-    word-wrap: normal;
+    overflow-wrap: normal;
     line-height: 1.45;
   }
 
@@ -343,19 +369,99 @@
   }
 }
 
-article.card-content .content {
-  font-size: var(--article-font-size);
-  font-family: var(--article-font-family);
-  line-height: var(--article-line-height);
-  font-weight: var(--article-font-weight);
-}
-
-article.card-content .content :is(h1, h2, h3, h4, h5, h6, strong, b, th) {
-  font-weight: var(--article-bold-font-weight);
-}
-
 .footnotes {
   font-size: 0.9em;
+}
+
+.footnote-ref .footnote-tooltip {
+  display: none;
+}
+
+sup.footnote-ref.is-footnote-tooltip-open {
+  position: relative;
+}
+
+sup.footnote-ref.is-footnote-tooltip-open .footnote-tooltip {
+  display: block;
+  position: fixed;
+  right: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  left: 1rem;
+  max-height: min(52dvh, 22rem);
+  overflow: auto;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--surface0);
+  border-radius: 0.75rem;
+  background: var(--mantle);
+  box-shadow: 0 12px 36px hsl(from var(--crust) h s l / 0.5);
+  color: var(--subtext1);
+  font-size: 0.9rem;
+  font-style: normal;
+  font-weight: var(--article-font-weight);
+  line-height: 1.65;
+  text-align: left;
+  white-space: normal;
+  pointer-events: auto;
+  z-index: 1000;
+}
+
+/* Hover preview for footnote refs; content is injected at build time by
+   include/hexo/mdit/footnote-tooltip.js. Hover-capable pointers only —
+   on touch, simulated hover would eat the first tap on the ref link. */
+@media (hover: hover) and (pointer: fine) {
+  sup.footnote-ref {
+    position: relative;
+
+    .footnote-tooltip {
+      display: block;
+      position: absolute;
+      bottom: calc(100% + 0.4em);
+      left: 50%;
+      /* --footnote-tooltip-shift 由 main.js 在 hover 时测量设置，
+         防止靠近 .content（overflow: auto）两端时被裁剪 */
+      transform: translateX(calc(-50% + var(--footnote-tooltip-shift, 0px))) translateY(0.25em);
+      width: max-content;
+      max-width: min(24rem, 70vw);
+      padding: 0.6em 0.85em;
+      border: 1px solid var(--surface0);
+      border-radius: 0.5em;
+      background: var(--mantle);
+      box-shadow: 0 8px 24px hsl(from var(--crust) h s l / 0.5);
+      color: var(--subtext1);
+      font-size: 0.8rem;
+      font-style: normal;
+      font-weight: var(--article-font-weight);
+      line-height: 1.6;
+      text-align: left;
+      white-space: normal;
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity 0.15s ease,
+        transform 0.15s ease,
+        visibility 0.15s;
+      pointer-events: none;
+      z-index: 10;
+
+      /* invisible bridge across the gap so hover survives the mouse travel */
+      &::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        height: 0.5em;
+      }
+    }
+
+    &:hover .footnote-tooltip,
+    &:focus-within .footnote-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(calc(-50% + var(--footnote-tooltip-shift, 0px))) translateY(0);
+      pointer-events: auto;
+    }
+  }
 }
 
 .table-wrapper {
@@ -444,7 +550,7 @@ input.task-list-item-checkbox {
     border-color: var(--green);
   }
   &:checked::before {
-    content: "";
+    content: "✓";
     font-family: var(--font-mono);
     color: var(--base);
     position: absolute;
@@ -475,11 +581,6 @@ input.task-list-item-checkbox {
   }
 }
 
-strong {
-  font-weight: bolder;
-  padding: 0 0.15em;
-}
-
 a strong {
   color: currentColor;
 }
@@ -491,7 +592,7 @@ a strong {
 .article-title {
   font-family: var(--article-font-family);
   font-size: 1.75em;
-  font-weight: 500;
+  font-weight: 100;
   line-height: 1.2;
   margin-bottom: 0.3em;
   text-wrap: balance;
@@ -501,49 +602,70 @@ a strong {
   }
 }
 
-.article-header-meta {
-  font-family: var(--font-mono);
-  overflow: auto;
-  padding-bottom: 0.5em;
-  color: var(--subtext0);
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-
-  a {
-    color: var(--subtext0);
-
-    &:hover {
-      color: var(--blue);
-    }
-  }
-}
-
-.article-meta-info {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.2rem;
-}
-
 .meta-separator {
   color: var(--overlay0);
 }
 
-.article-meta-bar {
+/* 文章首屏：居中标题与摘要，底部一行小字（标签 / 版记+跳转箭头 / comments·info） */
+.article-hero {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding: 2rem 0 1.25rem;
+}
+
+/* 文章页满高首屏：100dvh 扣去 navbar 与 main-content(3rem)/article(1.25em) 顶部内边距 */
+.article-hero-full {
+  min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 4.25rem);
+  padding: 0 0 1.5rem;
+}
+
+/* 封面文章的满高首屏再扣去封面高度，article-hero-meta 仍收在首屏底部 */
+.article-hero-with-cover {
+  min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 4.25rem - var(--cover-height));
+}
+
+.article-hero-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px dashed var(--surface0);
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.article-hero .article-title {
+  margin-bottom: 0;
+}
+
+/* 封面已占去 380px，标题维持常规字号以免把 meta 挤出首屏 */
+.article-hero-full:not(.article-hero-with-cover) .article-title {
+  font-size: clamp(2.9rem, 2.5rem + 2vw, 3.5rem);
+}
+
+.article-hero .article-excerpt {
+  max-width: 36em;
+  line-height: 1.9;
+  text-wrap: pretty;
+}
+
+.article-hero-meta {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  & + .content {
-    margin-top: 1rem;
+  color: var(--subtext0);
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--text);
+    }
   }
 }
 
@@ -562,32 +684,45 @@ em,
   gap: 0.2rem;
 }
 
-.article-title-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  flex-shrink: 0;
+.article-colophon {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.article-action-btn {
+.article-hero-arrow {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.5rem;
-  padding: 0;
-  background: none;
-  border: none;
-  color: var(--subtext1);
-  cursor: pointer;
-  text-decoration: none;
+  padding: 0.25em;
+  color: var(--subtext0);
 
-  &:hover {
-    color: var(--mauve);
+  > svg {
+    width: 1.5rem;
+    height: 1.5rem;
   }
 
-  svg {
-    width: 1.1rem;
-    height: 1.1rem;
+  &:hover {
+    color: var(--green);
+  }
+}
+
+.article-hero-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+
+  button {
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    letter-spacing: 0.05em;
+    color: inherit;
+
+    &:hover {
+      color: var(--text);
+    }
   }
 }
 
@@ -608,125 +743,44 @@ em,
   position: relative;
   z-index: 1;
   width: fit-content;
-  padding: 1.25rem;
   max-width: 90vw;
   max-height: 70vh;
-  border-radius: 16px;
-  background: hsl(from var(--mantle) h s l / 0.7);
-  box-shadow:
-    0 20px 60px -15px rgba(0, 0, 0, 0.3),
-    0 0 0 1px var(--surface0);
   overflow-y: auto;
 }
 
-.language-switch-popover {
-  width: min(40rem, 90vw);
-}
+/* 印刷目录风格：右对齐标签 + 冒号、左对齐值，直接渲染在遮罩上 */
+.article-info-list {
+  margin: 0;
+  padding: 0.25rem;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 26rem);
+  gap: 0.625rem 1.25rem;
+  align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
 
-.language-switch-popover-body {
-  p {
-    margin: 0;
-    color: var(--subtext1);
-    line-height: 1.7;
-  }
-}
+  dt {
+    text-align: right;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 
-.language-switch-popover-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1.25rem;
-}
-
-.language-switch-popover-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.25rem;
-  padding: 0.4rem 0.85rem;
-  border: 1px solid var(--surface1);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  cursor: pointer;
-  font: inherit;
-  text-decoration: none;
-  line-height: 1.2;
-
-  &:hover {
-    border-color: var(--mauve);
-    color: var(--mauve);
-  }
-
-  &.is-primary {
-    border-color: var(--blue);
-    background: var(--blue);
-    color: var(--base);
-
-    &:hover {
-      border-color: var(--mauve);
-      background: var(--mauve);
-      color: var(--base);
+    &::after {
+      content: ":";
     }
   }
-}
 
-.article-info-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-}
+  dd {
+    margin: 0;
+    word-break: break-word;
 
-.article-info-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-}
+    a {
+      color: var(--lavender);
+      text-decoration: none;
 
-.article-info-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  flex-shrink: 0;
-  border-radius: 8px;
-  background: var(--base);
-  color: var(--subtext0);
-  margin-top: 0.125rem;
-
-  svg {
-    width: 1rem;
-    height: 1rem;
-  }
-}
-
-.article-info-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  min-width: 20rem;
-  flex: 1;
-  padding-top: 0.125rem;
-}
-
-.article-info-label {
-  font-size: 0.75rem;
-  color: var(--subtext0);
-  font-weight: 500;
-}
-
-.article-info-value {
-  font-size: 0.875rem;
-  color: var(--text);
-  word-break: break-word;
-
-  a {
-    color: var(--lavender);
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 }
@@ -734,7 +788,11 @@ em,
 .article-comment-popover-body {
   width: min(920px, 92vw);
   max-height: min(72vh, 760px);
-  padding: 0;
+  border-radius: 16px;
+  background: hsl(from var(--mantle) h s l / 0.7);
+  box-shadow:
+    0 20px 60px -15px rgba(0, 0, 0, 0.3),
+    0 0 0 1px var(--surface0);
 }
 
 .article-comment-panel#comments {
@@ -755,7 +813,7 @@ em,
   position: relative;
   display: block;
   overflow: hidden;
-  height: 380px;
+  height: var(--cover-height);
   border-radius: var(--radius);
 
   img {
@@ -792,11 +850,20 @@ em,
   padding: 1rem;
   border: none;
   border-radius: 0;
-  background: hsl(from var(--mantle) h s l / 0.7);
   color: var(--text);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   overflow: auto;
+
+  /* 遮罩底色 + blur 放在独立 fixed 伪层：popover 内容滚动/重绘（如 Twikoo
+     异步加载）不会触发全屏模糊重算，遮罩也不随 overflow 滚动 */
+  &::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: hsl(from var(--mantle) h s l / 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
 
   &::backdrop {
     background: transparent;
@@ -812,14 +879,15 @@ em,
 
 .toc-button {
   position: fixed;
-  top: clamp(5rem, 16vh, 10rem);
-  left: max(1rem, calc(50% - 25em - 10rem));
+  bottom: 3rem;
+  right: clamp(1rem, 3vw, 3rem);
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background-color: transparent;
-  border: none;
+  background-color: var(--base);
+  border: 2px solid var(--surface0);
   cursor: pointer;
+  transition: opacity 0.3s ease;
 
   > span {
     background-color: hsl(from var(--text) h s l / 0.5);
@@ -843,6 +911,14 @@ em,
   }
 }
 
+/* 满高首屏页在 JS 可用（gnix-revealed 由 head 内联脚本添加）时先隐藏 TOC 按钮，
+   滚过首屏后由 IntersectionObserver 给 .toc-container 加 .toc-visible 点亮；
+   无 JS 时不加 gnix-revealed，按钮始终可见 */
+:root.gnix-revealed:has(.article-hero-full) .toc-container:not(.toc-visible) .toc-button {
+  opacity: 0;
+  pointer-events: none;
+}
+
 :popover-open.toc-body {
   display: flex;
   flex-direction: column;
@@ -851,7 +927,7 @@ em,
   font-weight: 600;
 }
 
-#icarus-toc-container {
+#toc {
   .toc {
     max-height: clamp(22rem, 72dvh, 80dvh);
     width: clamp(18rem, 86vw, 40rem);

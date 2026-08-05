@@ -76,5 +76,7 @@ module.exports = (hexo) => {
     require("./status")(hexo);
   }
 
+  require("./preferences")(hexo);
+
   require("./page")(hexo);
 };

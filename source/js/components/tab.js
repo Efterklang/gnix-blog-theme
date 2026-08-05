@@ -21,6 +21,10 @@ function escapeHtml(value) {
   return span.innerHTML;
 }
 
+function escapeAttribute(value) {
+  return escapeHtml(value).replace(/"/g, "&quot;");
+}
+
 class Tabs extends HTMLElement {
   connectedCallback() {
     this.injectStyles();
@@ -119,7 +123,7 @@ class Tabs extends HTMLElement {
             aria-selected="${selected}"
             tabindex="${selected ? "0" : "-1"}"
             data-index="${index}"
-            ${syncId ? `data-sync-id="${escapeHtml(syncId)}"` : ""}
+            ${syncId ? `data-sync-id="${escapeAttribute(syncId)}"` : ""}
           >${escapeHtml(title)}</button>
         `;
       })

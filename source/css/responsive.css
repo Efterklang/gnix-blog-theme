@@ -10,20 +10,43 @@
     padding: 8px 12px;
   }
 
-  .section {
-    padding: 0;
-  }
-
   .main-content {
-    width: 100%;
+    padding: 0;
+    --cover-height: 25vh;
   }
 
-  .card-content {
+  .article {
     padding: 1rem 0.875rem 0;
   }
 
+  .article-hero-full {
+    min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 1rem);
+  }
+
+  .article-hero-with-cover {
+    min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 1rem - var(--cover-height));
+  }
+
+  .article-hero-meta {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 0.875rem;
+
+    .article-tags {
+      order: 1;
+      justify-content: center;
+    }
+
+    .article-hero-actions {
+      order: 2;
+    }
+
+    .article-colophon {
+      order: 3;
+    }
+  }
+
   .cover-image {
-    max-height: 25vh;
     border-radius: 0;
   }
 
@@ -49,20 +72,44 @@
 @media screen and (max-width: 1023px) {
   /* This is used for mobile and tablet devices */
   /* #region Navbar */
-  /* Navbar Burger */
-  .navbar-menu {
-    display: none;
+  html:has(.navbar-menu:popover-open) {
+    overflow: hidden;
+
+    /* 菜单是不透明幕布，正文已被盖住，导航条的半透明渐变 + 渐进模糊
+       会在幕布上方留出一条透出内容的玻璃带，产生割裂；
+       展开期间切成实色与幕布连成整块，关闭后恢复消融效果 */
+    .navbar {
+      background: var(--mantle);
+    }
+
+    .navbar-blur {
+      display: none;
+    }
   }
 
-  .navbar-menu.is-active {
+  /* 关闭态由 [popover] 的 UA 样式隐藏；打开态需中和 UA 的 inset/margin/border/padding/color */
+  .navbar-menu:popover-open {
     display: block;
     position: fixed;
-    top: 3.5rem;
+    inset: auto;
+    top: calc(var(--navbar-height) + env(safe-area-inset-top));
     left: 0;
     width: 100%;
-    height: 100vh;
+    height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top));
+    margin: 0;
+    border: none;
+    padding: 0;
+    color: inherit;
     background-color: var(--mantle);
     overflow-y: auto;
+    overscroll-behavior: contain;
+
+    /* 全局 :popover-open::before 的全屏遮罩随 popover 渲染在 top layer，
+       会盖住导航条本体，burger 关闭键被压在遮罩下、点击也被拦截；
+       菜单不透明铺满导航条以下的视口，该遮罩纯属多余，直接去掉 */
+    &::before {
+      content: none;
+    }
   }
 
   .navbar-start {
@@ -82,46 +129,65 @@
     }
   }
 
+  /* burger 顶替 logo 常驻左侧；偏好/搜索常驻右侧动作区 */
+  #navbar-logo-link {
+    display: none;
+  }
+
+  .navbar-actions > .navbar-item {
+    padding: 0 0.75rem;
+  }
+
+  /* 三条线：span 本体是中线，::before/::after 是上下线；
+     展开时上下线平移旋转成 X、中线经 background-color 淡出
+     （中线不能用 opacity 隐藏，伪元素会随宿主一起消失） */
   .navbar-burger {
     position: relative;
-    width: 4rem;
-    margin-left: auto;
-    color: var(--text);
-    > span {
-      background-color: currentColor;
-      height: 2px;
-      left: calc(50% - 8px);
+    width: 3.5rem;
+
+    > span,
+    > span::before,
+    > span::after {
+      background-color: var(--subtext0);
+      height: 1.5px;
+      width: 16px;
       position: absolute;
       transform-origin: center;
       transition-duration: 86ms;
-      transition-property: background-color, opacity, transform;
+      transition-property: background-color, transform;
       transition-timing-function: ease-out;
-      width: 16px;
+    }
 
-      &:nth-child(1) {
-        top: calc(50% - 6px);
-      }
+    > span {
+      left: calc(50% - 8px);
+      top: calc(50% - 1px);
+    }
 
-      &:nth-child(2) {
-        top: calc(50% - 1px);
-      }
+    > span::before,
+    > span::after {
+      content: "";
+      left: 0;
+    }
 
-      &:nth-child(3) {
-        top: calc(50% + 4px);
-      }
+    > span::before {
+      top: -5px;
+    }
+
+    > span::after {
+      top: 5px;
     }
   }
 
-  .navbar-burger.is-active span:nth-child(1) {
-    transform: translateY(5px) rotate(45deg);
-  }
+  .navbar:has(.navbar-menu:popover-open) .navbar-burger > span {
+    background-color: transparent;
 
-  .navbar-burger.is-active span:nth-child(2) {
-    opacity: 0;
-  }
+    &::before {
+      transform: translateY(5px) rotate(45deg);
+    }
 
-  .navbar-burger.is-active span:nth-child(3) {
-    transform: translateY(-5px) rotate(-45deg);
+    &::after {
+      transform: translateY(-5px) rotate(-45deg);
+    }
   }
 
   @keyframes fadeInUp {
@@ -188,15 +254,6 @@
     top: 15px;
     width: 90%;
   }
-
-  .toc-button {
-    top: auto;
-    bottom: 3rem;
-    right: 1rem;
-    left: auto;
-    background-color: var(--base);
-    border: 2px solid var(--surface0);
-  }
 }
 
 @media screen and (min-width: 1024px) {
@@ -204,11 +261,7 @@
     display: none;
   }
 
-  .navbar {
-    -webkit-backdrop-filter: blur(20px) saturate(1.4);
-    backdrop-filter: blur(20px) saturate(1.4);
-    background: hsl(from var(--mantle) h s l / 0.72);
-  }
+  /* 导航条底色/模糊由 default.css 的渐变背景 + .navbar-blur 渐进模糊统一处理 */
 
   .navbar-start .navbar-item {
     font-family: var(--font-sans-serif);
@@ -216,10 +269,11 @@
     letter-spacing: 0.18em;
     text-transform: lowercase;
     padding: 0 0.9rem;
+    color: transparent;
   }
 
-  .navbar-container {
-    max-width: 1260px;
+  .navbar:hover .navbar-item {
+    color: var(--subtext0);
   }
 
   .navbar-menu,
@@ -232,8 +286,14 @@
   }
 
   .navbar-menu {
+    /* 中和 [popover] 的 UA 默认样式，桌面端菜单常显于导航条内 */
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    border: none;
+    color: inherit;
     flex-grow: 1;
-    flex-shrink: 0;
     overflow-x: auto;
     background-color: transparent;
   }

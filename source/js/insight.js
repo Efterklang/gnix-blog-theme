@@ -247,6 +247,16 @@ function loadInsight(config, translation) {
     input.setAttribute("aria-expanded", items.length > 0 ? "true" : "false");
   }
 
+  function clearSearchResults() {
+    if (searchTimer) {
+      clearTimeout(searchTimer);
+      searchTimer = null;
+    }
+    container.innerHTML = "";
+    input.removeAttribute("aria-activedescendant");
+    input.setAttribute("aria-expanded", "false");
+  }
+
   function scrollTo(item) {
     if (!item) return;
     // 找到item所在的可滚动section
@@ -327,15 +337,19 @@ function loadInsight(config, translation) {
   input.addEventListener("input", function () {
     const keywords = this.value;
 
-    // 清除上一次的定时器
-    if (searchTimer) clearTimeout(searchTimer);
+    if (!keywords.trim()) {
+      clearSearchResults();
+      return;
+    }
 
     if (!dataset) {
       fetchData(); // 兜底，防止万一没加载
       return;
     }
 
+    if (searchTimer) clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
+      searchTimer = null;
       searchResultToDOM(keywords, search(dataset, keywords));
     }, 150);
   });
@@ -372,7 +386,7 @@ function loadInsight(config, translation) {
       fetchData();
       input.focus();
     } else {
-      input.setAttribute("aria-expanded", "false");
+      clearSearchResults();
     }
   });
 }

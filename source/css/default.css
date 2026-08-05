@@ -1,75 +1,18 @@
-@charset "UTF-8";
-
-@view-transition {
-  navigation: auto;
-}
-
-::view-transition-old(root) {
-  animation: none;
-}
-
-::view-transition-new(root) {
-  animation: none;
-}
-
-::view-transition-old(gnix-main-content) {
-  animation: gnix-view-transition-out 160ms ease both;
-}
-
-::view-transition-new(gnix-main-content) {
-  animation: gnix-view-transition-in 160ms ease both;
-}
-
-html:has(.preference-page[data-preference-surface="page"])::view-transition-old(gnix-main-content),
-html:has(.preference-page[data-preference-surface="page"])::view-transition-new(gnix-main-content) {
-  animation: none;
-}
-
-@keyframes gnix-view-transition-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes gnix-view-transition-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(gnix-main-content),
-  ::view-transition-new(gnix-main-content) {
-    animation-duration: 1ms;
-  }
-}
-
 :root {
-  /* color */
-  --subtext1: color-mix(in oklch, var(--text) 90%, var(--base));
-  --subtext0: color-mix(in oklch, var(--text) 80%, var(--base));
-  --surface0: color-mix(in oklch, var(--base) 80%, var(--text));
-  --surface1: color-mix(in oklch, var(--base) 78%, var(--text));
-  --surface2: color-mix(in oklch, var(--base) 67%, var(--text));
-  --overlay0: color-mix(in oklch, var(--base) 56%, var(--text));
-  --overlay1: color-mix(in oklch, var(--base) 45%, var(--text));
-  --overlay2: color-mix(in oklch, var(--base) 34%, var(--text));
   /* font */
   --font-serif: Gentium, ChillKai, Baskerville, New York, Georgia, Noto Serif CJK, STFangsong, STSong, Songti SC, serif;
-  --font-sans-serif: Avenir, system-ui, sans-serif;
+  --font-sans-serif: Avenir Next, system-ui, sans-serif;
   --font-mono: "SF Mono", "Maple Mono NF CN Local", "Maple Mono NF CN", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", XingKai SC, cursive;
   --article-font-size: 1rem;
-  --article-font-family: var(--font-serif);
-  --article-line-height: 1.6;
+  --article-font-family: var(--font-sans-serif);
+  /* 行高实际值由 head 内联脚本 / preferences.js 写入行内
+     --article-line-height，此处仅作无 JS 时的回退，与默认设置保持一致 */
+  --article-line-height: 1.7;
   --article-font-weight: 400;
   --article-bold-font-weight: 700;
+  /* 文章页正文栏宽（article.css 消费，其余页面保持默认列宽） */
+  --article-max-width: 50em;
   /* misc */
   --radius: 12px;
   --navbar-height: 3.5rem;
@@ -89,20 +32,14 @@ html:has(.preference-page[data-preference-surface="page"])::view-transition-new(
   &[data-article-font-family="sans-serif"] {
     --article-font-family: var(--font-sans-serif);
   }
+  &[data-article-font-family="serif"] {
+    --article-font-family: var(--font-serif);
+  }
   &[data-article-font-family="mono"] {
     --article-font-family: var(--font-mono);
   }
   &[data-article-font-family="handwriting"] {
     --article-font-family: var(--font-handwriting);
-  }
-  &[data-article-line-height="compact"] {
-    --article-line-height: 1.55;
-  }
-  &[data-article-line-height="normal"] {
-    --article-line-height: 1.7;
-  }
-  &[data-article-line-height="relaxed"] {
-    --article-line-height: 1.85;
   }
   &[data-article-font-weight="light"] {
     --article-font-weight: 300;
@@ -110,161 +47,213 @@ html:has(.preference-page[data-preference-surface="page"])::view-transition-new(
   &[data-article-font-weight="medium"] {
     --article-font-weight: 500;
   }
+  &[data-article-width="narrow"] {
+    --article-max-width: 42em;
+  }
+  &[data-article-width="medium-narrow"] {
+    --article-max-width: 46em;
+  }
+  &[data-article-width="medium-wide"] {
+    --article-max-width: 56em;
+  }
+  &[data-article-width="wide"] {
+    --article-max-width: 64em;
+  }
 }
 
 /* #region Color */
-:where([data-theme="latte"]) {
-  color-scheme: light;
-  --rosewater: #dc8a78;
-  --flamingo: #dd7878;
-  --pink: #ea76cb;
-  --mauve: #8839ef;
-  --red: #d20f39;
-  --maroon: #e64553;
-  --peach: #fe640b;
-  --yellow: #df8e1d;
-  --green: #40a02b;
-  --teal: #179299;
-  --sky: #04a5e5;
-  --sapphire: #209fb5;
-  --blue: #1e66f5;
-  --lavender: #7287fd;
-  --text: #4c4f69;
-  --base: #eff1f5;
-  --mantle: #e6e9ef;
-  --crust: #dce0e8;
-}
 
-:where([data-theme="rose_pine"]) {
-  color-scheme: dark;
-  --rosewater: #f6c177;
-  --flamingo: #f2cdcd;
-  --pink: #ebbcba;
-  --mauve: #c4a7e7;
-  --red: #eb6f92;
-  --maroon: #ea9a97;
-  --peach: #f2cdcd;
-  --yellow: #f6c177;
-  --green: #9ccfd8;
-  --teal: #31748f;
-  --sky: #9ccfd8;
-  --sapphire: #31748f;
-  --blue: #9ccfd8;
-  --lavender: #c4a7e7;
-  --text: #e0def4;
-  --base: #191726;
-  --mantle: #161422;
-  --crust: #11111b;
-}
+/* 色板派生色阶声明在 :where([data-theme]) 而非 :root：var() 在声明所在元素上
+   求值，放 :root 会按页面主题算好后被全站继承，嵌套主题作用域（如
+   theme-mode-preview 的 pane、theme-stacked 的取色元素）将读不到自身色板的
+   派生值。主题块以 &:where() 嵌套，与原顶层 :where() 一样保持零特定性。 */
+:where([data-theme]) {
+  --subtext1: color-mix(in oklch, var(--text) 90%, var(--base));
+  --subtext0: color-mix(in oklch, var(--text) 80%, var(--base));
+  --surface0: color-mix(in oklch, var(--base) 80%, var(--text));
+  --surface1: color-mix(in oklch, var(--base) 78%, var(--text));
+  --surface2: color-mix(in oklch, var(--base) 67%, var(--text));
+  --overlay0: color-mix(in oklch, var(--base) 56%, var(--text));
+  --overlay1: color-mix(in oklch, var(--base) 45%, var(--text));
+  --overlay2: color-mix(in oklch, var(--base) 34%, var(--text));
 
-:where([data-theme="nord"]) {
-  color-scheme: light;
-  --rosewater: #bf616a;
-  --flamingo: #d08770;
-  --pink: #b48ead;
-  --mauve: #b48ead;
-  --red: #bf616a;
-  --maroon: #bf616a;
-  --peach: #d08770;
-  --yellow: #ebcb8b;
-  --green: #a3be8c;
-  --teal: #8fbcbb;
-  --sky: #81a1c1;
-  --sapphire: #5e81ac;
-  --blue: #81a1c1;
-  --lavender: #5e81ac;
-  --text: #4c566a;
-  --base: #eceff4;
-  --mantle: #e5e9f0;
-  --crust: #d8dee9;
-}
+  &:where([data-theme="latte"]) {
+    color-scheme: light;
+    --rosewater: #dc8a78;
+    --flamingo: #dd7878;
+    --pink: #ea76cb;
+    --mauve: #8839ef;
+    --red: #d20f39;
+    --maroon: #e64553;
+    --peach: #fe640b;
+    --yellow: #df8e1d;
+    --green: #40a02b;
+    --teal: #179299;
+    --sky: #04a5e5;
+    --sapphire: #209fb5;
+    --blue: #1e66f5;
+    --lavender: #7287fd;
+    --text: #4c4f69;
+    --base: #eff1f5;
+    --mantle: #e6e9ef;
+    --crust: #dce0e8;
+  }
 
-:where([data-theme="song_ci"]) {
-  color-scheme: light;
-  --rosewater: #d8a48f;
-  --flamingo: #c87363;
-  --pink: #c04851;
-  --mauve: #7f5a83;
-  --red: #b13a2e;
-  --maroon: #9a3f3f;
-  --peach: #d68a3a;
-  --yellow: #c99a2e;
-  --green: #5f8f6f;
-  --teal: #2f7d73;
-  --sky: #73a6a1;
-  --sapphire: #2d6f8f;
-  --blue: #2f5597;
-  --lavender: #6f6a9f;
-  --text: #0f4c20;
-  --base: #f4efe3;
-  --mantle: #f1efea;
-  --crust: #c4d1b5;
-}
+  &:where([data-theme="rose_pine"]) {
+    color-scheme: dark;
+    --rosewater: #f6c177;
+    --flamingo: #f2cdcd;
+    --pink: #ebbcba;
+    --mauve: #c4a7e7;
+    --red: #eb6f92;
+    --maroon: #ea9a97;
+    --peach: #f2cdcd;
+    --yellow: #f6c177;
+    --green: #9ccfd8;
+    --teal: #31748f;
+    --sky: #9ccfd8;
+    --sapphire: #31748f;
+    --blue: #9ccfd8;
+    --lavender: #c4a7e7;
+    --text: #e0def4;
+    --base: #191726;
+    --mantle: #161422;
+    --crust: #11111b;
+  }
 
-:where([data-theme="mocha"]) {
-  color-scheme: dark;
-  --rosewater: #f5e0dc;
-  --flamingo: #f2cdcd;
-  --pink: #f5c2e7;
-  --mauve: #cba6f7;
-  --red: #f38ba8;
-  --maroon: #eba0ac;
-  --peach: #fab387;
-  --yellow: #f9e2af;
-  --green: #a6e3a1;
-  --teal: #94e2d5;
-  --sky: #89dceb;
-  --sapphire: #74c7ec;
-  --blue: #89b4fa;
-  --lavender: #b4befe;
-  --text: #cdd6f4;
-  --base: #1e1e2e;
-  --mantle: #181825;
-  --crust: #11111b;
-}
+  &:where([data-theme="nord"]) {
+    color-scheme: light;
+    --rosewater: #bf616a;
+    --flamingo: #d08770;
+    --pink: #b48ead;
+    --mauve: #b48ead;
+    --red: #bf616a;
+    --maroon: #bf616a;
+    --peach: #d08770;
+    --yellow: #ebcb8b;
+    --green: #a3be8c;
+    --teal: #8fbcbb;
+    --sky: #81a1c1;
+    --sapphire: #5e81ac;
+    --blue: #81a1c1;
+    --lavender: #5e81ac;
+    --text: #4c566a;
+    --base: #eceff4;
+    --mantle: #e5e9f0;
+    --crust: #d8dee9;
+  }
 
-:where([data-theme="tokyo_night"]) {
-  color-scheme: dark;
-  --rosewater: #f7768e;
-  --flamingo: #ff9e64;
-  --pink: #bb9af7;
-  --mauve: #bb9af7;
-  --red: #f7768e;
-  --maroon: #db4b4b;
-  --peach: #ff9e64;
-  --yellow: #e0af68;
-  --green: #9ece6a;
-  --teal: #1abc9c;
-  --sky: #7dcfff;
-  --sapphire: #2ac3de;
-  --blue: #7aa2f7;
-  --lavender: #82aaff;
-  --text: #c0caf5;
-  --base: #1a1b26;
-  --mantle: #16161e;
-  --crust: #101014;
-}
+  &:where([data-theme="sunny"]) {
+    color-scheme: light;
+    --rosewater: #c98a5f;
+    --flamingo: #d98b6e;
+    --pink: #cf5d83;
+    --mauve: #9a5fa0;
+    --red: #c33b2b;
+    --maroon: #a64a3c;
+    --peach: #df7a18;
+    --yellow: #cf971a;
+    --green: #5f8a37;
+    --teal: #2f8a78;
+    --sky: #3f9fc4;
+    --sapphire: #2f7a9b;
+    --blue: #2f5fa0;
+    --lavender: #7a64b0;
+    --text: #463a28;
+    --base: #fbf7ef;
+    --mantle: #f3eee2;
+    --crust: #e7decb;
+    /* Golden sunlight tint used by the Sunny atmosphere layers */
+    --gnix-sun: #ffce7a;
+  }
 
-:where([data-theme="nord_night"]) {
-  color-scheme: dark;
-  --rosewater: #b48ead;
-  --flamingo: #d08770;
-  --pink: #b48ead;
-  --mauve: #b48ead;
-  --red: #bf616a;
-  --maroon: #bf616a;
-  --peach: #d08770;
-  --yellow: #ebcb8b;
-  --green: #a3be8c;
-  --teal: #8fbcbb;
-  --sky: #88c0d0;
-  --sapphire: #81a1c1;
-  --blue: #5e81ac;
-  --lavender: #81a1c1;
-  --text: #eceff4;
-  --base: #2e3440;
-  --mantle: #292e39;
-  --crust: #242933;
+  &:where([data-theme="song_ci"]) {
+    color-scheme: light;
+    --rosewater: #d8a48f;
+    --flamingo: #c87363;
+    --pink: #c04851;
+    --mauve: #7f5a83;
+    --red: #b13a2e;
+    --maroon: #9a3f3f;
+    --peach: #d68a3a;
+    --yellow: #c99a2e;
+    --green: #5f8f6f;
+    --teal: #2f7d73;
+    --sky: #73a6a1;
+    --sapphire: #2d6f8f;
+    --blue: #2f5597;
+    --lavender: #6f6a9f;
+    --text: #0f4c20;
+    --base: #f4efe3;
+    --mantle: #f1efea;
+    --crust: #c4d1b5;
+  }
+
+  &:where([data-theme="mocha"]) {
+    color-scheme: dark;
+    --rosewater: #f5e0dc;
+    --flamingo: #f2cdcd;
+    --pink: #f5c2e7;
+    --mauve: #cba6f7;
+    --red: #f38ba8;
+    --maroon: #eba0ac;
+    --peach: #fab387;
+    --yellow: #f9e2af;
+    --green: #a6e3a1;
+    --teal: #94e2d5;
+    --sky: #89dceb;
+    --sapphire: #74c7ec;
+    --blue: #89b4fa;
+    --lavender: #b4befe;
+    --text: #cdd6f4;
+    --base: #1e1e2e;
+    --mantle: #181825;
+    --crust: #11111b;
+  }
+
+  &:where([data-theme="tokyo_night"]) {
+    color-scheme: dark;
+    --rosewater: #f7768e;
+    --flamingo: #ff9e64;
+    --pink: #bb9af7;
+    --mauve: #bb9af7;
+    --red: #f7768e;
+    --maroon: #db4b4b;
+    --peach: #ff9e64;
+    --yellow: #e0af68;
+    --green: #9ece6a;
+    --teal: #1abc9c;
+    --sky: #7dcfff;
+    --sapphire: #2ac3de;
+    --blue: #7aa2f7;
+    --lavender: #82aaff;
+    --text: #c0caf5;
+    --base: #1a1b26;
+    --mantle: #16161e;
+    --crust: #101014;
+  }
+
+  &:where([data-theme="nord_night"]) {
+    color-scheme: dark;
+    --rosewater: #b48ead;
+    --flamingo: #d08770;
+    --pink: #b48ead;
+    --mauve: #b48ead;
+    --red: #bf616a;
+    --maroon: #bf616a;
+    --peach: #d08770;
+    --yellow: #ebcb8b;
+    --green: #a3be8c;
+    --teal: #8fbcbb;
+    --sky: #88c0d0;
+    --sapphire: #81a1c1;
+    --blue: #5e81ac;
+    --lavender: #81a1c1;
+    --text: #eceff4;
+    --base: #2e3440;
+    --mantle: #292e39;
+    --crust: #242933;
+  }
 }
 
 body {
@@ -274,15 +263,8 @@ body {
   line-height: 1.7;
   display: flex;
   flex-direction: column;
-  /* Ref: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-autospace */
-  text-autospace: normal;
   font-synthesis: none;
   font-family: var(--font-sans-serif);
-}
-
-.navbar-main,
-.navbar-menu {
-  user-select: none;
 }
 
 a {
@@ -437,37 +419,12 @@ hr {
 }
 
 @font-face {
-  font-family: "NewYork";
-  src: local("New York"), local("New York Text"), local("New York Display");
-  font-weight: 400 700;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: doto;
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url(/css/font/woff2/doto.woff2) format("woff2");
-}
-
-@font-face {
-  font-family: Paris2024;
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src:
-    local("paris2024"),
-    url(/css/font/woff2/Paris2024-Variable.woff2) format("woff2");
-}
-
-@font-face {
   font-family: homemade-apple;
   font-display: swap;
   src:
     local("Homemade Apple"),
     local("HomemadeApple-Regular"),
-    url(/css/font/woff2/HomemadeApple.woff2) format("woff2");
+    url("font/woff2/HomemadeApple.woff2") format("woff2");
 }
 
 /* #endregion */
@@ -512,39 +469,30 @@ html {
   min-width: 300px;
   overflow-x: hidden;
   overflow-y: scroll;
-  /* scroll-behavior: smooth; */
+  scroll-behavior: smooth;
 }
 
-.card {
-  max-width: 100%;
-  position: relative;
-  overflow: visible;
-}
-
-.card-content {
-  padding: 1.25em 1.25rem 0 1.25rem;
+:where([id], a[name]) {
+  scroll-margin-top: calc(var(--navbar-height) + env(safe-area-inset-top) + 1rem);
 }
 
 /* #region Navbar */
 
 .navbar {
   min-height: var(--navbar-height);
+  display: flex;
   position: sticky;
   padding-top: env(safe-area-inset-top);
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 100;
-  background-color: var(--mantle);
-  border-bottom: 0.1px solid var(--surface0);
-}
-
-.navbar-container {
-  flex-grow: 1;
-  margin: 0 auto;
-  width: auto;
-  display: flex;
-  min-height: 3.5rem;
+  user-select: none;
+  /* 底部不画 border：渐变底色 + .navbar-blur 的渐进模糊向正文自然消融 */
+  background: linear-gradient(
+    to bottom,
+    hsl(from var(--mantle) h s l / 0.95),
+    hsl(from var(--mantle) h s l / 0.7) 55%,
+    hsl(from var(--mantle) h s l / 0)
+  );
 
   button {
     background: none;
@@ -553,14 +501,44 @@ html {
   }
 }
 
-.navbar-main {
-  /* Keep the sticky nav out of native history snapshots to avoid stale-style flashes on back/forward navigation. */
-  view-transition-name: none;
-  transition: transform 240ms cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* 渐进模糊：多层 backdrop-filter 配三角渐变 mask 交叉淡化，
+   模糊半径自上而下 16→2px 递减、底缘趋近 0，滚过的内容逐渐融进导航条。
+   注意 .navbar 自身不能再挂 filter/backdrop-filter，否则会成为
+   backdrop root，切断各层对页面内容的取样 */
+.navbar-blur {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
 
-.navbar-main.navbar--hidden {
-  transform: translateY(-100%);
+  > div {
+    position: absolute;
+    inset: 0;
+  }
+
+  > div:nth-child(1) {
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    mask-image: linear-gradient(to bottom, #000, transparent 25%);
+  }
+
+  > div:nth-child(2) {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    mask-image: linear-gradient(to bottom, transparent, #000 25%, transparent 50%);
+  }
+
+  > div:nth-child(3) {
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    mask-image: linear-gradient(to bottom, transparent 25%, #000 50%, transparent 75%);
+  }
+
+  > div:nth-child(4) {
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    mask-image: linear-gradient(to bottom, transparent 50%, #000 75%, transparent);
+  }
 }
 
 #navbar-logo-link {
@@ -593,7 +571,15 @@ html {
   }
 }
 
-.navbar-end {
+/* 常驻动作区（偏好、搜索）：桌面与移动端都固定在导航条右侧，
+   不随移动端 burger 菜单折叠 */
+.navbar-actions {
+  display: flex;
+  align-items: stretch;
+  margin-left: auto;
+}
+
+:is(.navbar-end, .navbar-actions) {
   svg {
     width: 1.1em;
     opacity: 0.78;
@@ -628,19 +614,15 @@ html {
 
 /* #endregion Navbar */
 
-.section {
-  padding: 3rem 1.5rem;
-  flex-grow: 1;
-}
-
 .main-content {
-  view-transition-name: gnix-main-content;
-  -webkit-justify-content: center;
-  justify-content: center;
   flex-grow: 1;
+  box-sizing: border-box;
+  width: 100%;
+  /* 50em 正文列宽 + 两侧 1.5rem 内边距 */
+  max-width: calc(50em + 3rem);
   margin: 0 auto;
+  padding: 3rem 1.5rem;
   position: relative;
-  max-width: 50em;
   counter-reset: h2-counter;
 }
 
@@ -745,9 +727,6 @@ input.searchbox-input {
 }
 
 .searchbox-container {
-  background-color: hsl(from var(--mantle) h s l / 0.85);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  backdrop-filter: blur(20px) saturate(1.4);
   border: 1px solid var(--surface0);
   color: var(--text);
   position: fixed;
@@ -758,6 +737,17 @@ input.searchbox-input {
   width: min(640px, 92vw);
   top: 10vh;
   box-shadow: 0 20px 60px hsl(from var(--crust) h s l / 0.4);
+
+  /* 模糊层独立于内容：结果列表重绘时 blur 可被合成器缓存复用 */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: hsl(from var(--mantle) h s l / 0.85);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    backdrop-filter: blur(20px) saturate(1.4);
+  }
 }
 
 .searchbox-input-container {
@@ -913,8 +903,15 @@ input.searchbox-input {
   inset: 0;
   margin: 0;
   border: none;
-  background: hsl(from var(--mantle) h s l / 0.7);
-  backdrop-filter: blur(10px);
+
+  &::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: hsl(from var(--mantle) h s l / 0.7);
+    backdrop-filter: blur(10px);
+  }
 
   &.searchbox {
     font-family: var(--font-mono);
@@ -922,3 +919,346 @@ input.searchbox-input {
     display: flex;
   }
 }
+
+/* #region Preference quick popup（仿 Obsidian Web Clipper reader 设置面板）
+
+   弹窗骨架在所有页面随 navbar 渲染，故样式常驻 default.css；
+   /preferences 独立页的样式在 preferences.css，仅该页面加载。
+
+   无遮罩、无面板底色：弹窗打开时页面保持可见、可滚动，方便对照正文
+   查看排版调整效果；控件用不透明的 --mantle 填充 + 描边与页面区分。
+   开关由原生 popover（navbar 按钮 popovertarget / 快捷键 togglePopover）
+   驱动；可见样式只挂在 :popover-open 下（特定性压过上方全局 popover
+   样式的 inset: 0 + 全屏模糊背景），关闭态回落到 UA 的 display: none，
+   即使 popover 被浏览器强制关闭（如进入全屏）也不会残留。 */
+
+.preference-popup:popover-open {
+  position: fixed;
+  inset: auto;
+  top: calc(var(--navbar-height) + env(safe-area-inset-top) + 0.6rem);
+  right: 0.9rem;
+  z-index: 1000;
+  width: min(17rem, calc(100vw - 1.8rem));
+  height: auto;
+  max-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 2rem);
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  scrollbar-width: none;
+  transform-origin: top right;
+  animation: preference-popup-in 160ms ease;
+
+  &::before {
+    content: none;
+  }
+}
+
+.preference-popup::backdrop {
+  background: transparent;
+}
+
+.preference-popup::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes preference-popup-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+
+.preference-quick {
+  display: grid;
+  gap: 1.05rem;
+  font-family: var(--font-sans-serif);
+}
+
+.preference-quick__steppers {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.45rem;
+}
+
+.preference-quick__stepper {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
+  border-radius: 10px;
+  background: var(--mantle);
+}
+
+.preference-quick__step-btn {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 2.35rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--subtext0);
+  cursor: pointer;
+
+  /* 外侧圆角随容器（10px 减去 1px 边框）：聚焦环不受容器 overflow 裁剪，
+     按钮需自带圆角，悬停背景与 -2px 聚焦环才不会以直角溢出 stepper 的圆角边框 */
+  &:first-child {
+    border-radius: 9px 0 0 9px;
+  }
+
+  &:last-child {
+    border-radius: 0 9px 9px 0;
+  }
+
+  & + .preference-quick__step-btn {
+    border-left: 1px solid hsl(from var(--surface1) h s l / 0.8);
+  }
+
+  &:hover:not(:disabled) {
+    color: var(--text);
+    background: color-mix(in oklch, var(--mantle) 90%, var(--text));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: -2px;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+}
+
+.preference-quick__selects {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.preference-quick__select-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.preference-quick__select-icon {
+  position: absolute;
+  left: 0.6rem;
+  z-index: 1;
+  display: inline-flex;
+  color: var(--subtext0);
+  pointer-events: none;
+}
+
+.preference-quick__select-row:hover .preference-quick__select-icon {
+  color: var(--text);
+}
+
+/* 主题模式行按当前生效配色展示太阳/月亮（html 根类由 theme init 脚本维护） */
+.preference-quick__select-icon--moon {
+  display: none;
+}
+
+html.night .preference-quick__select-icon--sun {
+  display: none;
+}
+
+html.night .preference-quick__select-icon--moon {
+  display: inline-flex;
+}
+
+.preference-quick__select {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  height: 2.35rem;
+  padding: 0 1.9rem 0 2.25rem;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
+  border-radius: 10px;
+  color: var(--text);
+  background-color: var(--mantle);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-opacity='0.5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 13px;
+  font: 550 0.86rem / 1.2 var(--font-sans-serif);
+  cursor: pointer;
+
+  &:hover {
+    border-color: hsl(from var(--surface2) h s l / 0.9);
+    background-color: color-mix(in oklch, var(--mantle) 92%, var(--text));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: -2px;
+  }
+}
+
+html.night .preference-quick__select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-opacity='0.55' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
+}
+
+.preference-quick__row-action {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
+  border-radius: 10px;
+  color: var(--subtext0);
+  background: var(--mantle);
+
+  &:hover {
+    color: var(--text);
+    border-color: hsl(from var(--surface2) h s l / 0.9);
+    background: color-mix(in oklch, var(--mantle) 90%, var(--text));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: -2px;
+  }
+}
+
+.preference-quick__settings {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  height: 2.35rem;
+  padding: 0 0.7rem;
+  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
+  border-radius: 10px;
+  color: var(--subtext0);
+  background: var(--mantle);
+  font: 550 0.86rem / 1.2 var(--font-sans-serif);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--text);
+    background: color-mix(in oklch, var(--mantle) 90%, var(--text));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: -2px;
+  }
+}
+
+@media (max-width: 768px) {
+  .preference-popup:popover-open {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    max-height: min(82dvh, 100dvh - 3rem);
+    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+    border: 1px solid hsl(from var(--surface1) h s l / 0.74);
+    border-bottom: 0;
+    border-radius: 18px 18px 0 0;
+    background: var(--base);
+    box-shadow: 0 -18px 50px -30px rgba(0, 0, 0, 0.45);
+    transform-origin: bottom center;
+    animation: preference-popup-up 200ms ease;
+  }
+
+  .preference-quick {
+    gap: 1.05rem;
+  }
+
+  .preference-quick__steppers {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .preference-quick__step-btn {
+    height: 2.55rem;
+  }
+
+  .preference-quick__select,
+  .preference-quick__row-action {
+    height: 2.55rem;
+  }
+
+  .preference-quick__settings {
+    height: 2.6rem;
+  }
+}
+
+@keyframes preference-popup-up {
+  from {
+    opacity: 0;
+    transform: translateY(10%);
+  }
+}
+
+/* #endregion Preference quick popup */
+
+/* #region Sunny atmosphere */
+
+/* Atmosphere layers are injected only when Sunny is active. Visuals mirror
+   dany.works: a cream page palette, a golden radial sun glow behind content,
+   and a full-screen multiply-blended moving texture over the page. */
+.gnix-sunny-glow,
+.gnix-sunny-leaves {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+
+.gnix-sunny-glow {
+  z-index: -1;
+  background:
+    radial-gradient(115% 68% at 50% -18%, hsl(from var(--gnix-sun) h s l / 0.28), transparent 56%), radial-gradient(70% 48% at 88% 0%, hsl(from var(--gnix-sun) h s l / 0.14), transparent 48%);
+}
+
+.gnix-sunny-leaves {
+  z-index: 999;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  mix-blend-mode: multiply;
+}
+
+/* Activate the atmosphere only under the Sunny theme. */
+:root[data-theme="sunny"] .gnix-sunny-glow {
+  opacity: 1;
+}
+
+:root[data-theme="sunny"] .gnix-sunny-leaves.is-ready {
+  opacity: var(--gnix-sunny-leaves-opacity, 1);
+}
+
+/* #endregion Sunny atmosphere */
+
+/* #region Slide-enter 进场动画
+
+   仿 antfu.me 的 slide-enter：块自下方 10px 上浮淡入，由文章页（article.css）在
+   .gnix-revealed 后触发。只声明 from，动画结束后不残留 translate。两个注意点：
+   1. 不要把它用在内部含 fixed/anchor 定位后代的容器上（如归档条目，其悬浮预览为
+      fixed）——translate 动画期间容器会成为 containing block，使其定位失效；
+      归档页因此在 archive.css 里拆成 opacity 与 translate 两个关键帧分层挂载；
+   2. 填充一律用 backwards（只为覆盖 delay 阶段），不要用 both/forwards——
+      动画会永远处于 in effect 状态，元素常驻 stacking context，内部 fixed
+      元素的 z-index 被困住（文章页脚注底栏曾被后续段落盖住、看似透明） */
+@keyframes slide-enter {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+/* #endregion Slide-enter 进场动画 */

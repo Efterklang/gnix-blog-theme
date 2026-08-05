@@ -15,6 +15,23 @@
  * </device-carousel>
  */
 
+function escapeHtml(value) {
+  const span = document.createElement("span");
+  span.textContent = value == null ? "" : String(value);
+  return span.innerHTML;
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value).replace(/"/g, "&quot;");
+}
+
+function renderSpecs(value) {
+  return String(value || "")
+    .split(/<br\s*\/?>|\n/i)
+    .map((part) => escapeHtml(part))
+    .join("<br>");
+}
+
 class DeviceCarousel extends HTMLElement {
   constructor() {
     super();
@@ -159,13 +176,6 @@ class DeviceCarousel extends HTMLElement {
         word-break: break-all;
         line-height: 1.5;
       }
-
-      /* Pause animation when not visible to save resources */
-      @media (prefers-reduced-motion: reduce) {
-        .showcase-track {
-          animation: none;
-        }
-      }
     `;
 
     // Get devices from slots or use defaults
@@ -178,11 +188,11 @@ class DeviceCarousel extends HTMLElement {
       .map(
         (device) => `
       <div class="showcase-card">
-        <div class="showcase-label">${device.name}</div>
+        <div class="showcase-label">${escapeHtml(device.name)}</div>
         <div class="showcase-content">
-          <img src="${device.image}" alt="${device.alt}" class="device-image" loading="lazy"/>
+          <img src="${escapeAttribute(device.image)}" alt="${escapeAttribute(device.alt)}" class="device-image" loading="lazy"/>
         </div>
-        <div class="showcase-meta">${device.specs}</div>
+        <div class="showcase-meta">${renderSpecs(device.specs)}</div>
       </div>
     `,
       )

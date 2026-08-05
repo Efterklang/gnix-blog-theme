@@ -17,26 +17,35 @@
   }
 
   const themeConfig = window.__GNIX_THEME_CONFIG__ || {};
+  const THEME_DEFAULT_PREFERENCES = themeConfig.defaultPreferences || { mode: "system", light: "nord", dark: "mocha" };
+
+  function getDefaultThemePreferences() {
+    return { ...THEME_DEFAULT_PREFERENCES };
+  }
+
   function getThemePreferences() {
     if (typeof window.getThemePreferences === "function") return window.getThemePreferences();
-    return themeConfig.defaultPreferences || { mode: "system", light: "nord", dark: "mocha" };
+    return getDefaultThemePreferences();
   }
 
   function applyThemePreferences(preferences) {
     if (typeof window.applyThemePreferences === "function") {
-      return window.applyThemePreferences(preferences, true);
+      window.applyThemePreferences(preferences, true);
     }
-    return preferences;
   }
 
   const articleFontConfig = window.__GNIX_ARTICLE_FONT_CONFIG__ || {};
   const ARTICLE_FONT_STORAGE_KEY = articleFontConfig.storageKey || "gnix-article-font";
-  const ARTICLE_FONT_DEFAULT_SETTINGS = articleFontConfig.defaultSettings || { size: "medium", type: "serif", lineHeight: 1.7, weight: "regular" };
-  const ARTICLE_SIZE_OPTIONS = new Set(articleFontConfig.sizeOptions || ["small", "medium-small", "medium", "medium-large", "large"]);
-  const ARTICLE_FONT_OPTIONS = new Set(articleFontConfig.fontOptions || ["serif", "sans-serif", "mono", "handwriting"]);
+  const ARTICLE_FONT_DEFAULT_SETTINGS = articleFontConfig.defaultSettings || { size: "medium", type: "sans-serif", lineHeight: 1.7, weight: "regular", width: "medium" };
+  const ARTICLE_SIZE_LIST = articleFontConfig.sizeOptions || ["small", "medium-small", "medium", "medium-large", "large"];
+  const ARTICLE_WIDTH_LIST = articleFontConfig.widthOptions || ["narrow", "medium-narrow", "medium", "medium-wide", "wide"];
+  const ARTICLE_SIZE_OPTIONS = new Set(ARTICLE_SIZE_LIST);
+  const ARTICLE_FONT_OPTIONS = new Set(articleFontConfig.fontOptions || ["sans-serif", "serif", "mono", "handwriting"]);
   const ARTICLE_WEIGHT_OPTIONS = new Set(articleFontConfig.weightOptions || ["light", "regular", "medium"]);
+  const ARTICLE_WIDTH_OPTIONS = new Set(ARTICLE_WIDTH_LIST);
   const ARTICLE_LINE_HEIGHT_MIN = articleFontConfig.lineHeight?.min ?? 1.45;
   const ARTICLE_LINE_HEIGHT_MAX = articleFontConfig.lineHeight?.max ?? 1.9;
+  const ARTICLE_LINE_HEIGHT_STEP = 0.05;
   const ARTICLE_CUSTOM_FONT_OPTIONS = articleFontConfig.customFonts?.familyOptions || {
     serif: "--font-serif",
     "sans-serif": "--font-sans-serif",
@@ -48,14 +57,16 @@
   const ARTICLE_FONT_UTILS = window.__GNIX_ARTICLE_FONT_UTILS__ || {};
 
   function getCssVariableValue(name, fallback = "") {
-    if (typeof document === "undefined") return fallback;
-
     const value = window.getComputedStyle(document.documentElement).getPropertyValue(name).trim();
     return value || fallback;
   }
 
+  // 各字体族变量的样式表默认值整页恒定：读取时先摘掉自定义字体的行内
+  // 覆盖再取 computed value，结果缓存，避免反复触发强制样式重算
+  let defaultCustomFontFamiliesCache = null;
+
   function getDefaultCustomFontFamilies() {
-    if (typeof document === "undefined") return {};
+    if (defaultCustomFontFamiliesCache) return defaultCustomFontFamiliesCache;
 
     const html = document.documentElement;
     const saved = {};
@@ -67,17 +78,16 @@
       }
     });
 
-    const defaults = {
-      serif: getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS.serif),
-      "sans-serif": getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS["sans-serif"]),
-      mono: getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS.mono),
-      handwriting: getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS.handwriting),
-    };
+    const defaults = {};
+    Object.keys(ARTICLE_CUSTOM_FONT_OPTIONS).forEach((key) => {
+      defaults[key] = getCssVariableValue(ARTICLE_CUSTOM_FONT_OPTIONS[key]);
+    });
 
     Object.keys(saved).forEach((cssVar) => {
       html.style.setProperty(cssVar, saved[cssVar]);
     });
 
+    defaultCustomFontFamiliesCache = defaults;
     return defaults;
   }
 
@@ -98,15 +108,14 @@
     return normalized;
   }
 
-  function applyCustomFonts(customFonts = {}) {
-    const normalized = normalizeStoredCustomFonts(customFonts);
+  // customFonts 须已经过 normalizeStoredCustomFonts（normalizeArticleFontSettings 内完成）
+  function applyCustomFonts(customFonts) {
     if (ARTICLE_FONT_UTILS.applyCustomFontImports) {
-      ARTICLE_FONT_UTILS.applyCustomFontImports(normalized.imports, ARTICLE_CUSTOM_FONT_LINK_SELECTOR);
+      ARTICLE_FONT_UTILS.applyCustomFontImports(customFonts.imports, ARTICLE_CUSTOM_FONT_LINK_SELECTOR);
     }
     if (ARTICLE_FONT_UTILS.applyCustomFontFamilies) {
-      ARTICLE_FONT_UTILS.applyCustomFontFamilies(document.documentElement, normalized.families, ARTICLE_CUSTOM_FONT_OPTIONS);
+      ARTICLE_FONT_UTILS.applyCustomFontFamilies(document.documentElement, customFonts.families, ARTICLE_CUSTOM_FONT_OPTIONS);
     }
-    return normalized;
   }
 
   function normalizeArticleLineHeight(value) {
@@ -126,66 +135,81 @@
       type: ARTICLE_FONT_OPTIONS.has(candidate.type) ? candidate.type : ARTICLE_FONT_DEFAULT_SETTINGS.type,
       lineHeight: normalizeArticleLineHeight(candidate.lineHeight),
       weight: ARTICLE_WEIGHT_OPTIONS.has(candidate.weight) ? candidate.weight : ARTICLE_FONT_DEFAULT_SETTINGS.weight,
+      width: ARTICLE_WIDTH_OPTIONS.has(candidate.width) ? candidate.width : ARTICLE_FONT_DEFAULT_SETTINGS.width,
       customFonts: normalizeStoredCustomFonts(candidate.customFonts),
     };
   }
 
   function getArticleFontSettings() {
-    let settings = { ...ARTICLE_FONT_DEFAULT_SETTINGS };
+    let stored = null;
     try {
-      const stored = localStorage.getItem(ARTICLE_FONT_STORAGE_KEY);
-      if (stored) settings = normalizeArticleFontSettings({ ...ARTICLE_FONT_DEFAULT_SETTINGS, ...JSON.parse(stored) });
+      stored = JSON.parse(localStorage.getItem(ARTICLE_FONT_STORAGE_KEY));
     } catch {
-      settings = { ...ARTICLE_FONT_DEFAULT_SETTINGS };
+      stored = null;
     }
-    return normalizeArticleFontSettings(settings);
+    return normalizeArticleFontSettings(stored);
   }
 
+  // settings 须为 normalizeArticleFontSettings 的返回值
   function saveArticleFontSettings(settings) {
     try {
-      localStorage.setItem(ARTICLE_FONT_STORAGE_KEY, JSON.stringify(normalizeArticleFontSettings(settings)));
+      localStorage.setItem(ARTICLE_FONT_STORAGE_KEY, JSON.stringify(settings));
     } catch {
       // Keep controls interactive even when storage is unavailable.
     }
   }
 
-  function applyArticleFontSettings(settings = getArticleFontSettings()) {
-    const normalized = normalizeArticleFontSettings(settings);
+  // settings 须为 normalizeArticleFontSettings 的返回值
+  function applyArticleFontSettings(settings) {
     const html = document.documentElement;
 
-    applyCustomFonts(normalized.customFonts);
-    html.dataset.articleFontSize = normalized.size;
-    html.dataset.articleFontFamily = normalized.type;
-    html.dataset.articleLineHeight = String(normalized.lineHeight);
-    html.dataset.articleFontWeight = normalized.weight;
-    html.style.setProperty("--article-line-height", String(normalized.lineHeight));
-    window.dispatchEvent(new CustomEvent("gnix:article-font-settings-change", { detail: normalized }));
-    return normalized;
-  }
-
-  function initPreferenceBackLink(root) {
-    const link = root.querySelector("[data-preference-back-link]");
-    if (!link) return;
-
-    link.addEventListener("click", (event) => {
-      let referrerUrl;
-      try {
-        referrerUrl = document.referrer ? new URL(document.referrer) : null;
-      } catch {
-        referrerUrl = null;
-      }
-
-      if (!referrerUrl || referrerUrl.origin !== window.location.origin || referrerUrl.href === window.location.href) return;
-
-      event.preventDefault();
-      window.history.back();
-    });
+    applyCustomFonts(settings.customFonts);
+    html.dataset.articleFontSize = settings.size;
+    html.dataset.articleFontFamily = settings.type;
+    html.dataset.articleFontWeight = settings.weight;
+    html.dataset.articleWidth = settings.width;
+    html.style.setProperty("--article-line-height", String(settings.lineHeight));
+    window.dispatchEvent(new CustomEvent("gnix:article-font-settings-change", { detail: settings }));
   }
 
   function initThemePreferences(root) {
     const modeButtons = root.querySelectorAll("[data-theme-mode]");
+    const modeSelects = root.querySelectorAll("[data-theme-mode-select]");
+    const paletteSelects = root.querySelectorAll("[data-theme-palette-select]");
     const schemeSelects = root.querySelectorAll(".theme-scheme-select[data-theme-scheme-kind]");
-    const previewStages = root.querySelectorAll("[data-theme-preview-stage]");
+    const themePreviewPanes = root.querySelectorAll("[data-theme-preview-scheme]");
+    const themeList = Array.isArray(themeConfig.themes) ? themeConfig.themes : [];
+    const darkSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    // 快捷面板的调色板始终编辑“当前生效”的 scheme：
+    // light/dark 模式编辑对应方案，system 模式按系统偏好落到 light 或 dark
+    function resolveSchemeKind(preferences) {
+      if (preferences.mode === "light") return "light";
+      if (preferences.mode === "dark") return "dark";
+      return darkSchemeQuery.matches ? "dark" : "light";
+    }
+
+    function rebuildPaletteSelect(select, preferences) {
+      const kind = resolveSchemeKind(preferences);
+
+      // 选项列表只随 kind 变化，kind 未变时仅同步选中值
+      if (select.dataset.themePaletteKind !== kind) {
+        const colorScheme = kind === "light" ? "light" : "night";
+        const themes = themeList.filter((theme) => theme.colorScheme === colorScheme);
+        if (!themes.length) return;
+
+        select.dataset.themePaletteKind = kind;
+        select.textContent = "";
+        themes.forEach((theme) => {
+          const option = document.createElement("option");
+          option.value = theme.value;
+          option.textContent = theme.name;
+          select.appendChild(option);
+        });
+      }
+
+      select.value = preferences[kind];
+    }
 
     function sync(preferences = getThemePreferences()) {
       modeButtons.forEach((button) => {
@@ -194,24 +218,49 @@
         button.setAttribute("aria-pressed", String(active));
       });
 
+      modeSelects.forEach((select) => {
+        select.value = preferences.mode;
+      });
+
+      paletteSelects.forEach((select) => {
+        rebuildPaletteSelect(select, preferences);
+      });
+
       schemeSelects.forEach((select) => {
         const value = preferences[select.dataset.themeSchemeKind];
         if (value) select.value = value;
       });
 
-      previewStages.forEach((stage) => {
-        const activeTheme = preferences[stage.dataset.themePreviewStage];
-        stage.querySelectorAll("[data-theme-preview-option]").forEach((preview) => {
-          preview.hidden = preview.dataset.themePreviewOption !== activeTheme;
-        });
+      themePreviewPanes.forEach((pane) => {
+        const value = preferences[pane.dataset.themePreviewScheme];
+        if (value) pane.dataset.theme = value;
       });
     }
 
+    // window.applyThemePreferences 会同步派发 gnix:theme-change，下方监听器
+    // 统一负责所有 root 的 UI 同步，各 handler 只需应用偏好、不重复 sync
     modeButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const preferences = getThemePreferences();
         preferences.mode = button.dataset.themeMode;
-        sync(applyThemePreferences(preferences));
+        applyThemePreferences(preferences);
+      });
+    });
+
+    modeSelects.forEach((select) => {
+      select.addEventListener("change", () => {
+        const preferences = getThemePreferences();
+        preferences.mode = select.value;
+        applyThemePreferences(preferences);
+      });
+    });
+
+    paletteSelects.forEach((select) => {
+      select.addEventListener("change", () => {
+        const preferences = getThemePreferences();
+        const kind = select.dataset.themePaletteKind || resolveSchemeKind(preferences);
+        preferences[kind] = select.value;
+        applyThemePreferences(preferences);
       });
     });
 
@@ -219,7 +268,7 @@
       select.addEventListener("change", () => {
         const preferences = getThemePreferences();
         preferences[select.dataset.themeSchemeKind] = select.value;
-        sync(applyThemePreferences(preferences));
+        applyThemePreferences(preferences);
       });
     });
 
@@ -232,28 +281,30 @@
 
   function initArticleFontPreferences(root) {
     let settings = getArticleFontSettings();
+    let suppressSyncEvent = false;
     const lineHeightSlider = root.querySelector(".font-line-height-slider");
     const lineHeightValue = root.querySelector(".font-line-height-value");
+    const fontTypeSelects = root.querySelectorAll("[data-article-font-select]");
+    const stepButtons = root.querySelectorAll("[data-article-step]");
     const customFontForm = root.querySelector(".font-custom-form");
     const customFontImportInput = root.querySelector(".font-custom-imports");
     const customFontResetButton = root.querySelector(".font-custom-reset");
-    const fontSettingsResetButton = root.querySelector(".font-settings-reset");
+    const allSettingsResetButtons = root.querySelectorAll("[data-preference-reset-all]");
     const customFontFamilyInputs = root.querySelectorAll(".font-custom-family-input");
-    const customFontToggleButton = root.querySelector(".font-custom-toggle");
-    const customFontPanel = root.querySelector(".font-custom-panel");
+    const sizeButtons = root.querySelectorAll(".font-size-btn");
+    const widthButtons = root.querySelectorAll(".font-width-btn");
+    const typeButtons = root.querySelectorAll(".font-type-btn");
+    const weightButtons = root.querySelectorAll(".font-weight-btn");
+    // 快捷弹窗没有自定义字体表单，跳过相关 UI 同步（其中的默认字体族
+    // 读取需要 getComputedStyle，成本不低）
+    const hasCustomFontUI = Boolean(customFontImportInput || customFontFamilyInputs.length);
 
-    function updateButtonStates(selector, isActive) {
-      root.querySelectorAll(selector).forEach((btn) => {
+    function updateButtonStates(buttons, isActive) {
+      buttons.forEach((btn) => {
         const active = isActive(btn);
         btn.classList.toggle("is-active", active);
         btn.setAttribute("aria-pressed", String(active));
       });
-    }
-
-    function syncCustomFontPanelState(expanded) {
-      if (!customFontToggleButton || !customFontPanel) return;
-      customFontToggleButton.setAttribute("aria-expanded", String(expanded));
-      customFontPanel.hidden = !expanded;
     }
 
     function updateLineHeightUI() {
@@ -261,14 +312,37 @@
       if (lineHeightValue) lineHeightValue.textContent = settings.lineHeight.toFixed(2);
     }
 
+    function isStepDisabled(control, dir) {
+      if (control === "lineHeight") {
+        return dir < 0 ? settings.lineHeight <= ARTICLE_LINE_HEIGHT_MIN + 1e-9 : settings.lineHeight >= ARTICLE_LINE_HEIGHT_MAX - 1e-9;
+      }
+      const list = control === "width" ? ARTICLE_WIDTH_LIST : ARTICLE_SIZE_LIST;
+      const index = list.indexOf(control === "width" ? settings.width : settings.size);
+      if (index === -1) return false;
+      return dir < 0 ? index === 0 : index === list.length - 1;
+    }
+
+    function updateStepperStates() {
+      stepButtons.forEach((btn) => {
+        btn.disabled = isStepDisabled(btn.dataset.articleStep, Number(btn.dataset.stepDir) || 0);
+      });
+    }
+
     function updateActiveStates() {
-      updateButtonStates(".font-size-btn", (btn) => btn.dataset.size === settings.size);
-      updateButtonStates(".font-type-btn", (btn) => btn.dataset.font === settings.type);
-      updateButtonStates(".font-weight-btn", (btn) => btn.dataset.weight === settings.weight);
+      updateButtonStates(sizeButtons, (btn) => btn.dataset.size === settings.size);
+      updateButtonStates(typeButtons, (btn) => btn.dataset.font === settings.type);
+      updateButtonStates(weightButtons, (btn) => btn.dataset.weight === settings.weight);
+      updateButtonStates(widthButtons, (btn) => btn.dataset.width === settings.width);
+      fontTypeSelects.forEach((select) => {
+        select.value = settings.type;
+      });
+      updateStepperStates();
       updateLineHeightUI();
     }
 
     function updateCustomFontUI() {
+      if (!hasCustomFontUI) return;
+
       const customFonts = normalizeCustomFontsForUI(settings.customFonts);
       if (customFontImportInput) customFontImportInput.value = customFonts.imports.join("\n");
 
@@ -291,54 +365,103 @@
     function commitSettings(nextSettings) {
       settings = normalizeArticleFontSettings(nextSettings);
       saveArticleFontSettings(settings);
+      suppressSyncEvent = true;
       applyArticleFontSettings(settings);
+      suppressSyncEvent = false;
       updateActiveStates();
     }
 
-    syncCustomFontPanelState(false);
+    function stepArticleSetting(control, dir) {
+      if (!dir) return;
+      if (control === "lineHeight") {
+        const next = Math.round((settings.lineHeight + dir * ARTICLE_LINE_HEIGHT_STEP) * 100) / 100;
+        commitSettings({ ...settings, lineHeight: normalizeArticleLineHeight(next) });
+        return;
+      }
 
-    if (customFontToggleButton && customFontPanel) {
-      customFontToggleButton.addEventListener("click", () => {
-        const expanded = customFontToggleButton.getAttribute("aria-expanded") === "true";
-        syncCustomFontPanelState(!expanded);
-      });
+      const isWidth = control === "width";
+      const list = isWidth ? ARTICLE_WIDTH_LIST : ARTICLE_SIZE_LIST;
+      const current = isWidth ? settings.width : settings.size;
+      const index = list.indexOf(current);
+      const nextIndex = Math.min(list.length - 1, Math.max(0, (index === -1 ? Math.floor(list.length / 2) : index) + dir));
+      if (list[nextIndex] === current) return;
+      commitSettings({ ...settings, [isWidth ? "width" : "size"]: list[nextIndex] });
     }
 
-    root.querySelectorAll(".font-size-btn").forEach((btn) => {
+    stepButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        stepArticleSetting(btn.dataset.articleStep, Number(btn.dataset.stepDir) || 0);
+      });
+    });
+
+    sizeButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         if (!ARTICLE_SIZE_OPTIONS.has(btn.dataset.size)) return;
         commitSettings({ ...settings, size: btn.dataset.size });
       });
     });
 
-    root.querySelectorAll(".font-type-btn").forEach((btn) => {
+    widthButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (!ARTICLE_WIDTH_OPTIONS.has(btn.dataset.width)) return;
+        commitSettings({ ...settings, width: btn.dataset.width });
+      });
+    });
+
+    typeButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         if (!ARTICLE_FONT_OPTIONS.has(btn.dataset.font)) return;
         commitSettings({ ...settings, type: btn.dataset.font });
       });
     });
 
+    fontTypeSelects.forEach((select) => {
+      select.addEventListener("change", () => {
+        if (!ARTICLE_FONT_OPTIONS.has(select.value)) return;
+        commitSettings({ ...settings, type: select.value });
+      });
+    });
+
     if (lineHeightSlider) {
       lineHeightSlider.min = String(ARTICLE_LINE_HEIGHT_MIN);
       lineHeightSlider.max = String(ARTICLE_LINE_HEIGHT_MAX);
-      lineHeightSlider.step = "0.05";
+      lineHeightSlider.step = String(ARTICLE_LINE_HEIGHT_STEP);
       lineHeightSlider.addEventListener("input", () => {
         commitSettings({ ...settings, lineHeight: normalizeArticleLineHeight(lineHeightSlider.value) });
       });
     }
 
-    root.querySelectorAll(".font-weight-btn").forEach((btn) => {
+    weightButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         if (!ARTICLE_WEIGHT_OPTIONS.has(btn.dataset.weight)) return;
         commitSettings({ ...settings, weight: btn.dataset.weight });
       });
     });
 
+    // 自定义字体无独立 Apply 按钮：输入完成（change，即失焦或按 Enter 提交）
+    // 时直接应用；提交后回写规范化的值
+    function commitCustomFonts() {
+      commitSettings({ ...settings, customFonts: readCustomFontsFromUI() });
+      updateCustomFontUI();
+    }
+
     if (customFontForm) {
       customFontForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        commitSettings({ ...settings, customFonts: readCustomFontsFromUI() });
-        updateCustomFontUI();
+        commitCustomFonts();
+      });
+
+      [customFontImportInput, ...customFontFamilyInputs].forEach((input) => {
+        input?.addEventListener("change", commitCustomFonts);
+      });
+
+      // 无 submit 按钮时浏览器不会对多字段表单做隐式提交，手动响应 Enter
+      customFontFamilyInputs.forEach((input) => {
+        input.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter") return;
+          event.preventDefault();
+          commitCustomFonts();
+        });
       });
     }
 
@@ -349,32 +472,65 @@
       });
     }
 
-    if (fontSettingsResetButton) {
-      fontSettingsResetButton.addEventListener("click", () => {
+    allSettingsResetButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        applyThemePreferences(getDefaultThemePreferences());
         commitSettings({ ...ARTICLE_FONT_DEFAULT_SETTINGS, customFonts: { imports: [], families: {} } });
         updateCustomFontUI();
       });
-    }
+    });
 
+    // 弹窗与设置页可能同时存在于一个文档中，跨根保持 UI 一致
+    window.addEventListener("gnix:article-font-settings-change", (event) => {
+      if (suppressSyncEvent || !event.detail) return;
+      settings = normalizeArticleFontSettings(event.detail);
+      updateActiveStates();
+      updateCustomFontUI();
+    });
+
+    // 首帧样式已由 head 内联脚本应用；这里重放一次以覆盖预渲染场景
+    // （prerender 之后、激活之前偏好在别的页面被改动）。抑制自身监听器，
+    // 避免 init 期间重复刷新一遍 UI
+    suppressSyncEvent = true;
     applyArticleFontSettings(settings);
+    suppressSyncEvent = false;
     updateActiveStates();
     updateCustomFontUI();
+  }
+
+  function initNavigationControls(root) {
+    root.querySelectorAll("[data-language-select]").forEach((select) => {
+      select.addEventListener("change", () => {
+        const url = select.value;
+        if (!url) return;
+        // 先恢复当前语言选项，避免 bfcache 返回时残留目标语言
+        select.value = "";
+        window.location.assign(url);
+      });
+    });
+
+    root.querySelectorAll("[data-preference-back]").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (window.history.length > 1) {
+          window.history.back();
+          return;
+        }
+        window.location.assign(button.dataset.homeUrl || "/");
+      });
+    });
   }
 
   function initPreferenceRoot(root) {
     if (!root || root.dataset.bound === "true") return;
     root.dataset.bound = "true";
-    initPreferenceBackLink(root);
     initThemePreferences(root);
     initArticleFontPreferences(root);
+    initNavigationControls(root);
   }
 
   function initPreferencesPage() {
     document.querySelectorAll("[data-preferences-page]").forEach(initPreferenceRoot);
   }
 
-  window.__gnixInitPreferencesPage = () => runWhenActivated(initPreferencesPage);
-
-  whenReady(window.__gnixInitPreferencesPage);
-  document.addEventListener("gnix:content-ready", window.__gnixInitPreferencesPage);
+  whenReady(() => runWhenActivated(initPreferencesPage));
 })(window, document);

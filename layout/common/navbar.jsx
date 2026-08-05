@@ -1,8 +1,4 @@
-const { Component, Fragment, cacheComponent } = require("../../include/util/common");
-const { getLanguage, getLanguageKeys, getPageLanguageKey, isExternalUrl, isI18nEnabled } = require("../../include/util/i18n");
-
-const LANGUAGE_SWITCH_ICON_HTML =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>translate_2_line</title><g id="translate_2_line" fill="currentColor"><path d="M12.87 15.07c-1.01-.28-1.93-.79-2.72-1.48l-.16-.14-.19.18a9.96 9.96 0 0 1-3.27 1.98 1 1 0 0 1-.71-1.87 7.96 7.96 0 0 0 2.58-1.55 9.5 9.5 0 0 1-1.54-2.69 1 1 0 1 1 1.88-.69c.29.79.71 1.52 1.24 2.16A7.95 7.95 0 0 0 11.66 8H5a1 1 0 1 1 0-2h4V4a1 1 0 1 1 2 0v2h4a1 1 0 1 1 0 2h-1.29a9.95 9.95 0 0 1-2.27 4.44l.05.04c.55.38 1.18.67 1.86.86a1 1 0 1 1-.48 1.94z"></path><path d="M17.5 10a1 1 0 0 1 .93.63l3.5 8.75a1 1 0 0 1-1.86.74L19.42 18h-3.84l-.65 2.12a1 1 0 0 1-1.86-.74l3.5-8.75A1 1 0 0 1 17.5 10m-1.15 6h2.3l-1.15-3.03z"></path></g></svg>';
+const { Component, cacheComponent } = require("../../include/util/common");
 
 const renderLinkIcon = (link) => {
   if (!link.icon) return null;
@@ -18,151 +14,70 @@ const renderLinkIcon = (link) => {
   }
 };
 
-function getTargetLanguageKey(config, currentLanguageKey) {
-  const languageKeys = getLanguageKeys(config);
-  if (currentLanguageKey === "en" && languageKeys.includes("cn")) return "cn";
-  if (currentLanguageKey !== "en" && languageKeys.includes("en")) return "en";
-  return languageKeys.find((key) => key !== currentLanguageKey) || null;
-}
-
-function getTargetLanguageDisplayName(currentLanguageKey, targetLanguageKey, targetLanguage) {
-  if (currentLanguageKey === "en" && targetLanguageKey === "cn") return "Chinese";
-  if (currentLanguageKey !== "en" && targetLanguageKey === "en") return "英文";
-  return targetLanguage.label;
-}
-
-function getLanguageSwitch(page, config, helper) {
-  if (!isI18nEnabled(config)) return null;
-
-  const languageKeys = getLanguageKeys(config);
-  if (languageKeys.length < 2) return null;
-
-  const currentLanguageKey = getPageLanguageKey(page, config);
-  const targetLanguageKey = getTargetLanguageKey(config, currentLanguageKey);
-  const targetLanguage = getLanguage(config, targetLanguageKey);
-  if (!targetLanguage || targetLanguageKey === currentLanguageKey) return null;
-  const targetLanguageName = getTargetLanguageDisplayName(currentLanguageKey, targetLanguageKey, targetLanguage);
-
-  let url = null;
-  const pageI18n = page.i18n;
-  if (pageI18n && typeof pageI18n === "object" && targetLanguageKey) {
-    const altUrl = pageI18n[targetLanguageKey] || (targetLanguage ? pageI18n[targetLanguage.locale] : null);
-    if (altUrl) {
-      url = isExternalUrl(altUrl) ? altUrl : helper.url_for(altUrl);
-    }
-  }
-
-  const isDocumentPage = ["page", "post"].includes(page?.layout);
-  const title = helper.__("navbar.language_switch", targetLanguageName);
-  const unavailableMessage = helper.__("navbar.language_unavailable", targetLanguageName);
-
-  const mode = !url && isDocumentPage ? "missing" : "link";
-
-  if (!url && mode === "link") {
-    url = helper.localized_url_for(page?.path || "/", targetLanguageKey);
-  }
-
-  return {
-    mode,
-    url: url || null,
-    locale: targetLanguage.locale,
-    label: targetLanguageName,
-    title,
-    unavailableMessage,
-  };
-}
-
 class Navbar extends Component {
   render() {
-    const { siteUrl, menu, links, languageSwitch, preferencesTitle, searchTitle } = this.props;
-
-    const languageIconChildren = { __html: LANGUAGE_SWITCH_ICON_HTML };
+    const { siteUrl, menu, links, preferencesTitle, searchTitle, menuTitle, isSearchEnabled } = this.props;
 
     return (
-      <Fragment>
-        <nav class="navbar navbar-main">
-          <div class="navbar-container">
-            <a id="navbar-logo-link" href={siteUrl}>
-              ga.o
-            </a>
-            <div class="navbar-menu">
-              {Object.keys(menu).length ? (
-                <div class="navbar-start">
-                  {Object.keys(menu).map((name) => {
-                    const item = menu[name];
-                    return (
-                      <a class="navbar-item" href={item.url} data-navbar-menu={name}>
-                        {name}
-                      </a>
-                    );
-                  })}
-                </div>
-              ) : null}
-              <div class="navbar-end">
-                {Object.keys(links).length ? (
-                  <Fragment>
-                    {Object.keys(links).map((name) => {
-                      const link = links[name];
-                      return (
-                        <a class="navbar-item" target="_blank" rel="noopener" title={name} href={link.url}>
-                          {renderLinkIcon(link)}
-                        </a>
-                      );
-                    })}
-                  </Fragment>
-                ) : null}
-                {languageSwitch ? (
-                  languageSwitch.mode === "missing" ? (
-                    <button
-                      type="button"
-                      id="language-switch"
-                      class="navbar-item"
-                      title={languageSwitch.unavailableMessage}
-                      aria-label={languageSwitch.unavailableMessage}
-                      data-mode="missing"
-                      disabled
-                      dangerouslySetInnerHTML={languageIconChildren}
-                    />
-                  ) : (
-                    <a
-                      id="language-switch"
-                      class="navbar-item"
-                      href={languageSwitch.url}
-                      title={languageSwitch.title}
-                      aria-label={languageSwitch.title}
-                      lang={languageSwitch.locale}
-                      hreflang={languageSwitch.locale}
-                      data-mode="link"
-                      dangerouslySetInnerHTML={languageIconChildren}
-                    />
-                  )
-                ) : null}
-                <button type="button" id="preferences-link" class="navbar-item" title={preferencesTitle} aria-label={preferencesTitle} data-preference-trigger>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <title>{preferencesTitle}</title>
-                    <path d="M14 17H5" />
-                    <path d="M19 7h-9" />
-                    <circle cx="17" cy="17" r="3" />
-                    <circle cx="7" cy="7" r="3" />
-                  </svg>
-                </button>
-                <button type="button" class="navbar-item search" popovertarget="searchbox" title={searchTitle}>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <title>Search Button</title>
-                    <path d="m21 21-4.34-4.34" />
-                    <circle cx="11" cy="11" r="8" />
-                  </svg>
-                </button>
-              </div>
+      <nav class="navbar">
+        <div class="navbar-blur" aria-hidden="true">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+        <button type="button" class="navbar-burger" popovertarget="navbar-menu" aria-label={menuTitle}>
+          <span aria-hidden="true"></span>
+        </button>
+        <a id="navbar-logo-link" href={siteUrl}>
+          ga.o
+        </a>
+        <div class="navbar-menu" id="navbar-menu" popover="auto">
+          {Object.keys(menu).length ? (
+            <div class="navbar-start">
+              {Object.keys(menu).map((name) => {
+                const item = menu[name];
+                return (
+                  <a class="navbar-item" href={item.url}>
+                    {name}
+                  </a>
+                );
+              })}
             </div>
-            <button type="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
-              <span aria-hidden="true"></span>
-              <span aria-hidden="true"></span>
-              <span aria-hidden="true"></span>
+          ) : null}
+          {Object.keys(links).length ? (
+            <div class="navbar-end">
+              {Object.keys(links).map((name) => {
+                const link = links[name];
+                return (
+                  <a class="navbar-item" target="_blank" rel="noopener" title={name} href={link.url}>
+                    {renderLinkIcon(link)}
+                  </a>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
+        <div class="navbar-actions">
+          <button type="button" id="preferences-link" class="navbar-item" title={preferencesTitle} aria-label={preferencesTitle} popovertarget="preference-popup">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <title>{preferencesTitle}</title>
+              <path d="M12 4v16" />
+              <path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2" />
+              <path d="M9 20h6" />
+            </svg>
+          </button>
+          {isSearchEnabled ? (
+            <button type="button" class="navbar-item search" popovertarget="searchbox" title={searchTitle} aria-label={searchTitle}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <title>{searchTitle}</title>
+                <path d="m21 21-4.34-4.34" />
+                <circle cx="11" cy="11" r="8" />
+              </svg>
             </button>
-          </div>
-        </nav>
-      </Fragment>
+          ) : null}
+        </div>
+      </nav>
     );
   }
 }
@@ -196,11 +111,9 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
     siteUrl: helper.localized_url_for("/", langKey),
     menu,
     links,
-    languageSwitch: getLanguageSwitch(page, config, helper),
     preferencesTitle: __("preferences.title"),
     searchTitle: __("search.search"),
+    menuTitle: __("navbar.menu"),
+    isSearchEnabled: !!config.search,
   };
 });
-
-module.exports.getLanguageSwitch = getLanguageSwitch;
-module.exports.LANGUAGE_SWITCH_ICON_HTML = LANGUAGE_SWITCH_ICON_HTML;

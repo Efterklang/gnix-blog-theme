@@ -15,7 +15,11 @@ class Footer extends Component {
       <footer class="footer">
         <div class="footer-brand">
           <p class="footer-credit">
-            2022&ndash;PRESENT&ensp;<a class="footer-author" href={statusUrl}>© GnixAij Oag</a>&ensp;
+            2022&ndash;PRESENT&ensp;
+            <a class="footer-author" href={statusUrl}>
+              © GnixAij Oag
+            </a>
+            &ensp;
             <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener noreferrer">
               CC BY-NC-SA 4.0
             </a>

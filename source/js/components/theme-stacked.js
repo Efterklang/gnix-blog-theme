@@ -29,7 +29,7 @@ const PREVIEW_COLORS = [
   "surface0",
 ];
 
-const THEME_DATA_CACHE_PREFIX = "themeDataCache";
+const THEME_DATA_CACHE_PREFIX = "themeDataCache-v2";
 
 function getThemeOptions() {
   const config = window.__GNIX_THEME_CONFIG__;

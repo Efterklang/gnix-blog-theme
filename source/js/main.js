@@ -7,157 +7,164 @@ function runWhenActivated(callback) {
   )(callback);
 }
 
-function whenReady(callback) {
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", callback, { once: true });
-  } else {
-    callback();
+const lazyAssetPromises = new Map();
+
+function resolveAssetHref(path) {
+  return new URL(path, window.location.href).href;
+}
+
+function getLazyAssetKey(kind, path) {
+  return `${kind}:${resolveAssetHref(path)}`;
+}
+
+function findAssetElement(selector, path) {
+  const href = resolveAssetHref(path);
+  return Array.from(document.querySelectorAll(selector)).find((element) => element.href === href || element.src === href) || null;
+}
+
+function setFetchPriority(element, fetchPriority) {
+  if (!fetchPriority) return;
+  element.setAttribute("fetchpriority", fetchPriority);
+  if ("fetchPriority" in element) element.fetchPriority = fetchPriority;
+}
+
+function waitForLazyAsset(element, key) {
+  if (element.dataset.loadState === "loaded") return Promise.resolve(element);
+  if (lazyAssetPromises.has(key)) return lazyAssetPromises.get(key);
+
+  const promise = new Promise((resolve, reject) => {
+    element.addEventListener(
+      "load",
+      () => {
+        element.dataset.loadState = "loaded";
+        lazyAssetPromises.delete(key);
+        resolve(element);
+      },
+      { once: true },
+    );
+    element.addEventListener(
+      "error",
+      () => {
+        element.dataset.loadState = "error";
+        lazyAssetPromises.delete(key);
+        reject(new Error(`Unable to load ${element.href || element.src}`));
+      },
+      { once: true },
+    );
+  });
+
+  lazyAssetPromises.set(key, promise);
+  return promise;
+}
+
+function loadStyleOnce(path, options = {}) {
+  const key = getLazyAssetKey("style", path);
+  if (lazyAssetPromises.has(key)) return lazyAssetPromises.get(key);
+
+  const existing = findAssetElement('link[rel~="stylesheet"]', path);
+  if (existing) return Promise.resolve(existing);
+
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = resolveAssetHref(path);
+  setFetchPriority(link, options.fetchPriority);
+  if (options.media) link.media = options.media;
+
+  const promise = waitForLazyAsset(link, key);
+  document.head.appendChild(link);
+  return promise;
+}
+
+function loadScriptOnce(path, options = {}) {
+  const key = getLazyAssetKey("script", path);
+  if (lazyAssetPromises.has(key)) return lazyAssetPromises.get(key);
+
+  const existing = findAssetElement("script[src]", path);
+  if (existing) {
+    return existing.dataset.loadState === "loading" ? waitForLazyAsset(existing, key) : Promise.resolve(existing);
   }
+
+  const script = document.createElement("script");
+  script.src = resolveAssetHref(path);
+  script.async = options.async ?? true;
+  script.defer = options.defer ?? true;
+  script.dataset.loadState = "loading";
+  setFetchPriority(script, options.fetchPriority);
+
+  const promise = waitForLazyAsset(script, key);
+  document.head.appendChild(script);
+  return promise;
 }
 
-const PREFERENCE_POPUP_MODULE_URL = "/js/preferences-popup.js";
-
-let preferencePopupModulePromise = null;
-
-function loadPreferencePopupModule() {
-  preferencePopupModulePromise ||= import(PREFERENCE_POPUP_MODULE_URL);
-  return preferencePopupModulePromise;
+function inferLazyAssetType(path) {
+  const url = String(path).split(/[?#]/)[0];
+  if (url.endsWith(".css")) return "style";
+  if (url.endsWith(".js") || url.endsWith(".mjs")) return "script";
+  return "fetch";
 }
 
-function togglePreferencePopup() {
-  return loadPreferencePopupModule().then((module) => module.togglePreferencePopup());
+function normalizeLazyAsset(asset) {
+  if (!asset) return null;
+  if (typeof asset === "string") return { as: inferLazyAssetType(asset), url: asset };
+
+  const url = asset.url || asset.href || asset.src;
+  if (!url) return null;
+  return {
+    ...asset,
+    as: asset.as || inferLazyAssetType(url),
+    url,
+  };
 }
 
-function handlePreferencePopupError(error) {
-  console.warn("[gnix] Unable to open preferences popup", error);
+function prewarmLazyAssetOnce(asset, options = {}) {
+  const normalized = normalizeLazyAsset(asset);
+  if (!normalized) return null;
+
+  const { as, rel = options.rel || "prefetch", url } = normalized;
+  if (as === "style" && findAssetElement('link[rel~="stylesheet"]', url)) return null;
+  if (as === "script" && findAssetElement("script[src]", url)) return null;
+
+  const href = resolveAssetHref(url);
+  const existing = Array.from(document.querySelectorAll(`link[rel~="${rel}"][href]`)).find((link) => link.href === href);
+  if (existing) return existing;
+
+  const link = document.createElement("link");
+  link.rel = rel;
+  link.href = href;
+  if (as && rel !== "modulepreload") link.as = as;
+  if (normalized.type && normalized.type !== as) link.type = normalized.type;
+  if (normalized.crossOrigin) link.crossOrigin = normalized.crossOrigin;
+  setFetchPriority(link, normalized.fetchPriority || options.fetchPriority || "low");
+  document.head.appendChild(link);
+  return link;
 }
 
-function twikoo_handler() {
-  runWhenActivated(() => {
-    const el = document.getElementById("tko");
-    if (!el) return;
-    if (el.dataset.initialized === "true" || el.dataset.initializing === "true") return;
-
-    const { envId, region, lang, jsUrl, cssUrl } = el.dataset;
-
-    if (cssUrl) loadCSSOnce(cssUrl);
-
-    const config = { envId, region, lang, el: "#tko" };
-
-    if (typeof window.twikoo?.init === "function") {
-      window.twikoo.init(config);
-      el.dataset.initialized = "true";
-      return;
-    }
-
-    el.dataset.initializing = "true";
-    loadScriptOnce(jsUrl, () => {
-      if (el.dataset.initialized === "true") {
-        delete el.dataset.initializing;
-        return;
-      }
-      window.twikoo.init(config);
-      el.dataset.initialized = "true";
-      delete el.dataset.initializing;
-    });
-  });
+function prewarmLazyAssets(assets, options = {}) {
+  return (Array.isArray(assets) ? assets : [assets]).map((asset) => prewarmLazyAssetOnce(asset, options)).filter(Boolean);
 }
-// #region markdown-exit shiki
-const SELECTORS = {
-  figure: "figure.shiki",
-  pre: "pre.shiki",
-  code: "pre.shiki code",
-  expandBtn: ".code-expand-btn",
-};
 
-const CLS = {
-  copy: "copy-true",
-  expanded: "expanded",
-  expandDone: "expand-done",
-};
+function runOnIdle(callback, { fallbackDelay = 250, timeout = 3000 } = {}) {
+  if (typeof window.requestIdleCallback === "function") {
+    const idleId = window.requestIdleCallback(callback, { timeout });
+    return () => window.cancelIdleCallback?.(idleId);
+  }
 
-function addHighlightTool() {
-  const figures = document.querySelectorAll(SELECTORS.figure);
-  if (!figures.length) return;
-
-  figures.forEach((figure) => {
-    if (figure.hasAttribute("data-initialized")) return;
-    figure.setAttribute("data-initialized", "true");
-
-    const pre = figure.querySelector(SELECTORS.pre);
-    const toolbar = figure.querySelector(".shiki-tools");
-    const expandBtn = figure.querySelector(SELECTORS.expandBtn);
-
-    // Copy button handler
-    if (toolbar) {
-      toolbar.addEventListener("click", (e) => {
-        const target = e.target;
-        if (target.closest(".copy-button")) {
-          const btn = target.closest(".copy-button");
-          const notice = btn.previousElementSibling;
-          const code = figure.querySelector(SELECTORS.code);
-
-          navigator.clipboard.writeText(code.innerText);
-          notice.textContent = "Copied";
-          notice.classList.add("show");
-          setTimeout(() => notice.classList.remove("show"), 800);
-        }
-      });
-    }
-
-    // Expand button handler
-    if (expandBtn) {
-      expandBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const showLines = parseInt(figure.dataset.maxLines || "10", 10);
-        const isExpanded = figure.classList.contains(CLS.expanded);
-
-        if (isExpanded) {
-          const computed = getComputedStyle(pre);
-          const lineHeight = parseFloat(computed.lineHeight) || 20;
-          const padding = (parseFloat(computed.paddingTop) || 0) + (parseFloat(computed.paddingBottom) || 0);
-          figure.classList.remove(CLS.expanded);
-          pre.style.maxHeight = `${showLines * lineHeight + padding}px`;
-          expandBtn.classList.remove(CLS.expandDone);
-        } else {
-          figure.classList.add(CLS.expanded);
-          pre.style.maxHeight = `${pre.scrollHeight}px`;
-          expandBtn.classList.add(CLS.expandDone);
-
-          setTimeout(() => {
-            pre.style.maxHeight = "none";
-          }, 300);
-        }
-      });
-    }
-
-    // Initialize collapsed state
-    if (figure.dataset.collapsible === "true" && pre) {
-      requestAnimationFrame(() => {
-        const lineHeight = parseFloat(getComputedStyle(pre).lineHeight) || 20;
-        const showLines = parseInt(figure.dataset.maxLines || "10", 10);
-        pre.style.maxHeight = `${showLines * lineHeight}px`;
-        pre.style.overflow = "hidden";
-      });
-    }
-  });
+  const timeoutId = window.setTimeout(callback, fallbackDelay);
+  return () => window.clearTimeout(timeoutId);
 }
-// #endregion
+
+function prewarmLazyAssetsOnIdle(assets, options = {}) {
+  const { fallbackDelay, timeout, ...prewarmOptions } = options;
+  return runOnIdle(() => prewarmLazyAssets(assets, prewarmOptions), { fallbackDelay, timeout });
+}
+
+function handleLazyAssetError(error) {
+  console.warn("[gnix] Unable to load lazy asset", error);
+}
 
 // #region Keyboard Shortcuts
 
-function handlePreferenceTriggerClick(event) {
-  if (event.defaultPrevented) return;
-
-  const trigger = event.target.closest?.("[data-preference-trigger]");
-  if (!trigger || trigger.disabled) return;
-
-  event.preventDefault();
-  togglePreferencePopup().catch(handlePreferencePopupError);
-}
-
+// 全站快捷键；文章页专属快捷键（Esc 关脚注/缩放、空格跳过首屏、Cmd/Ctrl+T 目录）在 article.js
 function handleKeyDown(e) {
   const isModifier = e.metaKey || e.ctrlKey;
   if (!isModifier) return;
@@ -168,161 +175,29 @@ function handleKeyDown(e) {
   const isSettingsShortcut = !e.altKey && !e.shiftKey && (e.code === "Comma" || e.key === "," || e.key === "Comma");
   if (isSettingsShortcut) {
     e.preventDefault();
-    togglePreferencePopup().catch(handlePreferencePopupError);
+    document.getElementById("preference-popup")?.togglePopover();
     return;
   }
 
-  switch (e.code) {
-    case "KeyT":
-      e.preventDefault();
-      document.getElementById("toc-body")?.togglePopover();
-      break;
-    case "KeyK":
-      e.preventDefault();
-      document.querySelector("#searchbox")?.showPopover();
-      break;
-  }
-}
-
-function loadCSSOnce(url) {
-  if (!document.querySelector(`link[href="${url}"]`)) {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = url;
-    document.head.appendChild(link);
-  }
-}
-
-/**
- * 加载脚本一次，如果已存在则监听 load 事件
- */
-function loadScriptOnce(url, onLoad) {
-  const existingScript = document.querySelector(`script[src="${url}"]`);
-  if (existingScript) {
-    existingScript.addEventListener("load", onLoad);
-  } else {
-    const script = document.createElement("script");
-    script.src = url;
-    script.onload = onLoad;
-    document.head.appendChild(script);
-  }
-}
-
-function handleMermaid() {
-  const containers = document.querySelectorAll(".mermaid-container");
-  if (containers.length === 0) return;
-
-  const cssUrl = "/css/optional/mermaid.css";
-  const adapterUrl = "/js/mdit/mermaid.js";
-
-  loadCSSOnce(cssUrl);
-
-  const runInit = () => {
-    const libUrl = "/js/host/mermaid/mermaid.min.js";
-
-    containers.forEach((container, index) => {
-      if (!container.id) {
-        container.id = `mermaid-${Date.now()}-${index}`;
-      }
-      if (window.initMermaidDiagram) {
-        window.initMermaidDiagram(container.id, libUrl, {});
-      }
-    });
-  };
-
-  if (window.initMermaidDiagram) {
-    runInit();
-  } else {
-    loadScriptOnce(adapterUrl, runInit);
+  if (e.code === "KeyK") {
+    e.preventDefault();
+    document.querySelector("#searchbox")?.showPopover();
   }
 }
 
 // #endregion
 
-function initArticleCommentPopover() {
-  const commentPopover = document.getElementById("article-comment-popover");
-  if (!commentPopover) {
-    twikoo_handler();
-    return;
-  }
-
-  // Preload twikoo JS during idle time so comments render faster on click
-  const tko = document.getElementById("tko");
-  if (tko?.dataset.jsUrl) {
-    const preload = () => runWhenActivated(() => loadScriptOnce(tko.dataset.jsUrl, () => {}));
-    if (typeof requestIdleCallback === "function") {
-      requestIdleCallback(preload, { timeout: 3000 });
-    } else {
-      setTimeout(preload, 200);
-    }
-  }
-
-  const initializeComments = () => twikoo_handler();
-  if (commentPopover.matches(":popover-open")) {
-    initializeComments();
-  }
-
-  if (commentPopover.dataset.bound === "true") return;
-  commentPopover.dataset.bound = "true";
-  commentPopover.addEventListener("toggle", (event) => {
-    if (event.newState === "open") initializeComments();
-  });
-}
-
-function initPage() {
-  handleMermaid();
-  addHighlightTool();
-  const zoomOpts = { background: "hsla(from var(--mantle) / 0.9)" };
-  const zoomImgs = [];
-  document.querySelectorAll(".content img").forEach((img) => {
-    if (img.dataset.zoomBound === "true") return;
-    img.dataset.zoomBound = "true";
-    zoomImgs.push(img);
-  });
-  if (zoomImgs.length) mediumZoom(zoomImgs, zoomOpts);
-  initArticleCommentPopover();
-}
-
-function initPageWhenActivated() {
-  runWhenActivated(initPage);
-}
-
-whenReady(initPageWhenActivated);
-document.addEventListener("gnix:content-ready", initPageWhenActivated);
-
+// #region boot
+// main.js 以 <script type="module"> 加载，具备 defer 语义：执行到这里时 DOM 必已解析完毕，
+// 无需 DOMContentLoaded 门控；prerender 页面经 runWhenActivated 推迟到激活后初始化
 runWhenActivated(() => {
-  document.addEventListener("click", handlePreferenceTriggerClick, {
-    capture: true,
-    passive: false,
-  });
   document.addEventListener("keydown", handleKeyDown, {
     capture: true, // 捕获阶段监听，优先于浏览器默认处理
     passive: false, // 允许调用 preventDefault
   });
 });
+// #endregion
 
-function handleNavbarClick(event) {
-  const container = event.currentTarget;
-  const burger = container.querySelector(".navbar-burger");
-  const menu = container.querySelector(".navbar-menu");
-  const target = event.target;
-
-  if (target.closest(".navbar-burger")) {
-    const isActive = burger.classList.toggle("is-active");
-    menu.classList.toggle("is-active", isActive);
-    burger.setAttribute("aria-expanded", String(isActive));
-  } else if (target.closest(".navbar-item")) {
-    burger.classList.remove("is-active");
-    menu.classList.remove("is-active");
-    burger.setAttribute("aria-expanded", "false");
-  }
-}
-
-function initNavbar() {
-  const container = document.querySelector(".navbar-container");
-  if (!container || container.dataset.bound === "true") return;
-  container.dataset.bound = "true";
-  container.addEventListener("click", handleNavbarClick);
-}
-
-whenReady(() => runWhenActivated(initNavbar));
+// 文章页专属交互（脚注 tooltip/图片缩放/代码块工具栏/mermaid/TOC/评论/满高首屏）
+// 在 article.js，由 scripts.jsx 仅在 post/page 布局注入，共享基础设施从这里导入
+export { handleLazyAssetError, loadScriptOnce, loadStyleOnce, prewarmLazyAssetsOnIdle, runWhenActivated };

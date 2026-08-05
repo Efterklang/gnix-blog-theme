@@ -2,6 +2,10 @@ const crypto = require("node:crypto");
 
 const ITERATIONS = 100_000;
 
+function escapeAttribute(value) {
+  return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 module.exports = (hexo) => {
   hexo.extend.filter.register(
     "after_post_render",
@@ -10,7 +14,7 @@ module.exports = (hexo) => {
       if (!password && password !== 0) return data;
 
       const passphrase = String(password);
-      const __ = hexo.theme.i18n.__(hexo.config.language);
+      const __ = hexo.theme.i18n.__(data.lang || data.language || hexo.config.language);
 
       const salt = crypto.randomBytes(16);
       const iv = crypto.randomBytes(12);
@@ -21,7 +25,7 @@ module.exports = (hexo) => {
       const base64 = Buffer.concat([salt, iv, encrypted, tag]).toString("base64");
 
       data.content = `
-<div class="encrypted-content" id="encrypted-article">
+<div class="encrypted-content" id="encrypted-article" data-error-message="${escapeAttribute(__("encrypt.error"))}">
   <div class="encrypted-data" style="display:none">${base64}</div>
   <form class="encrypt-form" id="encrypt-form">
     <p class="encrypt-message">${__("encrypt.message")}</p>

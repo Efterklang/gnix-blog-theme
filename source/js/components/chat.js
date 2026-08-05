@@ -21,6 +21,16 @@
  * <x-chat messages='[{"name": "User", "content": "Hello", "timestamp": "10:30"}]'></x-chat>
  */
 
+function escapeHtml(value) {
+  const span = document.createElement("span");
+  span.textContent = value == null ? "" : String(value);
+  return span.innerHTML;
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value).replace(/"/g, "&quot;");
+}
+
 const CHAT_STYLES = `
   :host {
     display: block;
@@ -282,6 +292,7 @@ class Chat extends HTMLElement {
       timestamp: msg.getAttribute("timestamp") || "",
       isMe: msg.hasAttribute("is-me"),
       content: msg.innerHTML.trim(),
+      html: true,
     }));
   }
 
@@ -289,7 +300,8 @@ class Chat extends HTMLElement {
     const data = this.getAttribute("messages");
     if (!data) return [];
     try {
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed.map((message) => ({ ...message, html: false })) : [];
     } catch (e) {
       console.warn("Invalid messages JSON:", e);
       return [];
@@ -298,8 +310,10 @@ class Chat extends HTMLElement {
 
   render() {
     const messages = this.getMessagesFromSlots();
+    const attributeMessages = messages.length ? [] : this.getMessagesFromAttribute();
+    const renderedMessages = messages.length ? messages : attributeMessages;
 
-    const messagesHTML = messages.map((msg) => this.renderMessage(msg)).join("");
+    const messagesHTML = renderedMessages.map((msg) => this.renderMessage(msg)).join("");
 
     this.shadowRoot.innerHTML = `
       <style>${CHAT_STYLES}</style>
@@ -310,17 +324,21 @@ class Chat extends HTMLElement {
   }
 
   renderMessage(msg) {
-    const initial = msg.name.charAt(0).toUpperCase();
-    const avatarHTML = msg.avatar ? `<img src="${msg.avatar}" alt="${msg.name}" class="avatar" loading="lazy"/>` : `<div class="avatar-placeholder">${initial}</div>`;
+    const name = String(msg.name || "Anonymous");
+    const initial = escapeHtml(name.charAt(0).toUpperCase());
+    const avatar = String(msg.avatar || "");
+    const timestamp = String(msg.timestamp || "");
+    const content = msg.html ? String(msg.content || "") : escapeHtml(msg.content || "");
+    const avatarHTML = avatar ? `<img src="${escapeAttribute(avatar)}" alt="${escapeAttribute(name)}" class="avatar" loading="lazy"/>` : `<div class="avatar-placeholder">${initial}</div>`;
 
     return `
       <div class="chat-message ${msg.isMe ? "is-me" : ""}">
         ${avatarHTML}
         <div class="message-header">
-          <span class="sender-name">${msg.name}</span>
-          <span class="timestamp">${msg.timestamp}</span>
+          <span class="sender-name">${escapeHtml(name)}</span>
+          <span class="timestamp">${escapeHtml(timestamp)}</span>
         </div>
-        <div class="message-bubble">${msg.content}</div>
+        <div class="message-bubble">${content}</div>
       </div>
     `;
   }
