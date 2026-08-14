@@ -79,6 +79,8 @@
   --overlay0: color-mix(in oklch, var(--base) 56%, var(--text));
   --overlay1: color-mix(in oklch, var(--base) 45%, var(--text));
   --overlay2: color-mix(in oklch, var(--base) 34%, var(--text));
+  /* 展示字重（hero 大标题）：深色底上 100 的发丝笔画会发虚，深色主题加重一档 */
+  --display-weight: 100;
 
   &:where([data-theme="latte"]) {
     color-scheme: light;
@@ -104,6 +106,7 @@
 
   &:where([data-theme="rose_pine"]) {
     color-scheme: dark;
+    --display-weight: 200;
     --rosewater: #f6c177;
     --flamingo: #f2cdcd;
     --pink: #ebbcba;
@@ -194,6 +197,7 @@
 
   &:where([data-theme="mocha"]) {
     color-scheme: dark;
+    --display-weight: 200;
     --rosewater: #f5e0dc;
     --flamingo: #f2cdcd;
     --pink: #f5c2e7;
@@ -216,6 +220,7 @@
 
   &:where([data-theme="tokyo_night"]) {
     color-scheme: dark;
+    --display-weight: 200;
     --rosewater: #f7768e;
     --flamingo: #ff9e64;
     --pink: #bb9af7;
@@ -238,6 +243,7 @@
 
   &:where([data-theme="nord_night"]) {
     color-scheme: dark;
+    --display-weight: 200;
     --rosewater: #b48ead;
     --flamingo: #d08770;
     --pink: #b48ead;

@@ -17,10 +17,10 @@
 }
 
 /* 文章页进场动画（仿 antfu.me 的 slide-enter，关键帧共享于 default.css）：
-   只有首屏摘要自下方 10px 上浮淡入，标题、封面与正文直接呈现——首屏即时可读，
-   LCP 不受动画影响。.gnix-revealed 由 head 内联脚本在 pagereveal（不支持时
-   内联立即）添加，保证 prerender 激活时动画从首个可见帧才开始；无 JS 时不加类，
-   摘要直接可见 */
+   首屏摘要自下方 10px 上浮淡入，跳转箭头错峰 100ms 跟进；标题、封面与正文
+   直接呈现——首屏即时可读，LCP 不受动画影响。.gnix-revealed 由 head 内联脚本在
+   pagereveal（不支持时内联立即）添加，保证 prerender 激活时动画从首个可见帧
+   才开始；无 JS 时不加类，摘要直接可见 */
 :root.gnix-revealed .article-hero .article-excerpt {
   animation: slide-enter 600ms backwards;
 }
@@ -590,16 +590,13 @@ a strong {
 /* #region Article Meta*/
 
 .article-title {
+  color: var(--text);
   font-family: var(--article-font-family);
   font-size: 1.75em;
-  font-weight: 100;
+  font-weight: var(--display-weight, 100);
   line-height: 1.2;
   margin-bottom: 0.3em;
-  text-wrap: balance;
-
-  > a {
-    color: var(--text);
-  }
+  text-wrap: pretty;
 }
 
 .meta-separator {
@@ -641,13 +638,18 @@ a strong {
 
 /* 封面已占去 380px，标题维持常规字号以免把 meta 挤出首屏 */
 .article-hero-full:not(.article-hero-with-cover) .article-title {
-  font-size: clamp(2.9rem, 2.5rem + 2vw, 3.5rem);
+  font-size: clamp(2rem, 2.5rem + 2vw, 3rem);
+  letter-spacing: -0.01em;
 }
 
 .article-hero .article-excerpt {
-  max-width: 36em;
+  max-width: 32em;
   line-height: 1.9;
   text-wrap: pretty;
+  font-size: 14px;
+  font-family: var(--article-font-family);
+  font-weight: lighter;
+  color: var(--subtext1);
 }
 
 .article-hero-meta {
@@ -662,6 +664,7 @@ a strong {
   a {
     color: inherit;
     text-decoration: none;
+    transition: color 220ms ease;
 
     &:hover {
       color: var(--text);
@@ -670,7 +673,6 @@ a strong {
 }
 
 em,
-.article-excerpt,
 .footnotes {
   font-family: var(--font-serif);
   font-style: italic;
@@ -684,6 +686,12 @@ em,
   gap: 0.2rem;
 }
 
+/* 负 margin 抵消 padding：视觉位置不变，0.75rem 小字的命中区扩大 */
+.article-tag {
+  padding: 0.5em 0.25em;
+  margin: -0.5em -0.25em;
+}
+
 .article-colophon {
   text-align: center;
   text-transform: uppercase;
@@ -694,6 +702,9 @@ em,
   display: inline-flex;
   padding: 0.25em;
   color: var(--subtext0);
+  transition:
+    color 220ms ease,
+    scale 120ms var(--ease-out);
 
   > svg {
     width: 1.5rem;
@@ -702,6 +713,10 @@ em,
 
   &:hover {
     color: var(--green);
+  }
+
+  &:active {
+    scale: 0.96;
   }
 }
 
@@ -712,16 +727,25 @@ em,
   gap: 1rem;
 
   button {
-    padding: 0;
+    /* 负 margin 抵消 padding：视觉位置不变，命中区扩大 */
+    padding: 0.5em 0.25em;
+    margin: -0.5em -0.25em;
     background: none;
     border: none;
     cursor: pointer;
     font: inherit;
     letter-spacing: 0.05em;
     color: inherit;
+    transition:
+      color 220ms ease,
+      scale 120ms var(--ease-out);
 
     &:hover {
       color: var(--text);
+    }
+
+    &:active {
+      scale: 0.96;
     }
   }
 }
