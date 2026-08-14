@@ -34,7 +34,6 @@
   font-size: var(--article-font-size);
   font-weight: var(--article-font-weight);
   font-family: var(--article-font-family);
-  letter-spacing: 0.05em;
   overflow-wrap: anywhere;
 }
 
@@ -51,14 +50,15 @@
 :root.gnix-revealed .archive-page .archive-item {
   /* backwards 而非 both：both 会让动画结束后仍处于 in effect 状态，条目常驻
      stacking context，内部 fixed 定位的悬浮预览会被 DOM 靠后的条目盖住
-     （文章页脚注底栏曾因此"变透明"，见 article.css） */
-  animation: archive-item-fade 1s backwards;
-  animation-delay: calc(var(--i, 0) * 60ms);
+     （文章页脚注底栏曾因此"变透明"，见 article.css）。
+     曲线与幕帘/popup 同一条 easeOutQuint；时长与步进压短，长分组末条不用干等 */
+  animation: archive-item-fade 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 45ms);
 }
 
 :root.gnix-revealed .archive-page .archive-item > .archive-title {
-  animation: archive-title-rise 1s backwards;
-  animation-delay: calc(var(--i, 0) * 60ms);
+  animation: archive-title-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 45ms);
 }
 
 @keyframes archive-item-fade {
@@ -93,6 +93,9 @@
   color: var(--text);
   cursor: pointer;
   font-size: 2rem;
+  /* 比正文重一档，给顶着大片留白的 masthead 一点锚点分量；
+     相对值跟随字重偏好（300/400/500 → 400/500/600） */
+  font-weight: calc(var(--article-font-weight) + 100);
   letter-spacing: 0.02em;
   /* 长主题名（overflow-wrap: anywhere）会折行，CJK 字形占满 em 框，行高低于 1 会互相咬合 */
   line-height: 1.1;
@@ -159,10 +162,11 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
     transition: opacity 200ms ease;
   }
 
-  /* 与 popup 的展示条件同源（悬停标题/预览）；退场快于进场：
+  /* 与 popup 的展示条件同源（悬停标题/预览）。0.9 调光不熄灯：邻行留一丝
+     余像，保住"在第几季、上下是什么"的空间上下文。退场快于进场：
      指针移开的瞬间活动条目落回 overlay 之下，短退场把这一帧落差融进整体淡出 */
   .archive-page:has(:is(.archive-title, .archive-popup):hover)::after {
-    opacity: 1;
+    opacity: 0.9;
     transition-duration: 320ms;
   }
 }
@@ -387,17 +391,26 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 /* The season h2 itself (also carries .archive-label, hence flex).
    上方留白由 .archive-page 的 gap + .archive-group 的 padding 承担（远大于下方），
-   不对称呼吸让标签视觉上归属下面的分组 */
+   不对称呼吸让标签视觉上归属下面的分组。
+   声部与幕帘眉题完全同款（mono 0.75rem / 500 / uppercase / 0.16em）：
+   此前用正文字体 italic 且与标题同号，是孤例声部——既不像元信息也不像标题；
+   uppercase 后大写与数字同高，年份也不再高出小写一截 */
 .archive-group__header {
   margin: 0 0 1.25rem;
-  text-transform: lowercase;
-  font-style: italic;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  /* 词与 ’年份 之间的字面空格收成半格（mono 空格恰为 1ch） */
+  word-spacing: -0.5ch;
 }
 
-/* lining figures 在小写标签里比 x 高度高出一截，缩字号贴近小写腰高
-   （近似 oldstyle figures 的观感；字体多半没有 onum，手动缩放最稳） */
 .archive-label__num {
-  font-size: 0.82em;
+  /* 静息态唯一的季节色：hover 才出现的 accent 在这里有个"来处"，
+     触屏（无 hover 也无 popup）也能看到四季色系统。标签缩为 mono 小字后
+     混合比 60→70 补偿小字号的显色度；数字不再缩号，与日期列同高更整 */
+  color: color-mix(in oklch, var(--archive-accent) 70%, var(--subtext0));
 }
 
 .archive-item {
@@ -444,7 +457,9 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
      退场不带延迟且整体压在 overlay 的 200ms 淡出之内：popup（141）浮在
      overlay（130）之上，若比它晚收完，会孤零零悬在已复原的页面上多出一截 */
   opacity: 0;
-  transform: translateY(var(--popup-hidden-shift));
+  /* 缩放原点贴条目一侧（popup 恒在条目上方），配合上移形成"从条目长出"的方向感 */
+  transform: translateY(var(--popup-hidden-shift)) scale(0.985);
+  transform-origin: bottom left;
   pointer-events: none;
   visibility: hidden;
   transition:
@@ -508,7 +523,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
   > .archive-popup {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     pointer-events: auto;
     visibility: visible;
     transition:
@@ -550,6 +565,13 @@ a.archive-title {
   &:focus-visible {
     color: var(--archive-accent);
     outline: none;
+  }
+
+  /* 按下当帧上色（transition: none）：触屏没有 hover，
+     这是点按到跳转之间唯一的即时确认 */
+  &:active {
+    color: var(--archive-accent);
+    transition: none;
   }
 }
 

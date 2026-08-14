@@ -59,8 +59,7 @@ function getSeasonGroupLabel({ season, startYear, endYear }) {
   return `${season} ’${range}`;
 }
 
-// 小写标签里 lining figures 比 x 高度高出一截；把数字段拆出来包 span，
-// 由 CSS 缩字号贴近小写腰高（近似 oldstyle figures，字体本身多半没有 onum）
+// 把数字段拆出来包 span，由 CSS 着季节 accent 色（静息态唯一的季节色伏笔）
 function renderLabelSegments(title) {
   return String(title)
     .split(/(\d+)/)
