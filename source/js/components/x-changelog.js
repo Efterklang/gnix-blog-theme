@@ -88,7 +88,7 @@ class Changelog extends HTMLElement {
         font-size: 0.85rem;
         font-family: var(--font-mono);
         cursor: pointer;
-        transition: all 0.15s ease;
+        transition: border-color 0.15s ease, background-color 0.15s ease;
       }
 
       .x-changelog-select:hover {
@@ -140,7 +140,7 @@ class Changelog extends HTMLElement {
         background: var(--base);
         border: 1px solid var(--subtext0);
         z-index: 1;
-        transition: all 0.5s ease;
+        transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
       }
 
       .x-changelog-item:hover::before {

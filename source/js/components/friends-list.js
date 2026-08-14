@@ -123,7 +123,7 @@ function injectFriendsListStyles() {
       opacity: 0.08;
       filter: grayscale(0.5);
       transform: rotate(-8deg);
-      transition: all 0.3s ease;
+      transition: opacity 0.3s ease, filter 0.3s ease, transform 0.3s ease;
       z-index: 0;
       pointer-events: none;
       border: none;
@@ -167,7 +167,7 @@ function injectFriendsListStyles() {
       height: 1.25rem;
       color: var(--subtext0);
       text-decoration: none;
-      transition: all 0.2s ease;
+      transition: color 0.2s ease, border-color 0.2s ease;
       border: 1px solid var(--surface0);
       border-radius: 50%;
       font-size: 0.75rem;
@@ -187,7 +187,7 @@ function injectFriendsListStyles() {
       font-weight: 400;
       color: var(--subtext0);
       opacity: 0.7;
-      transition: all 0.2s ease;
+      transition: opacity 0.2s ease, color 0.2s ease;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;

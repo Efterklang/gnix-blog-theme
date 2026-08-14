@@ -61,8 +61,8 @@ figure.shiki {
     color: transparent;
     cursor: pointer;
     transition:
-      color 0.3s,
-      transform 0.3s ease;
+      color 0.15s ease,
+      transform 0.15s var(--ease-out);
   }
 
   &:hover {
@@ -70,7 +70,7 @@ figure.shiki {
       color: var(--text);
       &:hover {
         color: var(--blue);
-        transform: scale(1.2);
+        transform: scale(1.1);
       }
     }
   }
@@ -107,16 +107,28 @@ figure.shiki {
   }
 }
 
+/* 从复制按钮一侧滑出（起点偏向按钮 6px），退场纯淡出后再隐藏；
+   旧实现只过渡 visibility（离散属性，等于硬弹） */
 .shiki-tools > .right > .copy-notice {
   position: absolute;
   white-space: nowrap;
   visibility: hidden;
   z-index: 1000;
   padding: 0 5px 0 0;
-  transform: translate(-110%);
-  transition: visibility 0.2s ease;
+  opacity: 0;
+  transform: translate(calc(-110% + 6px));
+  transition:
+    opacity 200ms ease,
+    transform 200ms var(--ease-out),
+    visibility 0s linear 200ms;
   &.show {
     visibility: visible;
+    opacity: 1;
+    transform: translate(-110%);
+    transition:
+      opacity 160ms ease,
+      transform 160ms var(--ease-out),
+      visibility 0s;
   }
 }
 
@@ -191,6 +203,12 @@ figure.shiki:has(.toggle-wrap input:checked) > pre.shiki > code {
   }
   > svg {
     padding: 6px 0;
+    /* 静息透明度取脉冲的基准值，hover 起脉无跳变；
+       常驻无限脉冲降为 hover 才动，不做长文里的注意力钩子 */
+    opacity: 0.6;
+  }
+
+  &:hover > svg {
     animation: code-expand-pulse 1.2s infinite;
   }
 }

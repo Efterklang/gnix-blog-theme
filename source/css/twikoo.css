@@ -223,7 +223,9 @@
 .el-input__suffix {
   position: absolute;
   top: 0;
-  transition: all 0.3s;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
   text-align: center;
   height: 100%;
   color: var(--subtext0);
@@ -240,7 +242,9 @@
 
 .el-input__suffix {
   right: 5px;
-  transition: all 0.3s;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
   pointer-events: none;
 }
 
@@ -250,14 +254,18 @@
 
 .el-input__prefix {
   left: 5px;
-  transition: all 0.3s;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .el-input__icon {
   height: 100%;
   width: 25px;
   text-align: center;
-  transition: all 0.3s;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
   line-height: 40px;
 }
 

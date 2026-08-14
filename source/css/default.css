@@ -16,6 +16,9 @@
   /* misc */
   --radius: 12px;
   --navbar-height: 3.5rem;
+  /* motion：入场/位移的全站缓动基准（easeOutQuint，与归档页动效一致）；
+     纯色彩 hover 过渡仍用内置 ease */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
   &[data-article-font-size="small"] {
     --article-font-size: 0.875rem;
@@ -790,27 +793,24 @@ input.searchbox-input {
   overflow-y: auto;
 }
 
+/* 选中态随方向键高频移动，指示条与底色一律即时落位（palette 惯例不做过渡；
+   旧实现还在动画 height/top 这类布局属性） */
 .searchbox-result-item {
   display: flex;
   flex-direction: row;
   padding: 0.7em 1.25em;
   position: relative;
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease;
 
   &::before {
     content: "";
     position: absolute;
     left: 0;
-    top: 50%;
+    top: 20%;
     width: 3px;
-    height: 0;
+    height: 60%;
     background-color: var(--mauve);
     border-radius: 0 2px 2px 0;
-    transition:
-      height 0.18s ease,
-      top 0.18s ease;
+    opacity: 0;
   }
 
   &:hover {
@@ -822,8 +822,7 @@ input.searchbox-input {
   }
 
   &.active::before {
-    height: 60%;
-    top: 20%;
+    opacity: 1;
   }
 }
 
@@ -928,11 +927,12 @@ input.searchbox-input {
    无遮罩、无面板底色：弹窗打开时页面保持可见、可滚动，方便对照正文
    查看排版调整效果；控件用不透明的 --mantle 填充 + 描边与页面区分。
    开关由原生 popover（navbar 按钮 popovertarget / 快捷键 togglePopover）
-   驱动；可见样式只挂在 :popover-open 下（特定性压过上方全局 popover
-   样式的 inset: 0 + 全屏模糊背景），关闭态回落到 UA 的 display: none，
-   即使 popover 被浏览器强制关闭（如进入全屏）也不会残留。 */
+   驱动；布局样式挂在 .preference-popup 基类，靠文件序压过上方全局
+   popover 样式（inset: 0 + 全屏模糊背景），开合只过渡 opacity/translate/
+   scale，退场经 display/overlay 的 allow-discrete 过渡后回落到 UA 的
+   display: none——即使 popover 被浏览器强制关闭（如进入全屏）也不会残留。 */
 
-.preference-popup:popover-open {
+.preference-popup {
   position: fixed;
   inset: auto;
   top: calc(var(--navbar-height) + env(safe-area-inset-top) + 0.6rem);
@@ -949,10 +949,38 @@ input.searchbox-input {
   color: var(--text);
   scrollbar-width: none;
   transform-origin: top right;
-  animation: preference-popup-in 160ms ease;
+
+  /* 关闭/退场态：向触发角（navbar 按钮）收回；退场快于进场 */
+  opacity: 0;
+  translate: 0 -6px;
+  scale: 0.98;
+  transition:
+    opacity 120ms ease,
+    translate 130ms var(--ease-out),
+    scale 130ms var(--ease-out),
+    display 130ms allow-discrete,
+    overlay 130ms allow-discrete;
 
   &::before {
     content: none;
+  }
+}
+
+.preference-popup:popover-open {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+  transition:
+    opacity 160ms ease,
+    translate 180ms var(--ease-out),
+    scale 180ms var(--ease-out);
+}
+
+@starting-style {
+  .preference-popup:popover-open {
+    opacity: 0;
+    translate: 0 -6px;
+    scale: 0.98;
   }
 }
 
@@ -962,13 +990,6 @@ input.searchbox-input {
 
 .preference-popup::-webkit-scrollbar {
   display: none;
-}
-
-@keyframes preference-popup-in {
-  from {
-    opacity: 0;
-    transform: translateY(-6px) scale(0.98);
-  }
 }
 
 .preference-quick {
@@ -1156,7 +1177,7 @@ html.night .preference-quick__select {
 }
 
 @media (max-width: 768px) {
-  .preference-popup:popover-open {
+  .preference-popup {
     top: auto;
     right: 0;
     bottom: 0;
@@ -1170,7 +1191,32 @@ html.night .preference-quick__select {
     background: var(--base);
     box-shadow: 0 -18px 50px -30px rgba(0, 0, 0, 0.45);
     transform-origin: bottom center;
-    animation: preference-popup-up 200ms ease;
+
+    /* 底部抽屉：沿进场路径退回下方，不缩放 */
+    translate: 0 10%;
+    scale: 1;
+    transition:
+      opacity 150ms ease,
+      translate 170ms var(--ease-out),
+      scale 170ms var(--ease-out),
+      display 170ms allow-discrete,
+      overlay 170ms allow-discrete;
+  }
+
+  .preference-popup:popover-open {
+    translate: 0 0;
+    transition:
+      opacity 180ms ease,
+      translate 220ms var(--ease-out),
+      scale 220ms var(--ease-out);
+  }
+
+  @starting-style {
+    .preference-popup:popover-open {
+      opacity: 0;
+      translate: 0 10%;
+      scale: 1;
+    }
   }
 
   .preference-quick {
@@ -1192,13 +1238,6 @@ html.night .preference-quick__select {
 
   .preference-quick__settings {
     height: 2.6rem;
-  }
-}
-
-@keyframes preference-popup-up {
-  from {
-    opacity: 0;
-    transform: translateY(10%);
   }
 }
 

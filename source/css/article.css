@@ -202,13 +202,13 @@
     border-bottom-color: var(--surface0);
     border-radius: 6px;
     position: relative;
-    top: -3px;
-    transition:
-      top 0.1s ease,
-      border-bottom-width 0.1s ease;
+    /* 键帽行程走 transform 不动布局；按下 60ms 快于回弹 120ms */
+    transform: translateY(-3px);
+    transition: transform 120ms var(--ease-out);
 
     &:active {
-      top: 0;
+      transform: translateY(0);
+      transition-duration: 60ms;
     }
   }
 
@@ -438,7 +438,7 @@ sup.footnote-ref.is-footnote-tooltip-open .footnote-tooltip {
       visibility: hidden;
       transition:
         opacity 0.15s ease,
-        transform 0.15s ease,
+        transform 0.15s var(--ease-out),
         visibility 0.15s;
       pointer-events: none;
       z-index: 10;
