@@ -319,9 +319,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   font-synthesis: none;
   line-height: 1.15;
   text-decoration: none;
-  transition:
-    background-color 140ms ease,
-    color 140ms ease;
+  transition: color 70ms ease;
 
   &::before {
     content: "#";
@@ -334,7 +332,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   &:hover,
   &:focus-visible,
   &[aria-current="page"] {
-    background: color-mix(in oklch, var(--archive-accent) 10%, transparent);
+    transition: color 140ms ease;
     color: var(--archive-accent);
     outline: none;
   }
@@ -452,18 +450,13 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
   padding: 0.85rem 1rem 0.9rem;
 
-  /* Keep the fixed, anchored box present while hidden so the browser can settle
-     its anchor placement before the popup fades in.
-     退场不带延迟且整体压在 overlay 的 200ms 淡出之内：popup（141）浮在
-     overlay（130）之上，若比它晚收完，会孤零零悬在已复原的页面上多出一截 */
   opacity: 0;
-  /* 缩放原点贴条目一侧（popup 恒在条目上方），配合上移形成"从条目长出"的方向感 */
-  transform: translateY(var(--popup-hidden-shift)) scale(0.985);
+  transform: translateY(var(--popup-hidden-shift));
   transform-origin: bottom left;
   pointer-events: none;
   visibility: hidden;
   transition:
-    opacity 120ms ease,
+    opacity 90ms ease,
     transform 140ms var(--ease-out),
     visibility 0s linear 140ms;
 
@@ -523,12 +516,12 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
   > .archive-popup {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
     pointer-events: auto;
     visibility: visible;
     transition:
-      opacity 140ms ease 180ms,
-      transform 180ms var(--ease-out) 180ms,
+      opacity 120ms ease 180ms,
+      transform 160ms var(--ease-out) 180ms,
       visibility 0s linear 180ms;
   }
 }

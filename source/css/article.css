@@ -636,12 +636,6 @@ a strong {
   margin-bottom: 0;
 }
 
-/* 封面已占去 380px，标题维持常规字号以免把 meta 挤出首屏 */
-.article-hero-full:not(.article-hero-with-cover) .article-title {
-  font-size: clamp(2rem, 2.5rem + 2vw, 3rem);
-  letter-spacing: -0.01em;
-}
-
 .article-hero .article-excerpt {
   max-width: 32em;
   line-height: 1.9;
