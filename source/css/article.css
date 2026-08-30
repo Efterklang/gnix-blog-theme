@@ -832,7 +832,6 @@ em,
   display: block;
   overflow: hidden;
   height: var(--cover-height);
-  border-radius: var(--radius);
 
   img {
     display: block;

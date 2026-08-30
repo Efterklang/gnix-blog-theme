@@ -46,10 +46,6 @@
     }
   }
 
-  .cover-image {
-    border-radius: 0;
-  }
-
   .article-comment-popover,
   .article-comment-popover-body {
     width: calc(100vw - 1rem);
