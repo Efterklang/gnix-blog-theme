@@ -190,6 +190,12 @@ function getThemeInitScript() {
     var preferences = getThemePreferences();
     if (preferences.mode === DEFAULT_MODE) applyThemePreferences(preferences);
   });
+
+  // bfcache 返回时本脚本不再执行，<html> 上仍是页面被缓存那一刻的主题。
+  // 按 localStorage 重放一次（applyThemePreferences 会派发 gnix:theme-change 供 UI 同步）
+  window.addEventListener("pageshow", function(event) {
+    if (event.persisted) applyThemePreferences(getThemePreferences());
+  });
 })();
 `;
 }

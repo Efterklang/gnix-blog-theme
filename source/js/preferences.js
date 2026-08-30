@@ -499,12 +499,23 @@
   }
 
   function initNavigationControls(root) {
+    // 弹窗里的链接和语言切换都会离开当前页，跳转前先收起弹窗：popover 的开合
+    // 状态随 DOM 一起进 bfcache，否则返回上一页时还压着一层浮层。
+    // 设置页的 root 不在 popover 内，closest 返回 null，closePopup 即空操作
+    const popup = root.closest("[popover]");
+    const closePopup = () => popup?.hidePopover?.();
+
+    root.addEventListener("click", (event) => {
+      if (event.target.closest("a[href]")) closePopup();
+    });
+
     root.querySelectorAll("[data-language-select]").forEach((select) => {
       select.addEventListener("change", () => {
         const url = select.value;
         if (!url) return;
         // 先恢复当前语言选项，避免 bfcache 返回时残留目标语言
         select.value = "";
+        closePopup();
         window.location.assign(url);
       });
     });

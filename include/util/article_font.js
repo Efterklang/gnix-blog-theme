@@ -56,21 +56,10 @@ function getArticleFontInitScript() {
 (function() {
   var config = ${config};
   var defaults = config.defaultSettings || {};
-  var stored = null;
-  var parsed = {};
   var utils = window.__GNIX_ARTICLE_FONT_UTILS__ || {};
+  var html = document.documentElement;
 
   window.__GNIX_ARTICLE_FONT_CONFIG__ = config;
-
-  try {
-    stored = localStorage.getItem(config.storageKey);
-  } catch (_) {}
-
-  if (stored) {
-    try {
-      parsed = JSON.parse(stored) || {};
-    } catch (_) {}
-  }
 
   function hasOption(options, value) {
     return Array.isArray(options) && options.indexOf(value) !== -1;
@@ -93,31 +82,61 @@ function getArticleFontInitScript() {
     return Math.min(max, Math.max(min, parsedValue));
   }
 
-  var candidate = Object.assign({}, defaults, parsed);
-  var customFonts = utils.normalizeCustomFonts
-    ? utils.normalizeCustomFonts(
-        candidate.customFonts,
-        config.customFonts && config.customFonts.familyOptions,
-        config.customFonts && config.customFonts.importLimit
-      )
-    : { imports: [], families: {} };
-  var settings = {
-    size: hasOption(config.sizeOptions, candidate.size) ? candidate.size : defaults.size,
-    type: hasOption(config.fontOptions, candidate.type) ? candidate.type : defaults.type,
-    lineHeight: normalizeLineHeight(candidate.lineHeight),
-    weight: hasOption(config.weightOptions, candidate.weight) ? candidate.weight : defaults.weight,
-    width: hasOption(config.widthOptions, candidate.width) ? candidate.width : defaults.width,
-    customFonts: customFonts
-  };
-  var html = document.documentElement;
+  function readStoredSettings() {
+    var stored = null;
+    var parsed = {};
 
-  if (utils.applyCustomFontImports) utils.applyCustomFontImports(settings.customFonts.imports);
-  if (utils.applyCustomFontFamilies) utils.applyCustomFontFamilies(html, settings.customFonts.families, config.customFonts && config.customFonts.familyOptions);
-  html.setAttribute("data-article-font-size", settings.size);
-  html.setAttribute("data-article-font-family", settings.type);
-  html.setAttribute("data-article-font-weight", settings.weight);
-  html.setAttribute("data-article-width", settings.width);
-  html.style.setProperty("--article-line-height", String(settings.lineHeight));
+    try {
+      stored = localStorage.getItem(config.storageKey);
+    } catch (_) {}
+
+    if (stored) {
+      try {
+        parsed = JSON.parse(stored) || {};
+      } catch (_) {}
+    }
+
+    var candidate = Object.assign({}, defaults, parsed);
+
+    return {
+      size: hasOption(config.sizeOptions, candidate.size) ? candidate.size : defaults.size,
+      type: hasOption(config.fontOptions, candidate.type) ? candidate.type : defaults.type,
+      lineHeight: normalizeLineHeight(candidate.lineHeight),
+      weight: hasOption(config.weightOptions, candidate.weight) ? candidate.weight : defaults.weight,
+      width: hasOption(config.widthOptions, candidate.width) ? candidate.width : defaults.width,
+      customFonts: utils.normalizeCustomFonts
+        ? utils.normalizeCustomFonts(
+            candidate.customFonts,
+            config.customFonts && config.customFonts.familyOptions,
+            config.customFonts && config.customFonts.importLimit
+          )
+        : { imports: [], families: {} }
+    };
+  }
+
+  function applySettings(settings) {
+    if (utils.applyCustomFontImports) utils.applyCustomFontImports(settings.customFonts.imports);
+    if (utils.applyCustomFontFamilies) utils.applyCustomFontFamilies(html, settings.customFonts.families, config.customFonts && config.customFonts.familyOptions);
+    html.setAttribute("data-article-font-size", settings.size);
+    html.setAttribute("data-article-font-family", settings.type);
+    html.setAttribute("data-article-font-weight", settings.weight);
+    html.setAttribute("data-article-width", settings.width);
+    html.style.setProperty("--article-line-height", String(settings.lineHeight));
+  }
+
+  applySettings(readStoredSettings());
+
+  // bfcache 返回时本脚本不再执行，<html> 上仍是页面被缓存那一刻的字体设置。
+  // 按 localStorage 重放一次，并广播给偏好面板等监听者同步 UI
+  window.addEventListener("pageshow", function(event) {
+    if (!event.persisted) return;
+
+    var settings = readStoredSettings();
+    applySettings(settings);
+    try {
+      window.dispatchEvent(new CustomEvent("gnix:article-font-settings-change", { detail: settings }));
+    } catch (_) {}
+  });
 })();
 `;
 }
