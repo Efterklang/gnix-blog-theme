@@ -7,6 +7,9 @@
 .archive-page {
   --archive-muted: color-mix(in oklch, var(--subtext1) 78%, var(--base));
   --archive-accent: var(--lavender);
+  --archive-popup-open-delay: 140ms;
+  --archive-popup-enter-duration: 160ms;
+  --archive-popup-exit-duration: 100ms;
   position: relative;
   display: grid;
   /* 间距做层级：条目密、组间松（约 3 倍条目节距），靠留白对比分组，不画线 */
@@ -37,28 +40,14 @@
   overflow-wrap: anywhere;
 }
 
-/* 页面呈现时文章行自下方上浮、逐条进场（仿 antfu.me 列表页的 slide-enter
-   节奏；--i 为分组内序号，各分组并行起跑，年份标记与季节标题不参与，直接呈现。
-   序号不跨分组累计：全局连续序号会让页底条目背上前面所有条目的延迟，
-   滚动到深处刷新时要干等几秒才见到内容）。
-   淡入与位移拆开挂在两层：translate 若直接动画在 .archive-item 上，动画期间
-   （含 both 填充下所有仍在等待 delay 的条目）item 会成为其内部 fixed 定位
-   .archive-popup 的 containing block，anchor 定位失效、popup 掉到条目底部；
-   item 只动 opacity（不产生 containing block），位移由标题承担，视觉不变。
-   .gnix-revealed 由 head 内联脚本在 pagereveal（不支持时内联立即）添加，
-   保证 prerender 激活时动画从首个可见帧才开始；无 JS 时不加类，列表直接可见 */
 :root.gnix-revealed .archive-page .archive-item {
-  /* backwards 而非 both：both 会让动画结束后仍处于 in effect 状态，条目常驻
-     stacking context，内部 fixed 定位的悬浮预览会被 DOM 靠后的条目盖住
-     （文章页脚注底栏曾因此"变透明"，见 article.css）。
-     曲线与幕帘/popup 同一条 easeOutQuint；时长与步进压短，长分组末条不用干等 */
   animation: archive-item-fade 0.6s var(--ease-out) backwards;
-  animation-delay: calc(var(--i, 0) * 45ms);
+  animation-delay: calc(var(--i, 0) * 30ms);
 }
 
 :root.gnix-revealed .archive-page .archive-item > .archive-title {
   animation: archive-title-rise 0.6s var(--ease-out) backwards;
-  animation-delay: calc(var(--i, 0) * 45ms);
+  animation-delay: calc(var(--i, 0) * 30ms);
 }
 
 @keyframes archive-item-fade {
@@ -150,24 +139,26 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
    :has() 选择器枚举每类元素分别设 opacity: 0，淡出时序还不一致
    （rail/navbar 有过渡、hero 与其他条目硬切）；单层 overlay 视觉等效，
    只过渡一个 opacity。130 落在 navbar（100/101）与活动条目（140）之间 */
-@media (hover: hover) and (min-width: 721px) {
-  .archive-page::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 130;
-    background: var(--mantle);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 200ms ease;
-  }
+@supports (anchor-name: --archive-anchor) and (anchor-scope: --archive-anchor) {
+  @media (hover: hover) and (pointer: fine) and (min-width: 721px) {
+    .archive-page::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 130;
+      background: var(--mantle);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--archive-popup-exit-duration) var(--ease-out);
+    }
 
-  /* 与 popup 的展示条件同源（悬停标题/预览）。0.9 调光不熄灯：邻行留一丝
-     余像，保住"在第几季、上下是什么"的空间上下文。退场快于进场：
-     指针移开的瞬间活动条目落回 overlay 之下，短退场把这一帧落差融进整体淡出 */
-  .archive-page:has(:is(.archive-title, .archive-popup):hover)::after {
-    opacity: 0.9;
-    transition-duration: 320ms;
+    /* 与 popup 共用悬停意图延迟与进退场时长；无摘要、锚点能力不足或幕帘开启时
+       不调暗页面。0.9 调光不熄灯：邻行留一丝余像，保住分组与相邻文章的上下文 */
+    .archive-page:not(:has(.archive-topic-picker:popover-open)):has(.archive-item > .archive-title:hover + .archive-popup, .archive-item > .archive-popup:hover)::after {
+      opacity: 0.9;
+      transition-duration: var(--archive-popup-enter-duration);
+      transition-delay: var(--archive-popup-open-delay);
+    }
   }
 }
 
@@ -334,7 +325,6 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   &[aria-current="page"] {
     transition: color 140ms ease;
     color: var(--archive-accent);
-    outline: none;
   }
 }
 
@@ -426,16 +416,17 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 .archive-popup {
   --popup-gap: 12px;
   --popup-hidden-shift: 3px;
+  display: none;
   position: fixed;
   position-anchor: --archive-anchor;
   z-index: 141;
   box-sizing: border-box;
 
-  /* Default placement: above the item（底边贴条目顶，margin 作间隙）。高度设上限让
+  /* Default placement: above the item（透明 border 保留间隙且连通悬停命中区）。高度设上限让
      overflow: auto 真正生效——无约束时长摘要会把盒顶推出视口，被裁部分无从滚回 */
   bottom: anchor(top);
   inset-inline-start: anchor(start);
-  margin-block-end: var(--popup-gap);
+  border-block-end: var(--popup-gap) solid transparent;
   /* 上方放不下时不翻到条目下方（方位恒在上），改为压缩：盒顶贴视口顶、
      底边仍贴条目顶，高度被这段空间截短，超出部分走内部滚动 */
   position-try-fallbacks: --archive-popup-squeeze;
@@ -444,11 +435,16 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   max-inline-size: min(34rem, calc(100vw - 24px));
   max-block-size: 50dvh;
   overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
   /* 摘要里长 URL 等不可断段会把 fit-content 顶到宽度上限后横向溢出成滚动条，
      兜底折行 */
   overflow-wrap: anywhere;
 
   padding: 0.85rem 1rem 0.9rem;
+  font-size: var(--article-font-size);
+  font-weight: var(--article-font-weight);
+  line-height: var(--article-line-height);
 
   opacity: 0;
   transform: translateY(var(--popup-hidden-shift));
@@ -456,26 +452,20 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   pointer-events: none;
   visibility: hidden;
   transition:
-    opacity 90ms ease,
-    transform 140ms var(--ease-out),
-    visibility 0s linear 140ms;
+    opacity var(--archive-popup-exit-duration) var(--ease-out),
+    transform var(--archive-popup-exit-duration) var(--ease-out),
+    visibility 0s linear var(--archive-popup-exit-duration),
+    content-visibility var(--archive-popup-exit-duration);
+  transition-behavior: allow-discrete;
 
-  @media (hover: none), (max-width: 720px) {
-    display: none !important;
-  }
-}
-
-/* Placement depends entirely on anchor positioning; where it is unsupported,
-   fail closed (no preview) rather than render the popup at a broken position. */
-@supports not (anchor-name: --a) {
-  .archive-popup {
-    display: none !important;
+  @supports (content-visibility: hidden) and (transition-behavior: allow-discrete) {
+    content-visibility: hidden;
   }
 }
 
 /* 未声明的属性沿用元素基础值（bottom: anchor(top) 仍生效），top 与 bottom 同设
    把可用区间约束在视口顶到条目顶之间；align-self: end 让 fit-content 高度的盒子
-   沉底贴回条目顶，间隙仍由 margin-block-end 承担 */
+   沉底贴回条目顶，间隙仍由透明 border-block-end 承担 */
 @position-try --archive-popup-squeeze {
   top: 0.75rem;
   align-self: end;
@@ -509,20 +499,43 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 /* 展示条件只认悬停（标题或预览本体）。曾并入 :focus-within，但点击标题进入
    文章后返回时浏览器会还原链接焦点，popup 常驻且不随指针移开消失，故移除；
-   popup 常驻渲染（隐藏只切 visibility 不切 display），从隐藏态出发的过渡
-   天然生效，无需 @starting-style */
-.archive-item:has(:is(.archive-title, .archive-popup):hover) {
-  z-index: 140;
+   支持离散过渡时，隐藏摘要跳过布局，退场完成才切 content-visibility；
+   不支持时保留 visibility 过渡。条目层级延迟回落，避免退场时先被遮罩盖住 */
+/* Placement depends entirely on anchor positioning; where it is unsupported,
+   fail closed (no preview) rather than render the popup at a broken position. */
+@supports (anchor-name: --archive-anchor) and (anchor-scope: --archive-anchor) {
+  @media (hover: hover) and (pointer: fine) and (min-width: 721px) {
+    .archive-popup {
+      display: block;
+    }
 
-  > .archive-popup {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-    visibility: visible;
-    transition:
-      opacity 120ms ease 180ms,
-      transform 160ms var(--ease-out) 180ms,
-      visibility 0s linear 180ms;
+    .archive-item {
+      transition: z-index 0s linear var(--archive-popup-exit-duration);
+      transition-behavior: allow-discrete;
+    }
+
+    .archive-page:not(:has(.archive-topic-picker:popover-open)) .archive-item:has(> .archive-title:hover + .archive-popup, > .archive-popup:hover) {
+      z-index: 140;
+      transition-delay: 0s;
+
+      > .archive-title {
+        color: var(--archive-accent);
+      }
+
+      > .archive-title > .archive-title__date {
+        color: color-mix(in oklch, var(--archive-accent) 72%, var(--archive-muted));
+      }
+
+      > .archive-popup {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+        visibility: visible;
+        content-visibility: visible;
+        transition-duration: var(--archive-popup-enter-duration), var(--archive-popup-enter-duration), 0s, var(--archive-popup-enter-duration);
+        transition-delay: var(--archive-popup-open-delay);
+      }
+    }
   }
 }
 
@@ -547,7 +560,7 @@ a.archive-title {
   text-indent: calc(-1 * (var(--archive-date-col) + var(--archive-date-gap)));
   line-height: 1.45;
   overflow-wrap: anywhere;
-  transition: color 140ms ease;
+  transition: color 140ms var(--ease-out);
 
   @media (max-width: 480px) {
     padding-block: 0.7rem;
@@ -557,7 +570,6 @@ a.archive-title {
   &:hover,
   &:focus-visible {
     color: var(--archive-accent);
-    outline: none;
   }
 
   /* 按下当帧上色（transition: none）：触屏没有 hover，
@@ -579,10 +591,20 @@ a.archive-title {
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
   text-indent: 0;
-  transition: color 140ms ease;
+  transition: color 140ms var(--ease-out);
 
   a.archive-title:hover &,
   a.archive-title:focus-visible & {
     color: color-mix(in oklch, var(--archive-accent) 72%, var(--archive-muted));
   }
+}
+
+:is(.archive-hero__title, .archive-topic-list__item, a.archive-title):focus-visible {
+  outline: auto;
+  outline-offset: 3px;
+  transition: none;
+}
+
+a.archive-title:focus-visible > .archive-title__date {
+  transition: none;
 }

@@ -311,6 +311,10 @@ function addHighlightTool() {
         clearTimeout(expandTimer);
 
         if (isExpanded) {
+          if (computed.maxHeight === "none") {
+            pre.style.maxHeight = computed.height;
+            pre.getBoundingClientRect();
+          }
           figure.classList.remove(CLS.expanded);
           pre.style.maxHeight = `${showLines * lineHeight + padding}px`;
           expandBtn.classList.remove(CLS.expandDone);

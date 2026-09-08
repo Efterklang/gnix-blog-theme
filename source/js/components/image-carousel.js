@@ -36,7 +36,10 @@ function getUiText(key, value) {
   const messages = {
     imageCarousel: zh ? "图片轮播" : "Image carousel",
     nextSlide: zh ? "下一张" : "Next slide",
+    pauseAutoplay: zh ? "暂停自动播放" : "Pause autoplay",
+    playbackNote: zh ? "悬停或聚焦时保持暂停。" : "Pauses while hovered or focused.",
     previousSlide: zh ? "上一张" : "Previous slide",
+    resumeAutoplay: zh ? "恢复自动播放" : "Resume autoplay",
     slide: zh ? `第 ${value} 张` : `Slide ${value}`,
     slideNavigation: zh ? "幻灯片导航" : "Slide navigation",
   };
@@ -205,6 +208,43 @@ const STYLES = `
     background: var(--text);
     transform: scale(1.25);
   }
+
+  .playback-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding-block: 0.5rem;
+  }
+
+  .playback-controls[hidden] {
+    display: none;
+  }
+
+  .playback-toggle {
+    min-block-size: 44px;
+    min-inline-size: 44px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--surface1, #45475a);
+    border-radius: var(--radius, 12px);
+    background: var(--base, #1e1e2e);
+    color: var(--text, #cdd6f4);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .playback-toggle:focus-visible {
+    outline: 2px solid var(--blue, #89b4fa);
+    outline-offset: 2px;
+  }
+
+  .playback-note {
+    margin: 0;
+    color: var(--subtext0, #a6adc8);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    text-align: center;
+  }
 `;
 
 const CHEVRON_LEFT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>`;
@@ -221,14 +261,20 @@ class ImageCarousel extends HTMLElement {
     this._dots = [];
     this._touchStartX = 0;
     this._observer = null;
-    this._isVisible = true;
-    this._handleVisibility = () => {
-      if (document.hidden) this._stopAutoplay();
-      else if (this._isVisible) this._maybeStartAutoplay();
-    };
+    this._isVisible = false;
+    this._isHovered = false;
+    this._isFocused = false;
+    this._isInteracting = false;
+    this._userPaused = false;
+    this._handleVisibility = () => this._syncAutoplay();
   }
 
   connectedCallback() {
+    this._isVisible = false;
+    this._isHovered = false;
+    this._isFocused = false;
+    this._isInteracting = false;
+    this._touchStartX = 0;
     this._images = this._collectImages();
     if (!this._images.length) return;
 
@@ -238,13 +284,15 @@ class ImageCarousel extends HTMLElement {
     if (this._images.length > 1) {
       this._setupListeners();
       this._observeVisibility();
-      this._maybeStartAutoplay();
     }
+    this._syncAutoplay();
   }
 
   disconnectedCallback() {
-    this._stopAutoplay();
+    this._isVisible = false;
+    this._syncAutoplay();
     this._observer?.disconnect();
+    this._observer = null;
     document.removeEventListener("visibilitychange", this._handleVisibility);
   }
 
@@ -255,9 +303,9 @@ class ImageCarousel extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue || !this._images.length) return;
     if (name === "autoplay") {
-      newValue !== null ? this._startAutoplay() : this._stopAutoplay();
-    } else if (name === "interval" && this._timer) {
-      this._startAutoplay();
+      this._syncAutoplay();
+    } else if (name === "interval") {
+      this._syncAutoplay(true);
     } else if (name === "ratio") {
       this._resolveRatio();
     }
@@ -369,6 +417,13 @@ class ImageCarousel extends HTMLElement {
         </div>`
       : "";
 
+    const playbackHTML = multiSlide
+      ? `<div class="playback-controls"${this.hasAttribute("autoplay") ? "" : " hidden"}>
+          <button type="button" class="playback-toggle">${getUiText(this._userPaused ? "resumeAutoplay" : "pauseAutoplay")}</button>
+          <p class="playback-note">${getUiText("playbackNote")}</p>
+        </div>`
+      : "";
+
     this.shadowRoot.innerHTML = `
       <div class="carousel" role="region" aria-label="${getUiText("imageCarousel")}" tabindex="0">
         <div class="stage">
@@ -376,6 +431,7 @@ class ImageCarousel extends HTMLElement {
           ${navHTML}
         </div>
         ${dotsHTML}
+        ${playbackHTML}
       </div>
       <slot style="display:none"></slot>
     `;
@@ -416,25 +472,52 @@ class ImageCarousel extends HTMLElement {
    *  next auto-advance doesn't fire immediately after their action. */
   _userNav(direction) {
     direction === "next" ? this._next() : this._prev();
-    this._maybeStartAutoplay();
+    this._syncAutoplay(true);
   }
 
   // ─── autoplay ──────────────────────────────────────────────────────
 
-  _maybeStartAutoplay() {
-    if (this.hasAttribute("autoplay") && this._images.length > 1) {
-      this._startAutoplay();
+  _canAutoplay() {
+    return (
+      this.isConnected &&
+      this._isVisible &&
+      !document.hidden &&
+      !this._isHovered &&
+      !this._isFocused &&
+      !this._isInteracting &&
+      !this._userPaused &&
+      this.hasAttribute("autoplay") &&
+      this._images.length > 1
+    );
+  }
+
+  _syncAutoplay(restart = false) {
+    this._updatePlaybackControl();
+    if (!this._canAutoplay()) {
+      this._stopAutoplay();
+      return;
     }
+    if (restart || this._timer === null) this._startAutoplay();
+  }
+
+  _updatePlaybackControl() {
+    const controls = this.shadowRoot.querySelector(".playback-controls");
+    if (!controls) return;
+    controls.hidden = !this.hasAttribute("autoplay") || this._images.length < 2;
+    controls.querySelector(".playback-toggle").textContent = getUiText(this._userPaused ? "resumeAutoplay" : "pauseAutoplay");
   }
 
   _startAutoplay() {
     this._stopAutoplay();
+    if (!this._canAutoplay()) return;
     const interval = parseInt(this.getAttribute("interval") || "", 10) || DEFAULT_INTERVAL;
-    this._timer = setInterval(() => this._next(), interval);
+    this._timer = setInterval(() => {
+      if (this._canAutoplay()) this._next();
+    }, interval);
   }
 
   _stopAutoplay() {
-    if (this._timer) {
+    if (this._timer !== null) {
       clearInterval(this._timer);
       this._timer = null;
     }
@@ -453,12 +536,35 @@ class ImageCarousel extends HTMLElement {
       const dot = e.target.closest(".dot");
       if (!dot) return;
       this._goTo(parseInt(dot.dataset.index, 10));
-      this._maybeStartAutoplay();
+      this._syncAutoplay(true);
     });
 
-    // Pause autoplay while the cursor sits on the carousel
-    carousel.addEventListener("mouseenter", () => this._stopAutoplay());
-    carousel.addEventListener("mouseleave", () => this._maybeStartAutoplay());
+    root.querySelector(".playback-toggle")?.addEventListener("click", () => {
+      this._userPaused = !this._userPaused;
+      this._syncAutoplay();
+    });
+
+    carousel.addEventListener("pointerenter", (event) => {
+      if (event.pointerType === "touch") return;
+      this._isHovered = true;
+      this._syncAutoplay();
+    });
+    carousel.addEventListener("pointerleave", (event) => {
+      if (event.pointerType === "touch") return;
+      this._isHovered = false;
+      this._syncAutoplay();
+    });
+    carousel.addEventListener("focusin", () => {
+      this._isFocused = true;
+      this._syncAutoplay();
+    });
+    carousel.addEventListener("focusout", () => {
+      queueMicrotask(() => {
+        if (!carousel.isConnected) return;
+        this._isFocused = carousel.matches(":focus-within");
+        this._syncAutoplay();
+      });
+    });
 
     // Keyboard navigation
     carousel.addEventListener("keydown", (e) => {
@@ -469,31 +575,44 @@ class ImageCarousel extends HTMLElement {
     // Touch / swipe
     carousel.addEventListener(
       "touchstart",
-      (e) => {
-        this._touchStartX = e.touches[0].clientX;
+      (event) => {
+        this._touchStartX = event.touches[0].clientX;
+        this._isInteracting = true;
+        this._syncAutoplay();
       },
       { passive: true },
     );
 
     carousel.addEventListener(
       "touchend",
-      (e) => {
-        const dx = e.changedTouches[0].clientX - this._touchStartX;
-        if (Math.abs(dx) > SWIPE_THRESHOLD_PX) {
-          this._userNav(dx < 0 ? "next" : "prev");
+      (event) => {
+        const deltaX = event.changedTouches[0].clientX - this._touchStartX;
+        if (Math.abs(deltaX) > SWIPE_THRESHOLD_PX) {
+          this._userNav(deltaX < 0 ? "next" : "prev");
         }
+        this._isInteracting = Array.from(event.touches).some((touch) =>
+          carousel.contains(touch.target),
+        );
+        this._syncAutoplay(true);
       },
       { passive: true },
     );
+    carousel.addEventListener("touchcancel", (event) => {
+      this._isInteracting = Array.from(event.touches).some((touch) =>
+        carousel.contains(touch.target),
+      );
+      this._syncAutoplay(true);
+    });
   }
 
   _observeVisibility() {
-    this._observer = new IntersectionObserver(([entry]) => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (this._observer !== observer || !this.isConnected) return;
       this._isVisible = entry.isIntersecting;
-      if (entry.isIntersecting) this._maybeStartAutoplay();
-      else this._stopAutoplay();
+      this._syncAutoplay();
     });
-    this._observer.observe(this);
+    this._observer = observer;
+    observer.observe(this);
     document.addEventListener("visibilitychange", this._handleVisibility);
   }
 }

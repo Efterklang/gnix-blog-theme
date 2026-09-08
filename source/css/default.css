@@ -875,9 +875,6 @@ input.searchbox-input {
     border: 1px solid var(--surface1);
     border-radius: 999px;
     background-color: hsl(from var(--surface0) h s l / 0.5);
-    transition:
-      background-color 0.15s ease,
-      border-color 0.15s ease;
 
     &::before {
       content: none;

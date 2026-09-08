@@ -153,31 +153,53 @@
         this.apply();
       });
 
-      // Dragging — bind window listeners only while a drag is active
       if (!this.viewContainer) return;
 
-      const onMove = (e) => {
-        e.preventDefault();
-        this.tx = e.clientX - this.startX;
-        this.ty = e.clientY - this.startY;
+      let activePointerId = null;
+      let initialTranslateX = 0;
+      let initialTranslateY = 0;
+
+      const onMove = (event) => {
+        if (activePointerId === null || event.pointerId !== activePointerId) return;
+        event.preventDefault();
+        this.tx = initialTranslateX + (event.clientX - this.startX) / this.scale;
+        this.ty = initialTranslateY + (event.clientY - this.startY) / this.scale;
         this.apply();
       };
-      const onUp = () => {
+
+      const finishDrag = (event) => {
+        if (activePointerId === null || event.pointerId !== activePointerId) return;
+        activePointerId = null;
         this.isDragging = false;
-        this.viewContainer.style.cursor = "grab";
-        window.removeEventListener("pointermove", onMove);
-        window.removeEventListener("pointerup", onUp);
+        this.viewContainer.classList.remove("is-dragging");
+        if (this.viewContainer.hasPointerCapture(event.pointerId)) {
+          this.viewContainer.releasePointerCapture(event.pointerId);
+        }
       };
 
-      this.viewContainer.addEventListener("pointerdown", (e) => {
-        if (e.button !== 0) return;
+      this.viewContainer.addEventListener("pointerdown", (event) => {
+        if (!event.isPrimary || event.button !== 0 || activePointerId !== null || !this.content || event.target.closest("button, a, input, textarea, select, [contenteditable]")) return;
+
+        const transform = getComputedStyle(this.content).transform;
+        const matrix = new DOMMatrixReadOnly(transform === "none" ? undefined : transform);
+        this.scale = matrix.a;
+        this.tx = matrix.e / this.scale;
+        this.ty = matrix.f / this.scale;
+        this.startX = event.clientX;
+        this.startY = event.clientY;
+        initialTranslateX = this.tx;
+        initialTranslateY = this.ty;
+        this.viewContainer.classList.add("is-dragging");
         this.isDragging = true;
-        this.startX = e.clientX - this.tx;
-        this.startY = e.clientY - this.ty;
-        this.viewContainer.style.cursor = "grabbing";
-        window.addEventListener("pointermove", onMove);
-        window.addEventListener("pointerup", onUp);
+        this.apply();
+        activePointerId = event.pointerId;
+        this.viewContainer.setPointerCapture(activePointerId);
       });
+
+      this.viewContainer.addEventListener("pointermove", onMove);
+      this.viewContainer.addEventListener("pointerup", finishDrag);
+      this.viewContainer.addEventListener("pointercancel", finishDrag);
+      this.viewContainer.addEventListener("lostpointercapture", finishDrag);
     }
 
     copyCode(btn) {

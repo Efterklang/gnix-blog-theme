@@ -73,7 +73,7 @@ class ThemeStackedElement extends HTMLElement {
 
   disconnectedCallback() {
     this._observer?.disconnect();
-    document.removeEventListener("keydown", this._keyHandler);
+    this._cardStack?.removeEventListener("keydown", this._keyHandler);
     document.removeEventListener("mouseup", this._mouseUpHandler);
   }
 
@@ -144,6 +144,11 @@ class ThemeStackedElement extends HTMLElement {
           overflow: hidden;
           display: grid;
           place-items: center;
+        }
+
+        .card-stack:focus-visible {
+          outline: 2px solid var(--blue);
+          outline-offset: -2px;
         }
 
         .theme-card {
@@ -356,10 +361,15 @@ class ThemeStackedElement extends HTMLElement {
             background: var(--overlay0);
           }
         }
+
+        .stacked-container[data-navigation-input="keyboard"] .theme-card,
+        .stacked-container[data-navigation-input="keyboard"] .dot {
+          transition: none;
+        }
       </style>
 
       <div class="stacked-container">
-        <div class="card-stack" id="card-stack"></div>
+        <div class="card-stack" id="card-stack" tabindex="0" role="group" aria-label="Theme previews"></div>
 
         <div class="controls">
           <button class="nav-btn" id="prev-btn" aria-label="Previous theme">
@@ -381,6 +391,7 @@ class ThemeStackedElement extends HTMLElement {
   }
 
   init() {
+    this._stackedContainer = this.shadowRoot.querySelector(".stacked-container");
     this._cardStack = this.shadowRoot.querySelector("#card-stack");
     this._dotsContainer = this.shadowRoot.querySelector("#dots");
     this._prevBtn = this.shadowRoot.querySelector("#prev-btn");
@@ -423,7 +434,9 @@ class ThemeStackedElement extends HTMLElement {
 
   renderDots() {
     this._dotsContainer.innerHTML = this._themes.map((_, i) => `<button class="dot" data-index="${i}" aria-label="Go to theme ${i + 1}"></button>`).join("");
-    this._dotsContainer.querySelectorAll(".dot").forEach((dot, i) => dot.addEventListener("click", () => this.goTo(i)));
+    this._dotsContainer.querySelectorAll(".dot").forEach((dot, index) => {
+      dot.addEventListener("click", (event) => this.goTo(index, true, event.detail === 0 ? "keyboard" : "pointer"));
+    });
   }
 
   updateStack() {
@@ -441,10 +454,11 @@ class ThemeStackedElement extends HTMLElement {
     return d === 0 ? 0 : d === 1 ? 1 : d === total - 1 ? -1 : 2;
   }
 
-  goTo(index, animate = true) {
+  goTo(index, animate = true, input = "pointer") {
     if (this._themes.length === 0) return;
 
     this._currentIndex = ((index % this._themes.length) + this._themes.length) % this._themes.length;
+    this._stackedContainer.dataset.navigationInput = input;
     this.updateStack();
     if (animate)
       this.dispatchEvent(
@@ -454,46 +468,59 @@ class ThemeStackedElement extends HTMLElement {
       );
   }
 
-  next() {
-    this.goTo(this._currentIndex + 1);
+  next(input = "pointer") {
+    this.goTo(this._currentIndex + 1, true, input);
   }
-  prev() {
-    this.goTo(this._currentIndex - 1);
+  prev(input = "pointer") {
+    this.goTo(this._currentIndex - 1, true, input);
   }
 
   attachEvents() {
-    this._prevBtn.addEventListener("click", () => this.prev());
-    this._nextBtn.addEventListener("click", () => this.next());
+    this._prevBtn.addEventListener("click", (event) => this.prev(event.detail === 0 ? "keyboard" : "pointer"));
+    this._nextBtn.addEventListener("click", (event) => this.next(event.detail === 0 ? "keyboard" : "pointer"));
 
-    this._cardStack.addEventListener("click", (e) => {
-      const swatch = e.target.closest(".color-swatch");
+    this._cardStack.addEventListener("click", (event) => {
+      const swatch = event.target.closest(".color-swatch");
       if (swatch) {
-        e.stopPropagation();
+        event.stopPropagation();
         const hex = (swatch.dataset.value || "").replace("#", "");
         if (hex && hex !== "transparent") window.open(`https://www.colorhexa.com/${hex}`, "_blank");
         return;
       }
-      const applyBtn = e.target.closest(".apply-btn");
+      const applyBtn = event.target.closest(".apply-btn");
       if (applyBtn) {
-        e.stopPropagation();
-        this.applyTheme(applyBtn.dataset.theme);
+        event.stopPropagation();
+        this.applyTheme(applyBtn.dataset.theme, event.detail === 0 ? "keyboard" : "pointer");
         return;
       }
-      const card = e.target.closest(".theme-card");
-      if (card && !card.classList.contains("active")) this.goTo(Number(card.dataset.index));
+      const card = event.target.closest(".theme-card");
+      if (card && !card.classList.contains("active")) this.goTo(Number(card.dataset.index), true, event.detail === 0 ? "keyboard" : "pointer");
     });
 
-    this._keyHandler = (e) => {
-      if (!this._isVisible) return;
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        this.prev();
-      } else if (e.key === "ArrowRight" || e.key === " ") {
-        e.preventDefault();
-        this.next();
-      } else if (e.key === "Enter") this.applyTheme(this._themes[this._currentIndex].id);
+    this._keyHandler = (event) => {
+      if (
+        event.target !== this._cardStack ||
+        !this._isVisible ||
+        this._themes.length === 0 ||
+        event.defaultPrevented ||
+        event.isComposing ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey
+      ) return;
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        this.prev("keyboard");
+      } else if (event.key === "ArrowRight" || event.key === " ") {
+        event.preventDefault();
+        this.next("keyboard");
+      } else if (event.key === "Enter") {
+        event.preventDefault();
+        this.applyTheme(this._themes[this._currentIndex].id, "keyboard");
+      }
     };
-    document.addEventListener("keydown", this._keyHandler);
+    this._cardStack.addEventListener("keydown", this._keyHandler);
 
     let startX = 0,
       dragging = false;
@@ -546,7 +573,7 @@ class ThemeStackedElement extends HTMLElement {
     return document.documentElement.getAttribute("data-theme") || config?.systemTheme?.dark || this._themes[0]?.id;
   }
 
-  applyTheme(themeId) {
+  applyTheme(themeId, input = "pointer") {
     if (!window.applyTheme) return;
     window.applyTheme(themeId, true);
     this._cards.forEach((card, i) => {
@@ -556,6 +583,10 @@ class ThemeStackedElement extends HTMLElement {
       btn.textContent = match ? "Applied ✓" : "Apply Theme";
     });
     const btn = this._cards[this._currentIndex].querySelector(".apply-btn");
+    if (input === "keyboard") {
+      btn.style.transform = "";
+      return;
+    }
     btn.style.transform = "scale(0.95)";
     setTimeout(() => {
       btn.style.transform = "";

@@ -34,10 +34,11 @@
   min-height: 200px;
   overflow: hidden;
   cursor: grab;
+  touch-action: pinch-zoom;
   display: flex;
   flex-direction: column;
 }
-.mermaid-view-container:active {
+.mermaid-view-container.is-dragging {
   cursor: grabbing;
 }
 .mermaid-content {
@@ -49,7 +50,10 @@
   padding: 20px;
   box-sizing: border-box;
   transform-origin: center;
-  transition: transform 0.2s ease;
+  transition: transform 200ms var(--ease-out);
+}
+.mermaid-view-container.is-dragging .mermaid-content {
+  transition: none;
 }
 .mermaid-viewer-grid-panel {
   position: absolute;
