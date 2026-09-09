@@ -79,6 +79,12 @@ const FONT_WEIGHT_OPTIONS = [
   ["medium", "preferences.weight_medium", "Medium"],
 ];
 
+const ARTICLE_SPACING_OPTIONS = [
+  ["compact", "preferences.spacing_compact", "Compact"],
+  ["normal", "preferences.spacing_normal", "Normal"],
+  ["relaxed", "preferences.spacing_relaxed", "Relaxed"],
+];
+
 function renderThemeSchemeControl(helper, kind, themes, idPrefix) {
   const isLight = kind === "light";
   const title = translate(helper, isLight ? "preferences.light_theme" : "preferences.dark_theme", isLight ? "Light Theme" : "Dark Theme");
@@ -248,6 +254,21 @@ module.exports = class extends Component {
                   1.70
                 </output>
               </div>
+            </div>
+
+            <div class="preference-row">
+              <div class="preference-row__label">
+                <span>{translate(helper, "preferences.spacing", "Spacing")}</span>
+                <small>{translate(helper, "preferences.spacing_description", "Vertical space between paragraphs, headings and media")}</small>
+              </div>
+              <fieldset class="preference-choice-group preference-choice-group--segmented preference-choice-group--font-spacing font-spacing-selector">
+                <legend class="preference-sr-only">{translate(helper, "preferences.spacing", "Spacing")}</legend>
+                {ARTICLE_SPACING_OPTIONS.map(([value, key, fallback]) => (
+                  <button type="button" class="preference-choice-button preference-choice-button--segmented font-spacing-btn" data-spacing={value} aria-label={translate(helper, key, fallback)}>
+                    <span class="font-option-name">{translate(helper, key, fallback)}</span>
+                  </button>
+                ))}
+              </fieldset>
             </div>
 
             <div class="preference-row preference-row--control-only">

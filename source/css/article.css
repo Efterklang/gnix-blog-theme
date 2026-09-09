@@ -33,6 +33,12 @@
   font-family: var(--article-font-family);
   line-height: var(--article-line-height);
   font-weight: var(--article-font-weight);
+  /* 纵向节奏（参考 openai.com 文章页的 4px 栅格）：正文所有纵向留白都是
+     --spacing 的整数倍——段落、列表等文字块 6 格，图片、代码块、表格、引用等
+     媒体块 8 格；标题上方 16/10/8/6 格、下方 4/3/2 格。相邻块的外边距折叠取
+     大者；标题之后的首块清零上边距，与正文的距离由标题自己的下边距决定 */
+  --flow: calc(var(--spacing) * 6);
+  --flow-media: calc(var(--spacing) * 8);
 
   a.header-anchor {
     color: var(--text);
@@ -68,7 +74,8 @@
 
   h2 {
     font-size: 1.5em;
-    margin: 1rem 0;
+    line-height: 1.3;
+    margin: calc(var(--spacing) * 16) 0 calc(var(--spacing) * 4);
     letter-spacing: -0.01em;
     counter-increment: h2-counter;
     display: flex;
@@ -98,7 +105,7 @@
 
   h3 {
     font-size: 1.25em;
-    margin: 2.25rem 0 0.75rem;
+    margin: calc(var(--spacing) * 10) 0 calc(var(--spacing) * 3);
     line-height: 1.35;
     letter-spacing: -0.005em;
 
@@ -109,7 +116,7 @@
 
   h4 {
     font-size: 1.15em;
-    margin: 1.875rem 0 0.5rem;
+    margin: calc(var(--spacing) * 8) 0 calc(var(--spacing) * 2);
     line-height: 1.4;
 
     > a.header-anchor:hover::after {
@@ -119,7 +126,7 @@
 
   h5 {
     font-size: 1em;
-    margin: 1.625rem 0 0.5rem;
+    margin: calc(var(--spacing) * 6) 0 calc(var(--spacing) * 2);
     line-height: 1.5;
 
     > a.header-anchor:hover::after {
@@ -129,7 +136,7 @@
 
   h6 {
     font-size: 0.8125em;
-    margin: 1.625rem 0 0.5rem;
+    margin: calc(var(--spacing) * 6) 0 calc(var(--spacing) * 2);
     line-height: 1.5;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -144,14 +151,40 @@
     }
   }
 
-  p,
-  ol,
-  dl,
-  pre,
-  blockquote,
-  details {
-    margin-bottom: 1.4em;
-    line-height: var(--article-line-height);
+  /* 文字块 6 格。:where 压平特定性，便于下方的媒体块与标题后清零规则覆盖；
+     自定义元素的宿主样式（shadow 里的 :host 或 light DOM 的元素选择器）都让位于此处 */
+  :where(p, ul, ol, dl, details, aside, side-note, text-image-section, .footnotes) {
+    margin-block: var(--flow);
+  }
+
+  /* 媒体块 8 格：figure 含 shiki 代码块、表格外层（renderer.js）与带说明的图片
+     （image.js）；markdown 图片被 <p> 包裹，仅含媒体的段落同档；callout / mermaid /
+     accordion / blockquote 在各自的规则里引用 --flow-media */
+  :where(figure, hr, pre, .ratex-display, x-tree, x-chat, x-info-card, image-group, image-carousel, p:has(> :is(img, iframe, video):only-child)),
+  > :where(img, iframe, video) {
+    margin-block: var(--flow-media);
+  }
+
+  /* 代码块的留白由外层 figure.shiki 承担，内层 pre 不再叠加（figure 是 BFC，
+     子元素的下边距会撑高盒子，此前每个代码块底部都多出 1rem 空白） */
+  figure > pre {
+    margin-block: 0;
+  }
+
+  /* 标题之后的首块：与标题的距离交给标题的下边距 */
+  :is(h2, h3, h4, h5, h6) + * {
+    margin-top: 0;
+  }
+
+  /* 首块与 hero 的距离固定为一档段距（开篇即标题时也不留 16 格——标题单列一个
+     选择器，特定性才压得过上方的 .content h2），末块不留下边距 */
+  > :first-child,
+  > :is(h2, h3, h4, h5, h6):first-child {
+    margin-top: var(--flow);
+  }
+
+  > :last-child {
+    margin-bottom: 0;
   }
 
   p,
@@ -160,12 +193,17 @@
     text-wrap: pretty;
   }
 
-  li {
-    margin-bottom: 0.5rem;
+  li + li {
+    margin-top: calc(var(--spacing) * 2);
   }
 
-  p:last-child {
-    margin-bottom: 0;
+  /* 列表项内的段落与块（松散列表、项内代码块/引用）统一 3 格；嵌套列表贴近父项 */
+  li > :where(p, figure, blockquote, details, .callout, .ratex-display) {
+    margin-block: calc(var(--spacing) * 3);
+  }
+
+  li > :is(ul, ol) {
+    margin-block: calc(var(--spacing) * 2);
   }
 
   img,
@@ -173,17 +211,26 @@
   video {
     display: block;
     max-width: 100%;
-    margin: 0 auto 0.5rem auto;
+    margin-inline: auto;
 
     &:hover {
       cursor: pointer;
     }
+
+    /* 同一段落里连排的媒体 */
+    + :is(img, iframe, video) {
+      margin-top: calc(var(--spacing) * 2);
+    }
   }
+
+  /* image.js 给 figure 内联 max-width，居中靠这里 */
   figure {
+    margin-inline: auto;
     text-align: center;
   }
 
   figcaption {
+    margin-top: calc(var(--spacing) * 2);
     font-style: italic;
     font-family: var(--font-serif);
   }
@@ -225,10 +272,8 @@
   ul {
     list-style: disc outside;
     padding-left: 2em;
-    margin: 1em 0;
 
     ul {
-      margin-top: 0.5em;
       list-style: circle;
 
       ul {
@@ -243,7 +288,7 @@
 
   math {
     overflow: auto;
-    margin-bottom: 1rem;
+    margin-bottom: calc(var(--spacing) * 4);
   }
 
   .ratex {
@@ -294,7 +339,6 @@
     justify-content: center;
     width: 100%;
     max-width: 100%;
-    margin: 1.5rem 0;
     overflow-x: auto;
     overflow-y: hidden;
 
@@ -310,7 +354,6 @@
     overflow-x: auto;
     font-size: 0.85em;
     padding: 1rem;
-    margin: 0 0 1rem 0;
     white-space: pre;
     overflow-wrap: normal;
     line-height: 1.45;
@@ -352,7 +395,6 @@
 
   aside {
     display: block;
-    margin: 1.5rem 0;
     padding: 0.4rem 0 0.4rem 1rem;
     color: var(--subtext0);
     font-size: 0.875em;
@@ -371,6 +413,10 @@
 
 .footnotes {
   font-size: 0.9em;
+}
+
+.footnotes-sep {
+  margin: calc(var(--spacing) * 12) 0 calc(var(--spacing) * 6);
 }
 
 .footnote-ref .footnote-tooltip {
@@ -466,7 +512,6 @@ sup.footnote-ref.is-footnote-tooltip-open .footnote-tooltip {
 
 .table-wrapper {
   max-width: 100%;
-  margin: 1.5em 0;
   overflow-x: auto;
 
   table {
@@ -475,7 +520,6 @@ sup.footnote-ref.is-footnote-tooltip-open .footnote-tooltip {
     border-collapse: collapse;
     border-spacing: 0;
     overflow: auto;
-    margin: 1rem 0;
   }
 }
 
@@ -505,12 +549,21 @@ tbody tr:last-child td {
 blockquote {
   position: relative;
   padding: 0.25rem 0 0.25rem 1.75rem;
-  margin: 1.75rem 0;
+  margin: var(--flow-media, 2rem) 0;
   border-left: 2px solid var(--surface1);
   font-family: Georgia, Kai, var(--font-serif);
   font-style: italic;
   font-synthesis: none;
   color: var(--subtext0);
+
+  /* 引文内的段落靠竖线内侧对齐，不再叠加正文段距 */
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
 
   cite {
     display: block;
@@ -607,14 +660,14 @@ a strong {
 .article-hero {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
-  padding: 2rem 0 1.25rem;
+  gap: calc(var(--spacing) * 10);
+  padding: calc(var(--spacing) * 8) 0 calc(var(--spacing) * 5);
 }
 
 /* 文章页满高首屏：100dvh 扣去 navbar 与 main-content(3rem)/article(1.25em) 顶部内边距 */
 .article-hero-full {
   min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 4.25rem);
-  padding: 0 0 1.5rem;
+  padding: 0 0 calc(var(--spacing) * 6);
 }
 
 /* 封面文章的满高首屏再扣去封面高度，article-hero-meta 仍收在首屏底部 */

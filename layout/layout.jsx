@@ -21,6 +21,7 @@ module.exports = class extends Component {
         data-article-font-family={ARTICLE_FONT_DEFAULT_SETTINGS.type}
         data-article-font-weight={ARTICLE_FONT_DEFAULT_SETTINGS.weight}
         data-article-width={ARTICLE_FONT_DEFAULT_SETTINGS.width}
+        data-article-spacing={ARTICLE_FONT_DEFAULT_SETTINGS.spacing}
       >
         <Head site={site} config={config} helper={helper} page={page} />
         <body>

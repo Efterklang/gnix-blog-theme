@@ -77,6 +77,34 @@ function icon(name, size = 18) {
           <path d="M4 18h16" />
         </svg>
       );
+    case "fold-vertical":
+      return (
+        <svg {...common}>
+          <title>fold-vertical</title>
+          <path d="M12 22v-6" />
+          <path d="M12 8V2" />
+          <path d="M4 12H2" />
+          <path d="M10 12H8" />
+          <path d="M16 12h-2" />
+          <path d="M22 12h-2" />
+          <path d="m15 19-3-3-3 3" />
+          <path d="m15 5-3 3-3-3" />
+        </svg>
+      );
+    case "unfold-vertical":
+      return (
+        <svg {...common}>
+          <title>unfold-vertical</title>
+          <path d="M12 22v-6" />
+          <path d="M12 8V2" />
+          <path d="M4 12H2" />
+          <path d="M10 12H8" />
+          <path d="M16 12h-2" />
+          <path d="M22 12h-2" />
+          <path d="m15 19-3 3-3-3" />
+          <path d="m15 5-3-3-3 3" />
+        </svg>
+      );
     case "sun":
       return (
         <svg {...common}>
@@ -258,6 +286,13 @@ module.exports = class extends Component {
               "rows-loose",
               translate(helper, "preferences.decrease_line_height", "Decrease line height"),
               translate(helper, "preferences.increase_line_height", "Increase line height"),
+            )}
+            {renderStepper(
+              "spacing",
+              "fold-vertical",
+              "unfold-vertical",
+              translate(helper, "preferences.decrease_spacing", "Tighten spacing"),
+              translate(helper, "preferences.increase_spacing", "Loosen spacing"),
             )}
           </div>
 

@@ -6,12 +6,15 @@ const DEFAULT_SETTINGS = Object.freeze({
   lineHeight: 1.7,
   weight: "regular",
   width: "medium",
+  spacing: "normal",
 });
 
 const SIZE_OPTIONS = Object.freeze(["small", "medium-small", "medium", "medium-large", "large"]);
 const FONT_OPTIONS = Object.freeze(["sans-serif", "serif", "mono", "handwriting"]);
 const WEIGHT_OPTIONS = Object.freeze(["light", "regular", "medium"]);
 const WIDTH_OPTIONS = Object.freeze(["narrow", "medium-narrow", "medium", "medium-wide", "wide"]);
+// 正文纵向间距档位：只改 default.css 的 --spacing 基准（3px / 4px / 5px）
+const SPACING_OPTIONS = Object.freeze(["compact", "normal", "relaxed"]);
 const LINE_HEIGHT = Object.freeze({
   min: 1.45,
   max: 1.9,
@@ -34,6 +37,7 @@ function getClientArticleFontConfig() {
     fontOptions: FONT_OPTIONS,
     weightOptions: WEIGHT_OPTIONS,
     widthOptions: WIDTH_OPTIONS,
+    spacingOptions: SPACING_OPTIONS,
     lineHeight: LINE_HEIGHT,
     customFonts: {
       familyOptions: CUSTOM_FONT_FAMILY_OPTIONS,
@@ -104,6 +108,7 @@ function getArticleFontInitScript() {
       lineHeight: normalizeLineHeight(candidate.lineHeight),
       weight: hasOption(config.weightOptions, candidate.weight) ? candidate.weight : defaults.weight,
       width: hasOption(config.widthOptions, candidate.width) ? candidate.width : defaults.width,
+      spacing: hasOption(config.spacingOptions, candidate.spacing) ? candidate.spacing : defaults.spacing,
       customFonts: utils.normalizeCustomFonts
         ? utils.normalizeCustomFonts(
             candidate.customFonts,
@@ -121,6 +126,7 @@ function getArticleFontInitScript() {
     html.setAttribute("data-article-font-family", settings.type);
     html.setAttribute("data-article-font-weight", settings.weight);
     html.setAttribute("data-article-width", settings.width);
+    html.setAttribute("data-article-spacing", settings.spacing);
     html.style.setProperty("--article-line-height", String(settings.lineHeight));
   }
 
@@ -148,6 +154,7 @@ module.exports = {
   FONT_OPTIONS,
   LINE_HEIGHT,
   SIZE_OPTIONS,
+  SPACING_OPTIONS,
   STORAGE_KEY,
   WEIGHT_OPTIONS,
   WIDTH_OPTIONS,

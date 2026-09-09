@@ -1,5 +1,5 @@
 .mermaid-container {
-  margin: 1em 0;
+  margin-block: var(--flow-media, 1em);
   position: relative;
 }
 .mermaid-wrapper {

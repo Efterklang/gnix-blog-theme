@@ -245,8 +245,9 @@ function buildProgressiveImageHTML(parsedAlt, src, options, originalWidth, origi
     return figcaption ? `<figure style="max-width: ${displayWidth}px;">${imageHtml}${figcaption}</figure>` : imageHtml;
   }
 
+  // 纵向间距交给 article.css 的媒体块档位（margin-block），行内只负责居中
   return `
-  <figure class="pic" style="max-width: ${displayWidth}px; width: 100%; margin: 1em auto;">
+  <figure class="pic" style="max-width: ${displayWidth}px; width: 100%; margin-inline: auto;">
     <div class="img-wrapper" style="
       position: relative;
       width: 100%;

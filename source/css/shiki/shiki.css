@@ -50,7 +50,7 @@ span.tab {
 }
 
 figure.shiki {
-  margin: 0.5em 0;
+  /* 纵向间距由 article.css 的媒体块档位（--flow-media）统一给出 */
   border-radius: 8px;
   border: 0.5px solid var(--surface0);
   overflow: auto;

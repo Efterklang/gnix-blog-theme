@@ -1,7 +1,7 @@
 .accordion {
   display: block;
   interpolate-size: allow-keywords;
-  margin: 1em 0;
+  margin-block: var(--flow-media, 1em);
 }
 
 .accordion > details.accordion-item {

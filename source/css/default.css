@@ -13,6 +13,10 @@
   --article-bold-font-weight: 700;
   /* 文章页正文栏宽（article.css 消费，其余页面保持默认列宽） */
   --article-max-width: 50em;
+  /* 纵向间距基准（4px 栅格，同 Tailwind v4 的 --spacing）：文章正文的所有纵向
+     留白都取它的整数倍（如 h2 上边距 = 16 格 = 4rem），偏好设置的「间距」档位
+     只改这一个值（紧凑 3px / 舒缓 5px），由 data-article-spacing 切换 */
+  --spacing: 0.25rem;
   /* misc */
   --radius: 12px;
   --navbar-height: 3.5rem;
@@ -61,6 +65,12 @@
   }
   &[data-article-width="wide"] {
     --article-max-width: 64em;
+  }
+  &[data-article-spacing="compact"] {
+    --spacing: 0.1875rem;
+  }
+  &[data-article-spacing="relaxed"] {
+    --spacing: 0.3125rem;
   }
 }
 
@@ -1227,7 +1237,7 @@ html.night .preference-quick__select {
   }
 
   .preference-quick__steppers {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .preference-quick__step-btn {

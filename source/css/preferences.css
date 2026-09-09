@@ -215,7 +215,8 @@
   gap: 0.45rem;
 }
 
-.preference-choice-group--font-weight {
+.preference-choice-group--font-weight,
+.preference-choice-group--font-spacing {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   width: min(100%, 17.5rem);
 }
@@ -815,7 +816,8 @@
 
   .preference-choice-group--font-size,
   .preference-choice-group--article-width,
-  .preference-choice-group--font-weight {
+  .preference-choice-group--font-weight,
+  .preference-choice-group--font-spacing {
     justify-self: stretch;
     width: 100%;
   }

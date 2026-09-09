@@ -36,13 +36,17 @@
 
   const articleFontConfig = window.__GNIX_ARTICLE_FONT_CONFIG__ || {};
   const ARTICLE_FONT_STORAGE_KEY = articleFontConfig.storageKey || "gnix-article-font";
-  const ARTICLE_FONT_DEFAULT_SETTINGS = articleFontConfig.defaultSettings || { size: "medium", type: "sans-serif", lineHeight: 1.7, weight: "regular", width: "medium" };
+  const ARTICLE_FONT_DEFAULT_SETTINGS = articleFontConfig.defaultSettings || { size: "medium", type: "sans-serif", lineHeight: 1.7, weight: "regular", width: "medium", spacing: "normal" };
   const ARTICLE_SIZE_LIST = articleFontConfig.sizeOptions || ["small", "medium-small", "medium", "medium-large", "large"];
   const ARTICLE_WIDTH_LIST = articleFontConfig.widthOptions || ["narrow", "medium-narrow", "medium", "medium-wide", "wide"];
+  const ARTICLE_SPACING_LIST = articleFontConfig.spacingOptions || ["compact", "normal", "relaxed"];
   const ARTICLE_SIZE_OPTIONS = new Set(ARTICLE_SIZE_LIST);
   const ARTICLE_FONT_OPTIONS = new Set(articleFontConfig.fontOptions || ["sans-serif", "serif", "mono", "handwriting"]);
   const ARTICLE_WEIGHT_OPTIONS = new Set(articleFontConfig.weightOptions || ["light", "regular", "medium"]);
   const ARTICLE_WIDTH_OPTIONS = new Set(ARTICLE_WIDTH_LIST);
+  const ARTICLE_SPACING_OPTIONS = new Set(ARTICLE_SPACING_LIST);
+  // 快捷弹窗 stepper 按有序列表步进的控件，键名与 settings 字段一致
+  const ARTICLE_STEP_LISTS = { size: ARTICLE_SIZE_LIST, width: ARTICLE_WIDTH_LIST, spacing: ARTICLE_SPACING_LIST };
   const ARTICLE_LINE_HEIGHT_MIN = articleFontConfig.lineHeight?.min ?? 1.45;
   const ARTICLE_LINE_HEIGHT_MAX = articleFontConfig.lineHeight?.max ?? 1.9;
   const ARTICLE_LINE_HEIGHT_STEP = 0.05;
@@ -136,6 +140,7 @@
       lineHeight: normalizeArticleLineHeight(candidate.lineHeight),
       weight: ARTICLE_WEIGHT_OPTIONS.has(candidate.weight) ? candidate.weight : ARTICLE_FONT_DEFAULT_SETTINGS.weight,
       width: ARTICLE_WIDTH_OPTIONS.has(candidate.width) ? candidate.width : ARTICLE_FONT_DEFAULT_SETTINGS.width,
+      spacing: ARTICLE_SPACING_OPTIONS.has(candidate.spacing) ? candidate.spacing : ARTICLE_FONT_DEFAULT_SETTINGS.spacing,
       customFonts: normalizeStoredCustomFonts(candidate.customFonts),
     };
   }
@@ -168,6 +173,7 @@
     html.dataset.articleFontFamily = settings.type;
     html.dataset.articleFontWeight = settings.weight;
     html.dataset.articleWidth = settings.width;
+    html.dataset.articleSpacing = settings.spacing;
     html.style.setProperty("--article-line-height", String(settings.lineHeight));
     window.dispatchEvent(new CustomEvent("gnix:article-font-settings-change", { detail: settings }));
   }
@@ -293,6 +299,7 @@
     const customFontFamilyInputs = root.querySelectorAll(".font-custom-family-input");
     const sizeButtons = root.querySelectorAll(".font-size-btn");
     const widthButtons = root.querySelectorAll(".font-width-btn");
+    const spacingButtons = root.querySelectorAll(".font-spacing-btn");
     const typeButtons = root.querySelectorAll(".font-type-btn");
     const weightButtons = root.querySelectorAll(".font-weight-btn");
     // 快捷弹窗没有自定义字体表单，跳过相关 UI 同步（其中的默认字体族
@@ -316,8 +323,9 @@
       if (control === "lineHeight") {
         return dir < 0 ? settings.lineHeight <= ARTICLE_LINE_HEIGHT_MIN + 1e-9 : settings.lineHeight >= ARTICLE_LINE_HEIGHT_MAX - 1e-9;
       }
-      const list = control === "width" ? ARTICLE_WIDTH_LIST : ARTICLE_SIZE_LIST;
-      const index = list.indexOf(control === "width" ? settings.width : settings.size);
+      const list = ARTICLE_STEP_LISTS[control];
+      if (!list) return false;
+      const index = list.indexOf(settings[control]);
       if (index === -1) return false;
       return dir < 0 ? index === 0 : index === list.length - 1;
     }
@@ -333,6 +341,7 @@
       updateButtonStates(typeButtons, (btn) => btn.dataset.font === settings.type);
       updateButtonStates(weightButtons, (btn) => btn.dataset.weight === settings.weight);
       updateButtonStates(widthButtons, (btn) => btn.dataset.width === settings.width);
+      updateButtonStates(spacingButtons, (btn) => btn.dataset.spacing === settings.spacing);
       fontTypeSelects.forEach((select) => {
         select.value = settings.type;
       });
@@ -379,13 +388,13 @@
         return;
       }
 
-      const isWidth = control === "width";
-      const list = isWidth ? ARTICLE_WIDTH_LIST : ARTICLE_SIZE_LIST;
-      const current = isWidth ? settings.width : settings.size;
+      const list = ARTICLE_STEP_LISTS[control];
+      if (!list) return;
+      const current = settings[control];
       const index = list.indexOf(current);
       const nextIndex = Math.min(list.length - 1, Math.max(0, (index === -1 ? Math.floor(list.length / 2) : index) + dir));
       if (list[nextIndex] === current) return;
-      commitSettings({ ...settings, [isWidth ? "width" : "size"]: list[nextIndex] });
+      commitSettings({ ...settings, [control]: list[nextIndex] });
     }
 
     stepButtons.forEach((btn) => {
@@ -405,6 +414,13 @@
       btn.addEventListener("click", () => {
         if (!ARTICLE_WIDTH_OPTIONS.has(btn.dataset.width)) return;
         commitSettings({ ...settings, width: btn.dataset.width });
+      });
+    });
+
+    spacingButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (!ARTICLE_SPACING_OPTIONS.has(btn.dataset.spacing)) return;
+        commitSettings({ ...settings, spacing: btn.dataset.spacing });
       });
     });
 

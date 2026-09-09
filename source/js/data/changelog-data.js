@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "9.10",
+        cn: [
+          "文章正文纵向节奏改为 4px 栅格：default.css 立 --spacing 基准（0.25rem），正文所有纵向留白取其整数倍——段落/列表等文字块 6 格、图片/代码块/表格/引用等媒体块 8 格，h2–h6 上方 16/10/8/6/6 格、下方 4/3/2/2/2 格，标题之后的首块清零上边距，正文首块与 hero 固定一档段距；间距全部改用 margin-block 并以 :where 压平特定性，shiki 代码块、callout、mermaid、accordion、side-note 与 x-tree / x-chat / x-info-card / image-group / image-carousel 组件一并纳入栅格，image.js 的图片 figure 不再内联 1em 外边距；h2 行高收至 1.3；偏好设置新增「间距」三档（紧凑 3px / 常规 4px / 舒缓 5px，写入 data-article-spacing）——设置页为分段按钮、快捷弹窗为第四组 stepper（移动端改 2×2 排布），随字体设置一起持久化、首帧由 head 内联脚本应用、bfcache 返回同步",
+        ],
+        en: [
+          "The article body's vertical rhythm moves onto a 4px grid: default.css gains a --spacing base (0.25rem) and every vertical gap in the body is an integer multiple of it — 6 units for text blocks (paragraphs, lists), 8 for media blocks (images, code, tables, quotes), 16/10/8/6/6 above h2–h6 and 4/3/2/2/2 below, with the first block after a heading zeroing its top margin and the body's first block sitting one paragraph gap under the hero; all spacing switches to margin-block with :where-flattened specificity, and shiki code blocks, callouts, mermaid, accordion, side-note and the x-tree / x-chat / x-info-card / image-group / image-carousel components join the grid while image.js figures drop their inline 1em margin; h2 line-height tightens to 1.3; preferences gain a three-step Spacing control (compact 3px / normal 4px / relaxed 5px, written to data-article-spacing) — segmented buttons on the settings page, a fourth stepper in the quick popup (2×2 on mobile) — persisted with the font settings, applied on first paint by the head inline script and re-synced on bfcache restore",
+        ],
+        category: "uiux",
+      },
+      {
         date: "8.15",
         cn: [
           "全站动效整改：default.css 立共享缓动 token --ease-out（easeOutQuint，与归档页既有曲线一致），归档页六处字面量、脚注 tooltip、shiki 工具栏及本轮新代码统一引用，纯色彩 hover 仍用内置 ease；搜索框选中指示条改静态几何 + opacity 开关、条目底色过渡一并移除——方向键高频移动即时落位，不再动画 height/top 布局属性；移动端菜单入场 0.56s/80ms 步进压至 0.28s/40ms（末项可见 1.1s → 约 0.5s），填充按站内规矩改 backwards，删基态 opacity: 0 与冗余 to 帧；偏好弹窗桌面+移动两变体从入场 keyframes + 退场硬切迁移为主题幕帘同款 transition + @starting-style + display/overlay allow-discrete——布局样式移交 .preference-popup 基类、靠文件序压过全局 popover 样式，桌面进 180ms 自触发角落下/退 130ms 收回，移动抽屉进 220ms/退 170ms 沿进场路径退回，被浏览器强制关闭仍无残留；代码复制提示由只过渡 visibility 的硬弹改为自复制按钮侧 6px 滑出（160ms）+ 纯淡出（200ms）；键帽按压 top → translateY 不再牵动布局，按下 60ms 快于回弹 120ms，删除从未生效的 border-bottom-width 过渡；折叠代码展开提示的常驻无限脉冲降为 hover 才动（静息取脉冲基准透明度 0.6）；shiki 工具栏图标 hover 0.3s/scale(1.2) → 0.15s/scale(1.1)；清扫 transition: all 共 10 处（twikoo ×4、friends-list ×3、x-changelog ×2、mermaid ×1）逐处枚举真实变化的属性，x-changelog 时间轴圆点顺带 0.5s → 0.2s",
