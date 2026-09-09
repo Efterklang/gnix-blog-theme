@@ -5,6 +5,16 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "9.10",
         cn: [
+          "修复搜索框、TOC 与文章信息 / 评论弹层的遮罩只是一块实色、不模糊页面：UA 样式给 [popover] 铺了不透明的 background-color: Canvas，而全局 :popover-open::before 遮罩层（z-index: -1）画在宿主自身背景之上，backdrop-filter 模糊到的只是这块实色——现宿主统一 background: transparent，页面得以透过遮罩被模糊；遮罩顺带补上 -webkit-backdrop-filter，并新增测试守住该约束",
+        ],
+        en: [
+          "Fix the search box, TOC and article info / comment popovers covering the page with a flat fill instead of blurring it: the UA stylesheet paints [popover] with an opaque background-color: Canvas, and the global :popover-open::before overlay (z-index: -1) sits above the host's own background, so its backdrop-filter only ever blurred that solid fill — the host is now background: transparent so the page shows through blurred; the overlay also gains -webkit-backdrop-filter, and a new test guards the constraint",
+        ],
+        category: "fix",
+      },
+      {
+        date: "9.10",
+        cn: [
           "文章正文纵向节奏改为 4px 栅格：default.css 立 --spacing 基准（0.25rem），正文所有纵向留白取其整数倍——段落/列表等文字块 6 格、图片/代码块/表格/引用等媒体块 8 格，h2–h6 上方 16/10/8/6/6 格、下方 4/3/2/2/2 格，标题之后的首块清零上边距，正文首块与 hero 固定一档段距；间距全部改用 margin-block 并以 :where 压平特定性，shiki 代码块、callout、mermaid、accordion、side-note 与 x-tree / x-chat / x-info-card / image-group / image-carousel 组件一并纳入栅格，image.js 的图片 figure 不再内联 1em 外边距；h2 行高收至 1.3；偏好设置新增「间距」三档（紧凑 3px / 常规 4px / 舒缓 5px，写入 data-article-spacing）——设置页为分段按钮、快捷弹窗为第四组 stepper（移动端改 2×2 排布），随字体设置一起持久化、首帧由 head 内联脚本应用、bfcache 返回同步",
         ],
         en: [

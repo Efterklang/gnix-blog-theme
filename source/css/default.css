@@ -908,6 +908,10 @@ input.searchbox-input {
 
 /* #endregion Search */
 
+/* 全局 popover 遮罩（搜索框 / TOC / 文章信息与评论弹层共用）：底色 + blur 放在
+   独立的 fixed 伪层。UA 样式给 [popover] 铺了不透明的 background-color: Canvas，
+   而 z-index: -1 的伪层画在宿主自身背景之上，backdrop-filter 模糊到的只是这块
+   实色而非页面——宿主必须透明，页面才会透过遮罩被模糊 */
 :popover-open {
   position: fixed;
   width: 100%;
@@ -915,6 +919,7 @@ input.searchbox-input {
   inset: 0;
   margin: 0;
   border: none;
+  background: transparent;
 
   &::before {
     content: "";
@@ -922,6 +927,7 @@ input.searchbox-input {
     inset: 0;
     z-index: -1;
     background: hsl(from var(--mantle) h s l / 0.7);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
   }
 
