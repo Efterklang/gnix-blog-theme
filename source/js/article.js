@@ -381,6 +381,9 @@ function handleArticleKeyDown(e) {
 
 // #endregion
 
+// 图多数已在构建期由 beautiful-mermaid 内联为 SVG，这里统一挂平移缩放 / 复制外壳；
+// 仅 data-mermaid-renderer="mermaid-js" 的回退图会由 mermaid.js 在浏览器渲染（判断在 mermaid.js 内）。
+// 含图页面的样式表已由 head.jsx 直出，loadStyleOnce 命中既有 link 即返回
 function handleMermaid() {
   const containers = document.querySelectorAll(".mermaid-container");
   if (containers.length === 0) return;

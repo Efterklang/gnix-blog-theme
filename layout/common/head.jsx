@@ -418,6 +418,8 @@ module.exports = class extends Component {
         <link rel="stylesheet" href={url_for("/css/default.css")} />
         {isArticleLike && <link rel="stylesheet" href={url_for("/css/article.css")} />}
         {isArticleLike && <link rel="stylesheet" href={url_for("/css/callout_blocks.css")} media="print" onload="this.media='all'" />}
+        {/* mermaid 图的 SVG 已在构建期内联进正文，样式需随首屏到位，不能等 article.js 懒加载 */}
+        {isArticleLike && page.content?.includes('class="mermaid-container"') && <link rel="stylesheet" href={url_for("/css/optional/mermaid.css")} />}
         {isArchiveLike && <link rel="stylesheet" href={url_for("/css/archive.css")} />}
         {isStatusPage && <link rel="stylesheet" href={url_for("/css/status.css")} />}
         {isPreferencesPage && <link rel="stylesheet" href={url_for("/css/preferences.css")} />}

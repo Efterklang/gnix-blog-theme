@@ -1,3 +1,10 @@
+// Mermaid 代码块在构建期由 beautiful-mermaid 渲染为内联 SVG（同步、无 DOM 依赖）。
+// 颜色一律写成站内色板的 CSS 变量，主题 / 夜间模式切换由级联即时生效，无需像 mermaid.js
+// 那样监听主题重渲染；平移缩放与复制的外壳（toolbar / grid panel）沿用 source/js/mdit/mermaid.js。
+// 不支持的图类型（gantt / pie / mindmap / gitGraph…）回退为浏览器端 mermaid.js 渲染。
+const { createHash } = require("node:crypto");
+const path = require("node:path");
+
 const icons = {
   up: '<svg version="1.1" width="16" height="16" viewBox="0 0 16 16" class="octicon octicon-chevron-up" aria-hidden="true"><path d="M3.22 10.53a.749.749 0 0 1 0-1.06l4.25-4.25a.749.749 0 0 1 1.06 0l4.25 4.25a.749.749 0 1 1-1.06 1.06L8 6.811 4.28 10.53a.749.749 0 0 1-1.06 0Z"></path></svg>',
   down: '<svg version="1.1" width="16" height="16" viewBox="0 0 16 16" class="octicon octicon-chevron-down" aria-hidden="true"><path d="M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z"></path></svg>',
@@ -35,32 +42,95 @@ const gridPanelTemplate = `<div class="mermaid-viewer-grid-panel">
         </div>
       </div>`;
 
-function mermaidDiagram(md) {
-  const origFence = md.renderer.rules.fence;
+const DEFAULT_OPTIONS = {
+  // 不支持的图类型是否回退为浏览器端 mermaid.js 渲染；关闭则改为输出源码块
+  fallback: true,
+  // 透传给 beautiful-mermaid 的 RenderOptions。bg 与 .mermaid-wrapper 的底色同为 --mantle，
+  // 配合 transparent 让底色透出，color-mix 派生色阶才与实际底色吻合
+  render: {
+    bg: "var(--mantle)",
+    fg: "var(--text)",
+    accent: "var(--lavender)",
+    transparent: true,
+  },
+};
 
-  md.renderer.rules.fence = (tokens, idx, _opts, _env, self) => {
-    const token = tokens[idx];
-    if (!token) return "";
+function resolveOptions(userOptions = {}) {
+  return {
+    fallback: userOptions.fallback ?? DEFAULT_OPTIONS.fallback,
+    render: { ...DEFAULT_OPTIONS.render, ...userOptions.render },
+  };
+}
 
-    const info = (token.info || "").trim();
-    const lang = info.split(/\s+/)[0];
+function escapeHtml(text) {
+  return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
 
-    if (lang !== "mermaid") {
-      return origFence ? origFence(tokens, idx, _opts, _env, self) : self.renderToken(tokens, idx, _opts);
-    }
+// beautiful-mermaid 仅提供 ESM 导出，与 markdown-it-ts 一样走惰性动态 import，模块级缓存一次
+let beautifulMermaid = null;
+function loadBeautifulMermaid() {
+  beautifulMermaid ??= import("beautiful-mermaid");
+  return beautifulMermaid;
+}
 
-    const id = `mermaid-${Math.random().toString(36).slice(2)}`;
+// 库输出的 SVG 自带一段 <style>：Google Fonts 的 @import，以及 text / svg / .mono 这类不限定作用域
+// 的规则——内联进 HTML 后会作用于整个文档且逐图重复。这里整段剥除，等价的派生色阶与字体规则
+// 收敛到 source/css/optional/mermaid.css、限定在图内声明（test/mermaid_render.test.js 校验两者同步）。
+// xychart 追加的第二段 <style> 只含 .xychart-* 规则，保留。
+function stripThemeStyle(svg) {
+  return svg.replace(/<style>[\s\S]*?<\/style>\s*/, "");
+}
 
-    return `<div id="${id}" class="mermaid-container">
+// marker 等 id 以源码哈希作后缀：同页多图时 url(#arrowhead) 不再一律解析到首图的定义
+function scopeIds(svg, code) {
+  const suffix = createHash("sha1").update(code).digest("base64url").slice(0, 8);
+  return svg.replace(/ id="([^"]+)"/g, ` id="$1-${suffix}"`).replace(/url\(#([^)]+)\)/g, `url(#$1-${suffix})`);
+}
+
+async function renderSvg(code, options, env) {
+  const { renderMermaidSVG } = await loadBeautifulMermaid();
+  try {
+    return scopeIds(stripThemeStyle(renderMermaidSVG(code, options.render)), code);
+  } catch (error) {
+    const header = code.trim().split("\n")[0].trim();
+    const source = env?.path ? ` in ${path.relative(process.cwd(), env.path)}` : "";
+    const action = options.fallback ? "falling back to client-side mermaid.js" : "emitting the source as a code block";
+    console.warn(`[mermaid] beautiful-mermaid could not render \`${header}\`${source}, ${action}: ${String(error?.message || error).split("\n")[0]}`);
+    return null;
+  }
+}
+
+// 回退图的 .mermaid-content 留空，由 source/js/mdit/mermaid.js 按 data-mermaid-renderer 判断是否需要浏览器端渲染
+function renderContainer(code, svg) {
+  return `<div class="mermaid-container" data-mermaid-renderer="${svg ? "beautiful-mermaid" : "mermaid-js"}">
   <div class="mermaid-wrapper">
     ${toolbarTemplate}
-    <textarea class="mermaid-code" style="display:none">${token.content}</textarea>
+    <textarea class="mermaid-code" style="display:none">${escapeHtml(code)}</textarea>
     <div class="mermaid-view-container">
       ${gridPanelTemplate}
-      <div class="mermaid-content"></div>
+      <div class="mermaid-content">${svg || ""}</div>
     </div>
   </div>
 </div>`;
+}
+
+function mermaidDiagram(md, userOptions) {
+  const options = resolveOptions(userOptions);
+  const origFence = md.renderer.rules.fence;
+
+  md.renderer.rules.fence = async (tokens, idx, opts, env, self) => {
+    const token = tokens[idx];
+    if (!token) return "";
+
+    const lang = (token.info || "").trim().split(/\s+/)[0];
+    if (lang !== "mermaid") {
+      return origFence ? origFence(tokens, idx, opts, env, self) : self.renderToken(tokens, idx, opts);
+    }
+
+    const code = token.content.replace(/\r?\n$/, "");
+    const svg = await renderSvg(code, options, env);
+    if (!svg && !options.fallback) return `<pre><code class="language-mermaid">${escapeHtml(code)}</code></pre>`;
+    return renderContainer(code, svg);
   };
 }
 

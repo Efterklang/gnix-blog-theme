@@ -1,3 +1,7 @@
+// Mermaid 图的浏览器端外壳：平移缩放 / 复制源码，以及回退图的 mermaid.js 渲染。
+// 大多数图已在构建期由 beautiful-mermaid 内联为 SVG（include/hexo/mdit/mermaid.js），
+// 颜色走 CSS 变量随主题即时切换，这里只挂交互；只有 data-mermaid-renderer="mermaid-js"
+// 的回退图（gantt 等不支持的类型）才加载 mermaid.min.js 并监听主题重渲染
 (() => {
   const instances = new Map();
   const mermaidFontFamily = "ChillKai, Avenir, system-ui";
@@ -232,6 +236,13 @@
     if (!codeEl) return;
 
     new PanZoomHandler(container);
+
+    // 构建期已内联 SVG 的图只需交互外壳；登记实例是为了避免重复初始化
+    if (container.dataset.mermaidRenderer !== "mermaid-js") {
+      instances.set(id, { container, prerendered: true });
+      return;
+    }
+
     instances.set(id, { container, code: codeEl.value, themeVariables });
 
     loadMermaid(jsUrl).then(() => {
@@ -246,7 +257,8 @@
     if (isNight === lastIsNight) return;
     lastIsNight = isNight;
     pruneInstances();
-    instances.forEach(({ container, code, themeVariables }, id) => {
+    instances.forEach(({ container, code, themeVariables, prerendered }, id) => {
+      if (prerendered) return;
       renderDiagram(id, code, container, themeVariables);
     });
   });

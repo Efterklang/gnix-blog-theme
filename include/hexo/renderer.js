@@ -80,7 +80,7 @@ class MarkdownRenderer {
         .use(resolveDefault(mark))
         .use(resolveDefault(taskLists))
         .use(resolveDefault(code), this.config.code_options)
-        .use(mermaidDiagram)
+        .use(mermaidDiagram, this.config.mermaid_options)
         .use(ratex, this.config.ratex_options)
         .use(obsidianCallouts, this.config.callout_options)
         .use(s3Image, this.config.image_options)
@@ -137,7 +137,8 @@ class MarkdownRenderer {
   async render(data) {
     if (!data.text) return "";
     const md = await this.getMarkdownIt();
-    return md.renderAsync(data.text);
+    // env 带上源文件路径，插件（如 mermaid 回退告警）可指出问题出自哪篇文章
+    return md.renderAsync(data.text, { path: data.path });
   }
 }
 

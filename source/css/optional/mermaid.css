@@ -120,3 +120,32 @@
     height: 28px;
   }
 }
+
+/* 构建期由 beautiful-mermaid 内联的 SVG。库自带的 <style>（Google Fonts @import 与不限定作用域的
+   text / svg / .mono 规则）已在服务端剥除，这里把同一套派生色阶限定在图内重新声明——权重与
+   beautiful-mermaid theme.ts 的 color-mix 一致，test/mermaid_render.test.js 校验同步；
+   --bg / --fg / --accent 由渲染期写在 <svg style> 上，指向站内色板，随主题即时切换 */
+[data-mermaid-renderer="beautiful-mermaid"] .mermaid-content svg {
+  max-width: 100%;
+  height: auto;
+  --_text: var(--fg);
+  --_text-sec: var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+  --_text-muted: var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+  --_text-faint: color-mix(in srgb, var(--fg) 25%, var(--bg));
+  --_line: var(--line, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+  --_arrow: var(--accent, color-mix(in srgb, var(--fg) 85%, var(--bg)));
+  --_node-fill: var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+  --_node-stroke: var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+  --_group-fill: var(--bg);
+  --_group-hdr: color-mix(in srgb, var(--fg) 5%, var(--bg));
+  --_inner-stroke: color-mix(in srgb, var(--fg) 12%, var(--bg));
+  --_key-badge: color-mix(in srgb, var(--fg) 10%, var(--bg));
+
+  text {
+    font-family: var(--font-sans-serif);
+  }
+  /* 类图成员等代码体文本 */
+  .mono {
+    font-family: var(--font-mono);
+  }
+}

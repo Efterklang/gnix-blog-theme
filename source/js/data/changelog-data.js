@@ -5,6 +5,16 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "9.10",
         cn: [
+          "Mermaid 图改由 beautiful-mermaid 在构建期渲染为内联 SVG：flowchart / state / sequence / class / ER / xychart 六类不再等浏览器下载 3.2MB 的 mermaid.min.js 再画，首屏即见图，无 JS 与阅读模式下亦可读；颜色全走 CSS 变量——渲染期把 --bg / --fg / --accent 指向站内 --mantle / --text / --lavender，全部配色与夜间模式由级联即时生效，预渲染图不再参与原先监听 html.night 的整图重渲染；库自带的 <style>（Google Fonts @import 与不限定作用域的 text / svg 规则）在服务端剥除，同一套 color-mix 派生色阶收敛到 /css/optional/mermaid.css 并限定在图内声明，字体跟随 --font-sans-serif / --font-mono，新增测试校验其与库内权重同步；marker id 以源码哈希作后缀，同页多图的 url(#arrowhead) 不再一律解析到首图；含图页面由 head.jsx 直出 mermaid.css，避免样式闪烁；平移缩放 / 复制外壳沿用；gantt / pie / mindmap / gitGraph 等库不支持的类型回退为浏览器端 mermaid.js（容器标 data-mermaid-renderer=mermaid-js，构建时告警并指出所在文章），仅这些页面才加载 mermaid.min.js；markdown_exit.mermaid_options 新增 fallback（关闭则输出源码块）与 render（透传 beautiful-mermaid 的 RenderOptions，如 accent / padding）",
+        ],
+        en: [
+          "Mermaid diagrams are now rendered at build time into inline SVG by beautiful-mermaid: flowchart / state / sequence / class / ER / xychart no longer wait for the browser to download the 3.2MB mermaid.min.js before drawing — diagrams are visible on first paint, without JavaScript, and in reader modes; all colors go through CSS variables — the renderer points --bg / --fg / --accent at the site's --mantle / --text / --lavender, so every palette and night mode apply through the cascade instantly, and prerendered diagrams no longer take part in the html.night observer's full re-render; the library's own <style> (a Google Fonts @import plus unscoped text / svg rules) is stripped server-side and the same color-mix derivation scale moves into /css/optional/mermaid.css scoped to the diagram, with fonts following --font-sans-serif / --font-mono and a new test verifying the weights stay in sync with the library; marker ids gain a source-hash suffix so url(#arrowhead) on multi-diagram pages no longer resolves to the first diagram; pages containing diagrams get mermaid.css from head.jsx to avoid a flash of unstyled SVG; the pan/zoom/copy shell is unchanged; types the library lacks (gantt / pie / mindmap / gitGraph…) fall back to client-side mermaid.js (container marked data-mermaid-renderer=mermaid-js, with a build-time warning naming the post), and only those pages load mermaid.min.js; markdown_exit.mermaid_options gains fallback (off = emit the source as a code block) and render (pass-through beautiful-mermaid RenderOptions such as accent / padding)",
+        ],
+        category: "feature",
+      },
+      {
+        date: "9.10",
+        cn: [
           "修复搜索框、TOC 与文章信息 / 评论弹层的遮罩只是一块实色、不模糊页面：UA 样式给 [popover] 铺了不透明的 background-color: Canvas，而全局 :popover-open::before 遮罩层（z-index: -1）画在宿主自身背景之上，backdrop-filter 模糊到的只是这块实色——现宿主统一 background: transparent，页面得以透过遮罩被模糊；遮罩顺带补上 -webkit-backdrop-filter，并新增测试守住该约束",
         ],
         en: [
