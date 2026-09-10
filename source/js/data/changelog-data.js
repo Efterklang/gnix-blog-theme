@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "9.11",
+        cn: [
+          "文章首屏改为扉页式排版：标签升为标题上方的 kicker（等宽小字、大写、0.14em 疏排），标题放大到 clamp(2rem, 1.4rem + 2vw, 2.75rem)、常规字重、行高 1.18、字距 0.02em 并以 text-wrap: balance 均衡折行，摘要改为正文字体 0.875rem / 1.8 行高，顶部一条 32px 短横线把标题与摘要隔成两段；底部页脚一行：版记（创建/更新日期，tabular-nums）居左、圆圈向下箭头居中、comments·info 居右，等宽小字与 kicker 同声部；正文块整体上浮 6 格让视觉重心略高于几何中心；进场参考 apple.com 首页——kicker、标题、摘要、页脚同一种「淡入 + 14px 上浮」动作，以 200ms 步进自上而下依次浮现，每步 900ms、曲线 --ease-out；移动端页脚拆两行——箭头独占上一行居中，版记与动作分居下一行两端。全站无衬线字体栈去掉 Avenir Next 直接用 system-ui，body 开启 antialiased 字体平滑与 kern",
+        ],
+        en: [
+          "The article hero becomes a title page: tags move above the title as a kicker (monospace small caps, 0.14em tracking), the title grows to clamp(2rem, 1.4rem + 2vw, 2.75rem) at regular weight, line-height 1.18, 0.02em tracking and text-wrap: balance, the excerpt uses the body typeface at 0.875rem / 1.8 with a 32px hairline separating it from the title; the footer row puts the colophon (created / updated dates, tabular-nums) on the left, the circled down arrow in the center and comments · info on the right, sharing the kicker's monospace voice; the body block is nudged up six grid units so the optical center sits above the geometric one; the entrance follows apple.com's homepage — kicker, title, excerpt and footer share one \"fade in + rise 14px\" motion and appear top to bottom at a 200ms stagger, 900ms each on the shared --ease-out curve; on mobile the footer splits into two rows — the arrow centered on its own line, colophon and actions at the two ends below. The site-wide sans-serif stack drops Avenir Next for system-ui, and body enables antialiased font smoothing and kerning",
+        ],
+        category: "uiux",
+      },
+      {
         date: "9.10",
         cn: [
           "Mermaid 图改由 beautiful-mermaid 在构建期渲染为内联 SVG：flowchart / state / sequence / class / ER / xychart 六类不再等浏览器下载 3.2MB 的 mermaid.min.js 再画，首屏即见图，无 JS 与阅读模式下亦可读；颜色全走 CSS 变量——渲染期把 --bg / --fg / --accent 指向站内 --mantle / --text / --lavender，全部配色与夜间模式由级联即时生效，预渲染图不再参与原先监听 html.night 的整图重渲染；库自带的 <style>（Google Fonts @import 与不限定作用域的 text / svg 规则）在服务端剥除，同一套 color-mix 派生色阶收敛到 /css/optional/mermaid.css 并限定在图内声明，字体跟随 --font-sans-serif / --font-mono，新增测试校验其与库内权重同步；marker id 以源码哈希作后缀，同页多图的 url(#arrowhead) 不再一律解析到首图；含图页面由 head.jsx 直出 mermaid.css，避免样式闪烁；平移缩放 / 复制外壳沿用；gantt / pie / mindmap / gitGraph 等库不支持的类型回退为浏览器端 mermaid.js（容器标 data-mermaid-renderer=mermaid-js，构建时告警并指出所在文章），仅这些页面才加载 mermaid.min.js；markdown_exit.mermaid_options 新增 fallback（关闭则输出源码块）与 render（透传 beautiful-mermaid 的 RenderOptions，如 accent / padding）",

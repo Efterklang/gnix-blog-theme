@@ -16,13 +16,42 @@
   text-autospace: normal;
 }
 
-/* 文章页进场动画（仿 antfu.me 的 slide-enter，关键帧共享于 default.css）：
-   首屏摘要自下方 10px 上浮淡入，跳转箭头错峰 100ms 跟进；标题、封面与正文
-   直接呈现——首屏即时可读，LCP 不受动画影响。.gnix-revealed 由 head 内联脚本在
-   pagereveal（不支持时内联立即）添加，保证 prerender 激活时动画从首个可见帧
-   才开始；无 JS 时不加类，摘要直接可见 */
-:root.gnix-revealed .article-hero .article-excerpt {
-  animation: slide-enter 600ms backwards;
+/* 文章首屏进场（参考 apple.com 首页）：同一种动作——淡入 + 自下方 14px 缓缓浮起，
+   只靠时间差自上而下依次呈现：kicker（0）→ 标题（200ms）→ 短横线+摘要（400ms）→
+   页脚（700ms）。每步 900ms、曲线 --ease-out（easeOutQuint），前段快后段长的收尾
+   让序列相互重叠、连成一次呼吸而非四次跳动。标题也进序列，LCP 因此推后约 200ms，
+   可接受。填充只用 backwards（见 default.css slide-enter 注释）。摘要动画挂在容器上：
+   front-matter 的 excerpt 是无 <p> 包裹的纯文本，不能依赖子元素选择器。
+   .gnix-revealed 由 head 内联脚本在 pagereveal（不支持时内联立即）添加，保证
+   prerender 激活时动画从首个可见帧才开始；无 JS 时不加类，全部直接可见 */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+}
+
+:root.gnix-revealed .article-hero {
+  --hero-step: 200ms;
+
+  .article-kicker,
+  .article-title,
+  .article-excerpt,
+  .article-hero-foot {
+    animation: hero-rise 900ms var(--ease-out) backwards;
+  }
+
+  .article-title {
+    animation-delay: var(--hero-step);
+  }
+
+  .article-excerpt {
+    animation-delay: calc(var(--hero-step) * 2);
+  }
+
+  .article-hero-foot {
+    animation-delay: calc(var(--hero-step) * 3.5);
+  }
 }
 
 .content {
@@ -642,21 +671,26 @@ a strong {
 
 /* #region Article Meta*/
 
+/* 首屏是一张扉页：三种声音分层——kicker（标签）用等宽小字大写疏排，标题用大号
+   常规字重无衬线，摘要用正文字体小一号；纵向节奏走 --spacing 栅格 */
 .article-title {
   color: var(--text);
   font-family: var(--article-font-family);
-  font-size: 1.75em;
-  font-weight: var(--display-weight, 100);
-  line-height: 1.2;
-  margin-bottom: 0.3em;
-  text-wrap: pretty;
+  font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+  font-weight: 400;
+  line-height: 1.18;
+  letter-spacing: 0.02em;
+  /* 标题通常一到两行，balance 让各行长度相近，避免末行孤字 */
+  text-wrap: balance;
+  max-width: 18em;
 }
 
 .meta-separator {
   color: var(--overlay0);
+  margin-inline: 0.5em;
 }
 
-/* 文章首屏：居中标题与摘要，底部一行小字（标签 / 版记+跳转箭头 / comments·info） */
+/* 独立页面用紧凑版头：kicker / 标题 / 摘要仍居中，下方页脚一行动作 */
 .article-hero {
   display: flex;
   flex-direction: column;
@@ -670,7 +704,7 @@ a strong {
   padding: 0 0 calc(var(--spacing) * 6);
 }
 
-/* 封面文章的满高首屏再扣去封面高度，article-hero-meta 仍收在首屏底部 */
+/* 封面文章的满高首屏再扣去封面高度，页脚仍收在首屏底部 */
 .article-hero-with-cover {
   min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 4.25rem - var(--cover-height));
 }
@@ -682,75 +716,99 @@ a strong {
   justify-content: center;
   align-items: center;
   text-align: center;
-  gap: 1.5rem;
+  /* 视觉重心略高于几何中心：页脚占去底部，再让正文块整体上浮一点 */
+  padding-bottom: calc(var(--spacing) * 6);
 }
 
-.article-hero .article-title {
-  margin-bottom: 0;
-}
-
-.article-hero .article-excerpt {
-  max-width: 32em;
-  line-height: 1.9;
-  text-wrap: pretty;
-  font-size: 14px;
-  font-family: var(--article-font-family);
-  font-weight: lighter;
-  color: var(--subtext1);
-}
-
-.article-hero-meta {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 1rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--subtext0);
-
-  a {
-    color: inherit;
-    text-decoration: none;
-    transition: color 220ms ease;
-
-    &:hover {
-      color: var(--text);
-    }
-  }
-}
-
-em,
-.footnotes {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-synthesis: none;
-}
-
-.article-tags {
+/* kicker：等宽小字、大写疏排，落在标题上方 5 格处 */
+.article-kicker {
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
-  gap: 0.2rem;
+  margin-bottom: calc(var(--spacing) * 5);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--subtext0);
+
+  .meta-separator {
+    margin-inline: 0.35em;
+  }
 }
 
 /* 负 margin 抵消 padding：视觉位置不变，0.75rem 小字的命中区扩大 */
 .article-tag {
   padding: 0.5em 0.25em;
   margin: -0.5em -0.25em;
+  color: inherit;
+  text-decoration: none;
+  transition: color 220ms ease;
+
+  &:hover {
+    color: var(--text);
+  }
+}
+
+/* 摘要：正文字体小一号、不合成斜体；顶部一条短横线把标题与摘要隔成两段，
+   像扉页上的花饰 */
+.article-hero .article-excerpt {
+  margin-top: calc(var(--spacing) * 7);
+  max-width: 30em;
+  font-family: var(--article-font-family);
+  font-synthesis: none;
+  font-size: 0.875rem;
+  line-height: 1.8;
+  color: var(--subtext1);
+  text-wrap: pretty;
+
+  &::before {
+    content: "";
+    display: block;
+    width: calc(var(--spacing) * 8);
+    height: 1px;
+    margin: 0 auto calc(var(--spacing) * 6);
+    background: var(--surface1);
+  }
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+/* 页脚一行：版记居左、跳转箭头居中、comments·info 居右，等宽小字与 kicker 同声部 */
+.article-hero-foot {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--subtext0);
 }
 
 .article-colophon {
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  font-variant-numeric: tabular-nums;
 }
 
+/* 圆圈包裹的向下箭头，居中在页脚一行；hover 变色并轻微下探 */
 .article-hero-arrow {
   display: inline-flex;
-  padding: 0.25em;
+  padding: 0.5rem;
   color: var(--subtext0);
   transition:
     color 220ms ease,
+    translate 220ms var(--ease-out),
     scale 120ms var(--ease-out);
 
   > svg {
@@ -760,6 +818,7 @@ em,
 
   &:hover {
     color: var(--green);
+    translate: 0 2px;
   }
 
   &:active {
@@ -781,7 +840,8 @@ em,
     border: none;
     cursor: pointer;
     font: inherit;
-    letter-spacing: 0.05em;
+    letter-spacing: inherit;
+    text-transform: inherit;
     color: inherit;
     transition:
       color 220ms ease,
@@ -795,6 +855,13 @@ em,
       scale: 0.96;
     }
   }
+}
+
+em,
+.footnotes {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-synthesis: none;
 }
 
 .article-popover {

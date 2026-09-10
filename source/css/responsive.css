@@ -27,22 +27,15 @@
     min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 1rem - var(--cover-height));
   }
 
-  .article-hero-meta {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    gap: 0.875rem;
+  /* 页脚两行：箭头独占上一行居中，版记与动作分居下一行两端 */
+  .article-hero-foot {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1rem;
 
-    .article-tags {
-      order: 1;
-      justify-content: center;
-    }
-
-    .article-hero-actions {
-      order: 2;
-    }
-
-    .article-colophon {
-      order: 3;
+    .article-hero-arrow {
+      grid-column: 1 / -1;
+      justify-self: center;
+      order: -1;
     }
   }
 

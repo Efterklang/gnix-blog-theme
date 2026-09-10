@@ -29,10 +29,40 @@ module.exports = class extends Component {
         {/* Cover image */}
         {cover ? <ArticleCover page={page} cover={cover} helper={helper} /> : null}
         <article class={`article${"direction" in page ? ` ${page.direction}` : ""}`}>
+          {/* 扉页式首屏：三种声音分层——等宽小字的 kicker（标签）、纤细大号标题、
+              衬线/楷体的摘要；页脚一行：版记居左、跳转箭头居中、comments·info 居右 */}
           <header class={`article-hero${fullHero ? " article-hero-full" : ""}${fullHero && cover ? " article-hero-with-cover" : ""}`}>
             <div class="article-hero-body">
+              {page.tags?.length ? (
+                <p class="article-kicker">
+                  {page.tags.map((tag, i) => (
+                    <Fragment>
+                      {i > 0 && <span class="meta-separator">·</span>}
+                      <a class="article-tag" rel="tag" href={helper.localized_tag_url(tag, helper.language_key(page))}>
+                        {tag.name}
+                      </a>
+                    </Fragment>
+                  ))}
+                </p>
+              ) : null}
               {page.title !== "" ? <h1 class="article-title">{page.title}</h1> : null}
               {page.excerpt && <div class="article-excerpt" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div>}
+            </div>
+
+            <div class="article-hero-foot">
+              <div class="article-colophon">
+                {createdDate && (
+                  <Fragment>
+                    <time datetime={page.date.toISOString()}>{createdDate}</time>
+                    {showUpdated && (
+                      <Fragment>
+                        <span class="meta-separator">/</span>
+                        <time datetime={page.updated.toISOString()}>{updatedDate}</time>
+                      </Fragment>
+                    )}
+                  </Fragment>
+                )}
+              </div>
               {fullHero && (
                 <a class="article-hero-arrow" href="#article-content" aria-label={skipLabel} title={skipLabel}>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -42,34 +72,6 @@ module.exports = class extends Component {
                   </svg>
                 </a>
               )}
-            </div>
-
-            <div class="article-hero-meta">
-              <div class="article-tags">
-                {page.tags?.length
-                  ? page.tags.map((tag, i) => (
-                      <Fragment>
-                        {i > 0 && <span class="meta-separator">·</span>}
-                        <a class="article-tag" rel="tag" href={helper.localized_tag_url(tag, helper.language_key(page))}>
-                          {tag.name}
-                        </a>
-                      </Fragment>
-                    ))
-                  : null}
-              </div>
-              <div class="article-colophon">
-                {createdDate && (
-                  <Fragment>
-                    <time datetime={page.date.toISOString()}>{createdDate}</time>
-                    {showUpdated && (
-                      <Fragment>
-                        {"/"}
-                        <time datetime={page.updated.toISOString()}>{updatedDate}</time>
-                      </Fragment>
-                    )}
-                  </Fragment>
-                )}
-              </div>
               <div class="article-hero-actions">
                 {hasComment && (
                   <button type="button" popovertarget="article-comment-popover" aria-label={commentsLabel} title={commentsLabel}>

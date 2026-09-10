@@ -1,7 +1,7 @@
 :root {
   /* font */
   --font-serif: Gentium, ChillKai, Baskerville, New York, Georgia, Noto Serif CJK, STFangsong, STSong, Songti SC, serif;
-  --font-sans-serif: Avenir Next, system-ui, sans-serif;
+  --font-sans-serif: system-ui, sans-serif;
   --font-mono: "SF Mono", "Maple Mono NF CN Local", "Maple Mono NF CN", Monaco, Consolas, monospace;
   --font-handwriting: "Bradley Hand", "homemade-apple", XingKai SC, cursive;
   --article-font-size: 1rem;
@@ -284,6 +284,9 @@ body {
   flex-direction: column;
   font-synthesis: none;
   font-family: var(--font-sans-serif);
+  -moz-font-feature-settings: "kern";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
@@ -506,12 +509,7 @@ html {
   z-index: 100;
   user-select: none;
   /* 底部不画 border：渐变底色 + .navbar-blur 的渐进模糊向正文自然消融 */
-  background: linear-gradient(
-    to bottom,
-    hsl(from var(--mantle) h s l / 0.95),
-    hsl(from var(--mantle) h s l / 0.7) 55%,
-    hsl(from var(--mantle) h s l / 0)
-  );
+  background: linear-gradient(to bottom, hsl(from var(--mantle) h s l / 0.95), hsl(from var(--mantle) h s l / 0.7) 55%, hsl(from var(--mantle) h s l / 0));
 
   button {
     background: none;
