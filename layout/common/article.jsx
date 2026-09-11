@@ -20,17 +20,18 @@ module.exports = class extends Component {
     const isPost = page.layout !== "page";
     /* 文章页做满高首屏（封面文章由 CSS 扣除封面高度）；独立页面用紧凑版头 */
     const fullHero = isPost;
-    const createdDate = isPost && page.date ? helper.date(page.date, "YYYY-MM-DD") : null;
-    const updatedDate = isPost && page.updated ? helper.date(page.updated, "YYYY-MM-DD") : null;
+    const createdDate = isPost && page.date ? helper.date(page.date, "YYYY.MM.DD") : null;
+    const updatedDate = isPost && page.updated ? helper.date(page.updated, "YYYY.MM.DD") : null;
     const showUpdated = updatedDate && updatedDate !== createdDate;
+    const sameYear = createdDate && updatedDate && createdDate.slice(0, 4) === updatedDate.slice(0, 4);
 
     return (
       <Fragment>
         {/* Cover image */}
         {cover ? <ArticleCover page={page} cover={cover} helper={helper} /> : null}
         <article class={`article${"direction" in page ? ` ${page.direction}` : ""}`}>
-          {/* 扉页式首屏：三种声音分层——等宽小字的 kicker（标签）、纤细大号标题、
-              衬线/楷体的摘要；页脚一行：版记居左、跳转箭头居中、comments·info 居右 */}
+          {/* 扉页式首屏：标签、标题、摘要；桌面版记留在页脚，移动端排到摘要下方，
+              跳转箭头居中、comments·info 居右 */}
           <header class={`article-hero${fullHero ? " article-hero-full" : ""}${fullHero && cover ? " article-hero-with-cover" : ""}`}>
             <div class="article-hero-body">
               {page.tags?.length ? (
@@ -56,8 +57,8 @@ module.exports = class extends Component {
                     <time datetime={page.date.toISOString()}>{createdDate}</time>
                     {showUpdated && (
                       <Fragment>
-                        <span class="meta-separator">/</span>
-                        <time datetime={page.updated.toISOString()}>{updatedDate}</time>
+                        <span class="meta-separator">—</span>
+                        <time datetime={page.updated.toISOString()}>{sameYear ? updatedDate.slice(5) : updatedDate}</time>
                       </Fragment>
                     )}
                   </Fragment>

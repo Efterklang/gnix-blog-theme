@@ -5,6 +5,18 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "9.11",
         cn: [
+          "优化移动端文章扉页：标题均衡折行，摘要略窄于标题并左对齐，日期紧接摘要且共用左边缘；圆形跳转箭头居中，comments · info 位于右下。沿用现有字体，留白随视口调整，长标题或字号放大时内容自然向下延伸",
+          "文章日期统一为点分格式，同年合并为「2026.06.15 — 07.24」，跨年保留两个年份，同一天只显示一次；桌面端同步支持",
+        ],
+        en: [
+          "Refine the mobile article title page with balanced title wrapping, a narrower excerpt aligned to the left and dates immediately below on the same left edge. Center the circular skip arrow and place comments · info at the lower right. Keep the existing typefaces, adapt the whitespace to the viewport and let long titles or enlarged text extend the page naturally",
+          "Format article dates as 2026.06.15 — 07.24 when both dates share a year, retain both years across year boundaries and show the date only once when creation and update fall on the same day; the compact format also applies on desktop",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "9.11",
+        cn: [
           "文章首屏改为扉页式排版：标签升为标题上方的 kicker（等宽小字、大写、0.14em 疏排），标题放大到 clamp(2rem, 1.4rem + 2vw, 2.75rem)、常规字重、行高 1.18、字距 0.02em 并以 text-wrap: balance 均衡折行，摘要改为正文字体 0.875rem / 1.8 行高，顶部一条 32px 短横线把标题与摘要隔成两段；底部页脚一行：版记（创建/更新日期，tabular-nums）居左、圆圈向下箭头居中、comments·info 居右，等宽小字与 kicker 同声部；正文块整体上浮 6 格让视觉重心略高于几何中心；进场参考 apple.com 首页——kicker、标题、摘要、页脚同一种「淡入 + 14px 上浮」动作，以 200ms 步进自上而下依次浮现，每步 900ms、曲线 --ease-out；移动端页脚拆两行——箭头独占上一行居中，版记与动作分居下一行两端。全站无衬线字体栈去掉 Avenir Next 直接用 system-ui，body 开启 antialiased 字体平滑与 kern",
         ],
         en: [

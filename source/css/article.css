@@ -857,6 +857,105 @@ a strong {
   }
 }
 
+@media screen and (max-width: 768px) {
+  /* 两段弹性留白托住扉页内容；透明化分组容器，让日期紧跟摘要，仍只渲染一份。
+     最小留白保证矮屏或长标题时首屏自然长高，不挤压文字与底部动作。 */
+  .article-hero-full {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(2rem, 1fr) repeat(4, auto) minmax(3rem, 1fr) auto auto;
+    gap: 0;
+    justify-items: center;
+    box-sizing: border-box;
+    padding-bottom: max(calc(var(--spacing) * 5), env(safe-area-inset-bottom));
+
+    .article-hero-body,
+    .article-hero-foot {
+      display: contents;
+    }
+
+    .article-kicker {
+      grid-row: 2;
+      max-width: 80%;
+    }
+
+    .article-title {
+      grid-row: 3;
+      width: min(80%, 28rem);
+      font-size: clamp(1.75rem, 8.2vw, 2.5rem);
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .article-excerpt,
+    .article-colophon {
+      width: min(66%, 26rem);
+      text-align: start;
+    }
+
+    .article-excerpt {
+      grid-row: 4;
+      max-width: none;
+      font-size: 0.8125rem;
+      overflow-wrap: anywhere;
+    }
+
+    .article-colophon {
+      grid-row: 5;
+      justify-content: flex-start;
+      margin-top: calc(var(--spacing) * 5);
+      line-height: 1.8;
+
+      &:empty {
+        display: none;
+      }
+
+      time {
+        white-space: nowrap;
+      }
+    }
+
+    .article-hero-arrow {
+      grid-row: 7;
+      margin-bottom: calc(var(--spacing) * 3);
+
+      > svg {
+        width: 1.75rem;
+        height: 1.75rem;
+      }
+    }
+
+    .article-hero-actions {
+      grid-row: 8;
+      justify-self: end;
+      gap: 0.75rem;
+
+      &:has(> button + button)::before {
+        content: "·";
+        order: 1;
+      }
+
+      > button:last-child {
+        order: 2;
+      }
+    }
+  }
+
+  /* 页脚在移动端没有自己的盒子，入场效果交给各项承接。 */
+  :root.gnix-revealed .article-hero-full {
+    .article-hero-foot {
+      animation: none;
+    }
+
+    .article-colophon,
+    .article-hero-arrow,
+    .article-hero-actions {
+      animation: hero-rise 900ms var(--ease-out) backwards;
+      animation-delay: calc(var(--hero-step) * 3.5);
+    }
+  }
+}
+
 em,
 .footnotes {
   font-family: var(--font-serif);
