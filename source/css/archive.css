@@ -9,7 +9,8 @@
   --archive-accent: var(--lavender);
   --archive-popup-open-delay: 140ms;
   --archive-popup-enter-duration: 160ms;
-  --archive-popup-exit-duration: 100ms;
+  --archive-popup-exit-duration: 125ms;
+  --archive-enter-duration: 280ms;
   position: relative;
   display: grid;
   /* 间距做层级：条目密、组间松（约 3 倍条目节距），靠留白对比分组，不画线 */
@@ -40,14 +41,28 @@
   overflow-wrap: anywhere;
 }
 
+:root.gnix-revealed .archive-page :is(.archive-hero, .archive-group__header) {
+  animation: archive-label-enter var(--archive-enter-duration) var(--ease-out) backwards;
+  animation-delay: var(--archive-label-delay, 0ms);
+}
+
+/* Keep the fixed preview's ancestor free of transforms. Cap the stagger so
+   long groups finish entering promptly, including after prerender activation. */
 :root.gnix-revealed .archive-page .archive-item {
-  animation: archive-item-fade 0.6s var(--ease-out) backwards;
-  animation-delay: calc(var(--i, 0) * 30ms);
+  animation: archive-item-fade var(--archive-enter-duration) var(--ease-out) backwards;
+  animation-delay: calc(100ms + min(var(--i, 0), 6) * 30ms);
 }
 
 :root.gnix-revealed .archive-page .archive-item > .archive-title {
-  animation: archive-title-rise 0.6s var(--ease-out) backwards;
-  animation-delay: calc(var(--i, 0) * 30ms);
+  animation: archive-title-rise var(--archive-enter-duration) var(--ease-out) backwards;
+  animation-delay: calc(100ms + min(var(--i, 0), 6) * 30ms);
+}
+
+@keyframes archive-label-enter {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
 }
 
 @keyframes archive-item-fade {
@@ -58,7 +73,7 @@
 
 @keyframes archive-title-rise {
   from {
-    translate: 0 10px;
+    translate: 0 8px;
   }
 }
 
@@ -133,12 +148,9 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 /* #region Hover overlay */
 
-/* 聚焦模式：悬停/聚焦条目时，一层 --mantle 实色 overlay 罩住页面其余全部
-   （navbar、footer、hero、年份轴、季节标题、其他条目），仅当前条目
-   （z-index 140）与其预览（141）浮在其上。旧实现是逐类隐藏：三条巨型
-   :has() 选择器枚举每类元素分别设 opacity: 0，淡出时序还不一致
-   （rail/navbar 有过渡、hero 与其他条目硬切）；单层 overlay 视觉等效，
-   只过渡一个 opacity。130 落在 navbar（100/101）与活动条目（140）之间 */
+/* One shared backdrop stays open while moving between previews. The current
+   item (140) and its preview (141) sit above it; surrounding rows stay faintly
+   visible so the next title remains easy to find. */
 @supports (anchor-name: --archive-anchor) and (anchor-scope: --archive-anchor) {
   @media (hover: hover) and (pointer: fine) and (min-width: 721px) {
     .archive-page::after {
@@ -152,9 +164,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
       transition: opacity var(--archive-popup-exit-duration) var(--ease-out);
     }
 
-    /* 与 popup 共用悬停意图延迟与进退场时长；无摘要、锚点能力不足或幕帘开启时
-       不调暗页面。0.9 调光不熄灯：邻行留一丝余像，保住分组与相邻文章的上下文 */
-    .archive-page:not(:has(.archive-topic-picker:popover-open)):has(.archive-item > .archive-title:hover + .archive-popup, .archive-item > .archive-popup:hover)::after {
+    .archive-page[data-preview-state="open"]:not(:has(.archive-topic-picker:popover-open))::after,
+    .archive-page:not([data-preview-state]):not(:has(.archive-topic-picker:popover-open)):has(.archive-item > .archive-title:hover + .archive-popup)::after {
       opacity: 0.9;
       transition-duration: var(--archive-popup-enter-duration);
       transition-delay: var(--archive-popup-open-delay);
@@ -384,6 +395,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
    此前用正文字体 italic 且与标题同号，是孤例声部——既不像元信息也不像标题；
    uppercase 后大写与数字同高，年份也不再高出小写一截 */
 .archive-group__header {
+  --archive-label-delay: 60ms;
   margin: 0 0 1.25rem;
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -422,21 +434,18 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   z-index: 141;
   box-sizing: border-box;
 
-  /* Default placement: above the item（透明 border 保留间隙且连通悬停命中区）。高度设上限让
-     overflow: auto 真正生效——无约束时长摘要会把盒顶推出视口，被裁部分无从滚回 */
+  /* Keep this passive preview above its title, within the available viewport.
+     The transparent border preserves the gap without covering the title. */
   bottom: anchor(top);
   inset-inline-start: anchor(start);
   border-block-end: var(--popup-gap) solid transparent;
-  /* 上方放不下时不翻到条目下方（方位恒在上），改为压缩：盒顶贴视口顶、
-     底边仍贴条目顶，高度被这段空间截短，超出部分走内部滚动 */
+  /* 上方放不下时保持方位并压缩到视口顶；预览不形成独立滚动区，滚动交给页面。 */
   position-try-fallbacks: --archive-popup-squeeze;
   inline-size: fit-content;
   min-inline-size: min(20rem, calc(100vw - 2rem));
   max-inline-size: min(34rem, calc(100vw - 24px));
   max-block-size: 50dvh;
-  overflow: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
+  overflow: hidden;
   /* 摘要里长 URL 等不可断段会把 fit-content 顶到宽度上限后横向溢出成滚动条，
      兜底折行 */
   overflow-wrap: anywhere;
@@ -449,6 +458,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   opacity: 0;
   transform: translateY(var(--popup-hidden-shift));
   transform-origin: bottom left;
+  /* Previews never intercept the titles beneath them. Only the title triggers
+     a preview; moving over the excerpt can switch to another covered title. */
   pointer-events: none;
   visibility: hidden;
   transition:
@@ -497,10 +508,9 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   text-align: end;
 }
 
-/* 展示条件只认悬停（标题或预览本体）。曾并入 :focus-within，但点击标题进入
-   文章后返回时浏览器会还原链接焦点，popup 常驻且不随指针移开消失，故移除；
-   支持离散过渡时，隐藏摘要跳过布局，退场完成才切 content-visibility；
-   不支持时保留 visibility 过渡。条目层级延迟回落，避免退场时先被遮罩盖住 */
+/* archive.js coordinates hover intent, keyboard focus and scroll dismissal.
+   Keep the CSS hover fallback when JavaScript is unavailable. Hidden previews
+   skip layout; closing rows retain their layer until the fade finishes. */
 /* Placement depends entirely on anchor positioning; where it is unsupported,
    fail closed (no preview) rather than render the popup at a broken position. */
 @supports (anchor-name: --archive-anchor) and (anchor-scope: --archive-anchor) {
@@ -514,7 +524,17 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
       transition-behavior: allow-discrete;
     }
 
-    .archive-page:not(:has(.archive-topic-picker:popover-open)) .archive-item:has(> .archive-title:hover + .archive-popup, > .archive-popup:hover) {
+    .archive-page[data-preview-state] {
+      --archive-popup-open-delay: 0ms;
+    }
+
+    .archive-page[data-preview-switching] .archive-popup {
+      --archive-popup-enter-duration: 125ms;
+      --popup-hidden-shift: 0px;
+    }
+
+    .archive-page:where(:not(:has(.archive-topic-picker:popover-open))) .archive-item:where([data-preview-active]),
+    .archive-page:where(:not([data-preview-state]):not(:has(.archive-topic-picker:popover-open))) .archive-item:where(:has(> .archive-title:hover + .archive-popup)) {
       z-index: 140;
       transition-delay: 0s;
 
@@ -529,12 +549,30 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
       > .archive-popup {
         opacity: 1;
         transform: translateY(0);
-        pointer-events: auto;
         visibility: visible;
         content-visibility: visible;
         transition-duration: var(--archive-popup-enter-duration), var(--archive-popup-enter-duration), 0s, var(--archive-popup-enter-duration);
         transition-delay: var(--archive-popup-open-delay);
       }
+    }
+
+    /* Replaced excerpts disappear together, so rapid switching cannot leave
+       several paragraphs fading over one another. The backdrop stays steady. */
+    .archive-page:where([data-preview-state="open"]) .archive-item:where(:not([data-preview-active])),
+    .archive-page:where([data-preview-state="open"]) .archive-item:where(:not([data-preview-active])) > .archive-popup {
+      transition: none;
+    }
+
+    .archive-page:is([data-preview-state="scrolling"], [data-preview-input="keyboard"]) {
+      &::after,
+      .archive-item,
+      .archive-popup {
+        transition: none;
+      }
+    }
+
+    .archive-page[data-preview-input="keyboard"] .archive-popup {
+      --popup-hidden-shift: 0px;
     }
   }
 }
@@ -544,7 +582,10 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 a.archive-title {
   --archive-date-col: 3.2rem;
   --archive-date-gap: 0.35rem;
-  display: block;
+  display: grid;
+  grid-template-columns: var(--archive-date-col) minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--archive-date-gap);
   inline-size: fit-content;
   /* 列表静息态整体降半级（字号 ×0.95、颜色向底色收 18%），
      高亮交给交互层：hover 聚焦模式（mantle overlay 罩住他项）+ accent 变色 */
@@ -553,18 +594,16 @@ a.archive-title {
   font-family: var(--article-font-family);
   max-inline-size: 100%;
   color: color-mix(in oklch, var(--text) 82%, var(--base));
-  /* Hanging indent: wrapped title lines align with the title text, not the
-     leading date column. */
+  /* A separate date column stays centered even when the title wraps. */
   padding-block: 0.6rem;
-  padding-inline: calc(var(--archive-date-col) + var(--archive-date-gap)) 0.35rem;
-  text-indent: calc(-1 * (var(--archive-date-col) + var(--archive-date-gap)));
+  padding-inline: 0 0.35rem;
   line-height: 1.45;
   overflow-wrap: anywhere;
   transition: color 140ms var(--ease-out);
 
   @media (max-width: 480px) {
     padding-block: 0.7rem;
-    padding-inline: calc(var(--archive-date-col) + var(--archive-date-gap)) 0.5rem;
+    padding-inline-end: 0.5rem;
   }
 
   &:hover,
@@ -580,23 +619,24 @@ a.archive-title {
   }
 }
 
-/* Leading date inside the title link; fixed min-width keeps titles aligned.
+/* Leading date inside the title link; the fixed grid column keeps titles aligned.
    内容是纯数字 mm.dd（见 common.js formatMonthDay），mono + tabular 天然对齐 */
 .archive-title__date {
-  display: inline-block;
-  min-width: var(--archive-date-col);
-  margin-inline-end: var(--archive-date-gap);
   color: var(--archive-muted);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
-  text-indent: 0;
+  white-space: nowrap;
   transition: color 140ms var(--ease-out);
 
   a.archive-title:hover &,
   a.archive-title:focus-visible & {
     color: color-mix(in oklch, var(--archive-accent) 72%, var(--archive-muted));
   }
+}
+
+.archive-title__text {
+  min-inline-size: 0;
 }
 
 :is(.archive-hero__title, .archive-topic-list__item, a.archive-title):focus-visible {
@@ -607,4 +647,18 @@ a.archive-title {
 
 a.archive-title:focus-visible > .archive-title__date {
   transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root.gnix-revealed .archive-page :is(.archive-hero, .archive-group__header, .archive-item) {
+    animation: archive-item-fade 160ms var(--ease-out) backwards;
+  }
+
+  :root.gnix-revealed .archive-page .archive-item > .archive-title {
+    animation: none;
+  }
+
+  .archive-popup {
+    --popup-hidden-shift: 0px;
+  }
 }

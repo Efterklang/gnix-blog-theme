@@ -21,10 +21,10 @@ module.exports = class extends Component {
           <time class="archive-title__date" dateTime={dateXml || null}>
             {formattedDate}
           </time>
-          {title}
+          <span class="archive-title__text">{title}</span>
         </a>
         {excerpt && (
-          <div class="archive-popup">
+          <div class="archive-popup" inert>
             <div class="archive-popup__excerpt" dangerouslySetInnerHTML={{ __html: excerpt }}></div>
             {readTime && <p class="archive-popup__read">{readTime}</p>}
           </div>
