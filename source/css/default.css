@@ -755,7 +755,6 @@ input.searchbox-input {
   border-radius: var(--radius);
   width: min(640px, 92vw);
   top: 10vh;
-  box-shadow: 0 20px 60px hsl(from var(--crust) h s l / 0.4);
 
   /* 模糊层独立于内容：结果列表重绘时 blur 可被合成器缓存复用 */
   &::before {

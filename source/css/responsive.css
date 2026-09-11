@@ -27,15 +27,35 @@
     min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 1rem - var(--cover-height));
   }
 
-  /* 页脚两行：箭头独占上一行居中，版记与动作分居下一行两端 */
+  /* 页脚改为居中竖排，与扉页居中的 kicker / 标题 / 摘要同一轴线：版记、动作各占一行
+     （两等分列放不下「创建 / 更新」两个日期，版记会折行挤在左半），箭头收在最下、
+     紧贴它所指向的正文；动作按钮把命中区扩到 ~38px 高，按钮间距放宽避免误触 */
   .article-hero-foot {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem 1rem;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: calc(var(--spacing) * 2);
 
     .article-hero-arrow {
-      grid-column: 1 / -1;
-      justify-self: center;
-      order: -1;
+      order: 1;
+    }
+
+    /* 独立页面无版记，空元素不占一行留出空隙 */
+    .article-colophon:empty {
+      display: none;
+    }
+  }
+
+  .article-colophon,
+  .article-hero-actions {
+    justify-content: center;
+  }
+
+  .article-hero-actions {
+    gap: 1.5rem;
+
+    button {
+      padding: 0.75em 0.5em;
+      margin: -0.75em -0.5em;
     }
   }
 
