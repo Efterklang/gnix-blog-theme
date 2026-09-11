@@ -1,5 +1,62 @@
 import { runWhenActivated } from "./main.js";
 
+function initArchiveReveal() {
+  const page = document.querySelector(".archive-page");
+  if (!page || !("IntersectionObserver" in window)) return;
+
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if (reducedMotion.matches) return;
+
+  // Keep the initial viewport's existing entrance. Only prepare content below
+  // it, so activating a prerendered page never hides something already visible.
+  const targets = Array.from(page.querySelectorAll(".archive-group__header, .archive-item")).filter((element) => element.getBoundingClientRect().top >= window.innerHeight);
+  if (!targets.length) return;
+
+  const pending = new Set(targets);
+  const observer = new window.IntersectionObserver(
+    (entries) => {
+      entries
+        .filter((entry) => entry.isIntersecting && pending.has(entry.target))
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+        .forEach((entry, index) => reveal(entry.target, Math.min(index, 3) * 30));
+    },
+    { rootMargin: "0px 0px -24px 0px", threshold: 0 },
+  );
+
+  function reveal(element, delay = 0, instant = false) {
+    if (instant) {
+      element.style.removeProperty("--archive-scroll-delay");
+      element.dataset.scrollReveal = "shown";
+    } else {
+      element.style.setProperty("--archive-scroll-delay", `${delay}ms`);
+      element.dataset.scrollReveal = "visible";
+    }
+    pending.delete(element);
+    observer.unobserve(element);
+    if (!pending.size) observer.disconnect();
+  }
+
+  for (const target of targets) {
+    target.dataset.scrollReveal = "pending";
+    observer.observe(target);
+  }
+
+  // Focus and pointer intent take priority over decorative motion, including
+  // a link scrolled into view by Tab or reached before the observer fires.
+  function revealInteraction(event) {
+    const target = event.target.closest?.(".archive-item, .archive-group__header");
+    if (target && ["pending", "visible"].includes(target.dataset.scrollReveal)) reveal(target, 0, true);
+  }
+
+  page.addEventListener("focusin", revealInteraction);
+  page.addEventListener("pointerover", revealInteraction, { passive: true });
+  reducedMotion.addEventListener("change", () => {
+    if (!reducedMotion.matches) return;
+    for (const target of targets) reveal(target, 0, true);
+    observer.disconnect();
+  });
+}
+
 function initArchivePreview() {
   const page = document.querySelector(".archive-page");
   if (!page || !CSS.supports("anchor-name: --archive-anchor") || !CSS.supports("anchor-scope: --archive-anchor")) return;
@@ -170,4 +227,7 @@ function initArchivePreview() {
   });
 }
 
-runWhenActivated(initArchivePreview);
+runWhenActivated(() => {
+  initArchiveReveal();
+  initArchivePreview();
+});
