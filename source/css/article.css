@@ -54,6 +54,38 @@
   }
 }
 
+/* One entrance per body block. Pending blocks have no displacement, so long
+   articles don't gain scrollbars or shift fixed descendants before entry.
+   Backwards fill releases all transforms and stacking contexts after entry. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  #article-content > [data-scroll-reveal="pending"] {
+    opacity: 0;
+  }
+
+  #article-content > [data-scroll-reveal="visible"] {
+    animation: article-block-fade var(--scroll-reveal-duration) var(--ease-out) var(--scroll-reveal-delay, 0ms) backwards;
+  }
+
+  /* Footnote panels can be fixed to the viewport on touch. Custom components
+     may own overlays too; move only ordinary blocks without footnotes. */
+  #article-content > :is(p, h1, h2, h3, h4, h5, h6, ul, ol, dl, figure, pre, blockquote, table, hr)[data-scroll-reveal="visible"]:not(:has(.footnote-ref)) {
+    animation-name: article-block-rise;
+  }
+}
+
+@keyframes article-block-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes article-block-rise {
+  from {
+    opacity: 0;
+    translate: 0 var(--scroll-reveal-distance);
+  }
+}
+
 .content {
   overflow: auto;
   overflow-wrap: break-word;

@@ -2,6 +2,18 @@
 // mermaid、TOC、评论弹层与满高首屏。由 scripts.jsx 仅在文章页注入，
 // 共享基础设施（激活门控、懒加载资源）从 main.js 导入
 import { handleLazyAssetError, loadScriptOnce, loadStyleOnce, prewarmLazyAssetsOnIdle, runWhenActivated } from "./main.js";
+import { initScrollReveal } from "./scroll-reveal.js";
+
+let cleanupArticleReveal = () => {};
+
+function initArticleReveal() {
+  cleanupArticleReveal();
+  const content = document.getElementById("article-content");
+  if (!content) return;
+  // Decryption replaces body blocks while retaining this root. Settle the old
+  // controller first so previously read content never hides or replays.
+  cleanupArticleReveal = initScrollReveal(content, content.querySelectorAll(":scope > :not(script, style, template, link, [hidden])"));
+}
 
 function getLocalizedUiText(key) {
   const isZh = (document.documentElement.lang || "").toLowerCase().startsWith("zh");
@@ -469,6 +481,7 @@ function initHeroTocReveal() {
 }
 
 function initPage() {
+  initArticleReveal();
   handleMermaid();
   addHighlightTool();
   document.querySelectorAll(".content img").forEach(markImageZoomable);

@@ -10,7 +10,7 @@
   --archive-popup-open-delay: 140ms;
   --archive-popup-enter-duration: 160ms;
   --archive-popup-exit-duration: 125ms;
-  --archive-enter-duration: 280ms;
+  --archive-enter-duration: 700ms;
   position: relative;
   display: grid;
   /* 间距做层级：条目密、组间松（约 3 倍条目节距），靠留白对比分组，不画线 */
@@ -41,39 +41,30 @@
   overflow-wrap: anywhere;
 }
 
-:root.gnix-revealed .archive-page :is(.archive-hero, .archive-group__header):not([data-scroll-reveal]) {
-  animation: archive-label-enter var(--archive-enter-duration) var(--ease-out) backwards;
-  animation-delay: var(--archive-label-delay, 0ms);
-}
-
-/* Keep the fixed preview's ancestor free of transforms. Cap the stagger so
-   long groups finish entering promptly, including after prerender activation. */
-:root.gnix-revealed .archive-page .archive-item:not([data-scroll-reveal]) {
-  animation: archive-item-fade var(--archive-enter-duration) var(--ease-out) backwards;
-  animation-delay: calc(100ms + min(var(--i, 0), 6) * 30ms);
-}
-
+/* Apple's overlapping copy entrance, tightened for a reading index: the hero
+   leads by 150ms, then headers and rows follow one page-wide order at 60ms.
+   Bound the delay on tall viewports; content below the fold uses scroll reveal.
+   Only the title moves, leaving its fixed preview's anchor stable. */
+:root.gnix-revealed .archive-page :is(.archive-hero, .archive-group__header):not([data-scroll-reveal]),
 :root.gnix-revealed .archive-page .archive-item:not([data-scroll-reveal]) > .archive-title {
-  animation: archive-title-rise var(--archive-enter-duration) var(--ease-out) backwards;
-  animation-delay: calc(100ms + min(var(--i, 0), 6) * 30ms);
+  animation: archive-enter var(--archive-enter-duration) var(--ease-out) backwards;
+  animation-delay: calc(90ms + min(var(--i, 0), 12) * 60ms);
 }
 
-@keyframes archive-label-enter {
+:root.gnix-revealed .archive-page .archive-hero:not([data-scroll-reveal]) {
+  animation-delay: 0ms;
+}
+
+@keyframes archive-enter {
   from {
     opacity: 0;
-    translate: 0 8px;
+    translate: 0 14px;
   }
 }
 
-@keyframes archive-item-fade {
+@keyframes archive-fade {
   from {
     opacity: 0;
-  }
-}
-
-@keyframes archive-title-rise {
-  from {
-    translate: 0 8px;
   }
 }
 
@@ -395,7 +386,6 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
    此前用正文字体 italic 且与标题同号，是孤例声部——既不像元信息也不像标题；
    uppercase 后大写与数字同高，年份也不再高出小写一截 */
 .archive-group__header {
-  --archive-label-delay: 60ms;
   margin: 0 0 1.25rem;
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -649,32 +639,30 @@ a.archive-title:focus-visible > .archive-title__date {
   transition: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
+@media screen and (prefers-reduced-motion: no-preference) {
   /* Reveal only the title inside each stable anchor. The item and its fixed
      preview keep their geometry and stacking while the page scrolls. */
-  .archive-group__header[data-scroll-reveal="pending"],
+  :is(.archive-hero, .archive-group__header)[data-scroll-reveal="pending"],
   .archive-item[data-scroll-reveal="pending"] > .archive-title {
     opacity: 0;
-    translate: 0 8px;
+    translate: 0 var(--scroll-reveal-distance);
   }
 
-  .archive-group__header[data-scroll-reveal="visible"],
+  :is(.archive-hero, .archive-group__header)[data-scroll-reveal="visible"],
   .archive-item[data-scroll-reveal="visible"] > .archive-title {
     transition:
-      opacity var(--archive-enter-duration) var(--ease-out),
-      translate var(--archive-enter-duration) var(--ease-out),
+      opacity var(--scroll-reveal-duration) var(--ease-out),
+      translate var(--scroll-reveal-duration) var(--ease-out),
       color 140ms var(--ease-out);
-    transition-delay: var(--archive-scroll-delay, 0ms), var(--archive-scroll-delay, 0ms), 0ms;
+    transition-delay: var(--scroll-reveal-delay, 0ms), var(--scroll-reveal-delay, 0ms), 0ms;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root.gnix-revealed .archive-page :is(.archive-hero, .archive-group__header, .archive-item):not([data-scroll-reveal]) {
-    animation: archive-item-fade 160ms var(--ease-out) backwards;
-  }
-
-  :root.gnix-revealed .archive-page .archive-item > .archive-title {
-    animation: none;
+  :root.gnix-revealed .archive-page :is(.archive-hero, .archive-group__header):not([data-scroll-reveal]),
+  :root.gnix-revealed .archive-page .archive-item:not([data-scroll-reveal]) > .archive-title {
+    animation: archive-fade 160ms var(--ease-out) backwards;
+    animation-delay: 0ms;
   }
 
   .archive-popup {

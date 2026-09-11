@@ -23,6 +23,8 @@
   /* motion：入场/位移的全站缓动基准（easeOutQuint，与归档页动效一致）；
      纯色彩 hover 过渡仍用内置 ease */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --scroll-reveal-duration: 500ms;
+  --scroll-reveal-distance: 8px;
 
   &[data-article-font-size="small"] {
     --article-font-size: 0.875rem;
@@ -1306,7 +1308,7 @@ html.night .preference-quick__select {
    .gnix-revealed 后触发。只声明 from，动画结束后不残留 translate。两个注意点：
    1. 不要把它用在内部含 fixed/anchor 定位后代的容器上（如归档条目，其悬浮预览为
       fixed）——translate 动画期间容器会成为 containing block，使其定位失效；
-      归档页因此在 archive.css 里拆成 opacity 与 translate 两个关键帧分层挂载；
+      归档页因此只让条目内的标题上浮，保留外层预览锚点的位置；
    2. 填充一律用 backwards（只为覆盖 delay 阶段），不要用 both/forwards——
       动画会永远处于 in effect 状态，元素常驻 stacking context，内部 fixed
       元素的 z-index 被困住（文章页脚注底栏曾被后续段落盖住、看似透明） */

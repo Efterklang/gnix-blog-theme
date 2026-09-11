@@ -5,7 +5,7 @@ const test = require("node:test");
 const vm = require("node:vm");
 
 const scriptPath = path.join(__dirname, "../source/js/archive.js");
-const script = fs.readFileSync(scriptPath, "utf8").replace(/^import .*\n/, "");
+const script = fs.readFileSync(scriptPath, "utf8").replace(/^import .*\n/gm, "");
 
 class Element {
   constructor(className = "", parent = null) {
@@ -50,6 +50,10 @@ class Element {
       if (match) return match;
     }
     return null;
+  }
+
+  querySelectorAll(selector) {
+    return this.children.flatMap((child) => [...(child.matches(selector) ? [child] : []), ...child.querySelectorAll(selector)]);
   }
 
   contains(target) {
@@ -106,6 +110,7 @@ function fixture({ supported = true, finePointer = true } = {}) {
       performance: { now: () => now },
       getComputedStyle: () => ({ getPropertyValue: () => "140ms" }),
       runWhenActivated: (callback) => callback(),
+      initScrollReveal: () => {},
       setTimeout(callback, delay) {
         const id = ++timerId;
         timers.set(id, { at: now + delay, callback });
