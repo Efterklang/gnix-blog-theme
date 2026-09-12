@@ -19,10 +19,12 @@ const THEME_OPTIONS = Object.freeze([
   { name: "Nord Light", value: "nord", colorScheme: "light" },
   { name: "Sunny", value: "sunny", colorScheme: "light" },
   { name: "Song Porcelain", value: "song_ci", colorScheme: "light" },
+  { name: "Mono Light", value: "mono_light", colorScheme: "light" },
   { name: "Nord Night", value: "nord_night", colorScheme: "night" },
   { name: "Rosé Pine", value: "rose_pine", colorScheme: "night" },
   { name: "Catppuccin Mocha", value: "mocha", colorScheme: "night" },
   { name: "Tokyo Night", value: "tokyo_night", colorScheme: "night" },
+  { name: "Mono Dark", value: "mono_dark", colorScheme: "night" },
 ]);
 
 function getClientThemeConfig() {
@@ -71,7 +73,12 @@ function getThemeInitScript() {
     return mode === "light" || mode === "dark" || mode === DEFAULT_MODE ? mode : DEFAULT_MODE;
   }
 
+  function normalizeThemeName(theme) {
+    return theme === "openai_dark" ? "mono_dark" : theme;
+  }
+
   function normalizeThemeForScheme(theme, scheme, fallback) {
+    theme = normalizeThemeName(theme);
     return isValidTheme(theme) && themeSchemeMap[theme] === scheme ? theme : fallback;
   }
 
@@ -91,6 +98,7 @@ function getThemeInitScript() {
 
   function normalizePreferences(value) {
     if (typeof value === "string") {
+      value = normalizeThemeName(value);
       if (value === LEGACY_DEFAULT || value === DEFAULT_MODE) {
         return Object.assign({}, defaultPreferences, { mode: DEFAULT_MODE });
       }
@@ -155,6 +163,7 @@ function getThemeInitScript() {
   }
 
   function applyTheme(theme, persist) {
+    theme = normalizeThemeName(theme);
     var current = getThemePreferences();
 
     if (theme === LEGACY_DEFAULT || theme === DEFAULT_MODE) {

@@ -20,9 +20,9 @@ span.tab {
 }
 
 :is([data-theme="nord"]) code span {
-  font-style: var(--shiki-song-font-style) !important;
-  font-weight: var(--shiki-song-font-weight) !important;
-  color: var(--shiki-song) !important;
+  font-style: var(--shiki-nord-light-font-style) !important;
+  font-weight: var(--shiki-nord-light-font-weight) !important;
+  color: var(--shiki-nord-light) !important;
 }
 
 :is([data-theme="song_ci"]) code span {
@@ -47,6 +47,18 @@ span.tab {
   font-style: var(--shiki-dark-font-style) !important;
   font-weight: var(--shiki-dark-font-weight) !important;
   color: var(--shiki-rose) !important;
+}
+
+:is([data-theme="mono_dark"]) code span {
+  font-style: var(--shiki-mono-dark-font-style) !important;
+  font-weight: var(--shiki-mono-dark-font-weight) !important;
+  color: var(--shiki-mono-dark) !important;
+}
+
+:is([data-theme="mono_light"]) code span {
+  font-style: var(--shiki-mono-light-font-style) !important;
+  font-weight: var(--shiki-mono-light-font-weight) !important;
+  color: var(--shiki-mono-light) !important;
 }
 
 figure.shiki {

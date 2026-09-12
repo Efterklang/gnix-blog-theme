@@ -275,6 +275,56 @@
     --mantle: #292e39;
     --crust: #242933;
   }
+
+  /* Mono 的正文直接使用前景色，避免通用 subtext1 混色把纯黑 / 纯白变灰。 */
+  &:where([data-theme="mono_light"], [data-theme="mono_dark"]) {
+    --subtext1: var(--text);
+  }
+
+  &:where([data-theme="mono_light"]) {
+    color-scheme: light;
+    --rosewater: #a34f41;
+    --flamingo: #ad4c39;
+    --pink: #b52362;
+    --mauve: #6e36bf;
+    --red: #c12332;
+    --maroon: #b62337;
+    --peach: #996000;
+    --yellow: #856400;
+    --green: #007a5a;
+    --teal: #087568;
+    --sky: #1f6fae;
+    --sapphire: #0068b5;
+    --blue: #0068b5;
+    --lavender: #315bcb;
+    --text: #000;
+    --base: #fff;
+    --mantle: #fff;
+    --crust: #fff;
+  }
+
+  &:where([data-theme="mono_dark"]) {
+    color-scheme: dark;
+    --display-weight: 200;
+    --rosewater: #e8b4a8;
+    --flamingo: #e39d8f;
+    --pink: #df3079;
+    --mauve: #ab68ff;
+    --red: #f93a37;
+    --maroon: #f22c3d;
+    --peach: #e9950c;
+    --yellow: #f2c14e;
+    --green: #19c37d;
+    --teal: #10a37f;
+    --sky: #9ecbff;
+    --sapphire: #2e95d3;
+    --blue: #4e9ee0;
+    --lavender: #7ab7ff;
+    --text: #fff;
+    --base: #000;
+    --mantle: #000;
+    --crust: #000;
+  }
 }
 
 body {

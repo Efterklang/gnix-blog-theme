@@ -17,6 +17,16 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "9.11",
         cn: [
+          "新增 Mono Dark / Mono Light 主题（原 OpenAI Dark 更名）：深色为 #000 背景、#fff 正文，浅色为 #fff 背景、#000 正文；代码块与行内代码分别适配深浅语法高亮，并提供对应的彩色括号。Shiki 内置 Nord 仅支持深色，Nord Night 保留 Nord 高亮，Nord Light 改用 GitHub Light",
+        ],
+        en: [
+          "Add Mono Dark / Mono Light (renamed from OpenAI Dark): dark uses a #000 background with #fff body text, and light uses a #fff background with #000 body text. Code blocks and inline code receive separate light and dark syntax palettes, with matching colorized brackets. Shiki's bundled Nord is dark-only, so Nord Night keeps Nord highlighting while Nord Light uses GitHub Light",
+        ],
+        category: "feature",
+      },
+      {
+        date: "9.11",
+        cn: [
           "文章首屏改为扉页式排版：标签升为标题上方的 kicker（等宽小字、大写、0.14em 疏排），标题放大到 clamp(2rem, 1.4rem + 2vw, 2.75rem)、常规字重、行高 1.18、字距 0.02em 并以 text-wrap: balance 均衡折行，摘要改为正文字体 0.875rem / 1.8 行高，顶部一条 32px 短横线把标题与摘要隔成两段；底部页脚一行：版记（创建/更新日期，tabular-nums）居左、圆圈向下箭头居中、comments·info 居右，等宽小字与 kicker 同声部；正文块整体上浮 6 格让视觉重心略高于几何中心；进场参考 apple.com 首页——kicker、标题、摘要、页脚同一种「淡入 + 14px 上浮」动作，以 200ms 步进自上而下依次浮现，每步 900ms、曲线 --ease-out；移动端页脚拆两行——箭头独占上一行居中，版记与动作分居下一行两端。全站无衬线字体栈去掉 Avenir Next 直接用 system-ui，body 开启 antialiased 字体平滑与 kern",
         ],
         en: [
