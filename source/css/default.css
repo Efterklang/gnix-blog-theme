@@ -276,11 +276,6 @@
     --crust: #242933;
   }
 
-  /* Mono 的正文直接使用前景色，避免通用 subtext1 混色把纯黑 / 纯白变灰。 */
-  &:where([data-theme="mono_light"], [data-theme="mono_dark"]) {
-    --subtext1: var(--text);
-  }
-
   &:where([data-theme="mono_light"]) {
     color-scheme: light;
     --rosewater: #a34f41;
@@ -320,7 +315,7 @@
     --sapphire: #2e95d3;
     --blue: #4e9ee0;
     --lavender: #7ab7ff;
-    --text: #fff;
+    --text: #ededed;
     --base: #000;
     --mantle: #000;
     --crust: #000;
