@@ -65,27 +65,29 @@ function createMonoTheme(type, { fg, bg, comment, keyword, string, number, title
   };
 }
 
+// 与 default.css 的 Mono 色板同源：keyword=sapphire、string=green、number=pink、
+// title=red、builtin=peach、meta=sky。同一层「墨洗」彩度，代码块不比正文更喧哗。
 module.exports = {
   monoDark: createMonoTheme("dark", {
-    fg: "#ffffff",
+    fg: "#ebebeb",
     bg: "#000000",
-    comment: "#808080",
-    keyword: "#2e95d3",
-    string: "#00a67d",
-    number: "#df3079",
-    title: "#f22c3d",
-    builtin: "#e9950c",
-    meta: "#4e9ee0",
+    comment: "#7a7a7a",
+    keyword: "#90bce9",
+    string: "#99cda3",
+    number: "#e4a0bf",
+    title: "#ef958e",
+    builtin: "#e9b082",
+    meta: "#9fcbe6",
   }),
   monoLight: createMonoTheme("light", {
-    fg: "#000000",
+    fg: "#141414",
     bg: "#ffffff",
-    comment: "#6b6b6b",
-    keyword: "#0068b5",
-    string: "#007a5a",
-    number: "#b52362",
-    title: "#c12332",
-    builtin: "#996000",
-    meta: "#235b78",
+    comment: "#767676",
+    keyword: "#32618e",
+    string: "#397247",
+    number: "#8a4066",
+    title: "#9a3936",
+    builtin: "#925a25",
+    meta: "#357090",
   }),
 };

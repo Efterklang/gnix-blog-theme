@@ -576,11 +576,20 @@ sup.footnote-ref.is-footnote-tooltip-open .footnote-tooltip {
   overflow-x: auto;
 
   table {
-    min-width: max-content;
     width: 100%;
     border-collapse: collapse;
     border-spacing: 0;
-    overflow: auto;
+  }
+
+  td,
+  th {
+    /* 正常换行；仅不可断的元素（如行内 code）会撑开表格，交给 wrapper 横向滚动 */
+    white-space: normal;
+    overflow-wrap: anywhere;
+
+    code {
+      white-space: nowrap;
+    }
   }
 }
 

@@ -278,21 +278,23 @@
 
   &:where([data-theme="mono_light"]) {
     color-scheme: light;
-    --rosewater: #a34f41;
-    --flamingo: #ad4c39;
-    --pink: #b52362;
-    --mauve: #6e36bf;
-    --red: #c12332;
-    --maroon: #b62337;
-    --peach: #996000;
-    --yellow: #856400;
-    --green: #007a5a;
-    --teal: #087568;
-    --sky: #1f6fae;
-    --sapphire: #0068b5;
-    --blue: #0068b5;
-    --lavender: #315bcb;
-    --text: #000;
+    --rosewater: #8c5a4d;
+    --flamingo: #8f4e44;
+    --pink: #8a4066;
+    --mauve: #674689;
+    --red: #9a3936;
+    --maroon: #8b3b3e;
+    --peach: #925a25;
+    --yellow: #8c6c1f;
+    --green: #397247;
+    --teal: #1f7265;
+    --sky: #357090;
+    --sapphire: #32618e;
+    --blue: #2e598f;
+    --lavender: #4e508e;
+    /* 标题近墨，正文退成深灰：白纸上纯黑正文过硬，层级也靠这一档灰度撑开 */
+    --text: #141414;
+    --subtext1: #3d3d3d;
     --base: #fff;
     --mantle: #fff;
     --crust: #fff;
@@ -301,21 +303,23 @@
   &:where([data-theme="mono_dark"]) {
     color-scheme: dark;
     --display-weight: 200;
-    --rosewater: #e8b4a8;
-    --flamingo: #e39d8f;
-    --pink: #df3079;
-    --mauve: #ab68ff;
-    --red: #f93a37;
-    --maroon: #f22c3d;
-    --peach: #e9950c;
-    --yellow: #f2c14e;
-    --green: #19c37d;
-    --teal: #10a37f;
-    --sky: #9ecbff;
-    --sapphire: #2e95d3;
-    --blue: #4e9ee0;
-    --lavender: #7ab7ff;
-    --text: #ededed;
+    --rosewater: #e2b9af;
+    --flamingo: #e7ada3;
+    --pink: #e4a0bf;
+    --mauve: #c5a9e6;
+    --red: #ef958e;
+    --maroon: #e39191;
+    --peach: #e9b082;
+    --yellow: #e6c686;
+    --green: #99cda3;
+    --teal: #8bcdbf;
+    --sky: #9fcbe6;
+    --sapphire: #90bce9;
+    --blue: #95baea;
+    --lavender: #adb2ea;
+    /* 粉笔白而非纯白：黑底上 #fafafa 会晕光，压到 #ebebeb 仍有 17:1；正文与标题同色 */
+    --text: #ebebeb;
+    --subtext1: #ebebeb;
     --base: #000;
     --mantle: #000;
     --crust: #000;

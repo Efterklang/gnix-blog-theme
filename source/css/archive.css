@@ -5,7 +5,6 @@
 }
 
 .archive-page {
-  --archive-muted: color-mix(in oklch, var(--subtext1) 78%, var(--base));
   --archive-accent: var(--lavender);
   --archive-popup-open-delay: 140ms;
   --archive-popup-enter-duration: 160ms;
@@ -251,7 +250,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
   h2 {
     margin: 0;
-    color: var(--archive-muted);
+    color: var(--overlay2);
     font-family: var(--font-mono);
     font-size: 0.75rem;
     font-weight: 500;
@@ -273,7 +272,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   margin: 0;
   margin-inline-start: auto;
   padding: 0;
-  color: var(--archive-muted);
+  color: var(--overlay2);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
@@ -340,7 +339,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 }
 
 .archive-topic-list__count {
-  color: var(--archive-muted);
+  color: var(--overlay2);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-style: normal;
@@ -491,7 +490,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 .archive-popup__read {
   margin: 0.5rem 0 0;
-  color: var(--archive-muted);
+  color: var(--overlay2);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.08em;
@@ -533,7 +532,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
       }
 
       > .archive-title > .archive-title__date {
-        color: color-mix(in oklch, var(--archive-accent) 72%, var(--archive-muted));
+        color: color-mix(in oklch, var(--archive-accent) 72%, var(--overlay2));
       }
 
       > .archive-popup {
@@ -574,7 +573,9 @@ a.archive-title {
   --archive-date-gap: 0.35rem;
   display: grid;
   grid-template-columns: var(--archive-date-col) minmax(0, 1fr);
-  align-items: center;
+  /* 日期与标题共享首行基线：此前盒居中让两种字号的文字底边错开半个 x-height，
+     标题折行时日期还会悬在多行中间；索引/账簿式的惯例是日期钉在首行 */
+  align-items: baseline;
   column-gap: var(--archive-date-gap);
   inline-size: fit-content;
   /* 列表静息态整体降半级（字号 ×0.95、颜色向底色收 18%），
@@ -584,7 +585,6 @@ a.archive-title {
   font-family: var(--article-font-family);
   max-inline-size: 100%;
   color: color-mix(in oklch, var(--text) 82%, var(--base));
-  /* A separate date column stays centered even when the title wraps. */
   padding-block: 0.6rem;
   padding-inline: 0 0.35rem;
   line-height: 1.45;
@@ -610,18 +610,21 @@ a.archive-title {
 }
 
 /* Leading date inside the title link; the fixed grid column keeps titles aligned.
-   内容是纯数字 mm.dd（见 common.js formatMonthDay），mono + tabular 天然对齐 */
+   内容是纯数字 mm.dd（见 common.js formatMonthDay），mono + tabular 天然对齐。
+   与季节标题、幕帘眉题同一等宽声部（0.75rem / 500）：字重定死不随正文字重偏好，
+   小字号需要比正文重一档才能与标题灰度相当，选 300 时也不至于发虚 */
 .archive-title__date {
-  color: var(--archive-muted);
+  color: var(--overlay2);
   font-family: var(--font-mono);
   font-size: 0.75rem;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   transition: color 140ms var(--ease-out);
 
   a.archive-title:hover &,
   a.archive-title:focus-visible & {
-    color: color-mix(in oklch, var(--archive-accent) 72%, var(--archive-muted));
+    color: color-mix(in oklch, var(--archive-accent) 72%, var(--overlay2));
   }
 }
 

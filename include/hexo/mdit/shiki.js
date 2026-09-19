@@ -33,8 +33,8 @@ const TRANSFORMERS = [
   // 括号配色只内置了 shiki 自带主题，自定义主题需显式给出（末位为不匹配括号色）
   transformerColorizedBrackets({
     themes: {
-      [monoDark.name]: ["#2e95d3", "#df3079", "#e9950c", "#f22c3d"],
-      [monoLight.name]: ["#0068b5", "#b52362", "#996000", "#c12332"],
+      [monoDark.name]: ["#90bce9", "#e4a0bf", "#e9b082", "#ef958e"],
+      [monoLight.name]: ["#32618e", "#8a4066", "#925a25", "#9a3936"],
     },
   }),
 ];

@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "9.19",
+        cn: [
+          "重调 Mono Dark / Mono Light 配色：底色仍是纯黑 / 纯白，十四个强调色改为在 OKLCH 中统一亮度与彩度的「墨洗」色（浅色 L≈0.48 C≈0.10，深色 L≈0.78 C≈0.08），只以色相区分，替换此前高饱和的霓虹色；浅色正文由 #666 提到 #3d3d3d 与近墨标题拉开一档，深色正文压为粉笔白 #ebebeb 减少黑底晕光。代码高亮与彩色括号同步取自同一色板，所有强调色对白底 ≥ 4.9:1、对黑底 ≥ 8.7:1",
+        ],
+        en: [
+          "Retune Mono Dark / Mono Light: backgrounds stay pure black / white, while the fourteen accents become an ink-wash set with uniform OKLCH lightness and chroma (light L≈0.48 C≈0.10, dark L≈0.78 C≈0.08) that differ only by hue, replacing the earlier saturated neon. Light body text rises from #666 to #3d3d3d to sit one step below the near-black headings; dark body text settles to chalk white #ebebeb to reduce halation on black. Syntax highlighting and colorized brackets draw from the same palette; every accent reaches ≥ 4.9:1 on white and ≥ 8.7:1 on black",
+        ],
+        category: "uiux",
+      },
+      {
         date: "9.11",
         cn: [
           "优化移动端文章扉页：标题均衡折行，摘要略窄于标题并左对齐，日期紧接摘要且共用左边缘；圆形跳转箭头居中，comments · info 位于右下。沿用现有字体，留白随视口调整，长标题或字号放大时内容自然向下延伸",
