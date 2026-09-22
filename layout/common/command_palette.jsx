@@ -5,7 +5,6 @@
  * @module view/common/command_palette
  */
 const { Component } = require("../../include/util/common");
-const { THEME_OPTIONS } = require("../../include/util/theme");
 const { getLanguageOptions } = require("../../include/util/i18n");
 
 function translate(helper, key, fallback) {
@@ -61,9 +60,9 @@ module.exports = class extends Component {
       url: item.url || helper.localized_url_for("/", item.key),
     }));
 
+    // 主题列表不在此内联：head 的主题初始化脚本已把 __GNIX_THEME_CONFIG__.themes 写进每页
     const paletteConfig = {
       contentUrl: helper.is_i18n_enabled() ? helper.localized_url_for("/content.json") : helper.url_for("/content.json"),
-      themes: THEME_OPTIONS.filter((theme) => theme.colorScheme).map(({ name, value, colorScheme }) => ({ name, value, colorScheme })),
       typefaces: TYPEFACE_OPTIONS.map(([value, key, fallback, keywords]) => ({ value, label: translate(helper, key, fallback), keywords })),
       languages,
       links,

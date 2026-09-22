@@ -126,7 +126,35 @@
 
   // #endregion
 
-  // lucide 图标的路径片段，外层 svg 由 iconSvg 统一包装
+  // #region 实体解码
+  // content.json 的文本经服务端 escapeHTML / stripHTML，残留的几乎只有 &amp; &lt; 这类基本实体和
+  // 数字实体：正则一次替换即可，比把上 MB 的文本灌进 textarea 走 HTML 解析快得多；
+  // 只有出现其它命名实体（&hellip; 等）的字符串才整体退回 DOM 解码，两条路径都只解一次
+
+  const BASIC_ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
+  const BASIC_ENTITY_RE = /&(?:#x([0-9a-f]+)|#(\d+)|(amp|lt|gt|quot|apos|nbsp));/gi;
+  const UNKNOWN_ENTITY_RE = /&(?!#|amp;|lt;|gt;|quot;|apos;|nbsp;)[a-z][a-z0-9]*;/i;
+  let decoder = null;
+
+  function decodeHTML(value) {
+    if (!value || value.indexOf("&") === -1) return value;
+    if (UNKNOWN_ENTITY_RE.test(value)) {
+      decoder ??= document.createElement("textarea");
+      decoder.innerHTML = value;
+      return decoder.value;
+    }
+    return value.replace(BASIC_ENTITY_RE, (match, hex, dec, name) => {
+      if (name) return BASIC_ENTITIES[name.toLowerCase()];
+      const code = hex ? parseInt(hex, 16) : Number(dec);
+      return code <= 0x10ffff ? String.fromCodePoint(code) : match;
+    });
+  }
+
+  // #endregion
+
+  // #region 图标
+  // lucide 图标的路径片段；同一图标会出现在很多行里，解析一次后 cloneNode，免去每行 innerHTML 解析
+
   const ICONS = {
     sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
     moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
@@ -141,13 +169,23 @@
     check: '<path d="M20 6 9 17l-5-5"/>',
     "chevron-right": '<path d="m9 18 6-6-6-6"/>',
   };
+  const iconTemplates = new Map();
 
   // 尺寸直接写在 svg 属性上，样式表无需按上下文覆盖 svg 选择器
-  function iconSvg(name, size = 16) {
-    const body = ICONS[name];
-    if (!body) return "";
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
+  function createIcon(name, size = 16) {
+    const key = `${name}:${size}`;
+    let template = iconTemplates.get(key);
+    if (!template) {
+      const body = ICONS[name];
+      if (!body) return null;
+      template = document.createElement("template");
+      template.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
+      iconTemplates.set(key, template);
+    }
+    return template.content.firstElementChild.cloneNode(true);
   }
+
+  // #endregion
 
   const COMMAND_FIELDS = [
     { key: "label", weight: 3 },
@@ -175,23 +213,25 @@
     if (!inputContainer || !input || !container) return;
 
     const html = document.documentElement;
+    // 主题列表已由 head 的主题初始化脚本内联，不再随每页 HTML 重复一份
+    const themes = (window.__GNIX_THEME_CONFIG__?.themes || []).filter((theme) => theme.colorScheme);
     let dataset = null;
     let isLoading = false;
     let activeGroup = null;
     let scopeChip = null;
     let pendingQuery = "";
+    // 当前渲染出的选项及选中下标，方向键 / 回车直接查表，不再每次 querySelectorAll
+    let items = [];
+    let activeIndex = -1;
+    let renderRequest = 0;
 
-    // content.json 中的字段可能已被 HTML 实体编码（如 / → &#x2F;），需先解码再用于匹配和渲染
-    const decoder = document.createElement("textarea");
-    function decodeHTML(value) {
-      if (!value) return value;
-      decoder.innerHTML = value;
-      return decoder.value;
-    }
+    // #region 状态读取
+    // 主题 / 字体要读 localStorage 并 JSON.parse，一次渲染里十几个命令都会问同一个问题：
+    // 渲染期间缓存在快照里，渲染结束即丢弃；命令执行时不经快照，读到的都是最新值
 
-    // #region 状态读取：每次渲染实时读取，命令执行后再次打开即反映最新状态
+    let snapshot = null;
 
-    function getThemeState() {
+    function readThemeState() {
       const preferences = typeof window.getThemePreferences === "function" ? window.getThemePreferences() : {};
       const resolved = typeof window.getResolvedTheme === "function" ? window.getResolvedTheme() : html.dataset.theme || "";
       const schemeMap = window.__GNIX_THEME_CONFIG__?.themeSchemeMap || {};
@@ -199,12 +239,24 @@
       return { preferences, resolved, isDark };
     }
 
-    function getThemeName(value) {
-      return config.themes.find((theme) => theme.value === value)?.name || value;
+    function getThemeState() {
+      if (!snapshot) return readThemeState();
+      snapshot.theme ??= readThemeState();
+      return snapshot.theme;
+    }
+
+    function readTypeface() {
+      return window.gnixPreferences?.getArticleFontSettings?.().type || html.dataset.articleFontFamily || "";
     }
 
     function getTypeface() {
-      return window.gnixPreferences?.getArticleFontSettings?.().type || html.dataset.articleFontFamily || "";
+      if (!snapshot) return readTypeface();
+      snapshot.typeface ??= readTypeface();
+      return snapshot.typeface;
+    }
+
+    function getThemeName(value) {
+      return themes.find((theme) => theme.value === value)?.name || value;
     }
 
     function getTypefaceLabel(value) {
@@ -263,7 +315,7 @@
         label: () => `${translation.theme}: ${groups.theme.current()}`,
         keywords: "theme color scheme palette switch 主题 配色 切换",
       },
-      ...config.themes.map((theme) => ({
+      ...themes.map((theme) => ({
         id: `theme-${theme.value}`,
         group: "theme",
         section: theme.colorScheme,
@@ -315,6 +367,9 @@
         url: link.url,
       })),
     ];
+    const commandsById = new Map(commands.map((command) => [command.id, command]));
+    const topLevelCommands = commands.filter((command) => !command.group);
+    const groupMembers = new Map(Object.keys(groups).map((name) => [name, commands.filter((command) => command.group === name)]));
 
     function searchCommands(list, keywords) {
       const indexed = list.map((command) => ({
@@ -346,6 +401,17 @@
       return section;
     }
 
+    // 选项的 ARIA 属性在创建时一次写好，避免插入后再遍历一遍 DOM 改属性
+    function createItem(tag, modifier) {
+      const item = createElement(tag, `command-palette-item command-palette-item--${modifier}`);
+      item.id = `command-palette-option-${items.length}`;
+      item.setAttribute("role", "option");
+      item.setAttribute("aria-selected", "false");
+      item.tabIndex = -1;
+      items.push(item);
+      return item;
+    }
+
     function renderIcon(command) {
       const icon = createElement("span", "command-palette-item-icon");
       icon.setAttribute("aria-hidden", "true");
@@ -359,17 +425,17 @@
         glyph.dataset.typeface = command.glyph;
         icon.appendChild(glyph);
       } else {
-        icon.innerHTML = iconSvg(resolve(command.icon));
+        const svg = createIcon(resolve(command.icon));
+        if (svg) icon.appendChild(svg);
       }
       return icon;
     }
 
     function renderCommand(command, keywords, showHint) {
       const isLink = Boolean(command.url);
-      const item = document.createElement(isLink ? "a" : "button");
+      const item = createItem(isLink ? "a" : "button", "command");
       if (isLink) item.href = command.url;
       else item.type = "button";
-      item.className = "command-palette-item command-palette-item--command";
       item.dataset.commandId = command.id;
       item.appendChild(renderIcon(command));
 
@@ -385,22 +451,21 @@
         const check = createElement("span", "command-palette-item-check");
         check.setAttribute("role", "img");
         check.setAttribute("aria-label", translation.current);
-        check.innerHTML = iconSvg("check", 14);
+        check.appendChild(createIcon("check", 14));
         item.appendChild(check);
       }
       if (command.opener) {
         const chevron = createElement("span", "command-palette-item-chevron");
         chevron.setAttribute("aria-hidden", "true");
-        chevron.innerHTML = iconSvg("chevron-right", 14);
+        chevron.appendChild(createIcon("chevron-right", 14));
         item.appendChild(chevron);
       }
       return item;
     }
 
     function renderDocument(doc, keywords) {
-      const item = document.createElement("a");
+      const item = createItem("a", "document");
       item.href = doc.link;
-      item.className = "command-palette-item command-palette-item--document";
       const content = createElement("span", "command-palette-item-content");
       const title = createElement("span", "command-palette-item-title");
       title.innerHTML = findAndHighlight(doc.title || translation.untitled, keywords, 0, doc._lowerTitle);
@@ -415,35 +480,33 @@
     }
 
     function renderTag(tag, keywords) {
-      const item = document.createElement("a");
+      const item = createItem("a", "tag");
       item.href = tag.link;
-      item.className = "command-palette-item command-palette-item--tag";
       const title = createElement("span", "command-palette-item-title");
       title.innerHTML = findAndHighlight(tag.name, keywords, 0, tag._lowerName);
       item.appendChild(title);
       return item;
     }
 
-    function appendSection(fragment, title, modifier, items, renderItem) {
-      if (!items.length) return;
+    function appendSection(fragment, title, modifier, list, renderItem) {
+      if (!list.length) return;
       const section = createSection(title, modifier);
-      for (const item of items) section.appendChild(renderItem(item));
+      for (const entry of list) section.appendChild(renderItem(entry));
       fragment.appendChild(section);
     }
 
     function renderGroupView(fragment, name, keywords) {
       const group = groups[name];
-      const members = commands.filter((command) => command.group === name);
+      const members = groupMembers.get(name);
       const matched = keywords.length ? searchCommands(members, keywords) : members;
       for (const section of group.sections) {
-        const items = section.key ? matched.filter((command) => command.section === section.key) : matched;
-        appendSection(fragment, section.label, "commands", items, (command) => renderCommand(command, keywords, false));
+        const list = section.key ? matched.filter((command) => command.section === section.key) : matched;
+        appendSection(fragment, section.label, "commands", list, (command) => renderCommand(command, keywords, false));
       }
     }
 
     function renderDefaultView(fragment, scope) {
-      const topLevel = commands.filter((command) => !command.group);
-      appendSection(fragment, translation.commands, "commands", topLevel, (command) => renderCommand(command, [], true));
+      appendSection(fragment, translation.commands, "commands", topLevelCommands, (command) => renderCommand(command, [], true));
       if (scope === "all" && dataset?.posts.length) {
         appendSection(fragment, translation.recent, "posts", dataset.posts.slice(0, RECENT_POSTS), (post) => renderDocument(post, []));
       }
@@ -462,6 +525,14 @@
     }
 
     function render() {
+      if (renderRequest) {
+        window.cancelAnimationFrame(renderRequest);
+        renderRequest = 0;
+      }
+      snapshot = {};
+      items = [];
+      activeIndex = -1;
+
       const { scope, keywords } = parseQuery(input.value);
       const fragment = document.createDocumentFragment();
       if (activeGroup) {
@@ -480,38 +551,45 @@
         fragment.appendChild(createElement("div", "command-palette-empty", translation.noResults));
       }
       container.replaceChildren(fragment);
+      snapshot = null;
 
-      const items = container.querySelectorAll(".command-palette-item");
-      items.forEach((item, index) => {
-        item.id = `command-palette-option-${index}`;
-        item.setAttribute("role", "option");
-        item.setAttribute("aria-selected", "false");
-        item.tabIndex = -1;
-      });
       input.setAttribute("aria-expanded", items.length ? "true" : "false");
-      input.removeAttribute("aria-activedescendant");
       // 首项默认选中，回车即执行
-      if (items.length) setActive(items[0]);
+      if (items.length) setActive(0);
+      else input.removeAttribute("aria-activedescendant");
     }
 
-    function setActive(item) {
-      const previous = container.querySelector(".command-palette-item.active");
-      if (previous && previous !== item) {
+    // 连续按键 / 输入法组合期间一帧内可能触发多次 input，合并到下一帧渲染一次
+    function scheduleRender() {
+      if (renderRequest) return;
+      renderRequest = window.requestAnimationFrame(() => {
+        renderRequest = 0;
+        render();
+      });
+    }
+
+    // 键盘操作依赖最新的选项列表，先把待渲染冲刷掉
+    function flushRender() {
+      if (renderRequest) render();
+    }
+
+    function setActive(index) {
+      const previous = items[activeIndex];
+      if (previous) {
         previous.classList.remove("active");
         previous.setAttribute("aria-selected", "false");
       }
+      activeIndex = index;
+      const item = items[index];
       item.classList.add("active");
       item.setAttribute("aria-selected", "true");
       input.setAttribute("aria-activedescendant", item.id);
     }
 
     function moveActive(delta) {
-      const items = Array.from(container.querySelectorAll(".command-palette-item"));
       if (!items.length) return;
-      const index = items.findIndex((item) => item.classList.contains("active"));
-      const next = items[(index + delta + items.length) % items.length];
-      setActive(next);
-      next.scrollIntoView?.({ block: "nearest" });
+      setActive((activeIndex + delta + items.length) % items.length);
+      items[activeIndex].scrollIntoView?.({ block: "nearest" });
     }
 
     // #endregion
@@ -528,7 +606,8 @@
       scopeChip = createElement("button", "command-palette-scope");
       scopeChip.type = "button";
       scopeChip.title = translation.back;
-      scopeChip.innerHTML = `${iconSvg("arrow-left", 12)}<span>${escapeHTML(groups[activeGroup].label)}</span>`;
+      scopeChip.appendChild(createIcon("arrow-left", 12));
+      scopeChip.appendChild(createElement("span", "", groups[activeGroup].label));
       scopeChip.addEventListener("click", leaveGroup);
       inputContainer.insertBefore(scopeChip, input);
       input.placeholder = translation.filter;
@@ -553,7 +632,7 @@
     // #endregion
 
     function execute(item) {
-      const command = item.dataset.commandId ? commands.find((entry) => entry.id === item.dataset.commandId) : null;
+      const command = item.dataset.commandId ? commandsById.get(item.dataset.commandId) : null;
       if (command?.opener) {
         enterGroup(command.opener);
         return;
@@ -598,17 +677,25 @@
         });
     }
 
-    input.addEventListener("input", render);
+    // 索引有上 MB：悬停 / 聚焦到导航条的搜索按钮就开始拉取，点开时数据多半已就绪
+    document.querySelectorAll('[popovertarget="command-palette"]').forEach((trigger) => {
+      trigger.addEventListener("pointerenter", fetchData, { passive: true });
+      trigger.addEventListener("focus", fetchData);
+    });
+
+    input.addEventListener("input", scheduleRender);
 
     input.addEventListener("keydown", (event) => {
       // 中文等输入法组合期间的回车 / 方向键属于输入法，不能当作面板操作
       if (event.isComposing) return;
       if (event.key === "ArrowDown" || event.key === "ArrowUp") {
         event.preventDefault();
+        flushRender();
         moveActive(event.key === "ArrowDown" ? 1 : -1);
       } else if (event.key === "Enter") {
         event.preventDefault();
-        container.querySelector(".command-palette-item.active")?.click();
+        flushRender();
+        items[activeIndex]?.click();
       } else if (event.key === "Backspace" && activeGroup && !input.value) {
         event.preventDefault();
         leaveGroup();
@@ -639,10 +726,16 @@
         input.focus();
         return;
       }
+      if (renderRequest) {
+        window.cancelAnimationFrame(renderRequest);
+        renderRequest = 0;
+      }
       activeGroup = null;
       input.value = "";
       renderScope();
       container.replaceChildren();
+      items = [];
+      activeIndex = -1;
       input.setAttribute("aria-expanded", "false");
       input.removeAttribute("aria-activedescendant");
     });
@@ -667,6 +760,6 @@
     // #endregion
   }
 
-  loadCommandPalette.utils = { escapeHTML, parseQuery, rankList, findAndHighlight };
+  loadCommandPalette.utils = { escapeHTML, parseQuery, rankList, findAndHighlight, decodeHTML };
   window.loadCommandPalette = loadCommandPalette;
 })(window, document);
