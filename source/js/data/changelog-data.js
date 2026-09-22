@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "9.22",
+        cn: [
+          "搜索框升级为命令面板：同一输入框检索文章 / 页面 / 标签与内置命令，`>` 前缀只搜命令、`#` 只搜标签，空查询列出命令与最近文章；内置命令包括切换深色 / 浅色模式、跟随系统外观、切换主题（子列表按浅色 / 深色分组，每项带该主题的色板）、切换正文字体（无衬线 / 衬线 / 等宽 / 手写，Aa 以对应字体渲染）、切换语言（无译文的文章回退到目标语言首页并注明）、前往导航菜单与偏好设置；首项默认选中、回车即执行，子列表中 Backspace / Esc 或点击范围标签返回；预览片段改为围绕命中位置截取并补省略号；content.json 新增 pages 索引（search.index_pages: false 可关闭），文章按日期倒序。快捷键仍为 ⌘ / Ctrl + K",
+        ],
+        en: [
+          "The search box becomes a command palette: one input searches posts / pages / tags and built-in commands, a `>` prefix limits results to commands and `#` to tags, and an empty query lists the commands plus recent posts. Built-in commands: switch to dark / light mode, follow the system appearance, switch theme (a sub-list grouped into light / dark with a swatch in each theme's own colors), switch the article typeface (sans / serif / mono / handwriting, each Aa rendered in its face), switch language (untranslated posts fall back to that language's home page and say so), and go to the navbar menu entries or Preferences. The first row is selected by default so Enter runs it; inside a sub-list Backspace / Esc or clicking the scope chip goes back; previews are now clipped around the first hit with ellipses; content.json gains a pages index (disable with search.index_pages: false) and posts are sorted newest first. The shortcut stays ⌘ / Ctrl + K",
+        ],
+        category: "feature",
+      },
+      {
         date: "9.19",
         cn: [
           "重调 Mono Dark / Mono Light 配色：底色仍是纯黑 / 纯白，十四个强调色改为在 OKLCH 中统一亮度与彩度的「墨洗」色（浅色 L≈0.48 C≈0.10，深色 L≈0.78 C≈0.08），只以色相区分，替换此前高饱和的霓虹色；浅色正文由 #666 提到 #3d3d3d 与近墨标题拉开一档，深色正文压为粉笔白 #ebebeb 减少黑底晕光。代码高亮与彩色括号同步取自同一色板，所有强调色对白底 ≥ 4.9:1、对黑底 ≥ 8.7:1",

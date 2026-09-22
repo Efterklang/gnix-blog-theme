@@ -769,9 +769,13 @@ small {
   font-size: 0.875em;
 }
 
-/* #region Search */
+/* #region Command palette（搜索 + 命令）
 
-input.searchbox-input {
+   原搜索框升级：同一输入框检索文章 / 页面 / 标签与内置命令，`>` 只搜命令、`#` 只搜标签，
+   空查询列出命令与最近文章；主题 / 字体等选项多的命令进入子列表，输入框前显示范围标签。
+   选中态随方向键高频移动，指示条与底色一律即时落位，整段不做过渡（有测试守住） */
+
+input.command-palette-input {
   color: inherit;
   background-color: transparent;
   font-family: inherit;
@@ -779,6 +783,7 @@ input.searchbox-input {
   border: none;
   outline: 0;
   flex-grow: 1;
+  min-width: 0;
   box-sizing: border-box;
   padding: 1em 1.25em;
 
@@ -787,14 +792,14 @@ input.searchbox-input {
   }
 }
 
-.searchbox,
-.searchbox-container {
+.command-palette,
+.command-palette-container {
   align-items: center;
   flex-direction: column;
   line-height: 1.25em;
 }
 
-.searchbox-container {
+.command-palette-container {
   border: 1px solid var(--surface0);
   color: var(--text);
   position: fixed;
@@ -817,7 +822,7 @@ input.searchbox-input {
   }
 }
 
-.searchbox-input-container {
+.command-palette-input-container {
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -826,18 +831,53 @@ input.searchbox-input {
   min-height: 3.25rem;
 }
 
-.searchbox-body {
-  flex-grow: 1;
-  width: 100%;
+/* 子列表范围标签：显示当前所在的命令组，点击返回上一层 */
+.command-palette-scope {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  margin-left: 1.1em;
+  padding: 0.25em 0.7em 0.25em 0.5em;
+  border: 1px solid var(--surface1);
+  border-radius: 999px;
+  background-color: hsl(from var(--surface0) h s l / 0.5);
+  color: var(--subtext0);
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--text);
+    border-color: var(--mauve);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: -2px;
+  }
+
+  & + .command-palette-input {
+    padding-left: 0.6em;
+  }
 }
 
-/* Divider between input and results — only when there are results,
-   otherwise it would stack on the container's bottom border before searching. */
-.searchbox-body:not(:empty) {
+.command-palette-body {
+  flex-grow: 1;
+  width: 100%;
+  max-height: min(60dvh, 30rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* 输入框与结果之间的分隔线仅在有结果时出现 */
+.command-palette-body:not(:empty) {
   border-top: 1px solid var(--surface0);
 }
 
-.searchbox-result-section {
+.command-palette-section {
   &:not(:last-child) {
     border-bottom: 1px solid var(--surface0);
   }
@@ -851,19 +891,23 @@ input.searchbox-input {
   }
 }
 
-.searchbox-result-section--posts,
-.searchbox-result-section--pages {
-  max-height: 450px;
-  overflow-y: auto;
-}
-
-/* 选中态随方向键高频移动，指示条与底色一律即时落位（palette 惯例不做过渡；
-   旧实现还在动画 height/top 这类布局属性） */
-.searchbox-result-item {
+/* 结果行：文章 / 标签 / 导航命令是 <a>，动作命令是 <button>，外观统一 */
+.command-palette-item {
   display: flex;
   flex-direction: row;
+  align-items: center;
+  gap: 0.75em;
+  width: 100%;
+  box-sizing: border-box;
   padding: 0.7em 1.25em;
   position: relative;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
 
   &::before {
     content: "";
@@ -888,15 +932,71 @@ input.searchbox-input {
   &.active::before {
     opacity: 1;
   }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: -2px;
+  }
 }
 
-.searchbox-result-content {
+.command-palette-item-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5em;
+  height: 1.5em;
+  color: var(--subtext0);
+}
+
+/* 主题色板：data-theme 让色板变量在该元素上按目标主题求值，底色 + 强调色各取一格 */
+.command-palette-swatch {
+  position: relative;
+  width: 1.05em;
+  height: 1.05em;
+  border-radius: 50%;
+  background-color: var(--base);
+  box-shadow: inset 0 0 0 1px var(--surface2);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 30%;
+    border-radius: 50%;
+    background-color: var(--mauve);
+  }
+}
+
+/* 字体项以对应字体渲染 Aa */
+.command-palette-glyph {
+  font-size: 0.95em;
+  font-weight: 500;
+  line-height: 1;
+
+  &[data-typeface="sans-serif"] {
+    font-family: var(--font-sans-serif);
+  }
+
+  &[data-typeface="serif"] {
+    font-family: var(--font-serif);
+  }
+
+  &[data-typeface="mono"] {
+    font-family: var(--font-mono);
+  }
+
+  &[data-typeface="handwriting"] {
+    font-family: var(--font-handwriting);
+  }
+}
+
+.command-palette-item-content {
   overflow: hidden;
   flex-grow: 1;
   min-width: 0;
 }
 
-.searchbox-result-title {
+.command-palette-item-title {
   display: block;
   overflow: hidden;
   white-space: nowrap;
@@ -905,7 +1005,7 @@ input.searchbox-input {
   color: var(--text);
 }
 
-.searchbox-result-preview {
+.command-palette-item-preview {
   display: block;
   overflow: hidden;
   white-space: nowrap;
@@ -915,9 +1015,34 @@ input.searchbox-input {
   margin-top: 0.25em;
 }
 
-.searchbox-result-section--tags {
-  max-height: 250px;
-  overflow-y: auto;
+.command-palette-mark {
+  background: transparent;
+  color: var(--blue);
+}
+
+.command-palette-item-hint {
+  flex: 0 0 auto;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--overlay1);
+  white-space: nowrap;
+}
+
+.command-palette-item-check,
+.command-palette-item-chevron {
+  flex: 0 0 auto;
+  display: inline-flex;
+}
+
+.command-palette-item-check {
+  color: var(--mauve);
+}
+
+.command-palette-item-chevron {
+  color: var(--overlay1);
+}
+
+.command-palette-section--tags {
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
@@ -928,7 +1053,8 @@ input.searchbox-input {
     flex-basis: 100%;
   }
 
-  & > .searchbox-result-item {
+  & > .command-palette-item {
+    width: auto;
     padding: 0.25em 0.85em;
     border: 1px solid var(--surface1);
     border-radius: 999px;
@@ -938,7 +1064,7 @@ input.searchbox-input {
       content: none;
     }
 
-    & .searchbox-result-title {
+    & .command-palette-item-title {
       white-space: nowrap;
       overflow: visible;
       text-overflow: clip;
@@ -954,7 +1080,45 @@ input.searchbox-input {
   }
 }
 
-/* #endregion Search */
+.command-palette-empty {
+  padding: 1.4em 1.25em;
+  font-size: 0.85rem;
+  color: var(--overlay1);
+  text-align: center;
+}
+
+/* 底部按键提示：只作说明，不参与交互 */
+.command-palette-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em 1.1em;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.55em 1.25em;
+  border-top: 1px solid var(--surface0);
+  font-size: 0.68rem;
+  color: var(--overlay1);
+  white-space: nowrap;
+
+  & > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+  }
+}
+
+.command-palette-key {
+  display: inline-block;
+  min-width: 1.2em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background-color: hsl(from var(--surface0) h s l / 0.7);
+  color: var(--subtext0);
+  font: inherit;
+  text-align: center;
+}
+
+/* #endregion Command palette */
 
 /* 全局 popover 遮罩（搜索框 / TOC / 文章信息与评论弹层共用）：底色 + blur 放在
    独立的 fixed 伪层。UA 样式给 [popover] 铺了不透明的 background-color: Canvas，
@@ -979,7 +1143,7 @@ input.searchbox-input {
     backdrop-filter: blur(10px);
   }
 
-  &.searchbox {
+  &.command-palette {
     font-family: var(--font-mono);
     line-height: 0;
     display: flex;

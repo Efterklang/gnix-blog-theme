@@ -559,5 +559,17 @@
     document.querySelectorAll("[data-preferences-page]").forEach(initPreferenceRoot);
   }
 
+  // 供命令面板等外部调用的最小 API：读取 / 局部更新文章字体设置。更新写入 localStorage，
+  // 并经 applyArticleFontSettings 派发 gnix:article-font-settings-change，弹窗与设置页据此同步 UI
+  window.gnixPreferences = {
+    getArticleFontSettings,
+    setArticleFontSettings(patch) {
+      const settings = normalizeArticleFontSettings({ ...getArticleFontSettings(), ...patch });
+      saveArticleFontSettings(settings);
+      applyArticleFontSettings(settings);
+      return settings;
+    },
+  };
+
   whenReady(() => runWhenActivated(initPreferencesPage));
 })(window, document);

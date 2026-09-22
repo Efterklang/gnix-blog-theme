@@ -179,9 +179,11 @@ function handleKeyDown(e) {
     return;
   }
 
+  // 命令面板（搜索 + 命令）；面板脚本尚未就绪时退回直接打开 popover
   if (e.code === "KeyK") {
     e.preventDefault();
-    document.querySelector("#searchbox")?.showPopover();
+    if (window.gnixCommandPalette) window.gnixCommandPalette.open();
+    else document.getElementById("command-palette")?.showPopover();
   }
 }
 
@@ -196,6 +198,7 @@ runWhenActivated(() => {
     passive: false, // 允许调用 preventDefault
   });
 });
+
 // #endregion
 
 // 文章页专属交互（脚注 tooltip/图片缩放/代码块工具栏/mermaid/TOC/评论/满高首屏）

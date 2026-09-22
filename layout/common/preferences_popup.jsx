@@ -1,7 +1,7 @@
 const { Component } = require("../../include/util/common");
 const { DEFAULT_PREFERENCES, THEME_OPTIONS } = require("../../include/util/theme");
 const { DEFAULT_SETTINGS: ARTICLE_FONT_DEFAULTS } = require("../../include/util/article_font");
-const { getLanguage, getLanguageKeys, getPageLanguageKey, isExternalUrl, isI18nEnabled } = require("../../include/util/i18n");
+const { getLanguageOptions } = require("../../include/util/i18n");
 
 function translate(helper, key, fallback) {
   const value = helper.__(key);
@@ -194,42 +194,6 @@ const FONT_TYPE_OPTIONS = [
   ["mono", "preferences.typeface_mono", "Monospace"],
   ["handwriting", "preferences.typeface_handwriting", "Handwriting"],
 ];
-
-// 与 navbar 原语言切换同源的规则：优先 front-matter i18n 映射；
-// 文章/页面缺少翻译时置灰，其余页面回退到对应语言的首页路径
-function getLanguageOptions(page, config, helper) {
-  if (!isI18nEnabled(config)) return null;
-
-  const languageKeys = getLanguageKeys(config);
-  if (languageKeys.length < 2) return null;
-
-  const currentKey = getPageLanguageKey(page, config);
-  const isDocumentPage = ["page", "post"].includes(page?.layout);
-
-  return languageKeys.map((key) => {
-    const language = getLanguage(config, key);
-    const item = {
-      key,
-      locale: language.locale,
-      label: language.label,
-      current: key === currentKey,
-      url: null,
-      available: true,
-    };
-    if (item.current) return item;
-
-    const pageI18n = page?.i18n && typeof page.i18n === "object" ? page.i18n : null;
-    const alternate = pageI18n ? pageI18n[key] || pageI18n[language.locale] : null;
-    if (alternate) {
-      item.url = isExternalUrl(alternate) ? alternate : helper.url_for(alternate);
-    } else if (isDocumentPage) {
-      item.available = false;
-    } else {
-      item.url = helper.localized_url_for(page?.path || "/", key);
-    }
-    return item;
-  });
-}
 
 function renderStepper(control, decreaseIcon, increaseIcon, decreaseLabel, increaseLabel) {
   return (

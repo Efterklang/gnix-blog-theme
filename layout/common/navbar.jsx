@@ -68,7 +68,7 @@ class Navbar extends Component {
             </svg>
           </button>
           {isSearchEnabled ? (
-            <button type="button" class="navbar-item search" popovertarget="searchbox" title={searchTitle} aria-label={searchTitle}>
+            <button type="button" class="navbar-item search" popovertarget="command-palette" title={searchTitle} aria-label={searchTitle}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <title>{searchTitle}</title>
                 <path d="m21 21-4.34-4.34" />
@@ -112,7 +112,7 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
     menu,
     links,
     preferencesTitle: __("preferences.title"),
-    searchTitle: __("search.search"),
+    searchTitle: __("palette.title"),
     menuTitle: __("navbar.menu"),
     isSearchEnabled: !!config.search,
   };

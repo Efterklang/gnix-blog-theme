@@ -76,6 +76,15 @@
   .article-comment-popover-body {
     padding: 0;
   }
+
+  /* 命令面板：结果区给软键盘让出高度；触屏无键盘，按键提示不显示 */
+  .command-palette-body {
+    max-height: 50dvh;
+  }
+
+  .command-palette-footer {
+    display: none;
+  }
 }
 
 @media screen and (max-width: 1023px) {
@@ -246,7 +255,7 @@
 
   /* #endregion Navbar */
 
-  .searchbox-container {
+  .command-palette-container {
     top: 15px;
     width: 90%;
   }

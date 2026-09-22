@@ -3,7 +3,7 @@ const Head = require("./common/head");
 const Navbar = require("./common/navbar");
 const Footer = require("./common/footer");
 const Scripts = require("./common/scripts");
-const Search = require("./common/search");
+const CommandPalette = require("./common/command_palette");
 const PreferencesPopup = require("./common/preferences_popup");
 const Sunny = require("./common/sunny");
 const { DEFAULT_SETTINGS: ARTICLE_FONT_DEFAULT_SETTINGS } = require("../include/util/article_font");
@@ -31,7 +31,7 @@ module.exports = class extends Component {
           <Footer site={site} config={config} helper={helper} page={page} />
           <PreferencesPopup site={site} config={config} helper={helper} page={page} />
           <Scripts site={site} config={config} helper={helper} page={page} />
-          <Search config={config} helper={helper} />
+          <CommandPalette site={site} config={config} helper={helper} page={page} />
         </body>
       </html>
     );

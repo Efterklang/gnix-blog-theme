@@ -13,10 +13,20 @@ function minify(str) {
 
 function mapPost(post, url_for) {
   return {
-    title: util.escapeHTML(post.title).trim(),
+    title: util.escapeHTML(String(post.title || "")).trim(),
     text: post.password ? "该文章需要密码" : minify(post.content),
     link: url_for(post.path),
   };
+}
+
+// 命令面板的空查询列出最近文章，索引按日期倒序（warehouse Query 的 sort 接收 "-date"）
+function sortByDate(collection) {
+  return typeof collection?.sort === "function" && !Array.isArray(collection) ? collection.sort("-date") : collection;
+}
+
+// 可检索的独立页面：跳过无布局直出的页面与 front-matter 标记 search: false 的页面
+function indexablePages(pages) {
+  return pages.filter((page) => page.layout && page.layout !== "false" && page.layout !== "off" && page.search !== false);
 }
 
 function mapTag(tag, url_for, langKey = null, config = {}) {
@@ -33,31 +43,40 @@ module.exports = (hexo) => {
     require("./md_generator")(hexo);
   }
 
+  // 命令面板的检索索引 content.json：posts / tags 必有，pages 由 search.index_pages 控制（默认开启）
   hexo.extend.generator.register("insight", function (locals) {
     const url_for = hexo.extend.helper.get("url_for").bind(this);
     const fullConfig = Object.assign({}, this.config, this.config.theme_config, hexo.theme.config);
+    const searchConfig = fullConfig.search && typeof fullConfig.search === "object" ? fullConfig.search : {};
+    const indexPages = searchConfig.index_pages !== false;
+
+    function buildIndex(posts, pages, tags) {
+      const data = { posts: sortByDate(posts).map((post) => mapPost(post, url_for)) };
+      if (indexPages) data.pages = indexablePages(pages).map((page) => mapPost(page, url_for));
+      data.tags = tags;
+      return JSON.stringify(data);
+    }
 
     if (isI18nEnabled(fullConfig)) {
       return getLanguageKeys(fullConfig).map((langKey) => {
         const posts = filterByLanguage(locals.posts, langKey, fullConfig);
+        const pages = filterByLanguage(locals.pages, langKey, fullConfig);
         const tags = locals.tags.filter((tag) => filterByLanguage(tag.posts, langKey, fullConfig).length).map((tag) => mapTag(tag, url_for, langKey, fullConfig));
 
         return {
           path: `${getLanguageBasePath(fullConfig, langKey)}content.json`,
-          data: JSON.stringify({
-            posts: posts.map((post) => mapPost(post, url_for)),
-            tags,
-          }),
+          data: buildIndex(posts, pages, tags),
         };
       });
     }
 
     return {
       path: "/content.json",
-      data: JSON.stringify({
-        posts: locals.posts.map((post) => mapPost(post, url_for)),
-        tags: locals.tags.map((tag) => mapTag(tag, url_for)),
-      }),
+      data: buildIndex(
+        locals.posts,
+        locals.pages,
+        locals.tags.map((tag) => mapTag(tag, url_for)),
+      ),
     };
   });
 
