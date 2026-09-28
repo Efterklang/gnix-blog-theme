@@ -56,6 +56,12 @@ function escapeAttribute(value) {
   return escapeHtml(value).replace(/"/g, "&quot;");
 }
 
+/** 把玻璃按钮交给 glass-lens.js 补边缘折射（是否支持由它判断；模块未就绪时先排队，由它加载后统一补挂） */
+function registerGlassLens(elements) {
+  globalThis.__gnixGlassLensQueue ||= [];
+  for (const element of elements) globalThis.__gnixGlassLensQueue.push(element);
+}
+
 const STYLES = `
   :host {
     display: block;
@@ -128,13 +134,21 @@ const STYLES = `
     pointer-events: none;
   }
 
+  /* 翻页按钮是压在照片上的透明玻璃圆（iOS 照片 App 的浮层按钮）：薄薄一层暗色保证白色
+     箭头的对比，模糊 + 提饱和让身后的照片透上来，inset 高光勾出玻璃边缘；Chromium 下
+     glass-lens.js 经 --glass-lens 补上边缘折射。显隐走按钮自身的 opacity，
+     不挂在容器上，避免淡入期间成为 Backdrop Root */
   .nav {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.28);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgb(0 0 0 / 0.18);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.42),
+      inset 0 0 0 1px rgb(255 255 255 / 0.14),
+      0 6px 18px -6px rgb(0 0 0 / 0.45);
+    -webkit-backdrop-filter: blur(8px) saturate(1.7) brightness(1.08);
+    backdrop-filter: var(--glass-lens,) blur(8px) saturate(1.7) brightness(1.08);
     color: white;
     border: none;
     width: 2.5rem;
@@ -145,7 +159,7 @@ const STYLES = `
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transition: background 0.2s ease-out, opacity 0.2s ease-out;
+    transition: background-color 0.2s ease-out, opacity 0.2s ease-out, scale 420ms var(--glass-spring, ease-out);
     z-index: 2;
     padding: 0;
   }
@@ -161,7 +175,7 @@ const STYLES = `
   }
 
   .nav:hover {
-    background: rgba(0, 0, 0, 0.55);
+    background: rgb(0 0 0 / 0.3);
   }
 
   .nav:focus-visible {
@@ -171,7 +185,8 @@ const STYLES = `
   }
 
   .nav:active {
-    transform: translateY(-50%) scale(0.92);
+    scale: 0.96;
+    transition-duration: 0.2s, 0.2s, 140ms;
   }
 
   .prev { left: 0.75rem; }
@@ -438,6 +453,7 @@ class ImageCarousel extends HTMLElement {
 
     this._slides = Array.from(this.shadowRoot.querySelectorAll(".slide"));
     this._dots = Array.from(this.shadowRoot.querySelectorAll(".dot"));
+    registerGlassLens(this.shadowRoot.querySelectorAll(".nav"));
   }
 
   // ─── navigation ────────────────────────────────────────────────────

@@ -514,6 +514,74 @@
     updateCustomFontUI();
   }
 
+  // 设置页的 Liquid glass 面板与快捷弹窗的玻璃开关共用；
+  // 读写与应用由 head 内联脚本（include/util/glass.js）提供的
+  // window.getGlassSettings / applyGlassSettings 完成，这里只管 UI
+  const GLASS_VALUE_FORMATS = {
+    blur: (value) => `${value}px`,
+    saturate: (value) => `${value.toFixed(2)}×`,
+    refraction: (value) => `${value.toFixed(2)}×`,
+    tint: (value) => `${Math.round(value * 100)}%`,
+  };
+
+  function initGlassPreferences(root) {
+    if (typeof window.applyGlassSettings !== "function") return;
+
+    const glassConfig = window.__GNIX_GLASS_CONFIG__ || {};
+    const toggles = root.querySelectorAll("[data-glass-toggle]");
+    const ranges = root.querySelectorAll("[data-glass-range]");
+    const values = root.querySelectorAll("[data-glass-range-value]");
+    const params = root.querySelectorAll("[data-glass-param]");
+    if (!toggles.length && !ranges.length) return;
+    const getSettings = () => window.getGlassSettings();
+    const commit = (patch) => window.applyGlassSettings({ ...getSettings(), ...patch }, true);
+
+    function sync(settings = getSettings()) {
+      toggles.forEach((toggle) => {
+        toggle.setAttribute("aria-checked", String(Boolean(settings[toggle.dataset.glassToggle])));
+      });
+      ranges.forEach((input) => {
+        // 拖动中的滑块不回写，免得 step 取整后跳动
+        if (document.activeElement !== input) input.value = String(settings[input.dataset.glassRange]);
+      });
+      values.forEach((output) => {
+        const key = output.dataset.glassRangeValue;
+        output.textContent = GLASS_VALUE_FORMATS[key]?.(settings[key]) ?? String(settings[key]);
+      });
+      // 关闭玻璃后其余参数不再生效，整组置灰但保留取值
+      params.forEach((row) => {
+        row.classList.toggle("is-disabled", !settings.enabled);
+        row.querySelectorAll("button, input").forEach((control) => {
+          control.disabled = !settings.enabled;
+        });
+      });
+    }
+
+    toggles.forEach((toggle) => {
+      toggle.addEventListener("click", () => {
+        const key = toggle.dataset.glassToggle;
+        commit({ [key]: !getSettings()[key] });
+      });
+    });
+
+    ranges.forEach((input) => {
+      input.addEventListener("input", () => {
+        commit({ [input.dataset.glassRange]: Number(input.value) });
+      });
+    });
+
+    const reset = () => window.applyGlassSettings({ ...glassConfig.defaultSettings }, true);
+    root.querySelectorAll("[data-glass-reset], [data-preference-reset-all]").forEach((button) => {
+      button.addEventListener("click", reset);
+    });
+
+    window.addEventListener("gnix:glass-settings-change", (event) => {
+      sync(event.detail || getSettings());
+    });
+
+    sync();
+  }
+
   function initNavigationControls(root) {
     // 弹窗里的链接和语言切换都会离开当前页，跳转前先收起弹窗：popover 的开合
     // 状态随 DOM 一起进 bfcache，否则返回上一页时还压着一层浮层。
@@ -552,6 +620,7 @@
     root.dataset.bound = "true";
     initThemePreferences(root);
     initArticleFontPreferences(root);
+    initGlassPreferences(root);
     initNavigationControls(root);
   }
 

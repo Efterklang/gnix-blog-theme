@@ -1,6 +1,7 @@
 const { Component } = require("../../include/util/common");
 const { DEFAULT_PREFERENCES, THEME_OPTIONS } = require("../../include/util/theme");
 const { DEFAULT_SETTINGS: ARTICLE_FONT_DEFAULTS } = require("../../include/util/article_font");
+const { DEFAULT_SETTINGS: GLASS_DEFAULTS } = require("../../include/util/glass");
 const { getLanguageOptions } = require("../../include/util/i18n");
 
 function translate(helper, key, fallback) {
@@ -159,6 +160,16 @@ function icon(name, size = 18) {
           <path d="M14 18h6" />
         </svg>
       );
+    case "glass":
+      // 一枚透镜：外圈 + 左上的高光弧 + 右下的回光短弧
+      return (
+        <svg {...common}>
+          <title>glass</title>
+          <circle cx="12" cy="12" r="8.5" />
+          <path d="M7.6 10.2a4.8 4.8 0 0 1 2.6-2.6" />
+          <path d="M16.4 13.8a4.8 4.8 0 0 1-1.1 1.6" opacity="0.55" />
+        </svg>
+      );
     case "settings-2":
       return (
         <svg {...common}>
@@ -197,7 +208,7 @@ const FONT_TYPE_OPTIONS = [
 
 function renderStepper(control, decreaseIcon, increaseIcon, decreaseLabel, increaseLabel) {
   return (
-    <div class="preference-quick__stepper">
+    <div class="preference-quick__stepper preference-quick__tile glass" data-glass-lens>
       <button type="button" class="preference-quick__step-btn" data-article-step={control} data-step-dir="-1" title={decreaseLabel} aria-label={decreaseLabel}>
         {icon(decreaseIcon)}
       </button>
@@ -223,6 +234,8 @@ module.exports = class extends Component {
     const fontSettingsLabel = translate(helper, "article.font_settings", "Font Settings");
     const languageLabel = translate(helper, "preferences.language", "Language");
     const unavailableLabel = translate(helper, "preferences.language_unavailable", "Not translated");
+    const glassLabel = translate(helper, "preferences.glass_enabled", "Liquid Glass");
+    const settingsLabel = translate(helper, "preferences.open_settings", "Settings");
     const lightThemes = THEME_OPTIONS.filter((theme) => theme.colorScheme === "light");
     const darkThemes = THEME_OPTIONS.filter((theme) => theme.colorScheme === "night");
 
@@ -261,7 +274,7 @@ module.exports = class extends Component {
           </div>
 
           <div class="preference-quick__selects">
-            <div class="preference-quick__select-row">
+            <div class="preference-quick__select-row preference-quick__tile glass" data-glass-lens>
               <span class="preference-quick__select-icon preference-quick__select-icon--sun" aria-hidden="true">
                 {icon("sun")}
               </span>
@@ -277,7 +290,7 @@ module.exports = class extends Component {
               </select>
             </div>
 
-            <div class="preference-quick__select-row">
+            <div class="preference-quick__select-row preference-quick__tile glass" data-glass-lens>
               <span class="preference-quick__select-icon" aria-hidden="true">
                 {icon("palette")}
               </span>
@@ -298,24 +311,26 @@ module.exports = class extends Component {
               </select>
             </div>
 
-            <div class="preference-quick__select-row">
-              <span class="preference-quick__select-icon" aria-hidden="true">
-                {icon("type")}
-              </span>
-              <select id="preference-quick-font-select" class="preference-quick__select" data-article-font-select aria-label={typefaceLabel}>
-                {FONT_TYPE_OPTIONS.map(([value, key, fallback]) => (
-                  <option value={value} selected={value === ARTICLE_FONT_DEFAULTS.type}>
-                    {translate(helper, key, fallback)}
-                  </option>
-                ))}
-              </select>
-              <a class="preference-quick__row-action" href={fontSettingsUrl} title={fontSettingsLabel} aria-label={fontSettingsLabel}>
+            <div class="preference-quick__select-group">
+              <div class="preference-quick__select-row preference-quick__tile glass" data-glass-lens>
+                <span class="preference-quick__select-icon" aria-hidden="true">
+                  {icon("type")}
+                </span>
+                <select id="preference-quick-font-select" class="preference-quick__select" data-article-font-select aria-label={typefaceLabel}>
+                  {FONT_TYPE_OPTIONS.map(([value, key, fallback]) => (
+                    <option value={value} selected={value === ARTICLE_FONT_DEFAULTS.type}>
+                      {translate(helper, key, fallback)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <a class="preference-quick__round preference-quick__tile glass glass-button" href={fontSettingsUrl} title={fontSettingsLabel} aria-label={fontSettingsLabel} data-glass-lens>
                 {icon("settings-2", 16)}
               </a>
             </div>
 
             {languageOptions ? (
-              <div class="preference-quick__select-row">
+              <div class="preference-quick__select-row preference-quick__tile glass" data-glass-lens>
                 <span class="preference-quick__select-icon" aria-hidden="true">
                   {icon("languages")}
                 </span>
@@ -330,10 +345,23 @@ module.exports = class extends Component {
             ) : null}
           </div>
 
-          <a class="preference-quick__settings" href={settingsUrl}>
-            {icon("settings")}
-            <span>{translate(helper, "preferences.open_settings", "Settings")}</span>
-          </a>
+          <div class="preference-quick__dock">
+            <button
+              type="button"
+              class="preference-quick__round preference-quick__toggle preference-quick__tile glass glass-button"
+              role="switch"
+              aria-checked={String(GLASS_DEFAULTS.enabled)}
+              title={glassLabel}
+              aria-label={glassLabel}
+              data-glass-toggle="enabled"
+              data-glass-lens
+            >
+              {icon("glass", 20)}
+            </button>
+            <a class="preference-quick__round preference-quick__tile glass glass-button" href={settingsUrl} title={settingsLabel} aria-label={settingsLabel} data-glass-lens>
+              {icon("settings")}
+            </a>
+          </div>
         </div>
       </div>
     );

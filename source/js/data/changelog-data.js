@@ -3,6 +3,30 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "9.28",
+        cn: [
+          "设置页新增「液态玻璃」分区：可整体开关玻璃（关闭后按钮与弹层退回实色）、开关按压反馈，并调节模糊、鲜艳度、折射强度（默认拉满）与表面不透明度，附即时预览；设置存于 localStorage，由 head 内联脚本在首帧前应用。边缘折射不再限于桌面端，Android 上的 Chrome / Edge 等 Chromium 浏览器同样生效（局域网 http 调试时也能识别），命令面板加上折射并跟随设置页的模糊，字号改为 14px",
+          "偏好弹窗与移动端菜单改为 macOS 26 控制中心式：弹窗本身透明，每组控件各是一块浮着的玻璃（步进器 2×2 胶囊、下拉胶囊、圆形图标），新增玻璃开关；移动端导航移到屏幕底部成为拇指工具条（菜单 · 偏好 · 搜索 · 目录，统一为独立玻璃圆），文章首屏期间收起、滚过首屏滑出；桌面导航去掉渐变与渐进模糊，菜单为纯文字。目录弹窗去掉卡片、文字直接浮在模糊幕布上；移动端文章扉页重排为竖幅海报（刊头细线、下半屏左对齐大标题、发布日描边巨字底纹），恰好一屏不露下文；触屏点按不再出现系统高亮底色",
+        ],
+        en: [
+          "Preferences gain a Liquid Glass section: turn the glass off entirely (buttons and popups fall back to solid surfaces), toggle press feedback, and tune blur, vibrancy, refraction strength (maxed by default) and surface opacity with a live preview; settings live in localStorage and an inline head script applies them before first paint. Edge refraction is no longer desktop-only — Chromium browsers on Android (Chrome, Edge) get it too, including over plain-http LAN dev servers. The command palette now refracts, follows the blur setting, and uses a 14px font size",
+          "The preferences popup and the mobile menu adopt the macOS 26 Control Center style: the popup itself is transparent and each control group is its own floating glass (a 2×2 grid of stepper capsules, dropdown pills, round icons), plus a new glass toggle. On mobile the navbar moves to a bottom thumb toolbar (menu · preferences · search · TOC as matching glass circles) that stays tucked away on an article's opening screen and slides up once you scroll past it; the desktop navbar drops its gradient and progressive blur, and the menu is plain text. The TOC popup loses its card so entries float on the blurred scrim; the mobile article title page becomes a vertical poster (masthead rule, large left-aligned title in the lower half, an outlined day numeral as backdrop) that fills exactly one screen; taps no longer flash the system highlight",
+        ],
+        category: "feature",
+      },
+      {
+        date: "9.24",
+        cn: [
+          "新增 &lt;video-player&gt; 组件（仿 loomix）：自托管视频用全套自定义控件——中央「后退 10 秒 · 播放/暂停 · 前进 10 秒」玻璃按钮簇，底栏进度条（缓冲段、悬停时间预览、拖动）、播放、音量（悬停弹出竖向滑块，iOS 只做静音）、时间、字幕、倍速菜单、画中画与全屏，标题与「在 YouTube / 哔哩哔哩观看」胶囊在顶栏；播放中 2.2 秒无操作自动隐藏，键盘 Space/K、M、F、C、←/→、J/L、↑/↓、0–9 可控；中央按钮在视频允许 CORS 时升级为 WebGL2 折射玻璃（video-lens.js 按需加载：视频帧直传纹理、squircle 斜面 + 斯涅尔折射 + 色散、mipmap 磨砂、着色器内按画面亮度自适应压暗、只在新视频帧或按钮动画时重绘），否则保持 CSS 玻璃。YouTube / 哔哩哔哩走门面模式：激活前只有封面与玻璃播放钮（悬停预连接平台域名），点击后换上官方播放器并移除全部浮层。文章里的 YouTube / 哔哩哔哩 iframe 已替换为该组件。加密文章解密后，正文里的组件脚本现在会执行",
+          "按钮与弹层换成 Apple Liquid Glass 设计语言：default.css 新增 .glass / .glass-button 与一套随主题明暗切换的 --glass-* token——主题 base 调出的半透明底色 + 模糊 / 提饱和 / 提亮、1px 渐变高光描边（左上迎光、右下回光）、按压提亮与弹簧回弹；导航栏动作区收进一枚玻璃胶囊、移动端 burger 与 TOC 浮钮成为玻璃圆，命令面板改为 Spotlight 式玻璃面板（身后只压淡暗色，不再全屏模糊），偏好弹窗本体成为玻璃面板（移动端为四周悬空的浮动 sheet），目录、文章信息、评论、脚注提示、Cookie 提示、Mermaid 工具按钮与图片轮播 / 群图的翻页按钮一并玻璃化；Chromium 桌面端由 glass-lens.js 空闲时按元素尺寸生成位移贴图，经 backdrop-filter: url() 补上边缘折射；玻璃材质直接挂在淡入淡出的元素自身，避开 Backdrop Root 导致的模糊延迟出现；减少透明度偏好或不支持 backdrop-filter 时在 token 层退回实色",
+        ],
+        en: [
+          "Add the &lt;video-player&gt; component (after loomix): self-hosted videos get full custom controls — a centered glass cluster (back 10s · play/pause · forward 10s), a bottom bar with a seek bar (buffered range, hover time preview, scrubbing), play, volume (hover slider; mute-only on iOS), time, captions, a speed menu, picture-in-picture and fullscreen, plus the title and a \"Watch on YouTube / Bilibili\" pill up top; controls hide after 2.2s of inactivity while playing, and Space/K, M, F, C, ←/→, J/L, ↑/↓ and 0–9 work from the keyboard. When the video is CORS-enabled the center buttons upgrade to WebGL2 refracting glass (video-lens.js, loaded on demand: frames uploaded straight to a texture, a squircle bevel with Snell refraction and dispersion, mipmap frosting, luminance-adaptive dimming computed in the shader, redrawn only on new video frames or button animation); otherwise they keep the CSS glass. YouTube / Bilibili use a facade: only the poster and a glass play button until activation (platform origins are preconnected on hover), then the official player takes over and every overlay is removed. The YouTube / Bilibili iframes in posts now use the component, and component scripts inside encrypted posts now run after decryption",
+          "Buttons and popups adopt Apple's Liquid Glass language: default.css gains .glass / .glass-button and a set of --glass-* tokens that follow each theme's light or dark scheme — a translucent fill mixed from the theme base with blur / saturation / brightness, a 1px gradient specular rim (lit top-left, reflected bottom-right), press illumination and a springy release. The navbar actions sit in a glass capsule, the mobile burger and TOC button become glass circles, the command palette becomes a Spotlight-style glass panel (only a faint dim behind it instead of a full-screen blur), the preferences popup itself is a glass panel (a floating inset sheet on mobile), and the TOC, article info, comments, footnote tooltips, cookie notice, Mermaid tool buttons and the image-carousel / image-group arrows follow suit. On desktop Chromium, glass-lens.js builds per-element displacement maps at idle time and adds edge refraction through backdrop-filter: url(). The glass material lives on the fading element itself to avoid the Backdrop Root delay, and reduced-transparency or no backdrop-filter support falls back to solid surfaces at the token level",
+        ],
+        category: "feature",
+      },
+      {
         date: "9.22",
         cn: [
           "搜索框升级为命令面板：同一输入框检索文章 / 页面 / 标签与内置命令，`>` 前缀只搜命令、`#` 只搜标签，空查询列出命令与最近文章；内置命令包括切换深色 / 浅色模式、跟随系统外观、切换主题（子列表按浅色 / 深色分组，每项带该主题的色板）、切换正文字体（无衬线 / 衬线 / 等宽 / 手写，Aa 以对应字体渲染）、切换语言（无译文的文章回退到目标语言首页并注明）、前往导航菜单与偏好设置；首项默认选中、回车即执行，子列表中 Backspace / Esc 或点击范围标签返回；预览片段改为围绕命中位置截取并补省略号；content.json 新增 pages 索引（search.index_pages: false 可关闭），文章按日期倒序。快捷键仍为 ⌘ / Ctrl + K",

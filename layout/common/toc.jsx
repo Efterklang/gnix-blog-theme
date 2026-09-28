@@ -16,13 +16,13 @@ class FloatingToc extends Component {
 
     return (
       <div class="toc-container" id="toc" style={page.encrypt ? "display:none" : null}>
-        <button class="toc-button" type="button" popovertarget="toc-body" aria-label={tocLabel}>
+        <button class="toc-button glass glass-button" type="button" popovertarget="toc-body" aria-label={tocLabel} data-glass-lens>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
         </button>
         <div id="toc-body" popover="auto" class="toc-body">
-          <div id="toc-insert" dangerouslySetInnerHTML={{ __html: tocContent || "" }} />
+          <div id="toc-insert" class="toc-panel" dangerouslySetInnerHTML={{ __html: tocContent || "" }} />
         </div>
       </div>
     );

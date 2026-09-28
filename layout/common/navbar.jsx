@@ -20,13 +20,7 @@ class Navbar extends Component {
 
     return (
       <nav class="navbar">
-        <div class="navbar-blur" aria-hidden="true">
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-        </div>
-        <button type="button" class="navbar-burger" popovertarget="navbar-menu" aria-label={menuTitle}>
+        <button type="button" class="navbar-burger glass glass-button" popovertarget="navbar-menu" aria-label={menuTitle} data-glass-lens>
           <span aria-hidden="true"></span>
         </button>
         <a id="navbar-logo-link" href={siteUrl}>
@@ -38,7 +32,7 @@ class Navbar extends Component {
               {Object.keys(menu).map((name) => {
                 const item = menu[name];
                 return (
-                  <a class="navbar-item" href={item.url}>
+                  <a class="navbar-item glass glass-button" href={item.url} data-glass-lens>
                     {name}
                   </a>
                 );
@@ -50,7 +44,7 @@ class Navbar extends Component {
               {Object.keys(links).map((name) => {
                 const link = links[name];
                 return (
-                  <a class="navbar-item" target="_blank" rel="noopener" title={name} href={link.url}>
+                  <a class="navbar-item glass glass-button" target="_blank" rel="noopener" title={name} aria-label={name} href={link.url} data-glass-lens>
                     {renderLinkIcon(link)}
                   </a>
                 );
@@ -58,8 +52,16 @@ class Navbar extends Component {
             </div>
           ) : null}
         </div>
-        <div class="navbar-actions">
-          <button type="button" id="preferences-link" class="navbar-item" title={preferencesTitle} aria-label={preferencesTitle} popovertarget="preference-popup">
+        <div class="navbar-actions glass" data-glass-lens>
+          <button
+            type="button"
+            id="preferences-link"
+            class="navbar-item glass glass-button"
+            title={preferencesTitle}
+            aria-label={preferencesTitle}
+            popovertarget="preference-popup"
+            data-glass-lens
+          >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <title>{preferencesTitle}</title>
               <path d="M12 4v16" />
@@ -68,7 +70,7 @@ class Navbar extends Component {
             </svg>
           </button>
           {isSearchEnabled ? (
-            <button type="button" class="navbar-item search" popovertarget="command-palette" title={searchTitle} aria-label={searchTitle}>
+            <button type="button" class="navbar-item search glass glass-button" popovertarget="command-palette" title={searchTitle} aria-label={searchTitle} data-glass-lens>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <title>{searchTitle}</title>
                 <path d="m21 21-4.34-4.34" />

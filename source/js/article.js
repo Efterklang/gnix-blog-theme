@@ -12,7 +12,9 @@ function initArticleReveal() {
   if (!content) return;
   // Decryption replaces body blocks while retaining this root. Settle the old
   // controller first so previously read content never hides or replays.
-  cleanupArticleReveal = initScrollReveal(content, content.querySelectorAll(":scope > :not(script, style, template, link, [hidden])"));
+  // <video-player> stays out of the fade: while an ancestor's opacity is below 1
+  // it becomes a Backdrop Root and the player's glass buttons lose their blur.
+  cleanupArticleReveal = initScrollReveal(content, content.querySelectorAll(":scope > :not(script, style, template, link, video-player, [hidden])"));
 }
 
 function getLocalizedUiText(key) {
@@ -372,7 +374,7 @@ function handleArticleKeyDown(e) {
     if (
       content &&
       content.getBoundingClientRect().top > window.innerHeight * 0.5 &&
-      !["INPUT", "TEXTAREA", "SELECT", "BUTTON", "A", "SUMMARY", "VIDEO", "AUDIO"].includes(e.target.tagName) &&
+      !["INPUT", "TEXTAREA", "SELECT", "BUTTON", "A", "SUMMARY", "VIDEO", "AUDIO", "VIDEO-PLAYER"].includes(e.target.tagName) &&
       !e.target.isContentEditable &&
       !document.querySelector(":popover-open")
     ) {
@@ -465,16 +467,18 @@ function initTocPopover() {
 
 function initHeroTocReveal() {
   const hero = document.querySelector(".article-hero-full");
+  const root = document.documentElement;
   const tocContainer = document.getElementById("toc");
-  if (!hero || !tocContainer || tocContainer.dataset.heroBound === "true") return;
+  if (!hero || root.dataset.heroBound === "true") return;
 
-  tocContainer.dataset.heroBound = "true";
-  // 首屏期间 TOC 按钮的初始隐藏由 CSS（:root.gnix-revealed:has(.article-hero-full)）承担，
-  // 这里只负责滚过首屏后点亮/回到首屏时再隐藏；rootMargin 收缩视口顶部 20%，
-  // 跳到正文后残留在导航栏下的首屏尾部不视为可见
+  root.dataset.heroBound = "true";
+  // 首屏期间 TOC 按钮与移动端底部工具条的初始隐藏由 CSS（:root.gnix-revealed:has(.article-hero-full)）
+  // 承担，这里只负责滚过首屏后点亮（<html>.gnix-past-hero，TOC 另有 .toc-visible）、回到首屏时再隐藏；
+  // rootMargin 收缩视口顶部 20%，跳到正文后残留在导航栏下的首屏尾部不视为可见
   new IntersectionObserver(
     ([entry]) => {
-      tocContainer.classList.toggle("toc-visible", !entry.isIntersecting);
+      root.classList.toggle("gnix-past-hero", !entry.isIntersecting);
+      tocContainer?.classList.toggle("toc-visible", !entry.isIntersecting);
     },
     { rootMargin: "-20% 0px 0px 0px" },
   ).observe(hero);

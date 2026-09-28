@@ -21,6 +21,8 @@ module.exports = class extends Component {
     /* 文章页做满高首屏（封面文章由 CSS 扣除封面高度）；独立页面用紧凑版头 */
     const fullHero = isPost;
     const createdDate = isPost && page.date ? helper.date(page.date, "YYYY.MM.DD") : null;
+    // 移动端扉页右上的描边巨字：发布日的「日」
+    const createdDay = createdDate ? createdDate.slice(8) : null;
     const updatedDate = isPost && page.updated ? helper.date(page.updated, "YYYY.MM.DD") : null;
     const showUpdated = updatedDate && updatedDate !== createdDate;
     const sameYear = createdDate && updatedDate && createdDate.slice(0, 4) === updatedDate.slice(0, 4);
@@ -33,6 +35,11 @@ module.exports = class extends Component {
           {/* 扉页式首屏：标签、标题、摘要；桌面版记留在页脚，移动端排到摘要下方，
               跳转箭头居中、comments·info 居右 */}
           <header class={`article-hero${fullHero ? " article-hero-full" : ""}${fullHero && cover ? " article-hero-with-cover" : ""}`}>
+            {fullHero && createdDay && (
+              <span class="article-hero-numeral" aria-hidden="true">
+                {createdDay}
+              </span>
+            )}
             <div class="article-hero-body">
               {page.tags?.length ? (
                 <p class="article-kicker">
@@ -92,7 +99,7 @@ module.exports = class extends Component {
         {hasComment && (
           <div id="article-comment-popover" popover="auto" class="article-popover article-comment-popover">
             <button class="article-popover-backdrop" type="button" popovertarget="article-comment-popover" popovertargetaction="hide" tabindex="-1" aria-label={closeLabel}></button>
-            <div class="article-popover-body article-comment-popover-body">
+            <div class="article-popover-body article-comment-popover-body glass glass-scroll">
               <Comment config={config} page={page} helper={helper} />
             </div>
           </div>

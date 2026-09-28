@@ -7,6 +7,7 @@ const CommandPalette = require("./common/command_palette");
 const PreferencesPopup = require("./common/preferences_popup");
 const Sunny = require("./common/sunny");
 const { DEFAULT_SETTINGS: ARTICLE_FONT_DEFAULT_SETTINGS } = require("../include/util/article_font");
+const { DEFAULT_SETTINGS: GLASS_DEFAULT_SETTINGS } = require("../include/util/glass");
 
 module.exports = class extends Component {
   render() {
@@ -22,6 +23,8 @@ module.exports = class extends Component {
         data-article-font-weight={ARTICLE_FONT_DEFAULT_SETTINGS.weight}
         data-article-width={ARTICLE_FONT_DEFAULT_SETTINGS.width}
         data-article-spacing={ARTICLE_FONT_DEFAULT_SETTINGS.spacing}
+        data-glass={GLASS_DEFAULT_SETTINGS.enabled ? "on" : "off"}
+        data-glass-press-effect={GLASS_DEFAULT_SETTINGS.press ? "on" : "off"}
       >
         <Head site={site} config={config} helper={helper} page={page} />
         <body>

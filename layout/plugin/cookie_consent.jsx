@@ -17,13 +17,18 @@ const COOKIE_CONSENT_STYLE = `
   gap: 0.875rem 1rem;
   width: min(32rem, calc(100vw - 2rem));
   padding: 1rem;
-  border: 1px solid var(--surface0);
-  border-radius: var(--radius);
-  background: var(--mantle);
+  /* 玻璃卡片：内边距 16px + 按钮圆角 10px → 卡片圆角 26px（同心）；描边高光走 inset 阴影 */
+  border: none;
+  border-radius: 26px;
+  background: var(--glass-fill-strong, var(--mantle));
   color: var(--text);
   box-shadow:
-    0 20px 60px -32px rgba(0, 0, 0, 0.58),
-    0 0 0 1px hsl(from var(--base) h s l / 0.18);
+    0 0 0 0.5px var(--glass-edge, transparent),
+    inset 0 1px 0 var(--glass-rim-lo, transparent),
+    inset 0 0 0 1px var(--glass-rim-mid, transparent),
+    var(--glass-shadow-lg, 0 20px 60px -32px rgba(0, 0, 0, 0.58));
+  -webkit-backdrop-filter: blur(20px) saturate(var(--glass-saturate, 1.2)) brightness(var(--glass-brightness, 1));
+  backdrop-filter: blur(20px) saturate(var(--glass-saturate, 1.2)) brightness(var(--glass-brightness, 1));
   font-family: var(--font-sans-serif);
   line-height: 1.55;
   opacity: 0;
@@ -31,14 +36,6 @@ const COOKIE_CONSENT_STYLE = `
   transition:
     opacity 0.18s ease,
     transform 0.18s ease;
-}
-
-@supports (background: color-mix(in oklch, black 50%, transparent)) {
-  .gnix-cookie-consent {
-    background: color-mix(in oklch, var(--mantle) 88%, transparent);
-    -webkit-backdrop-filter: blur(16px) saturate(1.2);
-    backdrop-filter: blur(16px) saturate(1.2);
-  }
 }
 
 .gnix-cookie-consent.is-visible {
@@ -85,24 +82,26 @@ const COOKIE_CONSENT_STYLE = `
 
 .gnix-cookie-consent__button {
   min-height: 2.25rem;
-  padding: 0.55rem 0.8rem;
-  border: 1px solid var(--surface0);
-  border-radius: 8px;
-  background: hsl(from var(--surface0) h s l / 0.24);
+  padding: 0.55rem 0.9rem;
+  border: none;
+  border-radius: 10px;
+  background: var(--glass-hover, hsl(from var(--surface0) h s l / 0.24));
+  box-shadow: inset 0 0 0 0.5px var(--glass-edge, var(--surface0));
   color: var(--text);
   cursor: pointer;
   font: 600 0.78rem/1 var(--font-sans-serif);
   transition:
     background-color 0.15s ease,
-    border-color 0.15s ease,
     color 0.15s ease,
-    transform 0.15s ease;
+    scale 0.15s ease-out;
 }
 
 .gnix-cookie-consent__button:hover {
-  border-color: var(--overlay0);
-  background: hsl(from var(--surface0) h s l / 0.38);
-  transform: translateY(-1px);
+  background: color-mix(in oklab, var(--text) 13%, transparent);
+}
+
+.gnix-cookie-consent__button:active {
+  scale: 0.96;
 }
 
 .gnix-cookie-consent__button:focus-visible {
@@ -111,13 +110,12 @@ const COOKIE_CONSENT_STYLE = `
 }
 
 .gnix-cookie-consent__button--primary {
-  border-color: var(--lavender);
   background: var(--lavender);
+  box-shadow: none;
   color: var(--base);
 }
 
 .gnix-cookie-consent__button--primary:hover {
-  border-color: var(--mauve);
   background: var(--mauve);
   color: var(--base);
 }

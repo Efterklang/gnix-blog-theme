@@ -1,3 +1,5 @@
+import { installGlassPress } from "./glass-press.js";
+
 function runWhenActivated(callback) {
   (
     window.__gnixPrerender?.runWhenActivated ||
@@ -189,10 +191,29 @@ function handleKeyDown(e) {
 
 // #endregion
 
+// #region Liquid glass
+// 玻璃材质本身是纯 CSS。按压反馈（glass-press.js）全平台常驻，一个委托监听管所有玻璃按钮；
+// 边缘折射（glass-lens.js，backdrop-filter: url()）只有 Chromium 内核渲染（桌面与 Android 皆可），
+// 其余引擎连模块都不下载（判断同 glass-lens.js 的 isChromium：userAgentData 只在安全上下文存在，
+// 局域网 http 调试时退回 UA）。折射空闲时加载，shadow DOM 组件经 glass-lens.js 的全局桥补挂
+function initGlassLens() {
+  const ua = navigator.userAgent || "";
+  if (!navigator.userAgentData && !(/\b(?:Chrome|Chromium)\/\d+/.test(ua) && !/\b(?:CriOS|EdgiOS)\//.test(ua))) return;
+  runOnIdle(
+    () => {
+      import("./glass-lens.js").then((module) => module.installGlassLens()).catch(handleLazyAssetError);
+    },
+    { timeout: 2500 },
+  );
+}
+// #endregion
+
 // #region boot
 // main.js 以 <script type="module"> 加载，具备 defer 语义：执行到这里时 DOM 必已解析完毕，
 // 无需 DOMContentLoaded 门控；prerender 页面经 runWhenActivated 推迟到激活后初始化
 runWhenActivated(() => {
+  installGlassPress();
+  initGlassLens();
   document.addEventListener("keydown", handleKeyDown, {
     capture: true, // 捕获阶段监听，优先于浏览器默认处理
     passive: false, // 允许调用 preventDefault

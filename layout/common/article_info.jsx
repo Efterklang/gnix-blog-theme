@@ -82,7 +82,7 @@ module.exports = class extends Component {
     return (
       <div id="article-info-popover" popover="auto" class="article-popover article-info-popover">
         <button class="article-popover-backdrop" type="button" popovertarget="article-info-popover" popovertargetaction="hide" tabindex="-1" aria-label={closeLabel}></button>
-        <dl class="article-popover-body article-info-list">
+        <dl class="article-popover-body article-info-list glass glass-scroll">
           {items.map(([label, value]) => (
             <Fragment>
               <dt>{label}</dt>

@@ -363,6 +363,195 @@ hr {
 
 /* #endregion Color */
 
+/* #region Liquid glass
+
+   按钮、胶囊与弹层共用 .glass，移植 Kyant AndroidLiquidGlass 的玻璃（对照
+   martin65536/liquid-glass-webgl 的 WebGL 版），按原作 drawBackdrop 的绘制顺序逐层落到 DOM 上：
+   1. effects：vibrancy（饱和度 1.5）→ blur → lens，依次写在 backdrop-filter 链里。lens 是边缘
+      一圈把背景「卷」进来的折射，由 glass-lens.js 按元素尺寸生成位移贴图、经 --glass-lens 接在
+      链尾，只有 Chromium 桌面端渲染，其余浏览器止于模糊
+   2. onDrawSurface：主题 base 调出的表面色，即元素自身的 background-color。材质不放伪元素：
+      祖先或自身之外的 opacity < 1 会成为 Backdrop Root，淡入淡出期间子层的 backdrop-filter
+      什么都采不到、结束时才「啪」地出现；挂在自身上，自己的淡入只是整体乘透明度
+   3. highlight：::after 画 0.5dp 的发丝环，Plus 混合（plus-lighter）。按钮是 Default 光——
+      强度 = |法线 · 45° 光向|，左上与右下最亮、另两角熄灭（圆形上逐点精确，胶囊上按圆心近似）；
+      面板是 Plain 光，均匀一圈
+   4. shadow：Shadow.Default，24dp 模糊、下移 4dp、10% 黑
+   5. InteractiveHighlight（.glass-button 与 [data-glass-press]，glass-press.js 驱动）：按下以
+      欠阻尼弹簧胀大 4px，铺一层 8% 的白并在指尖处亮起一团径向光，拖动时带阻尼地跟手、顺势
+      拉伸，松手弹回
+   .glass-panel 换成原作对话框的参数：更厚的表面、更重的模糊与提亮、Plain 光、24dp 的折射带
+   加 depthEffect。深色主题照原作的另一套：表面更通透、面板模糊减半、不提亮。
+   降级：减少透明度偏好 / 不支持 backdrop-filter / 设置页关闭玻璃（html[data-glass="off"]）时退回实色面。
+   设置页的参数经 include/util/glass.js 写到 <html> 行内：--glass-blur、--glass-saturate 直接覆盖
+   下方默认值，--glass-tint 缩放表面色的不透明度，--glass-lens-strength 由 glass-lens.js 读取 */
+
+/* 不做模糊（--glass-blur: 0）：透过玻璃看到清晰的背景，只在边缘被折弯。
+   折射适中：按钮 10px 折射带、最外沿偏移 15px；面板 16px / 24px 并开 depthEffect */
+:where([data-theme]) {
+  --glass-fill: color-mix(in oklab, var(--base) min(100%, 46% * var(--glass-tint, 1)), transparent);
+  --glass-fill-strong: color-mix(in oklab, var(--base) min(100%, 76% * var(--glass-tint, 1)), transparent);
+  --glass-hover: color-mix(in oklab, var(--text) 7%, transparent);
+  --glass-blur: 0px;
+  --glass-saturate: 1.5;
+  --glass-brightness: 1;
+  --glass-refraction: 10px;
+  --glass-refraction-amount: 15px;
+  --glass-depth: 0;
+  /* 折射强度倍率（glass-lens.js 读取），默认拉满；设置页改动时写到 <html> 行内覆盖 */
+  --glass-lens-strength: 2;
+  --glass-rim-hi: oklch(1 0 0 / 0.9);
+  --glass-rim-mid: oklch(1 0 0 / 0.26);
+  --glass-rim-lo: oklch(1 0 0 / 0.55);
+  --glass-edge: oklch(0 0 0 / 0.07);
+  --glass-press-mix: 24%;
+  --glass-shadow: 0 1px 2px oklch(0 0 0 / 0.06), 0 6px 20px -6px oklch(0 0 0 / 0.16);
+  --glass-shadow-lg: 0 2px 6px oklch(0 0 0 / 0.05), 0 22px 56px -18px oklch(0 0 0 / 0.28);
+  /* 欠阻尼弹簧（约 4% 过冲）：玻璃松手复位时轻轻一荡 */
+  --glass-spring: linear(0, 0.06 4%, 0.23 9%, 0.47 15%, 0.72 22%, 0.9 30%, 1.01 39%, 1.042 48%, 1.036 58%, 1.018 68%, 1.005 80%, 1);
+}
+
+/* 深色主题：底色更通透、描边收暗，阴影加重才压得住深底 */
+:where([data-theme="rose_pine"], [data-theme="mocha"], [data-theme="tokyo_night"], [data-theme="nord_night"], [data-theme="mono_dark"]) {
+  --glass-fill: color-mix(in oklab, var(--base) min(100%, 42% * var(--glass-tint, 1)), transparent);
+  --glass-fill-strong: color-mix(in oklab, var(--base) min(100%, 72% * var(--glass-tint, 1)), transparent);
+  --glass-hover: color-mix(in oklab, var(--text) 10%, transparent);
+  --glass-rim-hi: oklch(1 0 0 / 0.36);
+  --glass-rim-mid: oklch(1 0 0 / 0.08);
+  --glass-rim-lo: oklch(1 0 0 / 0.18);
+  --glass-edge: oklch(1 0 0 / 0.07);
+  --glass-press-mix: 12%;
+  --glass-shadow: 0 1px 2px oklch(0 0 0 / 0.35), 0 8px 24px -6px oklch(0 0 0 / 0.5);
+  --glass-brightness: 1;
+  --glass-shadow-lg: 0 2px 8px oklch(0 0 0 / 0.3), 0 26px 64px -18px oklch(0 0 0 / 0.7);
+}
+
+.glass {
+  position: relative;
+  border-radius: var(--glass-radius, 999px);
+  background-color: var(--glass-surface, var(--glass-fill));
+  box-shadow:
+    0 0 0 0.5px var(--glass-edge),
+    var(--glass-elevation, var(--glass-shadow));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
+  /* vibrancy → blur → lens：折射接在链尾，与原作 effects 的顺序一致 */
+  backdrop-filter: saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) blur(var(--glass-blur)) var(--glass-lens,);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: var(--glass-rim-width, 1px);
+    border-radius: inherit;
+    background: linear-gradient(var(--glass-rim-angle, 135deg), var(--glass-rim-hi), var(--glass-rim-mid) 28% 72%, var(--glass-rim-lo)) border-box;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    pointer-events: none;
+  }
+}
+
+/* 大面板：原作对话框的参数——更宽的折射带 + depthEffect（中间微鼓的透镜） */
+.glass-panel,
+.glass.glass-scroll {
+  --glass-refraction: 16px;
+  --glass-refraction-amount: 24px;
+  --glass-depth: 1;
+}
+
+/* 自身可滚动的面板：绝对定位的 ::after 会跟着内容滚走，描边高光改画在不随滚动的
+   inset box-shadow 上（顶边迎光一线 + 整圈极淡的 rim） */
+.glass.glass-scroll {
+  box-shadow:
+    0 0 0 0.5px var(--glass-edge),
+    inset 0 1px 0 var(--glass-rim-lo),
+    inset 0 0 0 1px var(--glass-rim-mid),
+    var(--glass-elevation, var(--glass-shadow));
+
+  &::after {
+    content: none;
+  }
+}
+
+.glass-button {
+  cursor: pointer;
+  transition:
+    scale 420ms var(--glass-spring),
+    background-color 160ms ease;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: color-mix(in oklab, var(--glass-surface, var(--glass-fill)), var(--text) 6%);
+    }
+  }
+
+  /* 无 JS 时的按压反馈；glass-press.js 接管后改由下方弹簧驱动 */
+  &:active:not([data-glass-pressed]) {
+    scale: 0.96;
+    background-color: color-mix(in oklab, var(--glass-surface, var(--glass-fill)), oklch(1 0 0) var(--glass-press-mix));
+    transition-duration: 140ms, 90ms;
+    transition-timing-function: var(--ease-out), ease;
+  }
+}
+
+/* InteractiveHighlight：glass-press.js 逐帧写入变量，弹簧已含过冲，不再叠 CSS 过渡；
+   ::before 是 Plus 混合的按压层（8% 白 + 指尖径向光） */
+:is(.glass-button, [data-glass-press])[data-glass-pressed] {
+  translate: var(--glass-press-translate, 0 0);
+  scale: var(--glass-press-scale, 1);
+  transition: background-color 160ms ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--glass-press-layer, none);
+    mix-blend-mode: plus-lighter;
+    pointer-events: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  /* 在 token 层退回实色：所有取用玻璃底色的地方（弹层、提示、面板）一并变为不透明 */
+  :where([data-theme]) {
+    --glass-fill: var(--mantle);
+    --glass-fill-strong: var(--mantle);
+  }
+
+  .glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :where([data-theme]) {
+    --glass-fill: color-mix(in oklab, var(--mantle) 94%, transparent);
+    --glass-fill-strong: var(--mantle);
+  }
+}
+
+/* 设置页关闭玻璃：与减少透明度同一套退路，另去掉发丝高光，只留描边与投影 */
+:root[data-glass="off"] {
+  --glass-fill: var(--mantle);
+  --glass-fill-strong: var(--mantle);
+  --glass-rim-hi: transparent;
+  --glass-rim-mid: transparent;
+  --glass-rim-lo: transparent;
+
+  .glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* #endregion Liquid glass */
+
 /* #region Font */
 
 @font-face {
@@ -549,64 +738,43 @@ html {
   scroll-margin-top: calc(var(--navbar-height) + env(safe-area-inset-top) + 1rem);
 }
 
+/* 触屏点按不画系统的高亮底色（iOS / Android 默认一块半透明色块，像文本被选中），按钮自己的
+   按压反馈（玻璃弹簧、:active 缩放）已足够；按钮文字也不因长按被选中、弹出系统菜单。
+   键盘聚焦仍由各控件的 :focus-visible 描边负责 */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(button, [role="button"], [role="switch"], .glass-button, summary, select) {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
 /* #region Navbar */
 
+/* 导航条不铺渐变与渐进模糊：条本身透明，只有玻璃按钮 / 胶囊浮在内容之上。
+   窄屏移到屏幕底部成为拇指工具条（见 responsive.css） */
 .navbar {
   min-height: var(--navbar-height);
   display: flex;
   position: sticky;
-  padding-top: env(safe-area-inset-top);
   top: 0;
+  padding-top: env(safe-area-inset-top);
   z-index: 100;
   user-select: none;
-  /* 底部不画 border：渐变底色 + .navbar-blur 的渐进模糊向正文自然消融 */
-  background: linear-gradient(to bottom, hsl(from var(--mantle) h s l / 0.95), hsl(from var(--mantle) h s l / 0.7) 55%, hsl(from var(--mantle) h s l / 0));
+  pointer-events: none;
 
-  button {
-    background: none;
-    border: none;
-    cursor: pointer;
+  > * {
+    pointer-events: auto;
   }
 }
 
-/* 渐进模糊：多层 backdrop-filter 配三角渐变 mask 交叉淡化，
-   模糊半径自上而下 16→2px 递减、底缘趋近 0，滚过的内容逐渐融进导航条。
-   注意 .navbar 自身不能再挂 filter/backdrop-filter，否则会成为
-   backdrop root，切断各层对页面内容的取样 */
-.navbar-blur {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-
-  > div {
-    position: absolute;
-    inset: 0;
-  }
-
-  > div:nth-child(1) {
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    mask-image: linear-gradient(to bottom, #000, transparent 25%);
-  }
-
-  > div:nth-child(2) {
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    mask-image: linear-gradient(to bottom, transparent, #000 25%, transparent 50%);
-  }
-
-  > div:nth-child(3) {
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
-    mask-image: linear-gradient(to bottom, transparent 25%, #000 50%, transparent 75%);
-  }
-
-  > div:nth-child(4) {
-    -webkit-backdrop-filter: blur(2px);
-    backdrop-filter: blur(2px);
-    mask-image: linear-gradient(to bottom, transparent 50%, #000 75%, transparent);
-  }
+/* 按钮复位压到零特定性：导航条里的玻璃按钮（移动端 burger）要保住 .glass 的底色 */
+:where(.navbar) button {
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 #navbar-logo-link {
@@ -677,6 +845,52 @@ html {
   .navbar-item:disabled:hover svg {
     opacity: 0.78;
     transform: none;
+  }
+}
+
+/* 动作区：宽屏收进一枚玻璃胶囊（iOS 26 / macOS Tahoe 工具栏的分组按钮），两个图标按钮是
+   胶囊里的圆形命中区，悬停点亮一枚同心圆（胶囊内边距 3px，按钮 36px 圆 → 胶囊半高 21px）。
+   窄屏胶囊消解，两个按钮各自成为独立的玻璃圆，与 burger、TOC 同一套外观与按压（responsive.css）。
+   按钮在标记上即是 .glass.glass-button，宽屏在这里把它们的材质关掉，只留胶囊一层玻璃 */
+.navbar-actions.glass {
+  align-items: center;
+  align-self: center;
+  gap: 2px;
+  margin-right: 0.75rem;
+  padding: 3px;
+
+  > .navbar-item {
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .navbar-actions.glass > .navbar-item.glass {
+    background-color: transparent;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    transition:
+      color 220ms ease,
+      background-color 160ms ease,
+      scale 420ms var(--glass-spring);
+
+    &::after {
+      content: none;
+    }
+
+    &:hover {
+      background-color: var(--glass-hover);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--mauve);
+      outline-offset: -2px;
+    }
   }
 }
 
@@ -779,13 +993,13 @@ input.command-palette-input {
   color: inherit;
   background-color: transparent;
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 14px;
   border: none;
   outline: 0;
   flex-grow: 1;
   min-width: 0;
   box-sizing: border-box;
-  padding: 1em 1.25em;
+  padding: 1em 0;
 
   &::placeholder {
     color: var(--overlay1);
@@ -799,36 +1013,103 @@ input.command-palette-input {
   line-height: 1.25em;
 }
 
+/* 面板是一块 Spotlight 式的液态玻璃：材质画在 ::before（独立于内容，结果列表重绘时模糊可被
+   合成器缓存复用），::after 画 1px 渐变高光描边；面板本身只留 0.5px 外缘与大阴影，不描实边。
+   折射按大面板参数（同 .glass-panel），glass-lens.js 写到容器上的 --glass-lens 由 ::before 继承；
+   结果条数变化会改高度，容器标 data-glass-lens="live"，下一帧就按新尺寸重烘贴图 */
 .command-palette-container {
-  border: 1px solid var(--surface0);
+  font-size: 14px;
+  --glass-refraction: 16px;
+  --glass-refraction-amount: 24px;
+  --glass-depth: 1;
   color: var(--text);
   position: fixed;
   z-index: 101;
   display: flex;
   overflow: hidden;
-  border-radius: var(--radius);
+  isolation: isolate;
+  border-radius: 22px;
   width: min(640px, 92vw);
   top: 10vh;
+  box-shadow:
+    0 0 0 0.5px var(--glass-edge),
+    var(--glass-shadow-lg);
 
-  /* 模糊层独立于内容：结果列表重绘时 blur 可被合成器缓存复用 */
-  &::before {
+  &::before,
+  &::after {
     content: "";
     position: absolute;
     inset: 0;
-    z-index: -1;
-    background-color: hsl(from var(--mantle) h s l / 0.85);
-    -webkit-backdrop-filter: blur(20px) saturate(1.4);
-    backdrop-filter: blur(20px) saturate(1.4);
+    border-radius: inherit;
+    pointer-events: none;
   }
+
+  &::before {
+    z-index: -1;
+    background-color: var(--glass-fill-strong);
+    /* 模糊直接跟随设置页的 --glass-blur */
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
+    backdrop-filter: saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) blur(var(--glass-blur)) var(--glass-lens,);
+  }
+
+  &::after {
+    z-index: 1;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--glass-rim-hi), var(--glass-rim-mid) 28% 72%, var(--glass-rim-lo)) border-box;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+  }
+}
+
+/* 面板自己就是玻璃，身后不再铺全屏模糊：只压一层淡淡的暗色，页面透过面板被折射、模糊 */
+.command-palette:popover-open::before {
+  background: hsl(from var(--crust) h s l / 0.22);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .command-palette-container::before {
+    background-color: var(--mantle);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+:root[data-glass="off"] .command-palette-container::before {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .command-palette-input-container {
   width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 0.75em;
+  padding-inline: 1.25em;
   line-height: 1.5em;
   min-height: 3.25rem;
+}
+
+/* 搜索图标与结果行的图标同列（同宽的居中盒，间距一致），输入文字随之与各行标题对齐；
+   进入子列表时由范围标签接替 */
+.command-palette-input-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  justify-content: center;
+  width: 1.5em;
+  color: var(--overlay1);
+}
+
+.command-palette-input-container:has(.command-palette-scope) > .command-palette-input-icon {
+  display: none;
 }
 
 /* 子列表范围标签：显示当前所在的命令组，点击返回上一层 */
@@ -837,7 +1118,6 @@ input.command-palette-input {
   display: inline-flex;
   align-items: center;
   gap: 0.3em;
-  margin-left: 1.1em;
   padding: 0.25em 0.7em 0.25em 0.5em;
   border: 1px solid var(--surface1);
   border-radius: 999px;
@@ -857,10 +1137,6 @@ input.command-palette-input {
   &:focus-visible {
     outline: 2px solid var(--mauve);
     outline-offset: -2px;
-  }
-
-  & + .command-palette-input {
-    padding-left: 0.6em;
   }
 }
 
@@ -933,6 +1209,10 @@ input.command-palette-input {
     opacity: 1;
   }
 
+  &.active > .command-palette-item-icon {
+    color: var(--text);
+  }
+
   &:focus-visible {
     outline: 2px solid var(--mauve);
     outline-offset: -2px;
@@ -947,6 +1227,16 @@ input.command-palette-input {
   width: 1.5em;
   height: 1.5em;
   color: var(--subtext0);
+}
+
+/* 文章 / 页面是标题 + 摘要两行：图标对齐标题行，不随整行居中；条目多，图标再淡一档 */
+.command-palette-item--document {
+  align-items: flex-start;
+
+  & > .command-palette-item-icon {
+    height: 1.25em;
+    color: var(--overlay1);
+  }
 }
 
 /* 主题色板：data-theme 让色板变量在该元素上按目标主题求值，底色 + 强调色各取一格 */
@@ -1107,15 +1397,21 @@ input.command-palette-input {
   }
 }
 
+/* 键帽里是图标（方向键、回车）或字符，统一在定高的盒子里居中 */
 .command-palette-key {
-  display: inline-block;
-  min-width: 1.2em;
-  padding: 0.1em 0.35em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1em;
+  box-sizing: border-box;
+  min-width: 1.7em;
+  height: 1.7em;
+  padding: 0 0.35em;
   border-radius: 4px;
   background-color: hsl(from var(--surface0) h s l / 0.7);
   color: var(--subtext0);
   font: inherit;
-  text-align: center;
+  line-height: 1;
 }
 
 /* #endregion Command palette */
@@ -1155,8 +1451,8 @@ input.command-palette-input {
    弹窗骨架在所有页面随 navbar 渲染，故样式常驻 default.css；
    /preferences 独立页的样式在 preferences.css，仅该页面加载。
 
-   无遮罩、无面板底色：弹窗打开时页面保持可见、可滚动，方便对照正文
-   查看排版调整效果；控件用不透明的 --mantle 填充 + 描边与页面区分。
+   无遮罩：弹窗打开时页面保持可见、可滚动，方便对照正文查看排版调整效果；
+   弹窗本身透明，每组控件各是一块浮着的玻璃（macOS 26 控制中心），各自挂折射透镜。
    开关由原生 popover（navbar 按钮 popovertarget / 快捷键 togglePopover）
    驱动；布局样式挂在 .preference-popup 基类，靠文件序压过上方全局
    popover 样式（inset: 0 + 全屏模糊背景），开合只过渡 opacity/translate/
@@ -1169,24 +1465,26 @@ input.command-palette-input {
   top: calc(var(--navbar-height) + env(safe-area-inset-top) + 0.6rem);
   right: 0.9rem;
   z-index: 1000;
-  width: min(17rem, calc(100vw - 1.8rem));
+  width: min(18rem, calc(100vw - 1.8rem));
   height: auto;
   max-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 2rem);
   margin: 0;
-  padding: 0;
+  /* macOS 26 控制中心式：弹窗本身不是面板，只是透明的排布容器，每组控件各是一块浮着的玻璃。
+     留 12px 内边距给各块玻璃的投影，免得被 overflow 裁掉 */
+  padding: 12px;
   overflow: auto;
   border: 0;
   background: transparent;
+  box-shadow: none;
   color: var(--text);
   scrollbar-width: none;
   transform-origin: top right;
 
-  /* 关闭/退场态：向触发角（navbar 按钮）收回；退场快于进场 */
-  opacity: 0;
+  /* 容器只做位移与缩放：opacity < 1 会让它成为 Backdrop Root，淡入期间子块的 backdrop-filter
+     什么都采不到。淡入淡出交给各块玻璃自己（见 .preference-quick__tile） */
   translate: 0 -6px;
   scale: 0.98;
   transition:
-    opacity 120ms ease,
     translate 130ms var(--ease-out),
     scale 130ms var(--ease-out),
     display 130ms allow-discrete,
@@ -1198,21 +1496,59 @@ input.command-palette-input {
 }
 
 .preference-popup:popover-open {
-  opacity: 1;
   translate: 0 0;
   scale: 1;
   transition:
-    opacity 160ms ease,
     translate 180ms var(--ease-out),
     scale 180ms var(--ease-out);
 }
 
 @starting-style {
   .preference-popup:popover-open {
-    opacity: 0;
     translate: 0 -6px;
     scale: 0.98;
   }
+}
+
+/* 每块玻璃自己淡入（材质挂在淡入的元素自身，模糊随之出现），进场按行错开 20ms */
+.preference-quick__tile {
+  opacity: 0;
+  transition:
+    opacity 120ms ease,
+    scale 420ms var(--glass-spring),
+    background-color 160ms ease;
+
+  .preference-popup:popover-open & {
+    opacity: 1;
+    transition-duration: 180ms, 420ms, 160ms;
+    transition-delay: calc(var(--tile-index, 0) * 20ms), 0ms, 0ms;
+  }
+}
+
+@starting-style {
+  .preference-popup:popover-open .preference-quick__tile {
+    opacity: 0;
+  }
+}
+
+.preference-quick__selects > :nth-child(1) {
+  --tile-index: 1;
+}
+
+.preference-quick__selects > :nth-child(2) {
+  --tile-index: 2;
+}
+
+.preference-quick__selects > :nth-child(3) > * {
+  --tile-index: 3;
+}
+
+.preference-quick__selects > :nth-child(4) {
+  --tile-index: 4;
+}
+
+.preference-quick__dock > * {
+  --tile-index: 5;
 }
 
 .preference-popup::backdrop {
@@ -1225,22 +1561,20 @@ input.command-palette-input {
 
 .preference-quick {
   display: grid;
-  gap: 1.05rem;
+  gap: 0.6rem;
   font-family: var(--font-sans-serif);
 }
 
+/* 四个步进器排成 2×2 的玻璃胶囊，每枚胶囊内两颗图标按钮 */
 .preference-quick__steppers {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.45rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
 }
 
 .preference-quick__stepper {
   display: flex;
-  overflow: hidden;
-  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
-  border-radius: 10px;
-  background: var(--mantle);
+  --glass-radius: 999px;
 }
 
 .preference-quick__step-btn {
@@ -1249,30 +1583,20 @@ input.command-palette-input {
   align-items: center;
   justify-content: center;
   min-width: 0;
-  height: 2.35rem;
+  height: 2.6rem;
   padding: 0;
   border: 0;
+  border-radius: 999px;
   background: transparent;
-  color: var(--subtext0);
+  color: var(--subtext1);
   cursor: pointer;
-
-  /* 外侧圆角随容器（10px 减去 1px 边框）：聚焦环不受容器 overflow 裁剪，
-     按钮需自带圆角，悬停背景与 -2px 聚焦环才不会以直角溢出 stepper 的圆角边框 */
-  &:first-child {
-    border-radius: 9px 0 0 9px;
-  }
-
-  &:last-child {
-    border-radius: 0 9px 9px 0;
-  }
-
-  & + .preference-quick__step-btn {
-    border-left: 1px solid hsl(from var(--surface1) h s l / 0.8);
-  }
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
 
   &:hover:not(:disabled) {
     color: var(--text);
-    background: color-mix(in oklch, var(--mantle) 90%, var(--text));
+    background: var(--glass-hover);
   }
 
   &:focus-visible {
@@ -1288,23 +1612,42 @@ input.command-palette-input {
 
 .preference-quick__selects {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.6rem;
 }
 
+/* 下拉行本身是玻璃胶囊，原生 select 透明地铺满其中 */
 .preference-quick__select-row {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.45rem;
   min-width: 0;
+  --glass-radius: 999px;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: color-mix(in oklab, var(--glass-surface, var(--glass-fill)), var(--text) 6%);
+    }
+  }
+}
+
+/* 字体行：下拉胶囊 + 右侧一颗独立的圆形玻璃（进入排版设置） */
+.preference-quick__select-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+
+  .preference-quick__select-row {
+    flex: 1 1 auto;
+  }
 }
 
 .preference-quick__select-icon {
   position: absolute;
-  left: 0.6rem;
+  left: 0.85rem;
   z-index: 1;
   display: inline-flex;
-  color: var(--subtext0);
+  color: var(--subtext1);
   pointer-events: none;
 }
 
@@ -1329,25 +1672,20 @@ html.night .preference-quick__select-icon--moon {
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
-  height: 2.35rem;
-  padding: 0 1.9rem 0 2.25rem;
+  height: 2.6rem;
+  padding: 0 2.1rem 0 2.6rem;
   appearance: none;
   -webkit-appearance: none;
-  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
-  border-radius: 10px;
+  border: 0;
+  border-radius: 999px;
   color: var(--text);
-  background-color: var(--mantle);
+  background-color: transparent;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-opacity='0.5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.6rem center;
+  background-position: right 0.85rem center;
   background-size: 13px;
-  font: 550 0.86rem / 1.2 var(--font-sans-serif);
+  font: 600 0.86rem / 1.2 var(--font-sans-serif);
   cursor: pointer;
-
-  &:hover {
-    border-color: hsl(from var(--surface2) h s l / 0.9);
-    background-color: color-mix(in oklch, var(--mantle) 92%, var(--text));
-  }
 
   &:focus-visible {
     outline: 2px solid var(--mauve);
@@ -1359,75 +1697,63 @@ html.night .preference-quick__select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-opacity='0.55' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
 }
 
-.preference-quick__row-action {
+/* 圆形玻璃图标（控制中心的圆钮）：排版设置入口、玻璃开关、设置页入口 */
+.preference-quick__round {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.35rem;
-  height: 2.35rem;
-  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
-  border-radius: 10px;
-  color: var(--subtext0);
-  background: var(--mantle);
-
-  &:hover {
-    color: var(--text);
-    border-color: hsl(from var(--surface2) h s l / 0.9);
-    background: color-mix(in oklch, var(--mantle) 90%, var(--text));
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--mauve);
-    outline-offset: -2px;
-  }
-}
-
-.preference-quick__settings {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  height: 2.35rem;
-  padding: 0 0.7rem;
-  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
-  border-radius: 10px;
-  color: var(--subtext0);
-  background: var(--mantle);
-  font: 550 0.86rem / 1.2 var(--font-sans-serif);
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0;
+  border: 0;
+  --glass-radius: 50%;
+  color: var(--subtext1);
   text-decoration: none;
 
   &:hover {
     color: var(--text);
-    background: color-mix(in oklch, var(--mantle) 90%, var(--text));
   }
 
   &:focus-visible {
     outline: 2px solid var(--mauve);
-    outline-offset: -2px;
+    outline-offset: 2px;
   }
 }
 
+/* 开关打开：玻璃染一层淡淡的强调色，图标取强调色——不铺实色，仍然是一块透光的玻璃 */
+.preference-quick__toggle[aria-checked="true"] {
+  --glass-surface: color-mix(in oklab, var(--glass-fill), var(--blue) 22%);
+  color: var(--blue);
+
+  &:hover {
+    color: var(--blue);
+  }
+}
+
+.preference-quick__dock {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
 @media (max-width: 768px) {
+  /* iOS 26 式浮动玻璃 sheet：四周离屏幕边 8px 悬空（底部再让出 home indicator），
+     内边距 20px + 控件圆角 10px → 圆角 30px */
   .preference-popup {
     top: auto;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    right: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    left: 8px;
     width: auto;
     max-height: min(82dvh, 100dvh - 3rem);
-    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
-    border: 1px solid hsl(from var(--surface1) h s l / 0.74);
-    border-bottom: 0;
-    border-radius: 18px 18px 0 0;
-    background: var(--base);
-    box-shadow: 0 -18px 50px -30px rgba(0, 0, 0, 0.45);
+    padding: 8px;
     transform-origin: bottom center;
 
-    /* 底部抽屉：沿进场路径退回下方，不缩放 */
+    /* 底部：沿进场路径退回下方，不缩放 */
     translate: 0 10%;
     scale: 1;
     transition:
-      opacity 150ms ease,
       translate 170ms var(--ease-out),
       scale 170ms var(--ease-out),
       display 170ms allow-discrete,
@@ -1437,38 +1763,36 @@ html.night .preference-quick__select {
   .preference-popup:popover-open {
     translate: 0 0;
     transition:
-      opacity 180ms ease,
       translate 220ms var(--ease-out),
       scale 220ms var(--ease-out);
   }
 
   @starting-style {
     .preference-popup:popover-open {
-      opacity: 0;
       translate: 0 10%;
       scale: 1;
     }
   }
 
   .preference-quick {
-    gap: 1.05rem;
+    gap: 0.7rem;
   }
 
-  .preference-quick__steppers {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .preference-quick__steppers,
+  .preference-quick__selects,
+  .preference-quick__select-group,
+  .preference-quick__dock {
+    gap: 0.7rem;
   }
 
-  .preference-quick__step-btn {
-    height: 2.55rem;
+  .preference-quick__step-btn,
+  .preference-quick__select {
+    height: 3rem;
   }
 
-  .preference-quick__select,
-  .preference-quick__row-action {
-    height: 2.55rem;
-  }
-
-  .preference-quick__settings {
-    height: 2.6rem;
+  .preference-quick__round {
+    width: 3rem;
+    height: 3rem;
   }
 }
 

@@ -39,6 +39,12 @@ function getUiText(key) {
   return messages[key] || key;
 }
 
+/** 把玻璃按钮交给 glass-lens.js 补边缘折射（是否支持由它判断；模块未就绪时先排队，由它加载后统一补挂） */
+function registerGlassLens(elements) {
+  globalThis.__gnixGlassLensQueue ||= [];
+  for (const element of elements) globalThis.__gnixGlassLensQueue.push(element);
+}
+
 const STYLES = `
   :host {
     display: block;
@@ -146,6 +152,7 @@ const STYLES = `
     opacity: 1;
   }
 
+  /* 与 image-carousel 同款的透明玻璃圆：暗色薄层托住白色箭头，照片透过模糊与提饱和浮上来 */
   .nav {
     position: absolute;
     top: calc(var(--image-group-height) / 2 + 0.25rem);
@@ -157,15 +164,21 @@ const STYLES = `
     padding: 0;
     border: none;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgb(0 0 0 / 0.18);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.42),
+      inset 0 0 0 1px rgb(255 255 255 / 0.14),
+      0 6px 18px -6px rgb(0 0 0 / 0.45);
+    -webkit-backdrop-filter: blur(8px) saturate(1.7) brightness(1.08);
+    backdrop-filter: var(--glass-lens,) blur(8px) saturate(1.7) brightness(1.08);
     color: #fff;
     cursor: pointer;
     opacity: 0;
     transform: translateY(-50%);
     transition:
-      background 0.18s ease-out,
+      background-color 0.18s ease-out,
       opacity 0.18s ease-out,
-      transform 0.18s ease-out;
+      scale 420ms var(--glass-spring, ease-out);
   }
 
   .nav svg {
@@ -179,7 +192,7 @@ const STYLES = `
   }
 
   .nav:hover {
-    background: rgba(0, 0, 0, 0.58);
+    background: rgb(0 0 0 / 0.3);
   }
 
   .nav:focus-visible {
@@ -189,7 +202,8 @@ const STYLES = `
   }
 
   .nav:active {
-    transform: translateY(-50%) scale(0.94);
+    scale: 0.96;
+    transition-duration: 0.18s, 0.18s, 140ms;
   }
 
   .group:not(.is-scrollable) .nav {
@@ -309,6 +323,7 @@ class ImageGroup extends HTMLElement {
     this.shadowRoot.append(group, slot);
     this._group = group;
     this._rail = rail;
+    registerGlassLens(group.querySelectorAll(".nav"));
   }
 
   _createItem(image, index) {

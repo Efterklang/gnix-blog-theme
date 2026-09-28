@@ -221,7 +221,7 @@
   /* 媒体块 8 格：figure 含 shiki 代码块、表格外层（renderer.js）与带说明的图片
      （image.js）；markdown 图片被 <p> 包裹，仅含媒体的段落同档；callout / mermaid /
      accordion / blockquote 在各自的规则里引用 --flow-media */
-  :where(figure, hr, pre, .ratex-display, x-tree, x-chat, x-info-card, image-group, image-carousel, p:has(> :is(img, iframe, video):only-child)),
+  :where(figure, hr, pre, .ratex-display, x-tree, x-chat, x-info-card, image-group, image-carousel, video-player, p:has(> :is(img, iframe, video):only-child)),
   > :where(img, iframe, video) {
     margin-block: var(--flow-media);
   }
@@ -497,10 +497,17 @@ sup.footnote-ref.is-footnote-tooltip-open .footnote-tooltip {
   max-height: min(52dvh, 22rem);
   overflow: auto;
   padding: 0.75rem 0.9rem;
-  border: 1px solid var(--surface0);
-  border-radius: 0.75rem;
-  background: var(--mantle);
-  box-shadow: 0 12px 36px hsl(from var(--crust) h s l / 0.5);
+  /* 玻璃底栏：自身可滚动，描边高光走 inset box-shadow（同 .glass-scroll） */
+  border: none;
+  border-radius: 18px;
+  background: var(--glass-fill-strong);
+  box-shadow:
+    0 0 0 0.5px var(--glass-edge),
+    inset 0 1px 0 var(--glass-rim-lo),
+    inset 0 0 0 1px var(--glass-rim-mid),
+    var(--glass-shadow-lg);
+  -webkit-backdrop-filter: blur(16px) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(16px) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
   color: var(--subtext1);
   font-size: 0.9rem;
   font-style: normal;
@@ -530,10 +537,17 @@ sup.footnote-ref.is-footnote-tooltip-open .footnote-tooltip {
       width: max-content;
       max-width: min(24rem, 70vw);
       padding: 0.6em 0.85em;
-      border: 1px solid var(--surface0);
-      border-radius: 0.5em;
-      background: var(--mantle);
-      box-shadow: 0 8px 24px hsl(from var(--crust) h s l / 0.5);
+      /* 玻璃气泡：::after 已用作悬停桥，描边高光改走 inset box-shadow */
+      border: none;
+      border-radius: 12px;
+      background: var(--glass-fill-strong);
+      box-shadow:
+        0 0 0 0.5px var(--glass-edge),
+        inset 0 1px 0 var(--glass-rim-lo),
+        inset 0 0 0 1px var(--glass-rim-mid),
+        var(--glass-shadow);
+      -webkit-backdrop-filter: blur(14px) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
+      backdrop-filter: blur(14px) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
       color: var(--subtext1);
       font-size: 0.8rem;
       font-style: normal;
@@ -898,47 +912,80 @@ a strong {
   }
 }
 
+/* 描边巨字只属于移动端的海报式扉页 */
+.article-hero-numeral {
+  display: none;
+}
+
 @media screen and (max-width: 768px) {
-  /* 两段弹性留白托住扉页内容；透明化分组容器，让日期紧跟摘要，仍只渲染一份。
-     最小留白保证矮屏或长标题时首屏自然长高，不挤压文字与底部动作。 */
+  /* 移动端扉页是一张竖幅海报（瑞士版式）：顶部一条刊头——标签压在一根细线上；发布日的「日」
+     以描边巨字铺在右上作底纹；标题沉到下半屏，左对齐的大字，摘要前一截粗短线，日期跟在其后；
+     底部一根细线托住跳转箭头（左）与 comments · info（右）。整屏恰为一个 svh（高度见
+     responsive.css），导航条已移到屏幕底部且首屏期间收起，首屏不再露出下文。
+     分组容器透明化（display: contents），各项直接落进网格行；最小留白保证矮屏或长标题时
+     首屏自然长高，不挤压文字 */
   .article-hero-full {
+    position: relative;
+    isolation: isolate;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(2rem, 1fr) repeat(4, auto) minmax(3rem, 1fr) auto auto;
+    grid-template-rows: auto minmax(4rem, 1fr) auto auto auto minmax(2.5rem, 0.4fr) auto;
     gap: 0;
-    justify-items: center;
+    justify-items: start;
     box-sizing: border-box;
-    padding-bottom: max(calc(var(--spacing) * 5), env(safe-area-inset-bottom));
+    padding: calc(var(--spacing) * 3) 0.25rem max(calc(var(--spacing) * 4), env(safe-area-inset-bottom));
 
     .article-hero-body,
     .article-hero-foot {
       display: contents;
     }
 
+    /* 底部细线：伪元素作为网格项落在最后一行顶端，横贯整栏 */
+    &::after {
+      content: "";
+      grid-row: 7;
+      grid-column: 1;
+      align-self: start;
+      justify-self: stretch;
+      border-top: 1px solid var(--surface0);
+    }
+
     .article-kicker {
-      grid-row: 2;
-      max-width: 80%;
+      grid-row: 1;
+      justify-self: stretch;
+      justify-content: flex-start;
+      margin: 0;
+      padding-bottom: calc(var(--spacing) * 3);
+      border-bottom: 1px solid var(--surface0);
+      font-size: 0.6875rem;
     }
 
     .article-title {
       grid-row: 3;
-      width: min(80%, 28rem);
-      font-size: clamp(1.75rem, 8.2vw, 2.5rem);
-      line-height: 1.4;
-      overflow-wrap: anywhere;
-    }
-
-    .article-excerpt,
-    .article-colophon {
-      width: min(66%, 26rem);
+      width: 100%;
+      max-width: none;
+      font-size: clamp(2.25rem, 10.5vw, 3.25rem);
+      line-height: 1.12;
+      letter-spacing: -0.01em;
       text-align: start;
+      overflow-wrap: anywhere;
     }
 
     .article-excerpt {
       grid-row: 4;
+      width: min(86%, 26rem);
       max-width: none;
+      margin-top: calc(var(--spacing) * 7);
       font-size: 0.8125rem;
+      text-align: start;
       overflow-wrap: anywhere;
+
+      &::before {
+        width: calc(var(--spacing) * 6);
+        height: 2px;
+        margin: 0 0 calc(var(--spacing) * 5);
+        background: var(--text);
+      }
     }
 
     .article-colophon {
@@ -958,7 +1005,8 @@ a strong {
 
     .article-hero-arrow {
       grid-row: 7;
-      margin-bottom: calc(var(--spacing) * 3);
+      justify-self: start;
+      margin: calc(var(--spacing) * 3) 0 0 -0.5rem;
 
       > svg {
         width: 1.75rem;
@@ -967,8 +1015,9 @@ a strong {
     }
 
     .article-hero-actions {
-      grid-row: 8;
+      grid-row: 7;
       justify-self: end;
+      margin-top: calc(var(--spacing) * 3);
       gap: 0.75rem;
 
       &:has(> button + button)::before {
@@ -982,7 +1031,23 @@ a strong {
     }
   }
 
-  /* 页脚在移动端没有自己的盒子，入场效果交给各项承接。 */
+  /* 描边巨字：绝对定位，不参与网格排布，压在文字之下 */
+  .article-hero-full .article-hero-numeral {
+    position: absolute;
+    top: calc(var(--spacing) * 12);
+    right: -0.04em;
+    z-index: -1;
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 1px hsl(from var(--text) h s l / 0.16);
+    font: 200 min(56vw, 17rem) / 0.8 var(--font-sans-serif);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.05em;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* 页脚在移动端没有自己的盒子，入场效果交给各项承接；巨字最先、最慢地浮现，像纸面的底纹 */
   :root.gnix-revealed .article-hero-full {
     .article-hero-foot {
       animation: none;
@@ -993,6 +1058,10 @@ a strong {
     .article-hero-actions {
       animation: hero-rise 900ms var(--ease-out) backwards;
       animation-delay: calc(var(--hero-step) * 3.5);
+    }
+
+    .article-hero-numeral {
+      animation: hero-rise 1400ms var(--ease-out) backwards;
     }
   }
 }
@@ -1026,10 +1095,13 @@ em,
   overflow-y: auto;
 }
 
-/* 印刷目录风格：右对齐标签 + 冒号、左对齐值，直接渲染在遮罩上 */
+/* 印刷目录风格：右对齐标签 + 冒号、左对齐值，排在一块玻璃面板上 */
 .article-info-list {
   margin: 0;
-  padding: 0.25rem;
+  padding: 1.25rem 1.5rem;
+  --glass-surface: var(--glass-fill-strong);
+  --glass-radius: 24px;
+  --glass-elevation: var(--glass-shadow-lg);
   display: grid;
   grid-template-columns: max-content minmax(0, 26rem);
   gap: 0.625rem 1.25rem;
@@ -1066,11 +1138,9 @@ em,
 .article-comment-popover-body {
   width: min(920px, 92vw);
   max-height: min(72vh, 760px);
-  border-radius: 16px;
-  background: hsl(from var(--mantle) h s l / 0.7);
-  box-shadow:
-    0 20px 60px -15px rgba(0, 0, 0, 0.3),
-    0 0 0 1px var(--surface0);
+  --glass-surface: var(--glass-fill-strong);
+  --glass-radius: 24px;
+  --glass-elevation: var(--glass-shadow-lg);
 }
 
 .article-comment-panel#comments {
@@ -1154,17 +1224,27 @@ em,
 
 /* #region TOC */
 
+/* 浮动玻璃圆钮（iOS 26 的浮动 accessory）：材质、描边高光与按压回弹来自 default.css 的
+   .glass / .glass-button；过渡列表沿用 .glass-button 的顺序（scale、底色），末尾补上首屏
+   显隐的 opacity，:active 覆写的时长按序循环套用 */
 .toc-button {
   position: fixed;
   bottom: 3rem;
   right: clamp(1rem, 3vw, 3rem);
   width: 3rem;
   height: 3rem;
+  padding: 0;
+  border: none;
   border-radius: 50%;
-  background-color: var(--base);
-  border: 2px solid var(--surface0);
-  cursor: pointer;
-  transition: opacity 0.3s ease;
+  transition:
+    scale 420ms var(--glass-spring),
+    background-color 160ms ease,
+    opacity 0.3s ease;
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: 3px;
+  }
 
   > span {
     background-color: hsl(from var(--text) h s l / 0.5);
@@ -1204,10 +1284,16 @@ em,
   font-weight: 600;
 }
 
+/* 目录不再落在卡片上：文字直接浮在全局的模糊幕布（:popover-open::before）之上 */
+.toc-panel {
+  padding: 1.5rem 1.75rem;
+}
+
 #toc {
   .toc {
-    max-height: clamp(22rem, 72dvh, 80dvh);
-    width: clamp(18rem, 86vw, 40rem);
+    /* 面板左右各有 1.75rem 内边距，列表宽度相应让出，窄屏不至于顶出视口 */
+    max-height: clamp(20rem, 68dvh, 76dvh);
+    width: clamp(15rem, calc(92vw - 3.5rem), 40rem);
     overflow-y: auto;
     padding: 0;
     list-style: none;

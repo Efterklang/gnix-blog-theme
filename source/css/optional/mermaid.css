@@ -9,6 +9,8 @@
   position: relative;
   background: var(--mantle);
 }
+/* 工具栏与方向盘的显隐落在按钮自身：按钮是玻璃（自带 backdrop-filter），若淡入淡出挂在
+   容器上，容器 opacity < 1 期间会成为 Backdrop Root，按钮的模糊要等淡入结束才「啪」地出现 */
 .mermaid-toolbar {
   position: absolute;
   top: 8px;
@@ -16,15 +18,17 @@
   z-index: 20;
   display: flex;
   gap: 4px;
+}
+.mermaid-toolbar .btn,
+.mermaid-viewer-grid-panel .btn {
   opacity: 0;
-  transition: opacity 0.2s ease;
 }
 @media (hover: hover) and (pointer: fine) {
-  .mermaid-wrapper:hover .mermaid-toolbar {
+  .mermaid-wrapper:hover :is(.mermaid-toolbar, .mermaid-viewer-grid-panel) .btn {
     opacity: 1;
   }
 }
-.mermaid-wrapper.is-controls-visible .mermaid-toolbar {
+.mermaid-wrapper.is-controls-visible :is(.mermaid-toolbar, .mermaid-viewer-grid-panel) .btn {
   opacity: 1;
 }
 .mermaid-view-container {
@@ -60,19 +64,9 @@
   bottom: 8px;
   right: 8px;
   z-index: 10;
-  opacity: 0;
-  transition: opacity 0.2s ease;
   display: grid;
   grid-template-rows: repeat(3, 1fr);
   gap: 4px;
-}
-@media (hover: hover) and (pointer: fine) {
-  .mermaid-wrapper:hover .mermaid-viewer-grid-panel {
-    opacity: 1;
-  }
-}
-.mermaid-wrapper.is-controls-visible .mermaid-viewer-grid-panel {
-  opacity: 1;
 }
 .mermaid-viewer-grid-panel .grid-row {
   display: grid;
@@ -83,29 +77,40 @@
   width: 32px;
   height: 32px;
 }
+/* 小号玻璃方钮：材质取 default.css 的 --glass-* token；不挂 .glass 类（按钮由脚本生成），
+   描边高光走 inset box-shadow。离图边 8px，圆角 10px */
 .btn {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: var(--base);
-  border: 1px solid var(--surface0);
-  border-radius: 6px;
+  border: none;
+  border-radius: 10px;
+  background: var(--glass-fill);
+  box-shadow:
+    0 0 0 0.5px var(--glass-edge),
+    inset 0 1px 0 var(--glass-rim-lo),
+    inset 0 0 0 1px var(--glass-rim-mid),
+    var(--glass-shadow);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
   cursor: pointer;
   transition:
-    transform 0.2s var(--ease-out),
+    opacity 0.2s ease,
+    scale 420ms var(--glass-spring),
     color 0.2s ease,
     background-color 0.2s ease;
-  backdrop-filter: blur(4px);
   color: var(--text);
   padding: 0;
 }
 .btn:hover {
-  transform: scale(1.05);
+  background-color: color-mix(in oklab, var(--glass-fill), var(--text) 6%);
 }
 .btn:active {
-  transform: scale(0.95);
+  scale: 0.96;
+  background-color: color-mix(in oklab, var(--glass-fill), oklch(1 0 0) var(--glass-press-mix));
+  transition-duration: 0.2s, 140ms, 0.2s, 90ms;
 }
 .btn svg {
   fill: currentColor;
