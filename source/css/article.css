@@ -6,7 +6,7 @@
    其余页面不加载本文件，保持 default.css 的固定列宽 */
 .main-content {
   max-width: calc(var(--article-max-width) + 3rem);
-  /* 封面图高度，满高首屏的 min-height 计算需扣除它（移动端在 responsive.css 覆写） */
+  /* 独立页面封面图的默认高度。 */
   --cover-height: 380px;
 }
 
@@ -759,11 +759,6 @@ a strong {
   padding: 0 0 calc(var(--spacing) * 6);
 }
 
-/* 封面文章的满高首屏再扣去封面高度，页脚仍收在首屏底部 */
-.article-hero-with-cover {
-  min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 4.25rem - var(--cover-height));
-}
-
 .article-hero-body {
   flex: 1;
   display: flex;
@@ -836,10 +831,10 @@ a strong {
   }
 }
 
-/* 页脚一行：版记居左、跳转箭头居中、comments·info 居右，等宽小字与 kicker 同声部 */
+/* 页脚一行：发布日期居左，comments · info 居右。 */
 .article-hero-foot {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 1rem;
   font-family: var(--font-mono);
@@ -854,31 +849,6 @@ a strong {
   align-items: center;
   flex-wrap: wrap;
   font-variant-numeric: tabular-nums;
-}
-
-/* 圆圈包裹的向下箭头，居中在页脚一行；hover 变色并轻微下探 */
-.article-hero-arrow {
-  display: inline-flex;
-  padding: 0.5rem;
-  color: var(--subtext0);
-  transition:
-    color 220ms ease,
-    translate 220ms var(--ease-out),
-    scale 120ms var(--ease-out);
-
-  > svg {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-
-  &:hover {
-    color: var(--green);
-    translate: 0 2px;
-  }
-
-  &:active {
-    scale: 0.96;
-  }
 }
 
 .article-hero-actions {
@@ -918,12 +888,7 @@ a strong {
 }
 
 @media screen and (max-width: 768px) {
-  /* 移动端扉页是一张竖幅海报（瑞士版式）：顶部一条刊头——标签压在一根细线上；发布日的「日」
-     以描边巨字铺在右上作底纹；标题沉到下半屏，左对齐的大字，摘要前一截粗短线，日期跟在其后；
-     底部一根细线托住跳转箭头（左）与 comments · info（右）。整屏恰为一个 svh（高度见
-     responsive.css），导航条已移到屏幕底部且首屏期间收起，首屏不再露出下文。
-     分组容器透明化（display: contents），各项直接落进网格行；最小留白保证矮屏或长标题时
-     首屏自然长高，不挤压文字 */
+  /* 无图文章保留竖幅扉页；只在标题与摘要之间使用分隔线。 */
   .article-hero-full {
     position: relative;
     isolation: isolate;
@@ -940,23 +905,12 @@ a strong {
       display: contents;
     }
 
-    /* 底部细线：伪元素作为网格项落在最后一行顶端，横贯整栏 */
-    &::after {
-      content: "";
-      grid-row: 7;
-      grid-column: 1;
-      align-self: start;
-      justify-self: stretch;
-      border-top: 1px solid var(--surface0);
-    }
-
     .article-kicker {
       grid-row: 1;
       justify-self: stretch;
       justify-content: flex-start;
       margin: 0;
       padding-bottom: calc(var(--spacing) * 3);
-      border-bottom: 1px solid var(--surface0);
       font-size: 0.6875rem;
     }
 
@@ -1003,17 +957,6 @@ a strong {
       }
     }
 
-    .article-hero-arrow {
-      grid-row: 7;
-      justify-self: start;
-      margin: calc(var(--spacing) * 3) 0 0 -0.5rem;
-
-      > svg {
-        width: 1.75rem;
-        height: 1.75rem;
-      }
-    }
-
     .article-hero-actions {
       grid-row: 7;
       justify-self: end;
@@ -1054,7 +997,6 @@ a strong {
     }
 
     .article-colophon,
-    .article-hero-arrow,
     .article-hero-actions {
       animation: hero-rise 900ms var(--ease-out) backwards;
       animation-delay: calc(var(--hero-step) * 3.5);
@@ -1065,6 +1007,115 @@ a strong {
     }
   }
 }
+
+/* 有图文章沿用满屏扉页的最小高度，正文从下一屏开始。 */
+.article-hero-full.article-hero-with-cover {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-rows: 1fr auto;
+  gap: 2rem clamp(1.5rem, 4vw, 3.5rem);
+  box-sizing: border-box;
+  padding: 1rem 0 3rem;
+  margin-bottom: 1rem;
+  align-items: center;
+
+  > .cover-image {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    max-height: 36rem;
+    border-radius: 0;
+  }
+
+  .article-hero-body {
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    align-items: flex-start;
+    text-align: start;
+    padding: 1rem 0 0;
+  }
+
+  .article-kicker {
+    justify-content: flex-start;
+  }
+
+  .article-title {
+    font-size: clamp(2rem, 3.5vw, 3.25rem);
+    line-height: 1.2;
+    text-align: start;
+    overflow-wrap: anywhere;
+    text-wrap: pretty;
+  }
+
+  .article-excerpt {
+    width: 100%;
+    overflow-wrap: anywhere;
+
+    &::before {
+      margin-inline: 0;
+    }
+  }
+
+  .article-hero-foot {
+    display: flex;
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .article-hero-full.article-hero-with-cover {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr auto;
+    gap: 1.5rem;
+    padding: 0 0.25rem 2rem;
+
+    > .cover-image {
+      grid-column: 1;
+      grid-row: 1;
+      aspect-ratio: 16 / 9;
+      max-height: min(28svh, 15rem);
+      border-radius: 0;
+    }
+
+    .article-hero-body {
+      grid-row: 2;
+      padding: 0;
+    }
+
+    .article-kicker {
+      padding: 0;
+      margin-bottom: 1.25rem;
+    }
+
+    .article-title {
+      font-size: clamp(1.875rem, 8vw, 2.75rem);
+      line-height: 1.18;
+    }
+
+    .article-excerpt {
+      margin-top: 1.5rem;
+    }
+
+    .article-hero-foot {
+      grid-row: 3;
+    }
+
+    .article-colophon,
+    .article-hero-actions {
+      margin: 0;
+    }
+  }
+}
+
 
 em,
 .footnotes {

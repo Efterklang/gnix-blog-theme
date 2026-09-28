@@ -15,27 +15,22 @@ module.exports = class extends Component {
     const commentsLabel = translatedCommentsLabel === "article.comments" ? "Comments" : translatedCommentsLabel;
     const articleInfoLabel = helper.__("article.article_info");
     const closeLabel = helper.__("article.close");
-    const skipLabel = helper.__("article.skip_to_content");
 
     const isPost = page.layout !== "page";
-    /* 文章页做满高首屏（封面文章由 CSS 扣除封面高度）；独立页面用紧凑版头 */
+    /* 无图文章保留扉页，有图文章使用自适应图文布局。 */
     const fullHero = isPost;
     const createdDate = isPost && page.date ? helper.date(page.date, "YYYY.MM.DD") : null;
     // 移动端扉页右上的描边巨字：发布日的「日」
     const createdDay = createdDate ? createdDate.slice(8) : null;
-    const updatedDate = isPost && page.updated ? helper.date(page.updated, "YYYY.MM.DD") : null;
-    const showUpdated = updatedDate && updatedDate !== createdDate;
-    const sameYear = createdDate && updatedDate && createdDate.slice(0, 4) === updatedDate.slice(0, 4);
 
     return (
       <Fragment>
         {/* Cover image */}
-        {cover ? <ArticleCover page={page} cover={cover} helper={helper} /> : null}
+        {cover && !isPost ? <ArticleCover page={page} cover={cover} helper={helper} /> : null}
         <article class={`article${"direction" in page ? ` ${page.direction}` : ""}`}>
-          {/* 扉页式首屏：标签、标题、摘要；桌面版记留在页脚，移动端排到摘要下方，
-              跳转箭头居中、comments·info 居右 */}
           <header class={`article-hero${fullHero ? " article-hero-full" : ""}${fullHero && cover ? " article-hero-with-cover" : ""}`}>
-            {fullHero && createdDay && (
+            {isPost && cover && <ArticleCover page={page} cover={cover} helper={helper} />}
+            {fullHero && !cover && createdDay && (
               <span class="article-hero-numeral" aria-hidden="true">
                 {createdDay}
               </span>
@@ -60,26 +55,9 @@ module.exports = class extends Component {
             <div class="article-hero-foot">
               <div class="article-colophon">
                 {createdDate && (
-                  <Fragment>
-                    <time datetime={page.date.toISOString()}>{createdDate}</time>
-                    {showUpdated && (
-                      <Fragment>
-                        <span class="meta-separator">—</span>
-                        <time datetime={page.updated.toISOString()}>{sameYear ? updatedDate.slice(5) : updatedDate}</time>
-                      </Fragment>
-                    )}
-                  </Fragment>
+                  <time datetime={page.date.toISOString()}>{createdDate}</time>
                 )}
               </div>
-              {fullHero && (
-                <a class="article-hero-arrow" href="#article-content" aria-label={skipLabel} title={skipLabel}>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M12 8v8" />
-                    <path d="m8 12 4 4 4-4" />
-                  </svg>
-                </a>
-              )}
               <div class="article-hero-actions">
                 {hasComment && (
                   <button type="button" popovertarget="article-comment-popover" aria-label={commentsLabel} title={commentsLabel}>

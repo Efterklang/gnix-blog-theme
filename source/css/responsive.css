@@ -26,21 +26,11 @@
     min-height: calc(100svh - env(safe-area-inset-top) - 1rem);
   }
 
-  .article-hero-with-cover {
-    min-height: calc(100svh - env(safe-area-inset-top) - 1rem - var(--cover-height));
-  }
-
-  /* 页脚改为居中竖排，与扉页居中的 kicker / 标题 / 摘要同一轴线：版记、动作各占一行
-     （两等分列放不下「创建 / 更新」两个日期，版记会折行挤在左半），箭头收在最下、
-     紧贴它所指向的正文；动作按钮把命中区扩到 ~38px 高，按钮间距放宽避免误触 */
+  /* 紧凑版头的操作居中，并扩大手机端按钮命中区。 */
   .article-hero-foot {
     grid-template-columns: 1fr;
     justify-items: center;
     gap: calc(var(--spacing) * 2);
-
-    .article-hero-arrow {
-      order: 1;
-    }
 
     /* 独立页面无版记，空元素不占一行留出空隙 */
     .article-colophon:empty {
@@ -382,10 +372,6 @@
   /* 平板：导航条同样在底部，满高首屏只扣 main-content（3rem）与 article（1.25em）的顶部内边距 */
   .article-hero-full {
     min-height: calc(100svh - env(safe-area-inset-top) - 4.25rem);
-  }
-
-  .article-hero-with-cover {
-    min-height: calc(100svh - env(safe-area-inset-top) - 4.25rem - var(--cover-height));
   }
 }
 
