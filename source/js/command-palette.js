@@ -3,7 +3,34 @@
    主题 / 字体这类选项多的命令折成子列表：选中后进入该组，输入框前出现范围标签，
    空输入时 Backspace、Esc 或点击标签返回上一层。
    由 layout/common/command_palette.jsx 的内联脚本调用 window.loadCommandPalette；
-   外部可通过 window.gnixCommandPalette.open(query) 打开并预填查询 */
+   外部可通过 window.gnixCommandPalette.open(query) 打开并预填查询。
+   图标 import 自 lucide 包，生成时由 include/hexo/bundle.js 内联进本脚本，故以 type="module" 加载 */
+import {
+  Activity,
+  Archive,
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  ChevronRight,
+  createElement as createLucideElement,
+  File,
+  FileText,
+  Folder,
+  House,
+  Languages,
+  Link,
+  Moon,
+  Newspaper,
+  Palette,
+  Rss,
+  Settings,
+  Sun,
+  SunMoon,
+  Tags,
+  Type,
+  UserRound,
+} from "lucide";
+
 ((window, document) => {
   const MAX_POSTS = 30;
   const MAX_PAGES = 10;
@@ -153,21 +180,32 @@
   // #endregion
 
   // #region 图标
-  // lucide 图标的路径片段；同一图标会出现在很多行里，解析一次后 cloneNode，免去每行 innerHTML 解析
+  // 命令按 lucide.dev 上的名称引用图标（导航命令的图标名由 command_palette.jsx 按菜单挑选，须在此表中）；
+  // 同一图标会出现在很多行里，建一次后 cloneNode
 
   const ICONS = {
-    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
-    moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
-    monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>',
-    palette:
-      '<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
-    type: '<path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/>',
-    languages: '<path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>',
-    settings: '<path d="M14 17H5"/><path d="M19 7h-9"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>',
-    "arrow-right": '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
-    "arrow-left": '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
-    check: '<path d="M20 6 9 17l-5-5"/>',
-    "chevron-right": '<path d="m9 18 6-6-6-6"/>',
+    activity: Activity,
+    archive: Archive,
+    "arrow-left": ArrowLeft,
+    "arrow-right": ArrowRight,
+    check: Check,
+    "chevron-right": ChevronRight,
+    file: File,
+    "file-text": FileText,
+    folder: Folder,
+    house: House,
+    languages: Languages,
+    link: Link,
+    moon: Moon,
+    newspaper: Newspaper,
+    palette: Palette,
+    rss: Rss,
+    settings: Settings,
+    sun: Sun,
+    "sun-moon": SunMoon,
+    tags: Tags,
+    type: Type,
+    "user-round": UserRound,
   };
   const iconTemplates = new Map();
 
@@ -176,13 +214,11 @@
     const key = `${name}:${size}`;
     let template = iconTemplates.get(key);
     if (!template) {
-      const body = ICONS[name];
-      if (!body) return null;
-      template = document.createElement("template");
-      template.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
+      if (!ICONS[name]) return null;
+      template = createLucideElement(ICONS[name], { width: size, height: size, "stroke-width": 1.75, "aria-hidden": "true", focusable: "false" });
       iconTemplates.set(key, template);
     }
-    return template.content.firstElementChild.cloneNode(true);
+    return template.cloneNode(true);
   }
 
   // #endregion
@@ -299,7 +335,7 @@
       },
       {
         id: "appearance-system",
-        icon: "monitor",
+        icon: "sun-moon",
         label: translation.followSystem,
         hint: translation.appearance,
         keywords: "system auto appearance mode theme 跟随 系统 自动 外观 模式",
@@ -463,9 +499,10 @@
       return item;
     }
 
-    function renderDocument(doc, keywords) {
+    function renderDocument(doc, keywords, icon) {
       const item = createItem("a", "document");
       item.href = doc.link;
+      item.appendChild(renderIcon({ icon }));
       const content = createElement("span", "command-palette-item-content");
       const title = createElement("span", "command-palette-item-title");
       title.innerHTML = findAndHighlight(doc.title || translation.untitled, keywords, 0, doc._lowerTitle);
@@ -508,7 +545,7 @@
     function renderDefaultView(fragment, scope) {
       appendSection(fragment, translation.commands, "commands", topLevelCommands, (command) => renderCommand(command, [], true));
       if (scope === "all" && dataset?.posts.length) {
-        appendSection(fragment, translation.recent, "posts", dataset.posts.slice(0, RECENT_POSTS), (post) => renderDocument(post, []));
+        appendSection(fragment, translation.recent, "posts", dataset.posts.slice(0, RECENT_POSTS), (post) => renderDocument(post, [], "file-text"));
       }
     }
 
@@ -518,8 +555,8 @@
       }
       if (scope === "commands" || !dataset) return;
       if (scope === "all") {
-        appendSection(fragment, translation.posts, "posts", rankList(dataset.posts, DOCUMENT_FIELDS, keywords, MAX_POSTS), (post) => renderDocument(post, keywords));
-        appendSection(fragment, translation.pages, "pages", rankList(dataset.pages, DOCUMENT_FIELDS, keywords, MAX_PAGES), (page) => renderDocument(page, keywords));
+        appendSection(fragment, translation.posts, "posts", rankList(dataset.posts, DOCUMENT_FIELDS, keywords, MAX_POSTS), (post) => renderDocument(post, keywords, "file-text"));
+        appendSection(fragment, translation.pages, "pages", rankList(dataset.pages, DOCUMENT_FIELDS, keywords, MAX_PAGES), (page) => renderDocument(page, keywords, "file"));
       }
       appendSection(fragment, translation.tags, "tags", rankList(dataset.tags, TAG_FIELDS, keywords), (tag) => renderTag(tag, keywords));
     }
