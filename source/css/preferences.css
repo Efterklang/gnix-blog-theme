@@ -532,7 +532,7 @@
   min-width: 0;
 }
 
-.font-line-height-slider {
+:is(.font-line-height-slider, .preference-range-slider) {
   width: 100%;
   height: 1.5rem;
   margin: 0;
@@ -541,13 +541,13 @@
   cursor: pointer;
 }
 
-.font-line-height-slider::-webkit-slider-runnable-track {
+:is(.font-line-height-slider, .preference-range-slider)::-webkit-slider-runnable-track {
   height: 0.28rem;
   border-radius: 999px;
   background: linear-gradient(90deg, hsl(from var(--mauve) h s l / 0.88), hsl(from var(--surface2) h s l / 0.7));
 }
 
-.font-line-height-slider::-webkit-slider-thumb {
+:is(.font-line-height-slider, .preference-range-slider)::-webkit-slider-thumb {
   width: 1rem;
   height: 1rem;
   margin-top: calc((0.28rem - 1rem) / 2);
@@ -558,14 +558,14 @@
   box-shadow: 0 0 0 1px hsl(from var(--mauve) h s l / 0.25);
 }
 
-.font-line-height-slider::-moz-range-track {
+:is(.font-line-height-slider, .preference-range-slider)::-moz-range-track {
   height: 0.28rem;
   border: none;
   border-radius: 999px;
   background: linear-gradient(90deg, hsl(from var(--mauve) h s l / 0.88), hsl(from var(--surface2) h s l / 0.7));
 }
 
-.font-line-height-slider::-moz-range-thumb {
+:is(.font-line-height-slider, .preference-range-slider)::-moz-range-thumb {
   width: 1rem;
   height: 1rem;
   border: 2px solid var(--surface0);
@@ -770,6 +770,112 @@
   font: 700 0.72em / 1.2 var(--font-sans-serif);
 }
 
+/* Liquid glass 设置：开关、滑块与一块压在彩条和文字上的玻璃胶囊，调参时即时可见 */
+.preference-switch {
+  position: relative;
+  justify-self: end;
+  flex: 0 0 auto;
+  width: 2.6rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 1px solid hsl(from var(--surface2) h s l / 0.66);
+  border-radius: 999px;
+  background: hsl(from var(--surface1) h s l / 0.58);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+
+  &[aria-checked="true"] {
+    border-color: transparent;
+    background: var(--mauve);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+.preference-switch__thumb {
+  position: absolute;
+  top: 50%;
+  left: 0.16rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: var(--base);
+  box-shadow: 0 1px 3px oklch(0 0 0 / 0.24);
+  translate: 0 -50%;
+  transition: translate 0.24s var(--ease-out, ease-out);
+
+  .preference-switch[aria-checked="true"] & {
+    translate: 1.1rem -50%;
+  }
+}
+
+.glass-range-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 3.2rem;
+  gap: 0.7rem;
+  align-items: center;
+  justify-self: end;
+  width: min(100%, 17.5rem);
+  min-width: 0;
+}
+
+.glass-range-value {
+  justify-self: end;
+  color: var(--subtext1);
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.preference-row.is-disabled {
+  opacity: 0.45;
+
+  .preference-range-slider {
+    cursor: not-allowed;
+  }
+}
+
+.glass-preview {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 7.5rem;
+  overflow: hidden;
+  border: 1px solid hsl(from var(--surface1) h s l / 0.52);
+  border-radius: 12px;
+  background:
+    repeating-linear-gradient(115deg, hsl(from var(--text) h s l / 0.08) 0 2px, transparent 2px 14px),
+    linear-gradient(120deg, var(--mauve), var(--blue) 35%, var(--teal) 65%, var(--peach));
+}
+
+.glass-preview__backdrop {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0.9rem 1.1rem;
+  color: var(--crust);
+  font: 700 1.05rem / 1.5 var(--font-sans-serif);
+  opacity: 0.8;
+}
+
+.glass-preview__pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 1.6rem;
+  color: var(--text);
+  font: 700 0.95rem / 1 var(--font-sans-serif);
+  user-select: none;
+}
+
 @media (max-width: 900px) {
   .theme-scheme-control {
     grid-template-columns: 1fr;
@@ -817,9 +923,14 @@
   .preference-choice-group--font-size,
   .preference-choice-group--article-width,
   .preference-choice-group--font-weight,
-  .preference-choice-group--font-spacing {
+  .preference-choice-group--font-spacing,
+  .glass-range-control {
     justify-self: stretch;
     width: 100%;
+  }
+
+  .preference-switch {
+    justify-self: start;
   }
 
   .theme-scheme-control {

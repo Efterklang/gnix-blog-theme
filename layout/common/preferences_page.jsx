@@ -1,6 +1,7 @@
 const { Component } = require("../../include/util/common");
 const { LINE_HEIGHT } = require("../../include/util/article_font");
 const { DEFAULT_PREFERENCES, THEME_OPTIONS } = require("../../include/util/theme");
+const { DEFAULT_SETTINGS: GLASS_DEFAULTS, RANGES: GLASS_RANGES } = require("../../include/util/glass");
 
 function translate(helper, key, fallback) {
   const value = helper.__(key);
@@ -85,6 +86,51 @@ const ARTICLE_SPACING_OPTIONS = [
   ["relaxed", "preferences.spacing_relaxed", "Relaxed"],
 ];
 
+// [设置键, 标题 key, 标题回退, 说明 key, 说明回退]；数值显示格式由 preferences.js 统一处理
+const GLASS_RANGE_OPTIONS = [
+  ["blur", "preferences.glass_blur", "Blur", "preferences.glass_blur_description", "Frost what shows through the glass"],
+  ["saturate", "preferences.glass_saturate", "Vibrancy", "preferences.glass_saturate_description", "Saturation boost for the background behind the glass"],
+  ["refraction", "preferences.glass_refraction", "Refraction", "preferences.glass_refraction_description", "Edge lensing strength; Chromium browsers only (Chrome, Edge, Android)"],
+  ["tint", "preferences.glass_tint", "Surface Opacity", "preferences.glass_tint_description", "How much of the theme color tints the glass"],
+];
+
+function renderGlassSwitch(key, label) {
+  return (
+    <button type="button" class="preference-switch" role="switch" aria-checked={String(GLASS_DEFAULTS[key])} aria-label={label} data-glass-toggle={key}>
+      <span class="preference-switch__thumb" aria-hidden="true"></span>
+    </button>
+  );
+}
+
+function renderGlassRange(helper, [key, labelKey, labelFallback, descriptionKey, descriptionFallback], idPrefix) {
+  const range = GLASS_RANGES[key];
+  const id = `${idPrefix}-glass-${key}-slider`;
+  const label = translate(helper, labelKey, labelFallback);
+
+  return (
+    <div class="preference-row" data-glass-param>
+      <div class="preference-row__label">
+        <label for={id}>{label}</label>
+        <small>{translate(helper, descriptionKey, descriptionFallback)}</small>
+      </div>
+      <div class="glass-range-control">
+        <input
+          id={id}
+          class="preference-range-slider"
+          type="range"
+          min={String(range.min)}
+          max={String(range.max)}
+          step={String(range.step)}
+          value={String(GLASS_DEFAULTS[key])}
+          aria-label={label}
+          data-glass-range={key}
+        />
+        <output class="glass-range-value" for={id} data-glass-range-value={key}></output>
+      </div>
+    </div>
+  );
+}
+
 function renderThemeSchemeControl(helper, kind, themes, idPrefix) {
   const isLight = kind === "light";
   const title = translate(helper, isLight ? "preferences.light_theme" : "preferences.dark_theme", isLight ? "Light Theme" : "Dark Theme");
@@ -142,6 +188,9 @@ module.exports = class extends Component {
     const themeTitleId = `${idPrefix}-theme-title`;
     const fontTitleId = `${idPrefix}-font-title`;
     const lineHeightSliderId = `${idPrefix}-article-line-height-slider`;
+    const glassTitleId = `${idPrefix}-glass-title`;
+    const glassEnabledLabel = translate(helper, "preferences.glass_enabled", "Liquid Glass");
+    const glassPressLabel = translate(helper, "preferences.glass_press", "Press Feedback");
 
     return (
       <div class="preference-page" data-preferences-page data-preference-surface="page">
@@ -344,6 +393,42 @@ module.exports = class extends Component {
                 </p>
               </div>
             </div>
+          </section>
+
+          <section id="preferences-glass" class="preference-panel" aria-labelledby={glassTitleId} data-glass-preferences>
+            <header class="preference-panel__header">
+              <h2 id={glassTitleId}>{translate(helper, "preferences.glass_title", "Liquid Glass")}</h2>
+              <button type="button" class="font-custom-reset" data-glass-reset>
+                {translate(helper, "preferences.glass_reset", "Reset Glass")}
+              </button>
+            </header>
+
+            <div class="preference-row preference-row--preview">
+              <div class="glass-preview" aria-hidden="true">
+                <p class="glass-preview__backdrop">{translate(helper, "preferences.preview_copy", "When you are old and grey and full of sleep, and nodding by the fire, take down this book,")}</p>
+                <span class="glass-preview__pill glass glass-button" data-glass-lens>
+                  {translate(helper, "preferences.glass_preview", "Glass")}
+                </span>
+              </div>
+            </div>
+
+            <div class="preference-row">
+              <div class="preference-row__label">
+                <span>{glassEnabledLabel}</span>
+                <small>{translate(helper, "preferences.glass_enabled_description", "Translucent buttons and panels; turn off for solid surfaces")}</small>
+              </div>
+              {renderGlassSwitch("enabled", glassEnabledLabel)}
+            </div>
+
+            <div class="preference-row" data-glass-param>
+              <div class="preference-row__label">
+                <span>{glassPressLabel}</span>
+                <small>{translate(helper, "preferences.glass_press_description", "Springy swell and highlight that follows your finger")}</small>
+              </div>
+              {renderGlassSwitch("press", glassPressLabel)}
+            </div>
+
+            {GLASS_RANGE_OPTIONS.map((option) => renderGlassRange(helper, option, idPrefix))}
           </section>
         </div>
       </div>
