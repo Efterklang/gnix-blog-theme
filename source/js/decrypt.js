@@ -55,7 +55,18 @@ function buildToc() {
 async function decrypt(container, password) {
   const base64 = container.querySelector(".encrypted-data").textContent.trim();
   const html = await decryptPayload(password, base64);
-  container.outerHTML = html;
+  // 经 innerHTML / outerHTML 插入的 <script> 不会执行：内容进入文档后，把其中的脚本换成
+  // 新建的 script 节点，文中组件的模块脚本（如 /js/components/video-player.js）才会加载
+  const template = document.createElement("template");
+  template.innerHTML = html;
+  const inertScripts = Array.from(template.content.querySelectorAll("script"));
+  container.replaceWith(template.content);
+  for (const inert of inertScripts) {
+    const script = document.createElement("script");
+    for (const { name, value } of inert.attributes) script.setAttribute(name, value);
+    script.textContent = inert.textContent;
+    inert.replaceWith(script);
+  }
   localStorage.setItem(getCacheKey(), password);
   buildToc();
   document.dispatchEvent(new CustomEvent("gnix:decrypted-content-ready"));
