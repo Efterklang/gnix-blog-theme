@@ -3,6 +3,9 @@ const { LINE_HEIGHT } = require("../../include/util/article_font");
 const { DEFAULT_PREFERENCES, THEME_OPTIONS } = require("../../include/util/theme");
 const { DEFAULT_SETTINGS: GLASS_DEFAULTS, RANGES: GLASS_RANGES } = require("../../include/util/glass");
 
+const LOREM_IPSUM =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
 function translate(helper, key, fallback) {
   const value = helper.__(key);
   return value === key ? fallback : value;
@@ -384,13 +387,8 @@ module.exports = class extends Component {
 
             <div class="preference-row preference-row--preview">
               <div class="font-preview-copy">
-                <p class="font-preview-title">
-                  <span class="font-preview-marker">[{translate(helper, "preferences.preview", "Preview")}]</span> {translate(helper, "preferences.preview_title", "When You Are Old")}
-                </p>
-                <p class="font-preview-excerpt">{translate(helper, "preferences.preview_copy", "When you are old and grey and full of sleep, and nodding by the fire, take down this book,")}</p>
-                <p class="font-preview-excerpt">
-                  {translate(helper, "preferences.preview_copy_secondary", "And slowly read, and dream of the soft look your eyes had once, and of their shadows deep.")}
-                </p>
+                <p class="font-preview-title">Lorem Ipsum</p>
+                <p class="font-preview-excerpt">{LOREM_IPSUM}</p>
               </div>
             </div>
           </section>
@@ -405,7 +403,7 @@ module.exports = class extends Component {
 
             <div class="preference-row preference-row--preview">
               <div class="glass-preview" aria-hidden="true">
-                <p class="glass-preview__backdrop">{translate(helper, "preferences.preview_copy", "When you are old and grey and full of sleep, and nodding by the fire, take down this book,")}</p>
+                <p class="glass-preview__backdrop">{LOREM_IPSUM}</p>
                 <span class="glass-preview__pill glass glass-button" data-glass-lens>
                   {translate(helper, "preferences.glass_preview", "Glass")}
                 </span>

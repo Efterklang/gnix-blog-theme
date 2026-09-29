@@ -765,11 +765,6 @@
   }
 }
 
-.font-preview-marker {
-  color: var(--subtext0);
-  font: 700 0.72em / 1.2 var(--font-sans-serif);
-}
-
 /* Liquid glass 设置：开关、滑块与一块压在彩条和文字上的玻璃胶囊，调参时即时可见 */
 .preference-switch {
   position: relative;
