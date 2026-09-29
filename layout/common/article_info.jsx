@@ -80,9 +80,14 @@ module.exports = class extends Component {
     }
 
     return (
-      <div id="article-info-popover" popover="auto" class="article-popover article-info-popover">
+      <div id="article-info-popover" popover="auto" class="article-popover article-info-popover" aria-label={helper.__("article.article_info")}>
         <button class="article-popover-backdrop" type="button" popovertarget="article-info-popover" popovertargetaction="hide" tabindex="-1" aria-label={closeLabel}></button>
-        <dl class="article-popover-body article-info-list glass glass-scroll">
+        <button class="article-info-close" type="button" popovertarget="article-info-popover" popovertargetaction="hide" aria-label={closeLabel}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18" />
+          </svg>
+        </button>
+        <dl class="article-popover-body article-info-list">
           {items.map(([label, value]) => (
             <Fragment>
               <dt>{label}</dt>

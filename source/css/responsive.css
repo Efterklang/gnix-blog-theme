@@ -19,7 +19,7 @@
     padding: 1rem 0.875rem 0;
   }
 
-  /* 导航条在窄屏已移到底部、首屏期间收起，满高首屏不再扣它：只扣正文顶部的
+  /* 导航条在窄屏已移到底部，满高首屏不再扣它：只扣正文顶部的
      safe area（.main-content）与 .article 的 1rem 内边距，恰好一屏。
      用 svh 而不是 dvh：地址栏收放时首屏高度不跳 */
   .article-hero-full {
@@ -86,7 +86,7 @@
 
   /* 拇指区（iOS 26 Safari 式底部工具条）：导航条常驻屏幕底部，左 burger、右「偏好 · 搜索」，
      文章页的 TOC 圆钮并入同一行最右——所有入口都在单手拇指可及的一条线上。
-     四枚按钮统一为 42px 的独立玻圆，同一套材质、折射与弹簧按压 */
+     左侧为站点导航，右侧三项共用一个玻璃胶囊 */
   .navbar {
     position: fixed;
     top: auto;
@@ -107,28 +107,19 @@
     padding-top: env(safe-area-inset-top);
   }
 
-  /* 胶囊消解：只作排布容器，玻璃交给两个按钮自己 */
+  /* 右侧偏好、搜索、目录共用一层玻璃；保留至少 44px 的触控区域。 */
   .navbar-actions.glass {
-    gap: 0.6rem;
-    padding: 0;
-    background: none;
-    box-shadow: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-
-    &::after {
-      content: none;
-    }
+    gap: 0;
+    padding: 2px;
 
     > .navbar-item {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
     }
   }
 
-  /* 有 TOC 时给右侧圆钮让位：TOC 宽 42px + 间距 */
-  body:has(.toc-container:not([style*="display:none"])) .navbar-actions.glass {
-    margin-right: calc(0.75rem + 42px + 0.6rem);
+  body:has(.toc-container:not([style*="display:none"])) .navbar-toc {
+    display: inline-flex;
   }
 
   /* burger 菜单与偏好弹窗同一套做法（macOS 26 控制中心）：弹窗本身透明、无遮罩，
@@ -257,61 +248,27 @@
     display: none;
   }
 
-  /* 三条线：span 本体是中线，::before/::after 是上下线；
-     展开时上下线平移旋转成 X、中线经 background-color 淡出
-     （中线不能用 opacity 隐藏，伪元素会随宿主一起消失）。
-     按钮本身是一枚玻璃圆，与右侧动作胶囊同高（42px），竖直居中在导航条里 */
+  /* 四宫格表示站点导航，与文章目录的列表图标区分。 */
   .navbar-burger {
     align-self: center;
-    width: 42px;
-    height: 42px;
+    width: 48px;
+    height: 48px;
     margin-left: 0.75rem;
     padding: 0;
     border-radius: 50%;
+    color: var(--subtext0);
+    display: grid;
+    place-items: center;
 
-    > span,
-    > span::before,
-    > span::after {
-      background-color: var(--subtext0);
-      height: 1.5px;
-      width: 16px;
-      position: absolute;
-      transform-origin: center;
-      transition-duration: 86ms;
-      transition-property: background-color, transform;
-      transition-timing-function: ease-out;
-    }
-
-    > span {
-      left: calc(50% - 8px);
-      top: calc(50% - 1px);
-    }
-
-    > span::before,
-    > span::after {
-      content: "";
-      left: 0;
-    }
-
-    > span::before {
-      top: -5px;
-    }
-
-    > span::after {
-      top: 5px;
+    > svg {
+      width: 21px;
+      height: 21px;
     }
   }
 
-  .navbar:has(.navbar-menu:popover-open) .navbar-burger > span {
-    background-color: transparent;
-
-    &::before {
-      transform: translateY(5px) rotate(45deg);
-    }
-
-    &::after {
-      transform: translateY(-5px) rotate(-45deg);
-    }
+  .navbar:has(.navbar-menu:popover-open) .navbar-burger {
+    color: var(--text);
+    background-color: var(--glass-hover);
   }
 
   /* #endregion Navbar */
@@ -321,43 +278,9 @@
     width: 90%;
   }
 
-  /* TOC 圆钮与底部工具条同高同基线（42px、离底 10px），成为工具条的最右一枚；
-     线条颜色与 burger 一致。满高首屏页上它与工具条一同隐藏、一同滑出 */
+  /* 手机和平板的目录入口已并入右侧胶囊。 */
   .toc-button {
-    right: 0.75rem;
-    bottom: calc(10px + env(safe-area-inset-bottom));
-    width: 42px;
-    height: 42px;
-    transition:
-      scale 420ms var(--glass-spring),
-      background-color 160ms ease,
-      opacity 0.3s ease,
-      translate 320ms var(--ease-out);
-
-    > span {
-      background-color: var(--subtext0);
-      height: 1.5px;
-    }
-  }
-
-  /* 文章满高首屏：底部工具条先收在屏幕下方，滚过首屏（article.js 加 .gnix-past-hero）再滑出，
-     首屏只留标题与扉页。无 JS 时不加 gnix-revealed，工具条始终可见。
-     只做位移不做淡出：opacity < 1 会让导航条成为 Backdrop Root，玻璃的模糊要等淡入结束才出现 */
-  .navbar {
-    transition: translate 320ms var(--ease-out);
-  }
-
-  :root.gnix-revealed:has(.article-hero-full):not(.gnix-past-hero) .navbar:not(:has(:popover-open)) {
-    translate: 0 calc(100% + 12px);
-    pointer-events: none;
-
-    > * {
-      pointer-events: none;
-    }
-  }
-
-  :root.gnix-revealed:has(.article-hero-full) .toc-container:not(.toc-visible) .toc-button {
-    translate: 0 calc(100% + 12px + 10px);
+    display: none;
   }
 
   /* 偏好弹窗从底部工具条上方升起，不压住工具条 */
@@ -369,13 +292,21 @@
 }
 
 @media screen and (min-width: 769px) and (max-width: 1023px) {
-  /* 平板：导航条同样在底部，满高首屏只扣 main-content（3rem）与 article（1.25em）的顶部内边距 */
+  /* 平板导航在底部，main-content 顶部已只剩 safe area；只再扣 article 的 1.25em，
+     不重复扣桌面的 3rem，否则正文会提前露出。 */
   .article-hero-full {
-    min-height: calc(100svh - env(safe-area-inset-top) - 4.25rem);
+    box-sizing: border-box;
+    min-height: calc(100svh - env(safe-area-inset-top) - 1.25em);
   }
 }
 
 @media screen and (min-width: 1024px) {
+  :root.gnix-revealed:has(.article-hero-full) .navbar-menu {
+    transition:
+      opacity var(--navbar-reveal-duration, 200ms) var(--ease-out),
+      visibility var(--navbar-reveal-duration, 200ms);
+  }
+
   .navbar-burger {
     display: none;
   }

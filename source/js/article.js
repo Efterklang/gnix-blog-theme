@@ -367,7 +367,7 @@ function handleArticleKeyDown(e) {
     closeImageZoom();
   }
 
-  // 满高首屏上按空格等效点击 ↓ 箭头：正文开头尚在视口下半部时平滑跳至正文；
+  // 满高首屏上按空格：正文开头尚在视口下半部时直接对齐视口顶部；
   // 已进入阅读区、焦点在控件上或有弹层打开时交还浏览器默认行为
   if (e.code === "Space" && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
     const content = document.querySelector(".article-hero-full") ? document.getElementById("article-content") : null;
@@ -379,7 +379,10 @@ function handleArticleKeyDown(e) {
       !document.querySelector(":popover-open")
     ) {
       e.preventDefault();
-      content.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.scrollTo({
+        top: window.scrollY + content.getBoundingClientRect().top,
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      });
       return;
     }
   }
@@ -472,7 +475,7 @@ function initHeroTocReveal() {
   if (!hero || root.dataset.heroBound === "true") return;
 
   root.dataset.heroBound = "true";
-  // 首屏期间 TOC 按钮与移动端底部工具条的初始隐藏由 CSS（:root.gnix-revealed:has(.article-hero-full)）
+  // 首屏期间 TOC 按钮与 logo 之外导航控件的初始隐藏由 CSS（:root.gnix-revealed:has(.article-hero-full)）
   // 承担，这里只负责滚过首屏后点亮（<html>.gnix-past-hero，TOC 另有 .toc-visible）、回到首屏时再隐藏；
   // rootMargin 收缩视口顶部 20%，跳到正文后残留在导航栏下的首屏尾部不视为可见
   new IntersectionObserver(

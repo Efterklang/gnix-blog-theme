@@ -20,8 +20,6 @@ module.exports = class extends Component {
     /* 无图文章保留扉页，有图文章使用自适应图文布局。 */
     const fullHero = isPost;
     const createdDate = isPost && page.date ? helper.date(page.date, "YYYY.MM.DD") : null;
-    // 移动端扉页右上的描边巨字：发布日的「日」
-    const createdDay = createdDate ? createdDate.slice(8) : null;
 
     return (
       <Fragment>
@@ -30,11 +28,6 @@ module.exports = class extends Component {
         <article class={`article${"direction" in page ? ` ${page.direction}` : ""}`}>
           <header class={`article-hero${fullHero ? " article-hero-full" : ""}${fullHero && cover ? " article-hero-with-cover" : ""}`}>
             {isPost && cover && <ArticleCover page={page} cover={cover} helper={helper} />}
-            {fullHero && !cover && createdDay && (
-              <span class="article-hero-numeral" aria-hidden="true">
-                {createdDay}
-              </span>
-            )}
             <div class="article-hero-body">
               {page.tags?.length ? (
                 <p class="article-kicker">
@@ -58,6 +51,11 @@ module.exports = class extends Component {
                   <time datetime={page.date.toISOString()}>{createdDate}</time>
                 )}
               </div>
+              {fullHero && (
+                <a class="article-start-reading" href="#article-content">
+                  <span>{helper.__("article.skip_to_content")}</span>
+                </a>
+              )}
               <div class="article-hero-actions">
                 {hasComment && (
                   <button type="button" popovertarget="article-comment-popover" aria-label={commentsLabel} title={commentsLabel}>
@@ -71,7 +69,7 @@ module.exports = class extends Component {
             </div>
           </header>
 
-          <div id="article-content" class="content" dangerouslySetInnerHTML={{ __html: page.content }}></div>
+          <div id="article-content" class="content" tabindex={fullHero ? "-1" : null} dangerouslySetInnerHTML={{ __html: page.content }}></div>
         </article>
 
         {hasComment && (

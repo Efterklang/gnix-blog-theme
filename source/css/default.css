@@ -848,10 +848,11 @@ html {
   }
 }
 
-/* 动作区：宽屏收进一枚玻璃胶囊（iOS 26 / macOS Tahoe 工具栏的分组按钮），两个图标按钮是
-   胶囊里的圆形命中区，悬停点亮一枚同心圆（胶囊内边距 3px，按钮 36px 圆 → 胶囊半高 21px）。
-   窄屏胶囊消解，两个按钮各自成为独立的玻璃圆，与 burger、TOC 同一套外观与按压（responsive.css）。
-   按钮在标记上即是 .glass.glass-button，宽屏在这里把它们的材质关掉，只留胶囊一层玻璃 */
+/* 操作共用一个玻璃胶囊，内部按钮只提供轻量反馈。 */
+.navbar-toc {
+  display: none;
+}
+
 .navbar-actions.glass {
   align-items: center;
   align-self: center;
@@ -868,8 +869,8 @@ html {
   }
 }
 
-@media (min-width: 1024px) {
-  .navbar-actions.glass > .navbar-item.glass {
+.navbar-actions.glass {
+  > .navbar-item {
     background-color: transparent;
     box-shadow: none;
     -webkit-backdrop-filter: none;
@@ -891,6 +892,28 @@ html {
       outline: 2px solid var(--mauve);
       outline-offset: -2px;
     }
+  }
+}
+
+/* 文章首屏隐藏导航控件，桌面端保留 logo；与 TOC 共用 gnix-past-hero 状态，进入正文后淡入。
+   不改变布局，visibility 同步移除隐藏控件的键盘焦点；无 JS 时保持可用。 */
+:where(:root.gnix-revealed:has(.article-hero-full) .navbar) > :is(.navbar-burger, .navbar-actions) {
+  transition:
+    scale 420ms var(--glass-spring),
+    background-color 160ms ease,
+    opacity var(--navbar-reveal-duration, 200ms) var(--ease-out),
+    visibility var(--navbar-reveal-duration, 200ms);
+}
+
+:root.gnix-revealed:has(.article-hero-full):not(.gnix-past-hero) .navbar > :not(#navbar-logo-link) {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar {
+    --navbar-reveal-duration: 120ms;
   }
 }
 
@@ -1198,11 +1221,11 @@ input.command-palette-input {
   }
 
   &:hover {
-    background-color: hsl(from var(--surface0) h s l / 0.55);
+    background-color: color-mix(in oklab, var(--text) 5%, transparent);
   }
 
   &.active {
-    background-color: hsl(from var(--surface0) h s l / 0.8);
+    background-color: color-mix(in oklab, var(--text) 9%, transparent);
   }
 
   &.active::before {
@@ -1346,9 +1369,9 @@ input.command-palette-input {
   & > .command-palette-item {
     width: auto;
     padding: 0.25em 0.85em;
-    border: 1px solid var(--surface1);
+    border: 1px solid color-mix(in oklab, var(--text) 15%, transparent);
     border-radius: 999px;
-    background-color: hsl(from var(--surface0) h s l / 0.5);
+    background-color: transparent;
 
     &::before {
       content: none;
@@ -1364,7 +1387,7 @@ input.command-palette-input {
 
     &:hover,
     &.active {
-      background-color: var(--surface1);
+      background-color: color-mix(in oklab, var(--text) 9%, transparent);
       border-color: var(--mauve);
     }
   }

@@ -18,6 +18,6 @@ const tagsSectionStart = region.indexOf(".command-palette-section--tags {");
 assert.notEqual(tagsSectionStart, -1, "Command palette tag styles must exist");
 assert.match(
   region.slice(tagsSectionStart),
-  /&:hover\s*,\s*&\.active\s*\{\s*background-color:\s*var\(--surface1\);\s*border-color:\s*var\(--mauve\);\s*\}/,
-  "Command palette tags must retain their shared hover and active colors",
+  /&:hover\s*,\s*&\.active\s*\{\s*background-color:\s*color-mix\(in oklab, var\(--text\) 9%, transparent\);\s*border-color:\s*var\(--mauve\);\s*\}/,
+  "Command palette tags must share a translucent hover and active highlight",
 );

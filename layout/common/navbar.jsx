@@ -16,12 +16,17 @@ const renderLinkIcon = (link) => {
 
 class Navbar extends Component {
   render() {
-    const { siteUrl, menu, links, preferencesTitle, searchTitle, menuTitle, isSearchEnabled } = this.props;
+    const { siteUrl, menu, links, preferencesTitle, searchTitle, menuTitle, tocTitle, isSearchEnabled } = this.props;
 
     return (
       <nav class="navbar">
         <button type="button" class="navbar-burger glass glass-button" popovertarget="navbar-menu" aria-label={menuTitle} data-glass-lens>
-          <span aria-hidden="true"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <rect x="4" y="4" width="6" height="6" rx="1" />
+            <rect x="14" y="4" width="6" height="6" rx="1" />
+            <rect x="4" y="14" width="6" height="6" rx="1" />
+            <rect x="14" y="14" width="6" height="6" rx="1" />
+          </svg>
         </button>
         <a id="navbar-logo-link" href={siteUrl}>
           ga.o
@@ -78,6 +83,11 @@ class Navbar extends Component {
               </svg>
             </button>
           ) : null}
+          <button type="button" class="navbar-item navbar-toc glass-button" popovertarget="toc-body" title={tocTitle} aria-label={tocTitle}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+              <path d="M8 6h12M8 12h12M8 18h8M4 6h.01M4 12h.01M4 18h.01" />
+            </svg>
+          </button>
         </div>
       </nav>
     );
@@ -116,6 +126,7 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
     preferencesTitle: __("preferences.title"),
     searchTitle: __("palette.title"),
     menuTitle: __("navbar.menu"),
+    tocTitle: __("article.toc"),
     isSearchEnabled: !!config.search,
   };
 });
