@@ -775,6 +775,97 @@
   gap: 0.75rem;
 }
 
+.font-preset-group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--subtext0);
+
+  legend {
+    padding: 0;
+    font-size: 0.75rem;
+    font-weight: 650;
+  }
+
+  > small {
+    display: block;
+    margin: 0.375rem 0 0.625rem;
+    font-size: 0.72rem;
+  }
+}
+
+.font-preset-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.5rem;
+}
+
+.font-preset-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.625rem;
+  min-width: 0;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--surface1);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  text-align: start;
+  cursor: pointer;
+
+  .font-preset-copy {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  input {
+    width: 1rem;
+    height: 1rem;
+    margin: 0.1rem 0 0;
+    accent-color: var(--lavender);
+    cursor: pointer;
+  }
+
+  .font-preset-copy > span, small {
+    color: var(--subtext0);
+    font-size: 0.7rem;
+  }
+
+  strong {
+    font-size: 0.8rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  &:has(input:checked) {
+    border-color: var(--lavender);
+    background: color-mix(in oklab, var(--lavender) 10%, transparent);
+  }
+
+  &:has(input:focus-visible) {
+    outline: 2px solid var(--lavender);
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--lavender);
+    }
+  }
+}
+
+.font-preset-note {
+  margin: 0.5rem 0 0;
+  color: var(--subtext0);
+  font-size: 0.75rem;
+
+  &:empty {
+    display: none;
+  }
+}
+
 .font-custom-field {
   display: grid;
   gap: 0.375rem;

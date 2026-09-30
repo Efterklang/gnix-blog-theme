@@ -1,5 +1,5 @@
 const { Component } = require("../../include/util/common");
-const { LINE_HEIGHT } = require("../../include/util/article_font");
+const { LINE_HEIGHT, CUSTOM_FONT_PRESETS } = require("../../include/util/article_font");
 const { DEFAULT_PREFERENCES, THEME_OPTIONS } = require("../../include/util/theme");
 const { DEFAULT_SETTINGS: GLASS_DEFAULTS, RANGES: GLASS_RANGES } = require("../../include/util/glass");
 
@@ -348,6 +348,33 @@ module.exports = class extends Component {
               </div>
               <div class="font-custom-panel">
                 <form class="font-custom-form">
+                  <fieldset class="font-preset-group">
+                    <legend>{translate(helper, "preferences.font_presets", "Recommended Fonts")}</legend>
+                    <small>{translate(helper, "preferences.font_presets_description", "Check fonts to enable them. Your choices are saved in this browser.")}</small>
+                    <div class="font-preset-list">
+                      {CUSTOM_FONT_PRESETS.map((preset) => {
+                        const [, labelKey, fallback] = FONT_TYPE_OPTIONS.find(([type]) => type === preset.type);
+                        return (
+                          <label class="font-preset-option">
+                            <input type="checkbox" data-font-preset={preset.id} />
+                            <span class="font-preset-copy">
+                              <span>{translate(helper, labelKey, fallback)}</span>
+                              <strong>{preset.name}</strong>
+                              <small data-font-preset-state={preset.id} aria-live="polite"></small>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                    <p class="font-preset-note">{translate(helper, "preferences.font_presets_storage", "Font files are cached in this browser for reuse.")}</p>
+                    <span
+                      hidden
+                      data-font-preset-messages
+                      data-loading={translate(helper, "preferences.font_preset_loading", "Loading…")}
+                      data-ready={translate(helper, "preferences.font_preset_ready", "Enabled")}
+                      data-error={translate(helper, "preferences.font_preset_error", "Could not load. Uncheck and try again.")}
+                    ></span>
+                  </fieldset>
                   <label class="font-custom-field">
                     <span>{translate(helper, "preferences.web_font_css", "Web Font CSS URL")}</span>
                     <small>{translate(helper, "preferences.font_css_help", "Paste one web font CSS URL per line. Each URL can load one or more font families.")}</small>

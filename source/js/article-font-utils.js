@@ -18,7 +18,7 @@
     return family;
   }
 
-  function normalizeCustomFonts(value, familyOptions, importLimit) {
+  function normalizeCustomFonts(value, familyOptions, importLimit, presetOptions = []) {
     var customFonts = value && typeof value === "object" ? value : {};
     var sourceFamilies = customFonts.families && typeof customFonts.families === "object" ? customFonts.families : {};
     var importSource = customFonts.imports;
@@ -44,7 +44,26 @@
     return {
       imports: imports,
       families: families,
+      presets: presetOptions.filter((preset) => Array.isArray(customFonts.presets) && customFonts.presets.includes(preset.id)).map((preset) => preset.id),
     };
+  }
+
+  function resolveCustomFontFamilies(customFonts, presets = []) {
+    const families = { ...customFonts.families };
+    presets.forEach((preset) => {
+      if (customFonts.presets?.includes(preset.id)) families[preset.type] = preset.family;
+    });
+    return families;
+  }
+
+  let presetLoader;
+  function applyFontPresets(ids = [], presets = []) {
+    if (!ids.length && !presetLoader) return;
+    presetLoader ||= import("/js/font-presets.js");
+    presetLoader.then((module) => module.applyPresetFonts(ids, presets)).catch(() => {
+      presetLoader = null;
+      ids.forEach((id) => window.dispatchEvent(new CustomEvent("gnix:font-preset-state", { detail: { id, state: "error" } })));
+    });
   }
 
   function applyCustomFontImports(imports, selector) {
@@ -93,6 +112,8 @@
     normalizeCustomFontImport: normalizeCustomFontImport,
     normalizeCustomFontFamily: normalizeCustomFontFamily,
     normalizeCustomFonts: normalizeCustomFonts,
+    resolveCustomFontFamilies,
+    applyFontPresets,
     applyCustomFontImports: applyCustomFontImports,
     applyCustomFontFamilies: applyCustomFontFamilies,
   };

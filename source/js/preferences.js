@@ -96,7 +96,7 @@
   }
 
   function normalizeStoredCustomFonts(value = {}) {
-    return ARTICLE_FONT_UTILS.normalizeCustomFonts ? ARTICLE_FONT_UTILS.normalizeCustomFonts(value, ARTICLE_CUSTOM_FONT_OPTIONS, ARTICLE_CUSTOM_FONT_IMPORT_LIMIT) : { imports: [], families: {} };
+    return ARTICLE_FONT_UTILS.normalizeCustomFonts ? ARTICLE_FONT_UTILS.normalizeCustomFonts(value, ARTICLE_CUSTOM_FONT_OPTIONS, ARTICLE_CUSTOM_FONT_IMPORT_LIMIT, articleFontConfig.customFonts?.presets) : { imports: [], families: {} };
   }
 
   function normalizeCustomFontsForUI(value = {}) {
@@ -114,11 +114,13 @@
 
   // customFonts 须已经过 normalizeStoredCustomFonts（normalizeArticleFontSettings 内完成）
   function applyCustomFonts(customFonts) {
+    ARTICLE_FONT_UTILS.applyFontPresets?.(customFonts.presets, articleFontConfig.customFonts?.presets);
     if (ARTICLE_FONT_UTILS.applyCustomFontImports) {
       ARTICLE_FONT_UTILS.applyCustomFontImports(customFonts.imports, ARTICLE_CUSTOM_FONT_LINK_SELECTOR);
     }
     if (ARTICLE_FONT_UTILS.applyCustomFontFamilies) {
-      ARTICLE_FONT_UTILS.applyCustomFontFamilies(document.documentElement, customFonts.families, ARTICLE_CUSTOM_FONT_OPTIONS);
+      const families = ARTICLE_FONT_UTILS.resolveCustomFontFamilies(customFonts, articleFontConfig.customFonts?.presets);
+      ARTICLE_FONT_UTILS.applyCustomFontFamilies(document.documentElement, families, ARTICLE_CUSTOM_FONT_OPTIONS);
     }
   }
 
@@ -307,6 +309,9 @@
     const customFontForm = root.querySelector(".font-custom-form");
     const customFontImportInput = root.querySelector(".font-custom-imports");
     const customFontResetButton = root.querySelector(".font-custom-reset");
+    const customFontPresetInputs = root.querySelectorAll("[data-font-preset]");
+    const customFontPresetMessages = root.querySelector("[data-font-preset-messages]");
+    const customFontPresets = articleFontConfig.customFonts?.presets || [];
     const allSettingsResetButtons = root.querySelectorAll("[data-preference-reset-all]");
     const customFontFamilyInputs = root.querySelectorAll(".font-custom-family-input");
     const sizeButtons = root.querySelectorAll(".font-size-btn");
@@ -362,6 +367,10 @@
       });
       updateStepperStates();
       updateLineHeightUI();
+      customFontPresetInputs.forEach((input) => {
+        input.checked = settings.customFonts.presets?.includes(input.dataset.fontPreset) || false;
+        if (!input.checked) updatePresetStatus(input.dataset.fontPreset, "");
+      });
     }
 
     function updateCustomFontUI() {
@@ -371,18 +380,22 @@
       if (customFontImportInput) customFontImportInput.value = customFonts.imports.join("\n");
 
       customFontFamilyInputs.forEach((input) => {
-        input.value = customFonts.families[input.dataset.fontFamily] || "";
+        const preset = customFontPresets.find((preset) => preset.type === input.dataset.fontFamily && customFonts.presets.includes(preset.id));
+        input.disabled = Boolean(preset);
+        input.value = preset?.family || customFonts.families[input.dataset.fontFamily] || "";
       });
     }
 
     function readCustomFontsFromUI() {
       const families = {};
       customFontFamilyInputs.forEach((input) => {
-        families[input.dataset.fontFamily] = input.value;
+        const type = input.dataset.fontFamily;
+        families[type] = input.disabled ? settings.customFonts.families[type] : input.value;
       });
       return normalizeStoredCustomFonts({
         imports: customFontImportInput?.value || "",
         families,
+        presets: Array.from(customFontPresetInputs).filter((input) => input.checked).map((input) => input.dataset.fontPreset),
       });
     }
 
@@ -493,6 +506,24 @@
       commitSettings({ ...settings, customFonts: readCustomFontsFromUI() });
       updateCustomFontUI();
     }
+
+    function updatePresetStatus(id, state) {
+      const output = root.querySelector(`[data-font-preset-state="${id}"]`);
+      if (output) output.textContent = customFontPresetMessages?.dataset[state] || "";
+    }
+
+    window.addEventListener("gnix:font-preset-state", (event) => {
+      const { id, state } = event.detail || {};
+      if (!customFontPresets.some((preset) => preset.id === id)) return;
+      updatePresetStatus(id, settings.customFonts.presets?.includes(id) ? state : "");
+    });
+
+    customFontPresetInputs.forEach((input) => {
+      input.addEventListener("change", () => {
+        updatePresetStatus(input.dataset.fontPreset, input.checked ? "loading" : "");
+        commitCustomFonts();
+      });
+    });
 
     if (customFontForm) {
       customFontForm.addEventListener("submit", (event) => {

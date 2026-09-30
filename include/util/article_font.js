@@ -28,6 +28,11 @@ const CUSTOM_FONT_FAMILY_OPTIONS = Object.freeze({
 });
 
 const CUSTOM_FONT_IMPORT_LIMIT = 6;
+const CUSTOM_FONT_PRESETS = Object.freeze([
+  { id: "elms-sans", type: "sans-serif", name: "Elms Sans", family: '"Elms Sans", system-ui, sans-serif', css: "https://fonts.googleapis.com/css2?family=Elms+Sans:ital,wght@0,100..900;1,100..900&display=swap" },
+  { id: "geist-mono", type: "mono", name: "Geist Mono", family: '"Geist Mono", "SF Mono", Consolas, monospace', css: "https://fonts.googleapis.com/css2?family=Geist+Mono:ital,wght@0,100..900;1,100..900&display=swap" },
+  { id: "ping-fang-zhui-guang", type: "handwriting", name: "PING FANG ZHUI GUANG", family: '"PING FANG ZHUI GUANG", cursive', css: "https://fontsapi.zeoseven.com/505/main/result.css" },
+]);
 
 function getClientArticleFontConfig() {
   return {
@@ -42,6 +47,7 @@ function getClientArticleFontConfig() {
     customFonts: {
       familyOptions: CUSTOM_FONT_FAMILY_OPTIONS,
       importLimit: CUSTOM_FONT_IMPORT_LIMIT,
+      presets: CUSTOM_FONT_PRESETS,
     },
   };
 }
@@ -113,7 +119,8 @@ function getArticleFontInitScript() {
         ? utils.normalizeCustomFonts(
             candidate.customFonts,
             config.customFonts && config.customFonts.familyOptions,
-            config.customFonts && config.customFonts.importLimit
+            config.customFonts && config.customFonts.importLimit,
+            config.customFonts && config.customFonts.presets
           )
         : { imports: [], families: {} }
     };
@@ -121,7 +128,8 @@ function getArticleFontInitScript() {
 
   function applySettings(settings) {
     if (utils.applyCustomFontImports) utils.applyCustomFontImports(settings.customFonts.imports);
-    if (utils.applyCustomFontFamilies) utils.applyCustomFontFamilies(html, settings.customFonts.families, config.customFonts && config.customFonts.familyOptions);
+    if (utils.applyFontPresets) utils.applyFontPresets(settings.customFonts.presets, config.customFonts.presets);
+    if (utils.applyCustomFontFamilies) utils.applyCustomFontFamilies(html, utils.resolveCustomFontFamilies(settings.customFonts, config.customFonts.presets), config.customFonts && config.customFonts.familyOptions);
     html.setAttribute("data-article-font-size", settings.size);
     html.setAttribute("data-article-font-family", settings.type);
     html.setAttribute("data-article-font-weight", settings.weight);
@@ -150,6 +158,7 @@ function getArticleFontInitScript() {
 module.exports = {
   CUSTOM_FONT_FAMILY_OPTIONS,
   CUSTOM_FONT_IMPORT_LIMIT,
+  CUSTOM_FONT_PRESETS,
   DEFAULT_SETTINGS,
   FONT_OPTIONS,
   LINE_HEIGHT,
