@@ -354,7 +354,7 @@
   }
 
   .navbar-menu {
-    /* 中和 [popover] 的 UA 默认样式，桌面端菜单常显于导航条内 */
+    /* 中和 [popover] 的 UA 默认样式，桌面端菜单嵌入导航条 */
     position: static;
     width: auto;
     height: auto;
@@ -374,6 +374,37 @@
   .navbar-end {
     justify-content: flex-end;
     margin-left: auto;
+  }
+}
+
+/* Keep the desktop hit area and tab order, revealing links from the logo or menu.
+   Touch devices retain visible links because they cannot hover. */
+@media screen and (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .navbar-start .navbar-item {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease-out, color 160ms ease-out;
+  }
+
+  .navbar:is(:hover, :focus-within) .navbar-start .navbar-item {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  :root.gnix-revealed:has(.article-hero-full):not(.gnix-past-hero) .navbar:is(:hover, :focus-within) > .navbar-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .navbar:focus-within .navbar-start .navbar-item {
+    transition: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .navbar-start .navbar-item {
+      transition: none;
+    }
   }
 }
 

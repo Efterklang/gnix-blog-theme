@@ -202,7 +202,10 @@ module.exports = class extends Component {
       <div class="preference-page" data-preferences-page data-preference-surface="page">
         <div class="preference-shell">
           <header class="preference-page-header">
-            <h1 id={pageTitleId}>{translate(helper, "preferences.title", "Preferences")}</h1>
+            <div class="preference-page-heading">
+              <h1 id={pageTitleId}>{translate(helper, "preferences.title", "Preferences")}</h1>
+              <p>{translate(helper, "preferences.autosave_note", "Changes are saved automatically in this browser.")}</p>
+            </div>
             <div class="preference-header-actions">
               <button type="button" class="preference-reset-action" data-preference-reset-all>
                 {icon("rotate-ccw")}
@@ -217,7 +220,10 @@ module.exports = class extends Component {
 
           <section id="preferences-appearance" class="preference-panel" aria-labelledby={themeTitleId}>
             <header class="preference-panel__header">
-              <h2 id={themeTitleId}>{translate(helper, "preferences.theme_eyebrow", "Theme")}</h2>
+              <div>
+                <h2 id={themeTitleId}>{translate(helper, "preferences.theme_eyebrow", "Theme")}</h2>
+                <p>{translate(helper, "preferences.theme_description", "Use light, dark, or match your system")}</p>
+              </div>
             </header>
 
             <div class="preference-theme-controls">
@@ -240,7 +246,10 @@ module.exports = class extends Component {
 
           <section id="preferences-typography" class="preference-panel" aria-labelledby={fontTitleId}>
             <header class="preference-panel__header">
-              <h2 id={fontTitleId}>{translate(helper, "preferences.font_title", "Typography")}</h2>
+              <div>
+                <h2 id={fontTitleId}>{translate(helper, "preferences.font_title", "Typography")}</h2>
+                <p>{translate(helper, "preferences.typography_description", "Tune article reading density, typeface, and custom web fonts")}</p>
+              </div>
             </header>
 
             <div class="preference-row">
@@ -329,7 +338,10 @@ module.exports = class extends Component {
               </fieldset>
             </div>
 
-            <div class="preference-row preference-row--control-only">
+            <div class="preference-row preference-row--stacked">
+              <div class="preference-row__label">
+                <span>{translate(helper, "preferences.typeface", "Typeface")}</span>
+              </div>
               <fieldset class="preference-choice-group preference-choice-group--font-type font-type-selector">
                 <legend class="preference-sr-only">{translate(helper, "preferences.typeface", "Typeface")}</legend>
                 {FONT_TYPE_OPTIONS.map(([value, key, fallback]) => (
@@ -342,15 +354,11 @@ module.exports = class extends Component {
             </div>
 
             <div class="preference-row preference-row--stacked">
-              <div class="preference-row__label">
-                <span>{translate(helper, "preferences.custom_fonts", "Custom Fonts")}</span>
-                <small>{translate(helper, "preferences.custom_fonts_description", "Load web font CSS and map families")}</small>
-              </div>
               <div class="font-custom-panel">
                 <form class="font-custom-form">
                   <fieldset class="font-preset-group">
                     <legend>{translate(helper, "preferences.font_presets", "Recommended Fonts")}</legend>
-                    <small>{translate(helper, "preferences.font_presets_description", "Check fonts to enable them. Your choices are saved in this browser.")}</small>
+                    <small>{translate(helper, "preferences.font_presets_description", "Check to download fonts, then enter their names below to use them.")}</small>
                     <div class="font-preset-list">
                       {CUSTOM_FONT_PRESETS.map((preset) => {
                         const [, labelKey, fallback] = FONT_TYPE_OPTIONS.find(([type]) => type === preset.type);
@@ -370,47 +378,54 @@ module.exports = class extends Component {
                     <span
                       hidden
                       data-font-preset-messages
-                      data-loading={translate(helper, "preferences.font_preset_loading", "Loading…")}
-                      data-ready={translate(helper, "preferences.font_preset_ready", "Enabled")}
-                      data-error={translate(helper, "preferences.font_preset_error", "Could not load. Uncheck and try again.")}
+                      data-loading={translate(helper, "preferences.font_preset_loading", "Downloading…")}
+                      data-ready={translate(helper, "preferences.font_preset_ready", "Downloaded")}
+                      data-uncached={translate(helper, "preferences.font_preset_uncached", "Loaded")}
+                      data-error={translate(helper, "preferences.font_preset_error", "Download failed. Uncheck and try again.")}
                     ></span>
                   </fieldset>
-                  <label class="font-custom-field">
-                    <span>{translate(helper, "preferences.web_font_css", "Web Font CSS URL")}</span>
-                    <small>{translate(helper, "preferences.font_css_help", "Paste one web font CSS URL per line. Each URL can load one or more font families.")}</small>
-                    <textarea
-                      class="font-custom-imports"
-                      name="font-custom-imports"
-                      rows="3"
-                      placeholder="https://fonts.googleapis.com/css2?family=..."
-                      aria-label={translate(helper, "preferences.web_font_css", "Web Font CSS URL")}
-                    ></textarea>
-                  </label>
-                  <div class="font-custom-family-grid">
-                    <label class="font-custom-field">
-                      <span>{translate(helper, "preferences.typeface_serif", "Serif")}</span>
-                      <input class="font-custom-family-input" name="font-custom-family-serif" type="text" data-font-family="serif" placeholder={'"Noto Serif SC", serif'} autocomplete="off" />
-                    </label>
-                    <label class="font-custom-field">
-                      <span>{translate(helper, "preferences.typeface_sans_serif", "Sans Serif")}</span>
-                      <input class="font-custom-family-input" name="font-custom-family-sans-serif" type="text" data-font-family="sans-serif" placeholder={'"Inter", sans-serif'} autocomplete="off" />
-                    </label>
-                    <label class="font-custom-field">
-                      <span>{translate(helper, "preferences.typeface_mono", "Monospace")}</span>
-                      <input class="font-custom-family-input" name="font-custom-family-mono" type="text" data-font-family="mono" placeholder={'"Fira Code", monospace'} autocomplete="off" />
-                    </label>
-                    <label class="font-custom-field">
-                      <span>{translate(helper, "preferences.typeface_handwriting", "Handwriting")}</span>
-                      <input
-                        class="font-custom-family-input"
-                        name="font-custom-family-handwriting"
-                        type="text"
-                        data-font-family="handwriting"
-                        placeholder={'"LXGW WenKai", cursive'}
-                        autocomplete="off"
-                      />
-                    </label>
-                  </div>
+                  <details class="font-custom-details" open>
+                    <summary>{translate(helper, "preferences.custom_fonts", "Custom Fonts")}</summary>
+                    <div class="font-custom-details__body">
+                      <p>{translate(helper, "preferences.custom_fonts_description", "Load web font CSS and map families")}</p>
+                      <label class="font-custom-field">
+                        <span>{translate(helper, "preferences.web_font_css", "Web Font CSS URL")}</span>
+                        <small>{translate(helper, "preferences.font_css_help", "Paste one web font CSS URL per line. Each URL can load one or more font families.")}</small>
+                        <textarea
+                          class="font-custom-imports"
+                          name="font-custom-imports"
+                          rows="3"
+                          placeholder="https://fonts.googleapis.com/css2?family=..."
+                          aria-label={translate(helper, "preferences.web_font_css", "Web Font CSS URL")}
+                        ></textarea>
+                      </label>
+                      <div class="font-custom-family-grid">
+                        <label class="font-custom-field">
+                          <span>{translate(helper, "preferences.typeface_serif", "Serif")}</span>
+                          <input class="font-custom-family-input" name="font-custom-family-serif" type="text" data-font-family="serif" placeholder={'"Noto Serif SC", serif'} autocomplete="off" />
+                        </label>
+                        <label class="font-custom-field">
+                          <span>{translate(helper, "preferences.typeface_sans_serif", "Sans Serif")}</span>
+                          <input class="font-custom-family-input" name="font-custom-family-sans-serif" type="text" data-font-family="sans-serif" placeholder={'"Inter", sans-serif'} autocomplete="off" />
+                        </label>
+                        <label class="font-custom-field">
+                          <span>{translate(helper, "preferences.typeface_mono", "Monospace")}</span>
+                          <input class="font-custom-family-input" name="font-custom-family-mono" type="text" data-font-family="mono" placeholder={'"Fira Code", monospace'} autocomplete="off" />
+                        </label>
+                        <label class="font-custom-field">
+                          <span>{translate(helper, "preferences.typeface_handwriting", "Handwriting")}</span>
+                          <input
+                            class="font-custom-family-input"
+                            name="font-custom-family-handwriting"
+                            type="text"
+                            data-font-family="handwriting"
+                            placeholder={'"LXGW WenKai", cursive'}
+                            autocomplete="off"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </details>
                   <button type="button" class="font-custom-reset">
                     {translate(helper, "preferences.reset_fonts", "Reset Fonts")}
                   </button>
@@ -419,9 +434,12 @@ module.exports = class extends Component {
             </div>
 
             <div class="preference-row preference-row--preview">
-              <div class="font-preview-copy">
-                <p class="font-preview-title">Lorem Ipsum</p>
-                <p class="font-preview-excerpt">{LOREM_IPSUM}</p>
+              <div class="font-preview">
+                <span class="preference-preview-label">{translate(helper, "preferences.live_preview", "Live Preview")}</span>
+                <div class="font-preview-copy">
+                  <p class="font-preview-title">Lorem Ipsum</p>
+                  <p class="font-preview-excerpt">{LOREM_IPSUM}</p>
+                </div>
               </div>
             </div>
           </section>
@@ -443,7 +461,7 @@ module.exports = class extends Component {
               </div>
             </div>
 
-            <div class="preference-row">
+            <div class="preference-row preference-row--switch">
               <div class="preference-row__label">
                 <span>{glassEnabledLabel}</span>
                 <small>{translate(helper, "preferences.glass_enabled_description", "Translucent buttons and panels; turn off for solid surfaces")}</small>
@@ -451,7 +469,7 @@ module.exports = class extends Component {
               {renderGlassSwitch("enabled", glassEnabledLabel)}
             </div>
 
-            <div class="preference-row" data-glass-param>
+            <div class="preference-row preference-row--switch" data-glass-param>
               <div class="preference-row__label">
                 <span>{glassPressLabel}</span>
                 <small>{translate(helper, "preferences.glass_press_description", "Springy swell and highlight that follows your finger")}</small>

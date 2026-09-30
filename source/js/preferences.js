@@ -380,9 +380,7 @@
       if (customFontImportInput) customFontImportInput.value = customFonts.imports.join("\n");
 
       customFontFamilyInputs.forEach((input) => {
-        const preset = customFontPresets.find((preset) => preset.type === input.dataset.fontFamily && customFonts.presets.includes(preset.id));
-        input.disabled = Boolean(preset);
-        input.value = preset?.family || customFonts.families[input.dataset.fontFamily] || "";
+        input.value = customFonts.families[input.dataset.fontFamily] || "";
       });
     }
 
@@ -390,7 +388,7 @@
       const families = {};
       customFontFamilyInputs.forEach((input) => {
         const type = input.dataset.fontFamily;
-        families[type] = input.disabled ? settings.customFonts.families[type] : input.value;
+        families[type] = input.value;
       });
       return normalizeStoredCustomFonts({
         imports: customFontImportInput?.value || "",

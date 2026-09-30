@@ -48,12 +48,9 @@
     };
   }
 
-  function resolveCustomFontFamilies(customFonts, presets = []) {
-    const families = { ...customFonts.families };
-    presets.forEach((preset) => {
-      if (customFonts.presets?.includes(preset.id)) families[preset.type] = preset.family;
-    });
-    return families;
+  function resolveCustomFontFamilies(customFonts) {
+    // Downloaded presets make fonts available; only explicit family names apply them.
+    return { ...customFonts.families };
   }
 
   let presetLoader;

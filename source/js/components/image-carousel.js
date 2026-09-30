@@ -36,10 +36,7 @@ function getUiText(key, value) {
   const messages = {
     imageCarousel: zh ? "图片轮播" : "Image carousel",
     nextSlide: zh ? "下一张" : "Next slide",
-    pauseAutoplay: zh ? "暂停自动播放" : "Pause autoplay",
-    playbackNote: zh ? "悬停或聚焦时保持暂停。" : "Pauses while hovered or focused.",
     previousSlide: zh ? "上一张" : "Previous slide",
-    resumeAutoplay: zh ? "恢复自动播放" : "Resume autoplay",
     slide: zh ? `第 ${value} 张` : `Slide ${value}`,
     slideNavigation: zh ? "幻灯片导航" : "Slide navigation",
   };
@@ -224,42 +221,6 @@ const STYLES = `
     transform: scale(1.25);
   }
 
-  .playback-controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-    padding-block: 0.5rem;
-  }
-
-  .playback-controls[hidden] {
-    display: none;
-  }
-
-  .playback-toggle {
-    min-block-size: 44px;
-    min-inline-size: 44px;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--surface1, #45475a);
-    border-radius: var(--radius, 12px);
-    background: var(--base, #1e1e2e);
-    color: var(--text, #cdd6f4);
-    font: inherit;
-    cursor: pointer;
-  }
-
-  .playback-toggle:focus-visible {
-    outline: 2px solid var(--blue, #89b4fa);
-    outline-offset: 2px;
-  }
-
-  .playback-note {
-    margin: 0;
-    color: var(--subtext0, #a6adc8);
-    font-size: 0.75rem;
-    line-height: 1.5;
-    text-align: center;
-  }
 `;
 
 const CHEVRON_LEFT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>`;
@@ -280,7 +241,6 @@ class ImageCarousel extends HTMLElement {
     this._isHovered = false;
     this._isFocused = false;
     this._isInteracting = false;
-    this._userPaused = false;
     this._handleVisibility = () => this._syncAutoplay();
   }
 
@@ -432,13 +392,6 @@ class ImageCarousel extends HTMLElement {
         </div>`
       : "";
 
-    const playbackHTML = multiSlide
-      ? `<div class="playback-controls"${this.hasAttribute("autoplay") ? "" : " hidden"}>
-          <button type="button" class="playback-toggle">${getUiText(this._userPaused ? "resumeAutoplay" : "pauseAutoplay")}</button>
-          <p class="playback-note">${getUiText("playbackNote")}</p>
-        </div>`
-      : "";
-
     this.shadowRoot.innerHTML = `
       <div class="carousel" role="region" aria-label="${getUiText("imageCarousel")}" tabindex="0">
         <div class="stage">
@@ -446,7 +399,6 @@ class ImageCarousel extends HTMLElement {
           ${navHTML}
         </div>
         ${dotsHTML}
-        ${playbackHTML}
       </div>
       <slot style="display:none"></slot>
     `;
@@ -501,26 +453,17 @@ class ImageCarousel extends HTMLElement {
       !this._isHovered &&
       !this._isFocused &&
       !this._isInteracting &&
-      !this._userPaused &&
       this.hasAttribute("autoplay") &&
       this._images.length > 1
     );
   }
 
   _syncAutoplay(restart = false) {
-    this._updatePlaybackControl();
     if (!this._canAutoplay()) {
       this._stopAutoplay();
       return;
     }
     if (restart || this._timer === null) this._startAutoplay();
-  }
-
-  _updatePlaybackControl() {
-    const controls = this.shadowRoot.querySelector(".playback-controls");
-    if (!controls) return;
-    controls.hidden = !this.hasAttribute("autoplay") || this._images.length < 2;
-    controls.querySelector(".playback-toggle").textContent = getUiText(this._userPaused ? "resumeAutoplay" : "pauseAutoplay");
   }
 
   _startAutoplay() {
@@ -553,11 +496,6 @@ class ImageCarousel extends HTMLElement {
       if (!dot) return;
       this._goTo(parseInt(dot.dataset.index, 10));
       this._syncAutoplay(true);
-    });
-
-    root.querySelector(".playback-toggle")?.addEventListener("click", () => {
-      this._userPaused = !this._userPaused;
-      this._syncAutoplay();
     });
 
     carousel.addEventListener("pointerenter", (event) => {

@@ -56,7 +56,7 @@ function preferences(initial) {
   } };
 }
 
-test("checkboxes independently enable fonts without changing the reading category or manual imports", () => {
+test("download checkboxes preserve the reading category, manual imports and family names", () => {
   const initial = { type: "serif", customFonts: { imports: ["https://example.com/manual.css"], families: { "sans-serif": '"Original", sans-serif' } } };
   const ui = preferences(initial);
   ui.toggle(0, true);
@@ -65,14 +65,19 @@ test("checkboxes independently enable fonts without changing the reading categor
   assert.equal(ui.read().type, "serif");
   assert.deepEqual(ui.read().customFonts.imports, initial.customFonts.imports);
   assert.equal(ui.read().customFonts.families["sans-serif"], initial.customFonts.families["sans-serif"]);
+  assert.equal(ui.styles.get("--font-sans-serif"), initial.customFonts.families["sans-serif"]);
+  assert.ok(ui.fields.every((field) => !field.disabled));
+  assert.notEqual(ui.styles.get("--font-mono"), presets[1].family);
+  // Explicitly typing a downloaded font name is what applies it.
+  ui.fields[1].value = presets[0].family;
+  ui.toggle(2, true);
   assert.equal(ui.styles.get("--font-sans-serif"), presets[0].family);
-  assert.equal(ui.fields[1].disabled, true);
   const restored = preferences(ui.read());
   assert.equal(restored.checks[0].checked, true);
   restored.toggle(0, false);
-  assert.equal(restored.styles.get("--font-sans-serif"), initial.customFonts.families["sans-serif"]);
+  assert.equal(restored.styles.get("--font-sans-serif"), presets[0].family);
   assert.equal(restored.fields[1].disabled, false);
-  assert.deepEqual(restored.read().customFonts.presets, [presets[1].id]);
+  assert.deepEqual(restored.read().customFonts.presets, [presets[1].id, presets[2].id]);
   restored.reset.events.click();
   assert.deepEqual(restored.read().customFonts, { imports: [], families: {}, presets: [] });
   assert.ok(restored.checks.every((input) => !input.checked));
@@ -129,14 +134,67 @@ test("CSS revalidation tolerates offline mode and storage quota never breaks fon
   assert.equal(await (await limited.request(presets[2].css, "style")).text(), "font bytes");
 });
 
-test("enabling a preset adds only its stylesheet; cancelling a pending load leaves no link", async () => {
+function presetLoader({ quota = false, fetchFont } = {}) {
   const links = [];
-  const context = vm.createContext({ URL, Map, Promise, setTimeout, clearTimeout,
-    window: { isSecureContext: false, dispatchEvent() {} }, navigator: {},
-    CustomEvent: class {},
-    document: { createElement: () => ({ dataset: {}, remove() { links.splice(links.indexOf(this), 1); } }), head: { appendChild: (link) => links.push(link) } },
+  const cache = new Map(), requests = [], states = [];
+  const context = vm.createContext({ URL, Map, Set, Promise, AbortController, setTimeout, clearTimeout,
+    fetch: async (url, options) => {
+      requests.push(url);
+      return fetchFont ? fetchFont(url, options) : new Response("font bytes");
+    },
+    window: {
+      isSecureContext: false,
+      dispatchEvent: (event) => states.push(event.detail),
+      caches: { open: async () => ({
+        match: async (url) => cache.get(url)?.clone(),
+        put: async (url, response) => { if (quota) throw Error("quota"); await response.arrayBuffer(); cache.set(url, new Response("cached bytes")); },
+      }) },
+    }, navigator: {},
+    CustomEvent: class { constructor(type, { detail }) { this.type = type; this.detail = detail; } },
+    document: { createElement: () => ({
+      dataset: {},
+      sheet: { cssRules: [
+        { type: 5, style: { getPropertyValue: () => 'url("./regular.woff2") format("woff2")' } },
+        { type: 5, style: { getPropertyValue: () => "url('./italic.woff2') format('woff2')" } },
+        { type: 5, style: { getPropertyValue: () => 'url("./regular.woff2") format("woff2")' } },
+      ] },
+      remove() { links.splice(links.indexOf(this), 1); },
+    }), head: { appendChild: (link) => links.push(link) } },
   });
   vm.runInContext(source("js/font-presets.js").replace("export function", "function").replaceAll("import.meta.url", '"https://example.com/js/font-presets.js"'), context);
+  return { context, links, cache, requests, states };
+}
+
+test("selecting a preset downloads each font file once and reuses the cache", async () => {
+  const { context, links, requests, states } = presetLoader();
+  context.applyPresetFonts([presets[0].id], presets);
+  await new Promise(setImmediate);
+  links[0].onload();
+  await new Promise(setImmediate);
+  await new Promise(setImmediate);
+  assert.equal(requests.length, 2);
+  assert.equal(states.at(-1).state, "ready");
+  context.applyPresetFonts([], presets);
+  context.applyPresetFonts([presets[0].id], presets);
+  await new Promise(setImmediate);
+  links[0].onload();
+  await new Promise(setImmediate);
+  assert.equal(requests.length, 2);
+  assert.equal(states.at(-1).state, "ready");
+});
+
+test("cache quota failures still load fonts without claiming they are saved", async () => {
+  const { context, links, states } = presetLoader({ quota: true });
+  context.applyPresetFonts([presets[0].id], presets);
+  await new Promise(setImmediate);
+  links[0].onload();
+  await new Promise(setImmediate);
+  await new Promise(setImmediate);
+  assert.equal(states.at(-1).state, "uncached");
+});
+
+test("cancelling a pending stylesheet load leaves no link", async () => {
+  const { context, links } = presetLoader();
   context.applyPresetFonts([presets[0].id], presets);
   context.applyPresetFonts([], presets);
   await new Promise(setImmediate);
@@ -147,4 +205,23 @@ test("enabling a preset adds only its stylesheet; cancelling a pending load leav
   assert.equal(links[0].href, presets[2].css);
   context.applyPresetFonts([], presets);
   assert.equal(links.length, 0);
+});
+
+test("unchecking cancels in-flight downloads and stale callbacks cannot report ready", async () => {
+  const signals = [];
+  const { context, links, states } = presetLoader({ fetchFont: (_, { signal }) => new Promise((resolve, reject) => {
+    signals.push(signal);
+    signal.addEventListener("abort", () => reject(signal.reason));
+  }) });
+  context.applyPresetFonts([presets[0].id], presets);
+  await new Promise(setImmediate);
+  links[0].onload();
+  await new Promise(setImmediate);
+  assert.equal(signals.length, 2);
+  context.applyPresetFonts([], presets);
+  await new Promise(setImmediate);
+  assert.ok(signals.every((signal) => signal.aborted));
+  assert.equal(links.length, 0);
+  assert.equal(states.at(-1).state, "");
+  assert.ok(states.every(({ state }) => state !== "ready"));
 });

@@ -19,9 +19,6 @@ function getUiText(key) {
   const zh = (document.documentElement.lang || "").toLowerCase().startsWith("zh");
   const messages = {
     deviceCarousel: zh ? "设备轮播" : "Device carousel",
-    pauseAutoplay: zh ? "暂停自动播放" : "Pause autoplay",
-    playbackNote: zh ? "悬停或聚焦时保持暂停。" : "Pauses while hovered or focused.",
-    resumeAutoplay: zh ? "恢复自动播放" : "Resume autoplay",
   };
   return messages[key] || key;
 }
@@ -52,7 +49,6 @@ class DeviceCarousel extends HTMLElement {
     this._isHovered = false;
     this._isFocused = false;
     this._isInteracting = false;
-    this._userPaused = false;
     this._handleVisibility = () => this._syncPlayback();
   }
 
@@ -124,6 +120,11 @@ class DeviceCarousel extends HTMLElement {
         --card-gap: 1.5rem;
         --card-padding: 1.5rem;
         --animation-duration: 40s;
+      }
+
+      .showcase-region:focus-visible {
+        outline: 2px solid var(--blue, #89b4fa);
+        outline-offset: 2px;
       }
 
       .showcase-container {
@@ -206,42 +207,6 @@ class DeviceCarousel extends HTMLElement {
         line-height: 1.5;
       }
 
-      .playback-controls {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.25rem;
-        padding-block: 0.5rem;
-      }
-
-      .playback-controls[hidden] {
-        display: none;
-      }
-
-      .playback-toggle {
-        min-block-size: 44px;
-        min-inline-size: 44px;
-        padding: 0.5rem 0.75rem;
-        border: 1px solid var(--surface1, #45475a);
-        border-radius: var(--radius, 12px);
-        background: var(--base, #1e1e2e);
-        color: var(--text, #cdd6f4);
-        font: inherit;
-        cursor: pointer;
-      }
-
-      .playback-toggle:focus-visible {
-        outline: 2px solid var(--blue, #89b4fa);
-        outline-offset: 2px;
-      }
-
-      .playback-note {
-        margin: 0;
-        color: var(--subtext0, #a6adc8);
-        font-size: 0.75rem;
-        line-height: 1.5;
-        text-align: center;
-      }
     `;
 
     // Get devices from slots or use defaults
@@ -266,15 +231,11 @@ class DeviceCarousel extends HTMLElement {
 
     this.shadowRoot.innerHTML = `
       <style>${style}</style>
-      <div class="showcase-region" role="region" aria-label="${getUiText("deviceCarousel")}">
+      <div class="showcase-region" role="region" tabindex="0" aria-label="${getUiText("deviceCarousel")}">
         <div class="showcase-container">
           <div class="showcase-track">
             ${cardsHTML}
           </div>
-        </div>
-        <div class="playback-controls">
-          <button type="button" class="playback-toggle">${getUiText(this._userPaused ? "resumeAutoplay" : "pauseAutoplay")}</button>
-          <p class="playback-note">${getUiText("playbackNote")}</p>
         </div>
       </div>
       <slot style="display: none;"></slot>
@@ -296,21 +257,14 @@ class DeviceCarousel extends HTMLElement {
   }
 
   _syncPlayback() {
-    const button = this.shadowRoot.querySelector(".playback-toggle");
-    if (button) button.textContent = getUiText(this._userPaused ? "resumeAutoplay" : "pauseAutoplay");
-
     const track = this.shadowRoot.querySelector(".showcase-track");
     if (!track) return;
-    const canPlay = this.isConnected && this._isVisible && !document.hidden && !this._isHovered && !this._isFocused && !this._isInteracting && !this._userPaused;
+    const canPlay = this.isConnected && this._isVisible && !document.hidden && !this._isHovered && !this._isFocused && !this._isInteracting;
     track.style.animationPlayState = canPlay ? "running" : "paused";
   }
 
   _setupListeners() {
     const region = this.shadowRoot.querySelector(".showcase-region");
-    region.querySelector(".playback-toggle").addEventListener("click", () => {
-      this._userPaused = !this._userPaused;
-      this._syncPlayback();
-    });
     region.addEventListener("pointerenter", (event) => {
       if (event.pointerType === "touch") return;
       this._isHovered = true;
