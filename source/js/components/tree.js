@@ -221,7 +221,7 @@ const STYLES = `
   }
 
   .tree-icon.go {
-    color: var(--sky, #89dceb);
+    color: var(--blue, #89dceb);
   }
 
   .tree-icon.rs {

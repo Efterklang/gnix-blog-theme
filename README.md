@@ -12,7 +12,7 @@ hexo config theme gnix
 Support multiple light and dark themes:
 
 - **System Theme**: Follow system theme automatically, use `Nord` for light mode and `Mocha` for dark mode by default
-- **Light Themes**: `Nord Light`, `Catppuccin Latte`, `Sunny`, `Song Porcelain`, `Mono Light`
+- **Light Themes**: `Nord Light`, `Catppuccin Latte`, `Song Porcelain`, `Mono Light`
 - **Dark Themes**: `Catppuccin Mocha`, `Nord Night`, `Rosé Pine`, `Tokyo Night`, `Mono Dark`
 
 `Mono Dark` uses a pure black background with white text; `Mono Light` uses a pure white background with black text. Each has a matching Shiki palette. Shiki's built-in `nord` theme is dark-only, so `Nord Night` uses `nord` and `Nord Light` uses `github-light` for code highlighting.

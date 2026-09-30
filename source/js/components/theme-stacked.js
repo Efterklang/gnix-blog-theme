@@ -5,17 +5,12 @@
 
 const PREVIEW_COLORS = [
   "rosewater",
-  "flamingo",
-  "pink",
   "mauve",
   "red",
-  "maroon",
   "peach",
   "yellow",
   "green",
   "teal",
-  "sky",
-  "sapphire",
   "blue",
   "lavender",
   "text",
@@ -29,18 +24,12 @@ const PREVIEW_COLORS = [
   "surface0",
 ];
 
-const THEME_DATA_CACHE_PREFIX = "themeDataCache-v2";
-
 function getThemeOptions() {
   const config = window.__GNIX_THEME_CONFIG__;
 
   if (!Array.isArray(config?.themes)) return [];
 
   return config.themes.filter((theme) => theme.value !== config.defaultTheme).map((theme) => ({ id: theme.value, name: theme.name }));
-}
-
-function getThemeDataCacheKey(themes) {
-  return `${THEME_DATA_CACHE_PREFIX}:${themes.map((theme) => theme.id).join(",")}`;
 }
 
 function hasThemeDataForThemes(themeData, themes) {
@@ -58,7 +47,7 @@ class ThemeStackedElement extends HTMLElement {
     this.attachShadow({ mode: "open" });
   }
 
-  async connectedCallback() {
+  connectedCallback() {
     this._themes = getThemeOptions();
     if (this._themes.length === 0) return;
 
@@ -66,7 +55,7 @@ class ThemeStackedElement extends HTMLElement {
       this._isVisible = e[0].isIntersecting;
     });
     this._observer.observe(this);
-    await this.loadThemeData();
+    this.loadThemeData();
     this.render();
     this.init();
   }
@@ -77,40 +66,34 @@ class ThemeStackedElement extends HTMLElement {
     document.removeEventListener("mouseup", this._mouseUpHandler);
   }
 
-  async loadThemeData() {
+  loadThemeData() {
     if (hasThemeDataForThemes(window.__cachedThemeData, this._themes)) {
       this._themeData = window.__cachedThemeData;
       return;
     }
 
-    const cacheKey = getThemeDataCacheKey(this._themes);
-
+    // Read the current stylesheet once per page. Persisting computed colors in
+    // localStorage made previews stale after palette changes or a deployment.
+    const container = document.createElement("div");
+    container.style.cssText = "position:absolute;visibility:hidden;pointer-events:none;width:0;height:0;overflow:hidden;";
+    const samples = this._themes.map((theme) => {
+      const sample = document.createElement("div");
+      sample.setAttribute("data-theme", theme.id);
+      container.appendChild(sample);
+      return { theme, sample };
+    });
+    // Attach all theme scopes before reading any styles, avoiding a forced
+    // style recalculation between each theme's write and read.
+    document.body.appendChild(container);
     try {
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        const cachedThemeData = JSON.parse(cached);
-        if (hasThemeDataForThemes(cachedThemeData, this._themes)) {
-          this._themeData = window.__cachedThemeData = cachedThemeData;
-          return;
-        }
+      for (const { theme, sample } of samples) {
+        const computed = window.getComputedStyle(sample);
+        this._themeData[theme.id] = Object.fromEntries(PREVIEW_COLORS.map((color) => [color, computed.getPropertyValue(`--${color}`).trim()]).filter(([, value]) => value));
       }
-    } catch (_e) {}
-
-    const temp = document.createElement("div");
-    temp.style.cssText = "position:absolute;left:-9999px;width:0;height:0;overflow:hidden;";
-    document.body.appendChild(temp);
-
-    for (const theme of this._themes) {
-      temp.setAttribute("data-theme", theme.id);
-      const computed = window.getComputedStyle(temp);
-      this._themeData[theme.id] = Object.fromEntries(PREVIEW_COLORS.map((c) => [c, computed.getPropertyValue(`--${c}`).trim()]).filter(([, v]) => v));
+    } finally {
+      container.remove();
     }
-
-    temp.remove();
     window.__cachedThemeData = this._themeData;
-    try {
-      localStorage.setItem(cacheKey, JSON.stringify(this._themeData));
-    } catch (_e) {}
   }
 
   render() {

@@ -195,7 +195,7 @@ class Changelog extends HTMLElement {
       .x-changelog-category-tag.fix { color: var(--red); }
       .x-changelog-category-tag.refactor { color: var(--lavender); }
       .x-changelog-category-tag.other { color: var(--subtext0); }
-      .x-changelog-category-tag.uiux { color: var(--pink); }
+      .x-changelog-category-tag.uiux { color: var(--lavender); }
 
       .x-changelog-sub-item {
         margin-top: 0.4rem;

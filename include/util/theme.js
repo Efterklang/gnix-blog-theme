@@ -17,7 +17,6 @@ const THEME_OPTIONS = Object.freeze([
   { name: "System", value: DEFAULT_THEME },
   { name: "Catppuccin Latte", value: "latte", colorScheme: "light" },
   { name: "Nord Light", value: "nord", colorScheme: "light" },
-  { name: "Sunny", value: "sunny", colorScheme: "light" },
   { name: "Song Porcelain", value: "song_ci", colorScheme: "light" },
   { name: "Mono Light", value: "mono_light", colorScheme: "light" },
   { name: "Nord Night", value: "nord_night", colorScheme: "night" },
@@ -27,9 +26,9 @@ const THEME_OPTIONS = Object.freeze([
   { name: "Mono Dark", value: "mono_dark", colorScheme: "night" },
 ]);
 
+const THEME_SCHEME_MAP = Object.freeze(Object.fromEntries(THEME_OPTIONS.filter((theme) => theme.value !== DEFAULT_THEME).map((theme) => [theme.value, theme.colorScheme])));
+
 function getClientThemeConfig() {
-  const themeClassMap = Object.fromEntries(THEME_OPTIONS.filter((theme) => theme.value !== DEFAULT_THEME).map((theme) => [theme.value, theme.colorScheme]));
-  const themeSchemeMap = Object.fromEntries(THEME_OPTIONS.filter((theme) => theme.value !== DEFAULT_THEME).map((theme) => [theme.value, theme.colorScheme]));
   return {
     storageKey: STORAGE_KEY,
     defaultTheme: DEFAULT_THEME,
@@ -37,8 +36,7 @@ function getClientThemeConfig() {
     defaultPreferences: DEFAULT_PREFERENCES,
     systemTheme: SYSTEM_THEME,
     themes: THEME_OPTIONS,
-    themeClassMap,
-    themeSchemeMap,
+    themeSchemeMap: THEME_SCHEME_MAP,
   };
 }
 
@@ -59,14 +57,13 @@ function getThemeInitScript() {
   var LEGACY_DEFAULT = config.defaultTheme;
   var DEFAULT_MODE = config.defaultMode || "system";
   var defaultPreferences = config.defaultPreferences || { mode: DEFAULT_MODE, light: config.systemTheme.light, dark: config.systemTheme.dark };
-  var themeClassMap = config.themeClassMap || {};
-  var themeSchemeMap = config.themeSchemeMap || themeClassMap;
-  var THEME_CLASSES = Array.from(new Set(Object.values(themeClassMap)));
+  var themeSchemeMap = config.themeSchemeMap;
+  var THEME_CLASSES = Array.from(new Set(Object.values(themeSchemeMap)));
   var html = document.documentElement;
   var darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
   function isValidTheme(t) {
-    return Object.prototype.hasOwnProperty.call(themeClassMap, t);
+    return Object.prototype.hasOwnProperty.call(themeSchemeMap, t);
   }
 
   function normalizeMode(mode) {
@@ -74,6 +71,7 @@ function getThemeInitScript() {
   }
 
   function normalizeThemeName(theme) {
+    if (theme === "sunny") return defaultPreferences.light;
     return theme === "openai_dark" ? "mono_dark" : theme;
   }
 
@@ -146,7 +144,7 @@ function getThemeInitScript() {
   function applyThemePreferences(preferences, persist) {
     var preference = normalizePreferences(preferences);
     var resolved = resolveTheme(preference);
-    var themeClass = themeClassMap[resolved];
+    var themeClass = themeSchemeMap[resolved];
     html.setAttribute("data-theme", resolved);
     html.setAttribute("data-theme-mode", preference.mode);
     html.setAttribute("data-theme-light", preference.light);

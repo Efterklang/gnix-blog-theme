@@ -88,7 +88,7 @@ details[open].callout > .callout-title > .callout-fold {
 
 .callout[data-callout="info"],
 .callout[data-callout="todo"] {
-  --callout-color: var(--sapphire);
+  --callout-color: var(--teal);
 }
 
 .callout[data-callout="success"],
@@ -121,7 +121,7 @@ details[open].callout > .callout-title > .callout-fold {
 .callout[data-callout="tip"],
 .callout[data-callout="hint"],
 .callout[data-callout="important"] {
-  --callout-color: var(--pink);
+  --callout-color: var(--lavender);
 }
 
 .callout[data-callout="example"] {

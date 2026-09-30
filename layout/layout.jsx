@@ -5,7 +5,6 @@ const Footer = require("./common/footer");
 const Scripts = require("./common/scripts");
 const CommandPalette = require("./common/command_palette");
 const PreferencesPopup = require("./common/preferences_popup");
-const Sunny = require("./common/sunny");
 const { DEFAULT_SETTINGS: ARTICLE_FONT_DEFAULT_SETTINGS } = require("../include/util/article_font");
 const { DEFAULT_SETTINGS: GLASS_DEFAULT_SETTINGS } = require("../include/util/glass");
 
@@ -28,7 +27,6 @@ module.exports = class extends Component {
       >
         <Head site={site} config={config} helper={helper} page={page} />
         <body>
-          <Sunny site={site} config={config} helper={helper} page={page} />
           <Navbar site={site} config={config} helper={helper} page={page} />
           <div class="main-content" dangerouslySetInnerHTML={{ __html: body }}></div>
           <Footer site={site} config={config} helper={helper} page={page} />
