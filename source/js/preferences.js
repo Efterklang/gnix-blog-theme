@@ -285,9 +285,21 @@
     sync();
   }
 
+  // DOM thumb shares the site's glass material/lens; the native range owns all input.
+  function syncSliderVisual(input) {
+    const shell = input?.closest(".preference-slider");
+    if (!shell) return;
+    const min = Number(input.min);
+    const span = Number(input.max) - min;
+    const progress = span > 0 ? Math.max(0, Math.min(1, (Number(input.value) - min) / span)) : 0;
+    shell.style.setProperty("--slider-progress", String(progress));
+    shell.classList.add("is-ready");
+  }
+
   function initArticleFontPreferences(root) {
     let settings = getArticleFontSettings();
     let suppressSyncEvent = false;
+    let lineHeightFrame = 0;
     const lineHeightSlider = root.querySelector(".font-line-height-slider");
     const lineHeightValue = root.querySelector(".font-line-height-value");
     const fontTypeSelects = root.querySelectorAll("[data-article-font-select]");
@@ -315,7 +327,10 @@
     }
 
     function updateLineHeightUI() {
-      if (lineHeightSlider) lineHeightSlider.value = String(settings.lineHeight);
+      if (lineHeightSlider) {
+        lineHeightSlider.value = String(settings.lineHeight);
+        syncSliderVisual(lineHeightSlider);
+      }
       if (lineHeightValue) lineHeightValue.textContent = settings.lineHeight.toFixed(2);
     }
 
@@ -371,7 +386,13 @@
       });
     }
 
+    function cancelLineHeightPreview() {
+      if (lineHeightFrame) window.cancelAnimationFrame(lineHeightFrame);
+      lineHeightFrame = 0;
+    }
+
     function commitSettings(nextSettings) {
+      cancelLineHeightPreview();
       settings = normalizeArticleFontSettings(nextSettings);
       saveArticleFontSettings(settings);
       suppressSyncEvent = true;
@@ -441,8 +462,20 @@
     if (lineHeightSlider) {
       lineHeightSlider.min = String(ARTICLE_LINE_HEIGHT_MIN);
       lineHeightSlider.max = String(ARTICLE_LINE_HEIGHT_MAX);
-      lineHeightSlider.step = String(ARTICLE_LINE_HEIGHT_STEP);
+      lineHeightSlider.step = "0.01";
       lineHeightSlider.addEventListener("input", () => {
+        settings = { ...settings, lineHeight: normalizeArticleLineHeight(lineHeightSlider.value) };
+        // Keep the thumb attached to native input. Only the text preview needs layout;
+        // coalesce it to one update per frame and defer storage/full UI sync until change.
+        syncSliderVisual(lineHeightSlider);
+        if (lineHeightValue) lineHeightValue.textContent = settings.lineHeight.toFixed(2);
+        if (lineHeightFrame) return;
+        lineHeightFrame = window.requestAnimationFrame(() => {
+          lineHeightFrame = 0;
+          document.documentElement.style.setProperty("--article-line-height", String(settings.lineHeight));
+        });
+      });
+      lineHeightSlider.addEventListener("change", () => {
         commitSettings({ ...settings, lineHeight: normalizeArticleLineHeight(lineHeightSlider.value) });
       });
     }
@@ -499,6 +532,7 @@
     // 弹窗与设置页可能同时存在于一个文档中，跨根保持 UI 一致
     window.addEventListener("gnix:article-font-settings-change", (event) => {
       if (suppressSyncEvent || !event.detail) return;
+      cancelLineHeightPreview();
       settings = normalizeArticleFontSettings(event.detail);
       updateActiveStates();
       updateCustomFontUI();
@@ -543,6 +577,7 @@
       ranges.forEach((input) => {
         // 拖动中的滑块不回写，免得 step 取整后跳动
         if (document.activeElement !== input) input.value = String(settings[input.dataset.glassRange]);
+        syncSliderVisual(input);
       });
       values.forEach((output) => {
         const key = output.dataset.glassRangeValue;

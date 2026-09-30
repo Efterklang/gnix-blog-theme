@@ -117,17 +117,20 @@ function renderGlassRange(helper, [key, labelKey, labelFallback, descriptionKey,
         <small>{translate(helper, descriptionKey, descriptionFallback)}</small>
       </div>
       <div class="glass-range-control">
-        <input
-          id={id}
-          class="preference-range-slider"
-          type="range"
-          min={String(range.min)}
-          max={String(range.max)}
-          step={String(range.step)}
-          value={String(GLASS_DEFAULTS[key])}
-          aria-label={label}
-          data-glass-range={key}
-        />
+        <span class="preference-slider">
+          <input
+            id={id}
+            class="preference-range-slider"
+            type="range"
+            min={String(range.min)}
+            max={String(range.max)}
+            step={String(range.step)}
+            value={String(GLASS_DEFAULTS[key])}
+            aria-label={label}
+            data-glass-range={key}
+          />
+          <span class="preference-slider__thumb glass" data-glass-lens aria-hidden="true"></span>
+        </span>
         <output class="glass-range-value" for={id} data-glass-range-value={key}></output>
       </div>
     </div>
@@ -290,16 +293,19 @@ module.exports = class extends Component {
               <div class="font-line-height-stack">
                 <div class="font-line-height-control">
                   <span class="font-line-height-label">{translate(helper, "preferences.compact", "Compact")}</span>
-                  <input
-                    id={lineHeightSliderId}
-                    class="font-line-height-slider"
-                    type="range"
-                    min={String(LINE_HEIGHT.min)}
-                    max={String(LINE_HEIGHT.max)}
-                    step="0.05"
-                    value="1.7"
-                    aria-label={translate(helper, "preferences.line_height", "Line Height")}
-                  />
+                  <span class="preference-slider">
+                    <input
+                      id={lineHeightSliderId}
+                      class="font-line-height-slider"
+                      type="range"
+                      min={String(LINE_HEIGHT.min)}
+                      max={String(LINE_HEIGHT.max)}
+                      step="0.01"
+                      value="1.7"
+                      aria-label={translate(helper, "preferences.line_height", "Line Height")}
+                    />
+                    <span class="preference-slider__thumb glass" data-glass-lens aria-hidden="true"></span>
+                  </span>
                   <span class="font-line-height-label">{translate(helper, "preferences.relaxed", "Relaxed")}</span>
                 </div>
                 <output class="font-line-height-value" for={lineHeightSliderId}>
