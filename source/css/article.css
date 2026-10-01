@@ -98,7 +98,7 @@
 .content {
   overflow: auto;
   overflow-wrap: break-word;
-  color: var(--subtext1);
+  color: var(--body-text-color);
   font-size: var(--article-font-size);
   font-family: var(--article-font-family);
   line-height: var(--article-line-height);
@@ -111,14 +111,14 @@
   --flow-media: calc(var(--spacing) * 8);
 
   a.header-anchor {
-    color: var(--text);
+    color: var(--title-text-color);
     font-family: var(--article-font-family);
     text-decoration: none;
     font-weight: 400;
     &::after {
       margin-left: 0.4em;
       opacity: 0;
-      color: var(--surface0);
+      color: var(--sub-text-color);
       transition: opacity 0.2s ease;
     }
 
@@ -162,7 +162,7 @@
     &::after {
       content: counter(h2-counter, decimal-leading-zero);
       order: 2;
-      color: var(--overlay0);
+      color: var(--sub-text-color);
       font-family: var(--font-serif);
       font-style: italic;
       letter-spacing: -0.01em;
@@ -210,7 +210,6 @@
     line-height: 1.5;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--subtext0);
 
     > a.header-anchor {
       color: inherit;
@@ -301,6 +300,7 @@
 
   figcaption {
     margin-top: calc(var(--spacing) * 2);
+    color: var(--sub-text-color);
     font-style: italic;
     font-family: var(--font-serif);
   }
@@ -312,7 +312,7 @@
     margin: 0 0.3em;
     font-family: var(--font-mono);
     font-size: 0.85em;
-    color: var(--subtext0);
+    color: var(--sub-text-color);
     background: linear-gradient(180deg, var(--base) 0%, var(--mantle) 100%);
     border: 1px solid var(--surface0);
     border-bottom-width: 3px;
@@ -364,7 +364,7 @@
   .ratex {
     max-width: 100%;
     line-height: 0;
-    color: var(--text);
+    color: var(--body-text-color);
 
     svg {
       display: block;
@@ -435,7 +435,7 @@
     padding: 0 0.25em;
     margin: 0 0.2em;
     background-color: var(--base);
-    color: var(--subtext1);
+    color: var(--body-text-color);
     border: 1px solid var(--surface0);
     border-radius: 4px;
   }
@@ -456,7 +456,7 @@
     text-underline-offset: 3.5px;
     text-decoration-thickness: 1px;
     text-decoration-color: hsl(from var(--lavender) h s l / 0.8);
-    color: var(--text);
+    color: var(--title-text-color);
     &:hover {
       text-decoration-color: var(--blue);
       text-decoration-thickness: 2px;
@@ -466,7 +466,7 @@
   aside {
     display: block;
     padding: 0.4rem 0 0.4rem 1rem;
-    color: var(--subtext0);
+    color: var(--sub-text-color);
     font-size: 0.875em;
     line-height: 1.55;
     border-left: 2px solid var(--surface1);
@@ -517,7 +517,7 @@ sup.footnote-ref.is-footnote-tooltip-open .footnote-tooltip {
     var(--glass-shadow-lg);
   -webkit-backdrop-filter: blur(16px) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
   backdrop-filter: blur(16px) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
-  color: var(--subtext1);
+  color: var(--body-text-color);
   font-size: 0.9rem;
   font-style: normal;
   font-weight: var(--article-font-weight);
@@ -557,7 +557,7 @@ sup.footnote-ref.is-footnote-tooltip-open .footnote-tooltip {
         var(--glass-shadow);
       -webkit-backdrop-filter: blur(14px) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
       backdrop-filter: blur(14px) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
-      color: var(--subtext1);
+      color: var(--body-text-color);
       font-size: 0.8rem;
       font-style: normal;
       font-weight: var(--article-font-weight);
@@ -647,7 +647,7 @@ blockquote {
   font-family: var(--font-serif);
   font-style: italic;
   font-synthesis: none;
-  color: var(--subtext0);
+  color: var(--body-text-color);
 
   /* 引文内的段落靠竖线内侧对齐，不再叠加正文段距 */
   > :first-child {
@@ -662,7 +662,7 @@ blockquote {
     display: block;
     text-align: right;
     margin-top: 0.75em;
-    color: var(--overlay1);
+    color: var(--sub-text-color);
     font-style: normal;
     font-family: var(--font-sans-serif);
     font-size: 0.8125em;
@@ -720,8 +720,8 @@ input.task-list-item-checkbox {
 }
 
 .heimu {
-  color: var(--text);
-  background-color: var(--text);
+  color: var(--title-text-color);
+  background-color: var(--title-text-color);
   &:hover {
     color: var(--base);
   }
@@ -738,7 +738,7 @@ a strong {
 /* 首屏是一张扉页：三种声音分层——kicker（标签）用等宽小字大写疏排，标题用大号
    常规字重无衬线，摘要用正文字体小一号；纵向节奏走 --spacing 栅格 */
 .article-title {
-  color: var(--text);
+  color: var(--title-text-color);
   font-family: var(--article-font-family);
   font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
   font-weight: 400;
@@ -750,7 +750,7 @@ a strong {
 }
 
 .meta-separator {
-  color: var(--overlay0);
+  color: var(--sub-text-color);
   margin-inline: 0.5em;
 }
 
@@ -790,7 +790,7 @@ a strong {
   font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--subtext0);
+  color: var(--sub-text-color);
 
   .meta-separator {
     margin-inline: 0.35em;
@@ -806,7 +806,7 @@ a strong {
   transition: color 220ms ease;
 
   &:hover {
-    color: var(--text);
+    color: var(--title-text-color);
   }
 }
 
@@ -819,7 +819,7 @@ a strong {
   font-synthesis: none;
   font-size: 0.875rem;
   line-height: 1.8;
-  color: var(--subtext1);
+  color: var(--body-text-color);
   text-wrap: pretty;
 
   &::before {
@@ -850,7 +850,7 @@ a strong {
   font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--subtext0);
+  color: var(--sub-text-color);
 }
 
 .article-colophon {
@@ -882,7 +882,7 @@ a strong {
       scale 120ms var(--ease-out);
 
     &:hover {
-      color: var(--text);
+      color: var(--title-text-color);
     }
 
     &:active {
@@ -941,7 +941,7 @@ a strong {
         width: calc(var(--spacing) * 6);
         height: 2px;
         margin: 0 0 calc(var(--spacing) * 5);
-        background: var(--text);
+        background: var(--title-text-color);
       }
     }
 
@@ -1225,12 +1225,12 @@ a strong {
       align-items: center;
       padding: 0.75rem 0.25rem;
       margin: -0.75rem -0.25rem;
-      color: var(--subtext0);
+      color: var(--sub-text-color);
       text-decoration: none;
       transition: color 160ms ease;
 
       &:hover {
-        color: var(--text);
+        color: var(--title-text-color);
       }
 
       &:focus-visible {
@@ -1344,7 +1344,7 @@ em,
   overscroll-behavior: contain;
 
   dt {
-    color: var(--subtext0);
+    color: var(--sub-text-color);
     font-family: var(--font-mono);
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -1356,7 +1356,7 @@ em,
     overflow-wrap: anywhere;
 
     a {
-      color: var(--text);
+      color: var(--title-text-color);
       text-decoration: underline;
       text-decoration-color: var(--overlay0);
       text-underline-offset: 0.2em;
@@ -1380,7 +1380,7 @@ em,
   padding: 0;
   border: 0;
   background: none;
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   cursor: pointer;
 
   svg {
@@ -1389,7 +1389,7 @@ em,
   }
 
   &:hover {
-    color: var(--text);
+    color: var(--title-text-color);
   }
 }
 
@@ -1466,7 +1466,7 @@ em,
   padding: 1rem;
   border: none;
   border-radius: 0;
-  color: var(--text);
+  color: var(--body-text-color);
   overflow: auto;
 
   /* 遮罩底色 + blur 放在独立 fixed 伪层：popover 内容滚动/重绘（如 Twikoo
@@ -1516,7 +1516,7 @@ em,
   }
 
   > span {
-    background-color: hsl(from var(--text) h s l / 0.5);
+    background-color: hsl(from var(--title-text-color) h s l / 0.5);
     height: 2px;
     left: calc(50% - 8px);
     position: absolute;
@@ -1581,14 +1581,14 @@ em,
 
   .toc-text {
     display: inline;
-    color: var(--subtext0);
+    color: var(--sub-text-color);
 
     .toc-level-2 & {
-      color: var(--text);
+      color: var(--title-text-color);
       font-size: clamp(1.25rem, 1.02rem + 0.84vw, 1.8rem);
     }
     .toc-level-3 & {
-      color: var(--subtext1);
+      color: var(--body-text-color);
       font-size: clamp(1.15rem, 1.01rem + 0.54vw, 1.5rem);
     }
     .toc-level-4 & {

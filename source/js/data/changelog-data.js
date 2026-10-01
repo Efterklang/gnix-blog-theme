@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "10.1",
+        cn: [
+          "重调全部九套主题的文字与中性色阶：统一为 title-text-color / body-text-color / sub-text-color 三级，标题最醒目、正文适中、辅助信息更淡；各主题独立定义固定色值，不再用 color-mix 推导色板。surface / overlay 专用于底色、边框与装饰，文章、归档、设置页、评论和组件同步使用语义文字色，主题预览同步展示新色板",
+        ],
+        en: [
+          "Retune text and neutral shades across all nine themes around three semantic tokens: title-text-color, body-text-color and sub-text-color. Titles carry the strongest contrast, body copy sits one level below, and supporting text recedes. Every theme defines fixed palette values instead of color-mix derivations; surface and overlay shades are reserved for backgrounds, borders and decoration. Articles, archives, preferences, comments and components adopt the text tokens, with theme previews updated to match",
+        ],
+        category: "uiux",
+      },
+      {
         date: "9.28",
         cn: [
           "设置页新增「液态玻璃」分区：可整体开关玻璃（关闭后按钮与弹层退回实色）、开关按压反馈，并调节模糊、鲜艳度、折射强度（默认拉满）与表面不透明度，附即时预览；设置存于 localStorage，由 head 内联脚本在首帧前应用。边缘折射不再限于桌面端，Android 上的 Chrome / Edge 等 Chromium 浏览器同样生效（局域网 http 调试时也能识别），命令面板加上折射并跟随设置页的模糊，字号改为 14px",

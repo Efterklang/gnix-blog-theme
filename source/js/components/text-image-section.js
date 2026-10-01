@@ -82,7 +82,7 @@ class TextImageSection extends HTMLElement {
       text-image-section .ti-figure figcaption {
         font-family: var(--font-serif);
         font-size: 0.875em;
-        color: var(--subtext0);
+        color: var(--sub-text-color);
         text-align: center;
         margin-top: 8px;
         font-style: italic;

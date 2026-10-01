@@ -60,7 +60,7 @@ class Tabs extends HTMLElement {
         border: none;
         border-bottom: var(--tabs-tab-border-width, 2px) solid transparent;
         background: transparent;
-        color: var(--tabs-tab-color, var(--subtext0));
+        color: var(--tabs-tab-color, var(--sub-text-color));
         font: inherit;
         cursor: pointer;
         position: relative;
@@ -73,12 +73,12 @@ class Tabs extends HTMLElement {
 
       .x-tabs-tab:hover,
       .x-tabs-tab[aria-selected="true"] {
-        color: var(--tabs-tab-active-color, var(--text));
-        border-color: var(--tabs-tab-active-border-color, var(--text));
+        color: var(--tabs-tab-active-color, var(--title-text-color));
+        border-color: var(--tabs-tab-active-border-color, var(--title-text-color));
       }
 
       .x-tabs-tab:focus-visible {
-        outline: 2px solid var(--tabs-focus-color, var(--text));
+        outline: 2px solid var(--tabs-focus-color, var(--title-text-color));
         outline-offset: 2px;
       }
 

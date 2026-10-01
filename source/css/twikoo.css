@@ -5,8 +5,17 @@
   }
 
   p {
-    color: var(--text);
+    color: var(--body-text-color);
   }
+}
+
+.tk-comments-title,
+.tk-nick,
+.tk-admin-config-group-title,
+.tk-admin-import-label,
+.tk-login-title,
+.tk-panel-title {
+  color: var(--title-text-color);
 }
 
 /* Element UI primitives used by Twikoo. Keep these before component overrides. */
@@ -18,17 +27,17 @@
   box-sizing: border-box;
   width: 100%;
   font-size: inherit;
-  color: var(--text);
+  color: var(--body-text-color);
   background-color: var(--base);
   border: 1px solid hsl(from var(--surface1) h s l / 0.31);
   border-radius: 4px;
   transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   &::placeholder {
-    color: var(--subtext0);
+    color: var(--sub-text-color);
   }
 
   &:hover {
-    border-color: var(--subtext0);
+    border-color: var(--sub-text-color);
   }
 
   &:focus {
@@ -44,7 +53,7 @@
   cursor: pointer;
   background: var(--base);
   border: 1px solid var(--surface0);
-  color: var(--subtext1);
+  color: var(--body-text-color);
   text-align: center;
   box-sizing: border-box;
   outline: 0;
@@ -71,7 +80,7 @@
 .el-button.is-disabled,
 .el-button.is-disabled:focus,
 .el-button.is-disabled:hover {
-  color: var(--subtext1);
+  color: var(--body-text-color);
   cursor: not-allowed;
   background-image: none;
   background-color: var(--mantle);
@@ -109,7 +118,7 @@
 }
 
 .el-textarea .el-input__count {
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   background: var(--base);
   position: absolute;
   font-size: 12px;
@@ -120,10 +129,10 @@
 .el-textarea.is-disabled .el-textarea__inner {
   background-color: var(--mantle);
   border-color: var(--surface0);
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   cursor: not-allowed;
   &::placeholder {
-    color: var(--subtext0);
+    color: var(--sub-text-color);
   }
 }
 
@@ -171,21 +180,21 @@
 }
 
 .el-input .el-input__clear {
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   font-size: 14px;
   cursor: pointer;
   transition: color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 
 .el-input .el-input__clear:hover {
-  color: var(--text);
+  color: var(--title-text-color);
 }
 
 .el-input .el-input__count {
   height: 100%;
   display: inline-flex;
   align-items: center;
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   font-size: 12px;
 }
 
@@ -209,7 +218,7 @@
   border-radius: 4px;
   border: 1px solid hsl(from var(--surface1) h s l / 0.31);
   box-sizing: border-box;
-  color: var(--text);
+  color: var(--body-text-color);
   display: inline-block;
   height: 40px;
   line-height: 40px;
@@ -228,11 +237,11 @@
     transform 0.2s ease;
   text-align: center;
   height: 100%;
-  color: var(--subtext0);
+  color: var(--sub-text-color);
 }
 
 .el-input__inner::placeholder {
-  color: var(--subtext0);
+  color: var(--sub-text-color);
 }
 
 .el-input.is-active .el-input__inner {
@@ -284,12 +293,12 @@
 .el-input.is-disabled .el-input__inner {
   background-color: var(--mantle);
   border-color: var(--surface0);
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   cursor: not-allowed;
 }
 
 .el-input.is-disabled .el-input__inner::placeholder {
-  color: var(--subtext1);
+  color: var(--body-text-color);
 }
 
 .el-input.is-disabled .el-input__icon {
@@ -369,7 +378,7 @@
   padding: 0 20px;
   width: 1px;
   white-space: nowrap;
-  color: var(--subtext1);
+  color: var(--body-text-color);
   background-clip: padding-box;
   background-color: hsl(from var(--surface1) h s l / 0.4);
   border: 1px solid hsl(from var(--surface1) h s l / 0.6);
@@ -512,7 +521,7 @@
 
 .tk-avatar .tk-avatar-img {
   height: 2.5rem;
-  color: var(--subtext0);
+  color: var(--sub-text-color);
 }
 
 .tk-comment .tk-submit .tk-avatar .tk-avatar-img,
@@ -605,7 +614,7 @@
 }
 
 .tk-submit-action-icon.__markdown {
-  color: var(--surface0);
+  color: var(--sub-text-color);
 }
 
 .tk-error-message {
@@ -757,14 +766,14 @@
   align-items: center;
   gap: 6px;
   padding: 4px;
-  color: var(--subtext1);
+  color: var(--body-text-color);
   font-size: 0.75rem;
   border-radius: 3px;
   transition: background-color 0.15s ease-out;
 }
 
 .tk-extra:hover {
-  background: hsl(from var(--text) h s l / 0.06);
+  background: hsl(from var(--body-text-color) h s l / 0.06);
 }
 
 .tk-icon {
@@ -792,7 +801,7 @@
 }
 
 .tk-time {
-  color: var(--subtext0);
+  color: var(--sub-text-color);
 }
 
 .tk-comment {
@@ -931,7 +940,7 @@
   width: 100%;
   text-align: end;
   font-size: 0.75em;
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   margin-top: 1em;
 }
 
@@ -1018,7 +1027,7 @@
   margin: 0 0.5em;
   padding-left: 0.5em;
   font-size: 1em;
-  color: var(--text);
+  color: var(--body-text-color);
   background: var(--surface0);
   border-radius: 4px;
   position: relative;
@@ -1247,14 +1256,14 @@
 }
 
 .tk-panel .tk-tab {
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   cursor: pointer;
   line-height: 2em;
   margin-right: 2em;
   margin-bottom: -2px;
   transition: color 0.15s ease-out;
   &:hover {
-    color: var(--text);
+    color: var(--title-text-color);
   }
 }
 
@@ -1267,7 +1276,7 @@
 }
 
 .twikoo svg {
-  fill: var(--subtext1);
+  fill: var(--body-text-color);
 }
 
 .tk-expand {
@@ -1371,7 +1380,7 @@
   left: 0;
   right: 0;
   max-width: 500px;
-  color: var(--text);
+  color: var(--body-text-color);
   background-color: var(--base);
   border: 1px solid var(--surface0);
   top: 2em;

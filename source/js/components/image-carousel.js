@@ -217,7 +217,7 @@ const STYLES = `
   }
 
   .dot.active {
-    background: var(--text);
+    background: var(--title-text-color);
     transform: scale(1.25);
   }
 

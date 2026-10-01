@@ -112,7 +112,7 @@ class InfoCard extends HTMLElement {
         font-style: italic;
         font-size: 1.35rem;
         font-weight: 700;
-        color: var(--rosewater);
+        color: var(--title-text-color);
         margin: 0;
         line-height: 1.2;
       }
@@ -121,7 +121,7 @@ class InfoCard extends HTMLElement {
         font-family: var(--font-sans-serif);
         font-size: 0.8rem;
         font-weight: 300;
-        color: var(--subtext0);
+        color: var(--body-text-color);
         margin: 0.2rem 0 0;
       }
 
@@ -146,7 +146,7 @@ class InfoCard extends HTMLElement {
         font-family: var(--font-mono);
         font-size: 0.65rem;
         font-weight: 500;
-        color: var(--subtext0);
+        color: var(--sub-text-color);
         text-transform: uppercase;
         letter-spacing: 0.1em;
       }
@@ -154,7 +154,7 @@ class InfoCard extends HTMLElement {
       .x-info-value {
         font-family: var(--font-mono);
         font-size: 0.8125rem;
-        color: var(--text);
+        color: var(--body-text-color);
         text-decoration: none;
         word-break: break-word;
         transition: color 0.2s ease;
@@ -179,7 +179,7 @@ class InfoCard extends HTMLElement {
       .x-info-link {
         font-family: var(--font-mono);
         font-size: 0.8rem;
-        color: var(--subtext0);
+        color: var(--sub-text-color);
         text-decoration: none;
         transition: color 0.2s ease;
       }

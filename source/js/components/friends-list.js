@@ -76,7 +76,7 @@ function injectFriendsListStyles() {
     friend-card:focus-within,
     friend-card:hover {
       border-color: var(--lavender);
-      box-shadow: 0 0.75rem 2.5rem -0.75rem hsl(from var(--text) h s l / 0.1);
+      box-shadow: 0 0.75rem 2.5rem -0.75rem hsl(from var(--title-text-color) h s l / 0.1);
     }
 
     friend-card:nth-last-child(1):nth-child(3n+1) {
@@ -151,7 +151,7 @@ function injectFriendsListStyles() {
       font-synthesis: none;
       font-size: 0.92rem;
       font-weight: bolder;
-      color: var(--text);
+      color: var(--title-text-color);
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -165,7 +165,7 @@ function injectFriendsListStyles() {
       justify-content: center;
       width: 1.25rem;
       height: 1.25rem;
-      color: var(--subtext0);
+      color: var(--sub-text-color);
       text-decoration: none;
       transition: color 0.2s ease, border-color 0.2s ease;
       border: 1px solid var(--surface0);
@@ -185,9 +185,8 @@ function injectFriendsListStyles() {
       font-family: var(--font-mono);
       font-size: 0.75rem;
       font-weight: 400;
-      color: var(--subtext0);
-      opacity: 0.7;
-      transition: opacity 0.2s ease, color 0.2s ease;
+      color: var(--sub-text-color);
+      transition: color 0.2s ease;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -195,14 +194,13 @@ function injectFriendsListStyles() {
     }
 
     friend-card:hover .friend-url {
-      opacity: 1;
       color: var(--lavender);
     }
 
     .friend-desc {
       font-family: var(--font-sans-serif);
       font-size: 0.8rem;
-      color: var(--subtext1);
+      color: var(--body-text-color);
       margin: 0.5rem 0 0;
       padding: 0;
       overflow: hidden;

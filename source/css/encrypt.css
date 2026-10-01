@@ -17,7 +17,7 @@
 }
 
 .encrypt-message {
-  color: var(--overlay0);
+  color: var(--sub-text-color);
   font-size: 0.95rem;
   text-align: center;
   margin: 0;
@@ -33,7 +33,7 @@
   border: 1.5px solid var(--surface2);
   border-radius: var(--radius);
   background: var(--mantle);
-  color: var(--text);
+  color: var(--body-text-color);
   font-size: 0.95rem;
   outline: none;
   transition: border-color 0.2s;
@@ -45,7 +45,7 @@
 }
 
 .encrypt-input-wrap input::placeholder {
-  color: var(--overlay0);
+  color: var(--sub-text-color);
 }
 
 .encrypt-error {

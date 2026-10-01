@@ -197,7 +197,7 @@
       --glass-radius: 999px;
       height: 3rem;
       padding: 0 1.25rem;
-      color: var(--text);
+      color: var(--title-text-color);
       font: 600 0.95rem / 1 var(--font-sans-serif);
       letter-spacing: 0.02em;
 
@@ -235,7 +235,7 @@
       width: 42px;
       height: 42px;
       padding: 0;
-      color: var(--subtext1);
+      color: var(--body-text-color);
 
       svg {
         width: 18px;
@@ -256,7 +256,7 @@
     margin-left: 0.75rem;
     padding: 0;
     border-radius: 50%;
-    color: var(--subtext0);
+    color: var(--sub-text-color);
     display: grid;
     place-items: center;
 
@@ -267,7 +267,7 @@
   }
 
   .navbar:has(.navbar-menu:popover-open) .navbar-burger {
-    color: var(--text);
+    color: var(--title-text-color);
     background-color: var(--glass-hover);
   }
 
@@ -317,10 +317,10 @@
     letter-spacing: 0.18em;
     text-transform: lowercase;
     padding: 0 0.9rem;
-    color: var(--subtext0);
+    color: var(--sub-text-color);
 
     &:hover {
-      color: var(--text);
+      color: var(--title-text-color);
     }
   }
 

@@ -13,9 +13,9 @@ const PREVIEW_COLORS = [
   "teal",
   "blue",
   "lavender",
-  "text",
-  "subtext1",
-  "subtext0",
+  "title-text-color",
+  "body-text-color",
+  "sub-text-color",
   "overlay2",
   "overlay1",
   "overlay0",
@@ -139,7 +139,7 @@ class ThemeStackedElement extends HTMLElement {
           position: relative;
           width: min(550px, 90%);
           background: var(--base);
-          border: 2px solid color-mix(in oklch, var(--base) 80%, var(--text));
+          border: 2px solid var(--surface0);
           border-radius: 16px;
           padding: 1.5rem;
           cursor: grab;
@@ -198,7 +198,7 @@ class ThemeStackedElement extends HTMLElement {
           font-family: var(--font-handwriting);
           font-size: 2em;
           font-weight: 600;
-          color: var(--lavender);
+          color: var(--title-text-color);
           margin: 0 0 0.75rem;
           text-align: center;
         }
@@ -242,7 +242,7 @@ class ThemeStackedElement extends HTMLElement {
             left: 50%;
             transform: translateX(-50%) translateY(-6px);
             background: var(--crust);
-            color: var(--text);
+            color: var(--body-text-color);
             padding: 0.4rem 0.6rem;
             border-radius: 6px;
             font-size: 0.7rem;
@@ -299,7 +299,7 @@ class ThemeStackedElement extends HTMLElement {
           border: 1px solid var(--surface0);
           border-radius: 8px;
           background: var(--base);
-          color: var(--text);
+          color: var(--title-text-color);
           cursor: pointer;
           display: flex;
           align-items: center;

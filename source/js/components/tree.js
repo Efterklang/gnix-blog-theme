@@ -128,7 +128,7 @@ const STYLES = `
     display: block;
     font-size: 12px;
     font-weight: 600;
-    color: var(--subtext0, #7f849c);
+    color: var(--sub-text-color, #8e99b2);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 12px;
@@ -169,7 +169,7 @@ const STYLES = `
     height: 18px;
     border: none;
     background: transparent;
-    color: var(--subtext0, #7f849c);
+    color: var(--sub-text-color, #8e99b2);
     cursor: pointer;
     padding: 0;
     border-radius: 3px;
@@ -178,7 +178,7 @@ const STYLES = `
   }
 
   .tree-toggle:hover {
-    color: var(--text, #cdd6f4);
+    color: var(--title-text-color, #e1e7f6);
     background: var(--surface1, #45475a);
   }
 
@@ -237,7 +237,7 @@ const STYLES = `
   }
 
   .tree-label {
-    color: var(--text, #cdd6f4);
+    color: var(--body-text-color, #bac4de);
     font-size: 13px;
   }
 

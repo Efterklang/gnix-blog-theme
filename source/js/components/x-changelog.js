@@ -69,7 +69,7 @@ class Changelog extends HTMLElement {
         content: '\\2193';
         font-family: var(--font-mono);
         font-size: 0.8rem;
-        color: var(--subtext0);
+        color: var(--sub-text-color);
         position: absolute;
         right: 0.8rem;
         top: 50%;
@@ -84,7 +84,7 @@ class Changelog extends HTMLElement {
         border: 1px solid var(--surface1);
         border-radius: 6px;
         background: transparent;
-        color: var(--text);
+        color: var(--body-text-color);
         font-size: 0.85rem;
         font-family: var(--font-mono);
         cursor: pointer;
@@ -92,20 +92,20 @@ class Changelog extends HTMLElement {
       }
 
       .x-changelog-select:hover {
-        border-color: var(--subtext0);
+        border-color: var(--sub-text-color);
         background: var(--surface0);
       }
 
       .x-changelog-select:focus {
         outline: none;
-        border-color: var(--text);
+        border-color: var(--title-text-color);
       }
 
       .x-changelog-year {
         font-size: 1.5rem;
         font-weight: 700;
         margin: 3rem 0 1.5rem 0;
-        color: var(--text);
+        color: var(--title-text-color);
         letter-spacing: -0.02em;
         border-bottom: 1px solid var(--surface1);
         padding-bottom: 0.5rem;
@@ -138,29 +138,27 @@ class Changelog extends HTMLElement {
         height: 9px;
         border-radius: 50%;
         background: var(--base);
-        border: 1px solid var(--subtext0);
+        border: 1px solid var(--sub-text-color);
         z-index: 1;
         transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
       }
 
       .x-changelog-item:hover::before {
-        background: var(--text);
-        border-color: var(--text);
+        background: var(--title-text-color);
+        border-color: var(--title-text-color);
         transform: scale(1.1);
       }
 
       .x-changelog-item:hover .x-changelog-date {
-        opacity: 1;
-        color: var(--text);
+        color: var(--title-text-color);
       }
 
       .x-changelog-date {
         font-family: var(--font-mono);
-        color: var(--subtext0);
+        color: var(--sub-text-color);
         font-size: 0.85rem;
         padding-top: 0;
-        opacity: 0.6;
-        transition: opacity 0.2s ease;
+        transition: color 0.2s ease;
       }
 
       .x-changelog-content {
@@ -170,7 +168,7 @@ class Changelog extends HTMLElement {
         padding: 0;
         box-shadow: none;
         line-height: 1.6;
-        color: var(--text);
+        color: var(--body-text-color);
         font-size: 0.95rem;
       }
 
@@ -194,14 +192,14 @@ class Changelog extends HTMLElement {
       .x-changelog-category-tag.Perf { color: var(--yellow); }
       .x-changelog-category-tag.fix { color: var(--red); }
       .x-changelog-category-tag.refactor { color: var(--lavender); }
-      .x-changelog-category-tag.other { color: var(--subtext0); }
+      .x-changelog-category-tag.other { color: var(--sub-text-color); }
       .x-changelog-category-tag.uiux { color: var(--lavender); }
 
       .x-changelog-sub-item {
         margin-top: 0.4rem;
         padding-left: 0;
         list-style: none;
-        color: var(--subtext0);
+        color: var(--body-text-color);
         font-size: 0.9rem;
         display: flex;
         align-items: flex-start;
@@ -211,18 +209,18 @@ class Changelog extends HTMLElement {
       .x-changelog-sub-item::before {
         content: '-';
         margin-right: 0.6rem;
-        color: var(--subtext1);
+        color: var(--sub-text-color);
         display: inline-block;
       }
 
       .x-changelog-sub-item:hover {
-        color: var(--text);
+        color: var(--title-text-color);
       }
 
       .x-changelog-no-results {
         text-align: left;
         padding: 2rem 0;
-        color: var(--subtext0);
+        color: var(--sub-text-color);
         font-family: var(--font-mono, monospace);
         font-size: 0.9rem;
         border-bottom: 1px solid var(--surface1);

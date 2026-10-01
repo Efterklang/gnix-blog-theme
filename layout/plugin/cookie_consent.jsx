@@ -21,7 +21,7 @@ const COOKIE_CONSENT_STYLE = `
   border: none;
   border-radius: 26px;
   background: var(--glass-fill-strong, var(--mantle));
-  color: var(--text);
+  color: var(--body-text-color);
   box-shadow:
     0 0 0 0.5px var(--glass-edge, transparent),
     inset 0 1px 0 var(--glass-rim-lo, transparent),
@@ -58,7 +58,7 @@ const COOKIE_CONSENT_STYLE = `
 .gnix-cookie-consent__message {
   min-width: 0;
   margin: 0;
-  color: var(--subtext1);
+  color: var(--body-text-color);
   font-size: 0.9rem;
 }
 
@@ -87,7 +87,7 @@ const COOKIE_CONSENT_STYLE = `
   border-radius: 10px;
   background: var(--glass-hover, hsl(from var(--surface0) h s l / 0.24));
   box-shadow: inset 0 0 0 0.5px var(--glass-edge, var(--surface0));
-  color: var(--text);
+  color: var(--title-text-color);
   cursor: pointer;
   font: 600 0.78rem/1 var(--font-sans-serif);
   transition:
@@ -97,7 +97,7 @@ const COOKIE_CONSENT_STYLE = `
 }
 
 .gnix-cookie-consent__button:hover {
-  background: color-mix(in oklab, var(--text) 13%, transparent);
+  background: color-mix(in oklab, var(--title-text-color) 13%, transparent);
 }
 
 .gnix-cookie-consent__button:active {

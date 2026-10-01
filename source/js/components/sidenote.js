@@ -19,7 +19,7 @@ const STYLES = `
     display: block;
     margin: 1.5rem 0;
     padding: 0.4rem 0 0.4rem 1rem;
-    color: var(--subtext0);
+    color: var(--sub-text-color);
     font-size: 0.875em;
     line-height: 1.55;
     border-left: 2px solid var(--surface1);

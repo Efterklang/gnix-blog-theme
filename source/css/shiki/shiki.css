@@ -67,7 +67,7 @@ figure.shiki {
   border: 0.5px solid var(--surface0);
   overflow: auto;
   background: var(--mantle);
-  color: var(--text);
+  color: var(--body-text-color);
   svg {
     width: 1em;
     color: transparent;
@@ -79,7 +79,7 @@ figure.shiki {
 
   &:hover {
     svg {
-      color: var(--text);
+      color: var(--title-text-color);
       &:hover {
         color: var(--blue);
         transform: scale(1.1);
@@ -279,7 +279,7 @@ span.line {
     margin-right: 1.2rem;
     display: inline-block;
     text-align: right;
-    color: var(--subtext0);
+    color: var(--sub-text-color);
   }
 }
 

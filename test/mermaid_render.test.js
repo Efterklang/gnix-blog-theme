@@ -64,7 +64,7 @@ async function main() {
     assert.match(html, /<div class="mermaid-container" data-mermaid-renderer="beautiful-mermaid">/);
     assert.match(
       html,
-      /<div class="mermaid-content"><svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="[^"]+" width="[^"]+" height="[^"]+" style="--bg:var\(--mantle\);--fg:var\(--text\);--accent:var\(--lavender\)">/,
+      /<div class="mermaid-content"><svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="[^"]+" width="[^"]+" height="[^"]+" style="--bg:var\(--mantle\);--fg:var\(--body-text-color\);--accent:var\(--lavender\)">/,
     );
     assert.match(html, /<text[^>]*>开始<\/text>/);
     assert.match(html, /<button class="btn copy-code"/);
@@ -160,7 +160,7 @@ async function main() {
   await test("render options merge over the defaults", async () => {
     const custom = await createMd({ render: { accent: "var(--peach)", font: "Inter" } });
     const html = await custom.renderAsync(fence(SUPPORTED.flowchart));
-    assert.match(html, /style="--bg:var\(--mantle\);--fg:var\(--text\);--accent:var\(--peach\)"/);
+    assert.match(html, /style="--bg:var\(--mantle\);--fg:var\(--body-text-color\);--accent:var\(--peach\)"/);
   });
 
   await test("other fences are left to the previous fence renderer", async () => {

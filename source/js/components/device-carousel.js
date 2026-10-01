@@ -174,13 +174,13 @@ class DeviceCarousel extends HTMLElement {
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        color: var(--subtext1, #bac2de);
+        color: var(--title-text-color, #e1e7f6);
         margin-bottom: 0.75rem;
       }
 
       .showcase-content {
         margin-bottom: 0.75rem;
-        color: var(--text, #cdd6f4);
+        color: var(--body-text-color, #bac4de);
       }
 
       .device-image {
@@ -199,7 +199,7 @@ class DeviceCarousel extends HTMLElement {
       .showcase-meta {
         font-family: var(--font-mono, 'Maple Mono', 'Fira Code', monospace);
         font-size: 0.75rem;
-        color: var(--subtext0, #a6adc8);
+        color: var(--body-text-color, #bac4de);
         padding: 0.5rem 0.75rem;
         background: var(--mantle, #181825);
         border-radius: 6px;

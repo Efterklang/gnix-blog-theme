@@ -32,7 +32,7 @@
   align-items: center;
   border: none;
   background: transparent;
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   font: inherit;
   font-size: var(--article-font-size);
   font-weight: var(--article-font-weight);
@@ -84,7 +84,7 @@
   max-width: 100%;
   /* 与季节标题、日期列共用起始对齐边（此前多出的 0.15rem 让大标题游离于共享边外） */
   padding-inline: 0 0.5rem;
-  color: var(--text);
+  color: var(--title-text-color);
   cursor: pointer;
   font-size: 2rem;
   /* 比正文重一档，给顶着大片留白的 masthead 一点锚点分量；
@@ -250,7 +250,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
   h2 {
     margin: 0;
-    color: var(--overlay2);
+    color: var(--sub-text-color);
     font-family: var(--font-mono);
     font-size: 0.75rem;
     font-weight: 500;
@@ -272,7 +272,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   margin: 0;
   margin-inline-start: auto;
   padding: 0;
-  color: var(--overlay2);
+  color: var(--sub-text-color);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
@@ -304,7 +304,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   min-width: 0;
   padding: 0.42rem 0.48rem;
   border-radius: 4px;
-  color: var(--text);
+  color: var(--title-text-color);
   font-family: var(--font-serif);
   font-size: 1rem;
   font-style: italic;
@@ -339,7 +339,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 }
 
 .archive-topic-list__count {
-  color: var(--overlay2);
+  color: var(--sub-text-color);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-style: normal;
@@ -399,7 +399,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   /* 静息态唯一的季节色：hover 才出现的 accent 在这里有个"来处"，
      触屏（无 hover 也无 popup）也能看到四季色系统。标签缩为 mono 小字后
      混合比 60→70 补偿小字号的显色度；数字不再缩号，与日期列同高更整 */
-  color: color-mix(in oklch, var(--archive-accent) 70%, var(--subtext0));
+  color: color-mix(in oklch, var(--archive-accent) 70%, var(--sub-text-color));
 }
 
 .archive-item {
@@ -490,7 +490,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 .archive-popup__read {
   margin: 0.5rem 0 0;
-  color: var(--overlay2);
+  color: var(--sub-text-color);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.08em;
@@ -532,7 +532,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
       }
 
       > .archive-title > .archive-title__date {
-        color: color-mix(in oklch, var(--archive-accent) 72%, var(--overlay2));
+        color: color-mix(in oklch, var(--archive-accent) 72%, var(--sub-text-color));
       }
 
       > .archive-popup {
@@ -578,13 +578,12 @@ a.archive-title {
   align-items: baseline;
   column-gap: var(--archive-date-gap);
   inline-size: fit-content;
-  /* 列表静息态整体降半级（字号 ×0.95、颜色向底色收 18%），
-     高亮交给交互层：hover 聚焦模式（mantle overlay 罩住他项）+ accent 变色 */
+  /* 列表标题使用一级文字色，字号略收；hover 再切到季节强调色。 */
   font-size: calc(var(--article-font-size) * 0.95);
   font-weight: var(--article-font-weight);
   font-family: var(--article-font-family);
   max-inline-size: 100%;
-  color: color-mix(in oklch, var(--text) 82%, var(--base));
+  color: var(--title-text-color);
   padding-block: 0.6rem;
   padding-inline: 0 0.35rem;
   line-height: 1.45;
@@ -614,7 +613,7 @@ a.archive-title {
    与季节标题、幕帘眉题同一等宽声部（0.75rem / 500）：字重定死不随正文字重偏好，
    小字号需要比正文重一档才能与标题灰度相当，选 300 时也不至于发虚 */
 .archive-title__date {
-  color: var(--overlay2);
+  color: var(--sub-text-color);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 500;
@@ -624,7 +623,7 @@ a.archive-title {
 
   a.archive-title:hover &,
   a.archive-title:focus-visible & {
-    color: color-mix(in oklch, var(--archive-accent) 72%, var(--overlay2));
+    color: color-mix(in oklch, var(--archive-accent) 72%, var(--sub-text-color));
   }
 }
 

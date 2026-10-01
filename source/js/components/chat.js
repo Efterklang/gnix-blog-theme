@@ -35,7 +35,7 @@ const CHAT_STYLES = `
   :host {
     display: block;
     font-family: var(--article-font-family, var(--font-sans-serif, system-ui, sans-serif));
-    color: var(--text, #cdd6f4);
+    color: var(--body-text-color, #bac4de);
   }
 
   .chat-container {
@@ -47,12 +47,12 @@ const CHAT_STYLES = `
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
-    scrollbar-color: hsl(from var(--text, #cdd6f4) h s l / 0.18) transparent;
+    scrollbar-color: hsl(from var(--title-text-color, #e1e7f6) h s l / 0.18) transparent;
   }
 
   .chat-container::-webkit-scrollbar { width: 6px; }
   .chat-container::-webkit-scrollbar-thumb {
-    background: hsl(from var(--text, #cdd6f4) h s l / 0.18);
+    background: hsl(from var(--title-text-color, #e1e7f6) h s l / 0.18);
     border-radius: 3px;
   }
   .chat-container::-webkit-scrollbar-track { background: transparent; }
@@ -92,7 +92,7 @@ const CHAT_STYLES = `
     justify-content: center;
     font-size: 14px;
     font-weight: 600;
-    color: var(--text, #cdd6f4);
+    color: var(--title-text-color, #e1e7f6);
     background: var(--surface1, #45475a);
   }
 
@@ -113,7 +113,7 @@ const CHAT_STYLES = `
 
   .sender-name {
     font-weight: 600;
-    color: var(--subtext1, #bac2de);
+    color: var(--title-text-color, #e1e7f6);
     letter-spacing: 0.01em;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -121,7 +121,7 @@ const CHAT_STYLES = `
   }
 
   .timestamp {
-    color: var(--subtext0, #a6adc8);
+    color: var(--sub-text-color, #8e99b2);
     font-size: 11px;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
@@ -217,6 +217,10 @@ const CHAT_STYLES = `
     line-height: 1.4;
   }
 
+  .chat-message:not(.is-me) .chat-heading {
+    color: var(--title-text-color, #e1e7f6);
+  }
+
   .message-bubble .chat-heading:first-child { margin-top: 0; }
 
   .message-bubble .chat-heading code {
@@ -227,7 +231,7 @@ const CHAT_STYLES = `
   .empty-state {
     text-align: center;
     padding: 40px 20px;
-    color: var(--subtext0, #a6adc8);
+    color: var(--sub-text-color, #8e99b2);
   }
 
   @media (max-width: 640px) {

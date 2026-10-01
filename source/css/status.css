@@ -6,7 +6,7 @@
 
 .status-sonnet {
   width: min(100%, 34rem);
-  color: var(--subtext1);
+  color: var(--body-text-color);
   font-family: var(--font-serif);
 }
 
@@ -23,13 +23,13 @@
 
 .status-line__label {
   min-width: 0;
-  color: color-mix(in oklch, var(--subtext1) 80%, var(--base));
+  color: var(--sub-text-color);
   font-size: 1rem;
   font-style: italic;
 }
 
 .status-line__value {
-  color: var(--text);
+  color: var(--title-text-color);
   font-size: 1.1rem;
   font-weight: 500;
   font-variant-numeric: tabular-nums;

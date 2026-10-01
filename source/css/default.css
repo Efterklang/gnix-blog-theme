@@ -93,20 +93,9 @@
 
 /* #region Color */
 
-/* 色板派生色阶声明在 :where([data-theme]) 而非 :root：var() 在声明所在元素上
-   求值，放 :root 会按页面主题算好后被全站继承，嵌套主题作用域（如
-   theme-mode-preview 的 pane、theme-stacked 的取色元素）将读不到自身色板的
-   派生值。主题块以 &:where() 嵌套，与原顶层 :where() 一样保持零特定性。 */
+/* 每个主题独立定义固定色值，嵌套 data-theme 的预览也能拿到完整色板。
+   文字仅分标题、正文、辅助三级；surface / overlay 只用于底色、边框与装饰。 */
 :where([data-theme]) {
-  --subtext1: color-mix(in oklch, var(--text) 90%, var(--base));
-  --subtext0: color-mix(in oklch, var(--text) 80%, var(--base));
-  --surface0: color-mix(in oklch, var(--base) 80%, var(--text));
-  --surface1: color-mix(in oklch, var(--base) 78%, var(--text));
-  --surface2: color-mix(in oklch, var(--base) 67%, var(--text));
-  --overlay0: color-mix(in oklch, var(--base) 56%, var(--text));
-  --overlay1: color-mix(in oklch, var(--base) 45%, var(--text));
-  --overlay2: color-mix(in oklch, var(--base) 34%, var(--text));
-
   &:where([data-theme="latte"]) {
     color-scheme: light;
     --rosewater: #dc8a78;
@@ -118,7 +107,15 @@
     --teal: #179299;
     --blue: #1e66f5;
     --lavender: #7287fd;
-    --text: #4c4f69;
+    --title-text-color: #35384b;
+    --body-text-color: #50546b;
+    --sub-text-color: #646879;
+    --surface0: #dce0e8;
+    --surface1: #ccd0da;
+    --surface2: #bcc0cc;
+    --overlay0: #acb0be;
+    --overlay1: #9ca0b0;
+    --overlay2: #8c8fa1;
     --base: #eff1f5;
     --mantle: #e6e9ef;
     --crust: #dce0e8;
@@ -135,7 +132,15 @@
     --teal: #31748f;
     --blue: #9ccfd8;
     --lavender: #c4a7e7;
-    --text: #e0def4;
+    --title-text-color: #e8e3f3;
+    --body-text-color: #c6c1d4;
+    --sub-text-color: #928da6;
+    --surface0: #302c40;
+    --surface1: #3e394f;
+    --surface2: #504a63;
+    --overlay0: #645d78;
+    --overlay1: #78718b;
+    --overlay2: #8c859f;
     --base: #191726;
     --mantle: #161422;
     --crust: #11111b;
@@ -152,7 +157,15 @@
     --teal: #8fbcbb;
     --blue: #81a1c1;
     --lavender: #5e81ac;
-    --text: #4c566a;
+    --title-text-color: #2e3440;
+    --body-text-color: #4c566a;
+    --sub-text-color: #5e697b;
+    --surface0: #d8dee9;
+    --surface1: #c9d1dd;
+    --surface2: #b8c3d2;
+    --overlay0: #a2afc1;
+    --overlay1: #8e9baf;
+    --overlay2: #7a889e;
     --base: #eceff4;
     --mantle: #e5e9f0;
     --crust: #d8dee9;
@@ -169,7 +182,15 @@
     --teal: #2f7d73;
     --blue: #2f5597;
     --lavender: #6f6a9f;
-    --text: #0f4c20;
+    --title-text-color: #263f32;
+    --body-text-color: #46594a;
+    --sub-text-color: #646f5e;
+    --surface0: #dedfd1;
+    --surface1: #cdd2c1;
+    --surface2: #b9c2ac;
+    --overlay0: #a4b296;
+    --overlay1: #8e9e80;
+    --overlay2: #7a8b6e;
     --base: #f4efe3;
     --mantle: #f1efea;
     --crust: #c4d1b5;
@@ -177,7 +198,6 @@
 
   &:where([data-theme="mocha"]) {
     color-scheme: dark;
-
     --rosewater: #f5e0dc;
     --mauve: #cba6f7;
     --red: #f38ba8;
@@ -187,7 +207,15 @@
     --teal: #94e2d5;
     --blue: #89b4fa;
     --lavender: #b4befe;
-    --text: #cdd6f4;
+    --title-text-color: #e1e7f6;
+    --body-text-color: #bac4de;
+    --sub-text-color: #8e99b2;
+    --surface0: #313244;
+    --surface1: #45475a;
+    --surface2: #585b70;
+    --overlay0: #6c7086;
+    --overlay1: #7f849c;
+    --overlay2: #9399b2;
     --base: #1e1e2e;
     --mantle: #181825;
     --crust: #11111b;
@@ -195,7 +223,6 @@
 
   &:where([data-theme="tokyo_night"]) {
     color-scheme: dark;
-
     --rosewater: #f7768e;
     --mauve: #bb9af7;
     --red: #f7768e;
@@ -205,7 +232,15 @@
     --teal: #1abc9c;
     --blue: #7aa2f7;
     --lavender: #82aaff;
-    --text: #c0caf5;
+    --title-text-color: #d5defa;
+    --body-text-color: #b0bddf;
+    --sub-text-color: #8492b2;
+    --surface0: #292d41;
+    --surface1: #363c54;
+    --surface2: #454d69;
+    --overlay0: #59637f;
+    --overlay1: #6b7694;
+    --overlay2: #7d89a8;
     --base: #1a1b26;
     --mantle: #16161e;
     --crust: #101014;
@@ -213,7 +248,6 @@
 
   &:where([data-theme="nord_night"]) {
     color-scheme: dark;
-
     --rosewater: #b48ead;
     --mauve: #b48ead;
     --red: #bf616a;
@@ -223,7 +257,15 @@
     --teal: #8fbcbb;
     --blue: #5e81ac;
     --lavender: #81a1c1;
-    --text: #eceff4;
+    --title-text-color: #eceff4;
+    --body-text-color: #c0c8d4;
+    --sub-text-color: #929eb0;
+    --surface0: #3b4252;
+    --surface1: #434c5e;
+    --surface2: #4c566a;
+    --overlay0: #606d82;
+    --overlay1: #738198;
+    --overlay2: #8795aa;
     --base: #2e3440;
     --mantle: #292e39;
     --crust: #242933;
@@ -231,7 +273,6 @@
 
   &:where([data-theme="mono_light"]) {
     color-scheme: light;
-    --overlay2: #888;
     --rosewater: #8c5a4d;
     --mauve: #674689;
     --red: #9a3936;
@@ -241,9 +282,15 @@
     --teal: #1f7265;
     --blue: #2e598f;
     --lavender: #4e508e;
-    /* 标题近墨，正文退成深灰：白纸上纯黑正文过硬，层级也靠这一档灰度撑开 */
-    --text: #000;
-    --subtext1: #171717;
+    --title-text-color: #171717;
+    --body-text-color: #404040;
+    --sub-text-color: #757575;
+    --surface0: #e5e5e5;
+    --surface1: #d4d4d4;
+    --surface2: #bfbfbf;
+    --overlay0: #a6a6a6;
+    --overlay1: #929292;
+    --overlay2: #808080;
     --base: #fff;
     --mantle: #fff;
     --crust: #fff;
@@ -251,7 +298,6 @@
 
   &:where([data-theme="mono_dark"]) {
     color-scheme: dark;
-
     --rosewater: #e2b9af;
     --mauve: #c5a9e6;
     --red: #ef958e;
@@ -261,9 +307,15 @@
     --teal: #8bcdbf;
     --blue: #95baea;
     --lavender: #adb2ea;
-    /* 粉笔白而非纯白：黑底上 #fafafa 会晕光，压到 #ebebeb 仍有 17:1；正文与标题同色 */
-    --text: #ebebeb;
-    --subtext1: #ebebeb;
+    --title-text-color: #e8e8e8;
+    --body-text-color: #bdbdbd;
+    --sub-text-color: #898989;
+    --surface0: #242424;
+    --surface1: #333333;
+    --surface2: #444444;
+    --overlay0: #575757;
+    --overlay1: #686868;
+    --overlay2: #7a7a7a;
     --base: #000;
     --mantle: #000;
     --crust: #000;
@@ -272,7 +324,7 @@
 
 body {
   background: var(--mantle);
-  color: var(--subtext1);
+  color: var(--body-text-color);
   min-height: 100%;
   line-height: 1.7;
   display: flex;
@@ -282,6 +334,10 @@ body {
   -moz-font-feature-settings: "kern";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+:where(h1, h2, h3, h4, h5, h6) {
+  color: var(--title-text-color);
 }
 
 a {
@@ -335,7 +391,7 @@ hr {
 :where([data-theme]) {
   --glass-fill: color-mix(in oklab, var(--base) min(100%, 46% * var(--glass-tint, 1)), transparent);
   --glass-fill-strong: color-mix(in oklab, var(--base) min(100%, 76% * var(--glass-tint, 1)), transparent);
-  --glass-hover: color-mix(in oklab, var(--text) 7%, transparent);
+  --glass-hover: color-mix(in oklab, var(--title-text-color) 7%, transparent);
   --glass-blur: 0px;
   --glass-saturate: 1.5;
   --glass-brightness: 1;
@@ -359,7 +415,7 @@ hr {
 :where([data-theme="rose_pine"], [data-theme="mocha"], [data-theme="tokyo_night"], [data-theme="nord_night"], [data-theme="mono_dark"]) {
   --glass-fill: color-mix(in oklab, var(--base) min(100%, 42% * var(--glass-tint, 1)), transparent);
   --glass-fill-strong: color-mix(in oklab, var(--base) min(100%, 72% * var(--glass-tint, 1)), transparent);
-  --glass-hover: color-mix(in oklab, var(--text) 10%, transparent);
+  --glass-hover: color-mix(in oklab, var(--title-text-color) 10%, transparent);
   --glass-rim-hi: oklch(1 0 0 / 0.36);
   --glass-rim-mid: oklch(1 0 0 / 0.08);
   --glass-rim-lo: oklch(1 0 0 / 0.18);
@@ -429,7 +485,7 @@ hr {
 
   @media (hover: hover) {
     &:hover {
-      background-color: color-mix(in oklab, var(--glass-surface, var(--glass-fill)), var(--text) 6%);
+      background-color: color-mix(in oklab, var(--glass-surface, var(--glass-fill)), var(--title-text-color) 6%);
     }
   }
 
@@ -739,7 +795,7 @@ html {
 
 #navbar-logo-link {
   font-family: homemade-apple, var(--font-handwriting);
-  color: var(--subtext1);
+  color: var(--body-text-color);
   display: flex;
   align-items: center;
   font-size: 0.78rem;
@@ -749,7 +805,7 @@ html {
 }
 
 .navbar-item {
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   align-items: center;
   display: flex;
   padding: 0 0.5rem;
@@ -791,7 +847,7 @@ html {
   }
 
   .navbar-item:hover {
-    color: var(--text);
+    color: var(--title-text-color);
   }
 
   .navbar-item:hover svg {
@@ -800,7 +856,7 @@ html {
   }
 
   .navbar-item:disabled:hover {
-    color: var(--subtext0);
+    color: var(--sub-text-color);
   }
 
   .navbar-item:disabled:hover svg {
@@ -899,7 +955,7 @@ html {
   position: relative;
   padding: 4rem 1.5rem 3rem;
   text-align: center;
-  color: var(--overlay0);
+  color: var(--sub-text-color);
   font-family: var(--font-mono);
 }
 
@@ -921,7 +977,7 @@ html {
 
 .footer-author {
   font-family: homemade-apple, var(--font-handwriting);
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   letter-spacing: 0.01em;
 }
 
@@ -986,7 +1042,7 @@ input.command-palette-input {
   padding: 1em 0;
 
   &::placeholder {
-    color: var(--overlay1);
+    color: var(--sub-text-color);
   }
 }
 
@@ -1006,7 +1062,7 @@ input.command-palette-input {
   --glass-refraction: 16px;
   --glass-refraction-amount: 24px;
   --glass-depth: 1;
-  color: var(--text);
+  color: var(--body-text-color);
   position: fixed;
   z-index: 101;
   display: flex;
@@ -1089,7 +1145,7 @@ input.command-palette-input {
   display: inline-flex;
   justify-content: center;
   width: 1.5em;
-  color: var(--overlay1);
+  color: var(--sub-text-color);
 }
 
 .command-palette-input-container:has(.command-palette-scope) > .command-palette-input-icon {
@@ -1106,7 +1162,7 @@ input.command-palette-input {
   border: 1px solid var(--surface1);
   border-radius: 999px;
   background-color: hsl(from var(--surface0) h s l / 0.5);
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   font: inherit;
   font-size: 0.78rem;
   line-height: 1.4;
@@ -1114,7 +1170,7 @@ input.command-palette-input {
   cursor: pointer;
 
   &:hover {
-    color: var(--text);
+    color: var(--title-text-color);
     border-color: var(--mauve);
   }
 
@@ -1147,7 +1203,7 @@ input.command-palette-input {
     font-size: 0.68rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--overlay0);
+    color: var(--sub-text-color);
   }
 }
 
@@ -1182,11 +1238,11 @@ input.command-palette-input {
   }
 
   &:hover {
-    background-color: color-mix(in oklab, var(--text) 5%, transparent);
+    background-color: color-mix(in oklab, var(--title-text-color) 5%, transparent);
   }
 
   &.active {
-    background-color: color-mix(in oklab, var(--text) 9%, transparent);
+    background-color: color-mix(in oklab, var(--title-text-color) 9%, transparent);
   }
 
   &.active::before {
@@ -1194,7 +1250,7 @@ input.command-palette-input {
   }
 
   &.active > .command-palette-item-icon {
-    color: var(--text);
+    color: var(--title-text-color);
   }
 
   &:focus-visible {
@@ -1210,16 +1266,16 @@ input.command-palette-input {
   justify-content: center;
   width: 1.5em;
   height: 1.5em;
-  color: var(--subtext0);
+  color: var(--sub-text-color);
 }
 
-/* 文章 / 页面是标题 + 摘要两行：图标对齐标题行，不随整行居中；条目多，图标再淡一档 */
+/* 文章 / 页面是标题 + 摘要两行：图标对齐标题行，并使用辅助文字色。 */
 .command-palette-item--document {
   align-items: flex-start;
 
   & > .command-palette-item-icon {
     height: 1.25em;
-    color: var(--overlay1);
+    color: var(--sub-text-color);
   }
 }
 
@@ -1276,7 +1332,7 @@ input.command-palette-input {
   white-space: nowrap;
   text-overflow: ellipsis;
   font-weight: 500;
-  color: var(--text);
+  color: var(--title-text-color);
 }
 
 .command-palette-item-preview {
@@ -1284,7 +1340,7 @@ input.command-palette-input {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: var(--subtext0);
+  color: var(--body-text-color);
   font-size: 0.85em;
   margin-top: 0.25em;
 }
@@ -1298,7 +1354,7 @@ input.command-palette-input {
   flex: 0 0 auto;
   font-size: 0.7rem;
   letter-spacing: 0.08em;
-  color: var(--overlay1);
+  color: var(--sub-text-color);
   white-space: nowrap;
 }
 
@@ -1313,7 +1369,7 @@ input.command-palette-input {
 }
 
 .command-palette-item-chevron {
-  color: var(--overlay1);
+  color: var(--sub-text-color);
 }
 
 .command-palette-section--tags {
@@ -1330,7 +1386,7 @@ input.command-palette-input {
   & > .command-palette-item {
     width: auto;
     padding: 0.25em 0.85em;
-    border: 1px solid color-mix(in oklab, var(--text) 15%, transparent);
+    border: 1px solid color-mix(in oklab, var(--title-text-color) 15%, transparent);
     border-radius: 999px;
     background-color: transparent;
 
@@ -1348,7 +1404,7 @@ input.command-palette-input {
 
     &:hover,
     &.active {
-      background-color: color-mix(in oklab, var(--text) 9%, transparent);
+      background-color: color-mix(in oklab, var(--title-text-color) 9%, transparent);
       border-color: var(--mauve);
     }
   }
@@ -1357,7 +1413,7 @@ input.command-palette-input {
 .command-palette-empty {
   padding: 1.4em 1.25em;
   font-size: 0.85rem;
-  color: var(--overlay1);
+  color: var(--sub-text-color);
   text-align: center;
 }
 
@@ -1371,7 +1427,7 @@ input.command-palette-input {
   padding: 0.55em 1.25em;
   border-top: 1px solid var(--surface0);
   font-size: 0.68rem;
-  color: var(--overlay1);
+  color: var(--sub-text-color);
   white-space: nowrap;
 
   & > span {
@@ -1393,7 +1449,7 @@ input.command-palette-input {
   padding: 0 0.35em;
   border-radius: 4px;
   background-color: hsl(from var(--surface0) h s l / 0.7);
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   font: inherit;
   line-height: 1;
 }
@@ -1460,7 +1516,7 @@ input.command-palette-input {
   border: 0;
   background: transparent;
   box-shadow: none;
-  color: var(--text);
+  color: var(--body-text-color);
   scrollbar-width: none;
   transform-origin: top right;
 
@@ -1572,14 +1628,14 @@ input.command-palette-input {
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: var(--subtext1);
+  color: var(--body-text-color);
   cursor: pointer;
   transition:
     background-color 160ms ease,
     color 160ms ease;
 
   &:hover:not(:disabled) {
-    color: var(--text);
+    color: var(--title-text-color);
     background: var(--glass-hover);
   }
 
@@ -1609,7 +1665,7 @@ input.command-palette-input {
 
   @media (hover: hover) {
     &:hover {
-      background-color: color-mix(in oklab, var(--glass-surface, var(--glass-fill)), var(--text) 6%);
+      background-color: color-mix(in oklab, var(--glass-surface, var(--glass-fill)), var(--title-text-color) 6%);
     }
   }
 }
@@ -1631,12 +1687,12 @@ input.command-palette-input {
   left: 0.85rem;
   z-index: 1;
   display: inline-flex;
-  color: var(--subtext1);
+  color: var(--body-text-color);
   pointer-events: none;
 }
 
 .preference-quick__select-row:hover .preference-quick__select-icon {
-  color: var(--text);
+  color: var(--title-text-color);
 }
 
 /* 主题模式行按当前生效配色展示太阳/月亮（html 根类由 theme init 脚本维护） */
@@ -1662,7 +1718,7 @@ html.night .preference-quick__select-icon--moon {
   -webkit-appearance: none;
   border: 0;
   border-radius: 999px;
-  color: var(--text);
+  color: var(--title-text-color);
   background-color: transparent;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-opacity='0.5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -1692,11 +1748,11 @@ html.night .preference-quick__select {
   padding: 0;
   border: 0;
   --glass-radius: 50%;
-  color: var(--subtext1);
+  color: var(--body-text-color);
   text-decoration: none;
 
   &:hover {
-    color: var(--text);
+    color: var(--title-text-color);
   }
 
   &:focus-visible {

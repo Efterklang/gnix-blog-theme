@@ -101,11 +101,11 @@
     scale 420ms var(--glass-spring),
     color 0.2s ease,
     background-color 0.2s ease;
-  color: var(--text);
+  color: var(--title-text-color);
   padding: 0;
 }
 .btn:hover {
-  background-color: color-mix(in oklab, var(--glass-fill), var(--text) 6%);
+  background-color: color-mix(in oklab, var(--glass-fill), var(--title-text-color) 6%);
 }
 .btn:active {
   scale: 0.96;
