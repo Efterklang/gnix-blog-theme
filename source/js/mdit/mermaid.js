@@ -4,7 +4,7 @@
 // 的回退图（gantt 等不支持的类型）才加载 mermaid.min.js 并监听主题重渲染
 (() => {
   const instances = new Map();
-  const mermaidFontFamily = "ChillKai, Avenir, system-ui";
+  const mermaidFontFamily = "Avenir, system-ui";
   let mermaidPromise = null;
   let renderSeq = 0;
 

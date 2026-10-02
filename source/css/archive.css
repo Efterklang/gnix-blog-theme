@@ -473,7 +473,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 .archive-popup__excerpt {
   font-family: var(--article-font-family);
-  font-style: italic;
+  color: var(--sub-text-color);
 
   & :where(p, ul, ol) {
     margin: 0 0 0.35em;
