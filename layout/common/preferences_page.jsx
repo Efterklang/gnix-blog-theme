@@ -364,12 +364,14 @@ module.exports = class extends Component {
                         const [, labelKey, fallback] = FONT_TYPE_OPTIONS.find(([type]) => type === preset.type);
                         return (
                           <label class="font-preset-option">
-                            <input type="checkbox" data-font-preset={preset.id} />
+                            <input type="checkbox" data-font-preset={preset.id} aria-labelledby={`font-preset-name-${preset.id}`} aria-describedby={`font-preset-status-${preset.id}`} />
                             <span class="font-preset-copy">
                               <span>{translate(helper, labelKey, fallback)}</span>
-                              <strong>{preset.name}</strong>
-                              <small data-font-preset-state={preset.id} aria-live="polite"></small>
+                              <strong id={`font-preset-name-${preset.id}`}>{preset.name}</strong>
                             </span>
+                            <small class="font-preset-status" id={`font-preset-status-${preset.id}`} data-font-preset-state={preset.id} data-state="idle" aria-live="polite">
+                              {translate(helper, "preferences.font_preset_idle", "Check to download")}
+                            </small>
                           </label>
                         );
                       })}
@@ -378,6 +380,7 @@ module.exports = class extends Component {
                     <span
                       hidden
                       data-font-preset-messages
+                      data-idle={translate(helper, "preferences.font_preset_idle", "Check to download")}
                       data-loading={translate(helper, "preferences.font_preset_loading", "Downloading…")}
                       data-ready={translate(helper, "preferences.font_preset_ready", "Downloaded")}
                       data-uncached={translate(helper, "preferences.font_preset_uncached", "Loaded")}

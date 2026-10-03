@@ -507,7 +507,9 @@
 
     function updatePresetStatus(id, state) {
       const output = root.querySelector(`[data-font-preset-state="${id}"]`);
-      if (output) output.textContent = customFontPresetMessages?.dataset[state] || "";
+      if (!output) return;
+      output.dataset.state = state || "idle";
+      output.textContent = customFontPresetMessages?.dataset[state || "idle"] || "";
     }
 
     window.addEventListener("gnix:font-preset-state", (event) => {

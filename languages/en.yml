@@ -137,6 +137,7 @@ preferences:
   font_presets: "Recommended Fonts"
   font_presets_description: "Check to download fonts, then enter their names below to use them."
   font_presets_storage: "Downloaded fonts are cached in this browser. Checking a font does not change your typeface."
+  font_preset_idle: "Check to download"
   font_preset_loading: "Downloading…"
   font_preset_ready: "Downloaded"
   font_preset_uncached: "Loaded"

@@ -137,6 +137,7 @@ preferences:
   font_presets: "推荐字体"
   font_presets_description: "勾选即可下载字体，在下方填写字体名称后使用。"
   font_presets_storage: "下载的字体会缓存在当前浏览器。勾选不会更改正在使用的字体。"
+  font_preset_idle: "勾选下载"
   font_preset_loading: "下载中…"
   font_preset_ready: "已下载"
   font_preset_uncached: "已加载"
