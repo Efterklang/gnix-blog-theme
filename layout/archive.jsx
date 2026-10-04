@@ -253,7 +253,7 @@ module.exports = class extends Component {
       });
     }
 
-    const heroTitle = isTagPage ? page.tag : currentYear ? getArchiveRangeLabel(currentYear, currentMonth, archiveLabels) : helper.__("archive.posts");
+    const heroTitle = isTagPage ? page.tag : currentYear ? getArchiveRangeLabel(currentYear, currentMonth, archiveLabels) : "Posts";
     const heroTitleLabel = [heroTitle, ...pickerStats, topicCountLabel].join(" / ");
     return (
       <main class="archive-page">

@@ -84,14 +84,10 @@
   max-width: 100%;
   /* 与季节标题、日期列共用起始对齐边（此前多出的 0.15rem 让大标题游离于共享边外） */
   padding-inline: 0 0.5rem;
+  padding-top: 1rem;
   color: var(--title-text-color);
   cursor: pointer;
-  font-size: 2rem;
-  /* 比正文重一档，给顶着大片留白的 masthead 一点锚点分量；
-     相对值跟随字重偏好（300/400/500 → 400/500/600） */
-  font-weight: calc(var(--article-font-weight) + 100);
-  letter-spacing: 0.02em;
-  /* 长主题名（overflow-wrap: anywhere）会折行，CJK 字形占满 em 框，行高低于 1 会互相咬合 */
+  font: 400 2.5rem var(--article-font-family);
   line-height: 1.1;
   text-align: start;
   transition: color 160ms ease;
