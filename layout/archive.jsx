@@ -128,7 +128,7 @@ function getPostDateParts(postDate, dateXml, date) {
   };
 }
 
-function renderSeasonGroup({ posts, title, marker = "all", sectionId, order = 1, url_for, date_xml, date }) {
+function renderSeasonGroup({ posts, title, marker = "all", sectionId, order = 1, encryptedLabel, url_for, date_xml, date }) {
   return (
     <section id={sectionId} class={`archive-group ${marker}`} aria-labelledby={`${sectionId}-title`}>
       <h2 id={`${sectionId}-title`} class="archive-group__header archive-label" style={`--i:${order}`}>
@@ -145,6 +145,8 @@ function renderSeasonGroup({ posts, title, marker = "all", sectionId, order = 1,
             key={post.path}
             url={url_for(post.link || post.path)}
             title={post.title}
+            encrypted={Boolean(post.encrypt || post.password || post.password === 0)}
+            encryptedLabel={encryptedLabel}
             date={postDate.label}
             dateXml={postDate.xml}
             excerpt={excerpt}
@@ -197,6 +199,7 @@ module.exports = class extends Component {
   render() {
     const { config, page, site, helper } = this.props;
     const { url_for, date_xml, date } = helper;
+    const encryptedLabel = helper.__("encrypt.abstract");
 
     const visiblePosts = collectPosts(page.posts);
     const totalVisiblePosts = visiblePosts.length;
@@ -232,6 +235,7 @@ module.exports = class extends Component {
           marker: group.season.toLowerCase(),
           sectionId: `archive-${group.season.toLowerCase()}-${group.startYear}`,
           order,
+          encryptedLabel,
           url_for,
           date_xml,
           date,
@@ -247,6 +251,7 @@ module.exports = class extends Component {
         title: getArchiveRangeLabel(page.year, page.month, archiveLabels),
         marker,
         sectionId: `archive-${page.year}-${marker}-${page.month || "all"}`,
+        encryptedLabel,
         url_for,
         date_xml,
         date,

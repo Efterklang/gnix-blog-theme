@@ -36,7 +36,7 @@
 
   const articleFontConfig = window.__GNIX_ARTICLE_FONT_CONFIG__ || {};
   const ARTICLE_FONT_STORAGE_KEY = articleFontConfig.storageKey || "gnix-article-font";
-  const ARTICLE_FONT_DEFAULT_SETTINGS = articleFontConfig.defaultSettings || { size: "medium", type: "sans-serif", lineHeight: 1.7, weight: "regular", width: "medium", spacing: "normal" };
+  const ARTICLE_FONT_DEFAULT_SETTINGS = articleFontConfig.defaultSettings || { size: "medium", type: "sans-serif", lineHeight: 1.7, weight: "regular", width: "narrow", spacing: "normal" };
   const ARTICLE_SIZE_LIST = articleFontConfig.sizeOptions || ["small", "medium-small", "medium", "medium-large", "large"];
   const ARTICLE_WIDTH_LIST = articleFontConfig.widthOptions || ["narrow", "medium-narrow", "medium", "medium-wide", "wide"];
   const ARTICLE_SPACING_LIST = articleFontConfig.spacingOptions || ["compact", "normal", "relaxed"];

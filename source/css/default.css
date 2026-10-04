@@ -11,8 +11,8 @@
   --article-line-height: 1.7;
   --article-font-weight: 400;
   --article-bold-font-weight: 700;
-  /* 文章页正文栏宽（article.css 消费，其余页面保持默认列宽） */
-  --article-max-width: 50em;
+  /* 文章与归档的默认栏宽为最窄档；各档位显式定义，供偏好设置切换。 */
+  --article-max-width: 42em;
   /* 纵向间距基准（4px 栅格，同 Tailwind v4 的 --spacing）：文章正文的所有纵向
      留白都取它的整数倍（如 h2 上边距 = 16 格 = 4rem），偏好设置的「间距」档位
      只改这一个值（紧凑 3px / 舒缓 5px），由 data-article-spacing 切换 */
@@ -72,6 +72,10 @@
 
   &[data-article-width="medium-narrow"] {
     --article-max-width: 46em;
+  }
+
+  &[data-article-width="medium"] {
+    --article-max-width: 50em;
   }
 
   &[data-article-width="medium-wide"] {

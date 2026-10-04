@@ -5,7 +5,7 @@ const DEFAULT_SETTINGS = Object.freeze({
   type: "sans-serif",
   lineHeight: 1.7,
   weight: "regular",
-  width: "medium",
+  width: "narrow",
   spacing: "normal",
 });
 

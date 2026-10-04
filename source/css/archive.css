@@ -12,17 +12,9 @@
   --archive-enter-duration: 700ms;
   position: relative;
   display: grid;
-  /* 间距做层级：条目密、组间松（约 3 倍条目节距），靠留白对比分组，不画线 */
+  /* 参考归档的 56px 分组留白；组内条目以 14px 间距保持紧凑。 */
   gap: 3.5rem;
-  padding: 1.25rem 1.25rem 0;
-
-  @media (max-width: 720px) {
-    gap: 2.25rem;
-  }
-
-  @media (max-width: 480px) {
-    padding: 1rem 0.875rem 0;
-  }
+  padding: 1.25rem 1.5rem 0;
 }
 
 /* season h2 与 hero 触发按钮共用；border/background/font 是按钮样式复位
@@ -77,20 +69,28 @@
   min-width: 0;
   max-width: 100%;
   font: inherit;
-  padding: 0.35rem 0 1.1rem;
+  padding: 1.35rem 0 0;
 }
 
 .archive-hero__title {
   max-width: 100%;
   /* 与季节标题、日期列共用起始对齐边（此前多出的 0.15rem 让大标题游离于共享边外） */
   padding-inline: 0 0.5rem;
-  padding-top: 1rem;
+  padding-block: 0;
   color: var(--title-text-color);
   cursor: pointer;
-  font: 400 2.5rem var(--article-font-family);
-  line-height: 1.1;
+  font-size: 3rem;
+  font-style: normal;
+  font-weight: 400;
+  font-family: var(--article-font-family);
+  line-height: 1;
+  letter-spacing: -0.03em;
   text-align: start;
   transition: color 160ms ease;
+
+  @media (min-width: 768px) {
+    font-size: 3.25rem;
+  }
 
   &:hover,
   &:focus-visible {
@@ -358,7 +358,6 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 .archive-group {
   position: relative;
   min-width: 0;
-  padding: 0.95rem 0 0;
 
   &.spring {
     --archive-accent: var(--peach);
@@ -374,28 +373,22 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 }
 
-/* The season h2 itself (also carries .archive-label, hence flex).
-   上方留白由 .archive-page 的 gap + .archive-group 的 padding 承担（远大于下方），
-   不对称呼吸让标签视觉上归属下面的分组。
-   声部与幕帘眉题完全同款（mono 0.75rem / 500 / uppercase / 0.16em）：
-   此前用正文字体 italic 且与标题同号，是孤例声部——既不像元信息也不像标题；
-   uppercase 后大写与数字同高，年份也不再高出小写一截 */
+/* 季节标签：11px 等宽字、0.2em 字距；扣除首行链接的 7px 内边距，
+   让标签与第一条文字之间的实际间距保持 24px。 */
 .archive-group__header {
-  margin: 0 0 1.25rem;
+  margin: 0 0 calc(1.5rem - 0.4375rem);
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 500;
-  letter-spacing: 0.16em;
+  line-height: 1.5;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  /* 词与 ’年份 之间的字面空格收成半格（mono 空格恰为 1ch） */
-  word-spacing: -0.5ch;
 }
 
 .archive-label__num {
-  /* 静息态唯一的季节色：hover 才出现的 accent 在这里有个"来处"，
-     触屏（无 hover 也无 popup）也能看到四季色系统。标签缩为 mono 小字后
-     混合比 60→70 补偿小字号的显色度；数字不再缩号，与日期列同高更整 */
+  /* 年份延续主题的季节强调色。 */
   color: color-mix(in oklch, var(--archive-accent) 70%, var(--sub-text-color));
+  font-weight: 600;
 }
 
 .archive-item {
@@ -565,8 +558,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 /* #endregion */
 
 a.archive-title {
-  --archive-date-col: 3.2rem;
-  --archive-date-gap: 0.35rem;
+  --archive-date-col: 2.75rem;
+  --archive-date-gap: 1rem;
   display: grid;
   grid-template-columns: var(--archive-date-col) minmax(0, 1fr);
   /* 日期与标题共享首行基线：此前盒居中让两种字号的文字底边错开半个 x-height，
@@ -574,21 +567,21 @@ a.archive-title {
   align-items: baseline;
   column-gap: var(--archive-date-gap);
   inline-size: fit-content;
-  /* 列表标题使用一级文字色，字号略收；hover 再切到季节强调色。 */
-  font-size: calc(var(--article-font-size) * 0.95);
+  /* 默认偏好下为 15px / 15.5px，仍随用户的正文字号与字体设置缩放。 */
+  font-size: calc(var(--article-font-size) * 0.9375);
   font-weight: var(--article-font-weight);
   font-family: var(--article-font-family);
   max-inline-size: 100%;
   color: var(--title-text-color);
-  padding-block: 0.6rem;
+  padding-block: 0.4375rem;
   padding-inline: 0 0.35rem;
-  line-height: 1.45;
+  line-height: 1.4;
   overflow-wrap: anywhere;
   transition: color 140ms var(--ease-out);
 
-  @media (max-width: 480px) {
-    padding-block: 0.7rem;
-    padding-inline-end: 0.5rem;
+  @media (min-width: 640px) {
+    --archive-date-gap: 1.5rem;
+    font-size: calc(var(--article-font-size) * 0.96875);
   }
 
   &:hover,
@@ -604,16 +597,14 @@ a.archive-title {
   }
 }
 
-/* Leading date inside the title link; the fixed grid column keeps titles aligned.
-   内容是纯数字 mm.dd（见 common.js formatMonthDay），mono + tabular 天然对齐。
-   与季节标题、幕帘眉题同一等宽声部（0.75rem / 500）：字重定死不随正文字重偏好，
-   小字号需要比正文重一档才能与标题灰度相当，选 300 时也不至于发虚 */
+/* 日期固定为 12px 等宽数字，与标题首行基线对齐。 */
 .archive-title__date {
   color: var(--sub-text-color);
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 400;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
   white-space: nowrap;
   transition: color 140ms var(--ease-out);
 
@@ -623,8 +614,28 @@ a.archive-title {
   }
 }
 
+.archive-title__content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-inline-size: 0;
+}
+
 .archive-title__text {
   min-inline-size: 0;
+}
+
+.archive-title__lock {
+  flex: none;
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  color: var(--sub-text-color);
+  transition: color 140ms var(--ease-out);
+
+  a.archive-title:is(:hover, :focus-visible, :active) &,
+  .archive-item[data-preview-active] > a.archive-title & {
+    color: var(--archive-accent);
+  }
 }
 
 :is(.archive-hero__title, .archive-topic-list__item, a.archive-title):focus-visible {
