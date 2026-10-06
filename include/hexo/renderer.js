@@ -4,6 +4,7 @@ const ratex = require("./mdit/ratex");
 const code = require("./mdit/shiki");
 const obsidianCallouts = require("./mdit/obsidian-callouts");
 const s3Image = require("./mdit/image");
+const getImageMetadata = require("./image");
 const anchor = require("markdown-it-anchor");
 const footnote = require("markdown-it-footnote");
 const footnoteTooltip = require("./mdit/footnote-tooltip");
@@ -83,7 +84,7 @@ class MarkdownRenderer {
         .use(mermaidDiagram, this.config.mermaid_options)
         .use(ratex, this.config.ratex_options)
         .use(obsidianCallouts, this.config.callout_options)
-        .use(s3Image, this.config.image_options)
+        .use(s3Image, this.config.image_options, getImageMetadata(this.hexo))
         .use(wrapMarkdownItTable)
         .use(resolveDefault(anchor), {
           permalink: resolveDefault(anchor).permalink.headerLink(),
@@ -207,6 +208,7 @@ function renderer(data, locals) {
 renderer.compile = compile;
 
 module.exports = (hexo) => {
+  getImageMetadata(hexo);
   const titlebasedLink = createTitlebasedLink(hexo);
   const markdownConfig = hexo.config.markdown_exit || {};
   const markdownRenderer = async (data) => getMarkdownRenderer(hexo, titlebasedLink).render(data);

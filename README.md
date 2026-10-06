@@ -27,6 +27,35 @@ Support multiple light and dark themes:
 
 ## Components
 
+### Responsive images and metadata cache
+
+Bitiful Markdown images and article covers share a metadata cache at
+`thumbcache.json` in the Hexo project root. Caching is enabled by default and
+reuses the existing file. Identical in-flight requests are combined, and at most
+four images request metadata concurrently. The cache is saved after generation
+and on Hexo exit.
+
+Optional overrides belong in the site's `_config.yml`:
+
+```yaml
+markdown_exit:
+  image_options:
+    cache_path: thumbcache.json # Relative to the Hexo project root; false disables disk caching.
+    concurrency: 4
+    request_timeout: 10000 # Per metadata request, in milliseconds.
+```
+
+Lazy Markdown images use `sizes="auto, …"` with explicit dimensions and an
+aspect-ratio wrapper. Supporting browsers select candidates from the actual
+layout, including reading-width preferences; older browsers use a responsive
+fallback based on the default article column. An explicit `progressive.sizes`
+option still overrides this default. Covers use their real dimensions, a
+layout-specific `sizes` value and a cached ThumbHash or 32px placeholder.
+Other image hosts keep their original URLs without Bitiful resize parameters.
+
+Existing rendered Markdown in Hexo's database must be regenerated for the new
+image markup to appear; the metadata cache can be retained across that rebuild.
+
 ### Table, Math, Quote, Callout & Tabs, Highlight
 
 <table>
