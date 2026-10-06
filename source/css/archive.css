@@ -584,6 +584,10 @@ a.archive-title {
     font-size: calc(var(--article-font-size) * 0.96875);
   }
 
+  &.archive-title--encrypted {
+    color: var(--sub-text-color);
+  }
+
   &:hover,
   &:focus-visible {
     color: var(--archive-accent);

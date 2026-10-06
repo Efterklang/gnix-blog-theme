@@ -17,7 +17,7 @@ module.exports = class extends Component {
 
     return (
       <article class="archive-item" style={typeof order === "number" ? `--i:${order}` : null}>
-        <a class="archive-title" href={url}>
+        <a class={encrypted ? "archive-title archive-title--encrypted" : "archive-title"} href={url}>
           <time class="archive-title__date" dateTime={dateXml || null}>
             {formattedDate}
           </time>
@@ -25,14 +25,14 @@ module.exports = class extends Component {
             <span class="archive-title__text">{title}</span>
             {encrypted && (
               <svg
-                class="archive-title__lock"
+                class="archive-title__lock lucide lucide-lock preview-icon"
                 xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
+                width="24"
+                height="24"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="1.8"
+                stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 role="img"
@@ -40,7 +40,7 @@ module.exports = class extends Component {
                 focusable="false"
               >
                 <title>{encryptedLabel}</title>
-                <rect x="5" y="11" width="14" height="11" rx="2" ry="2" />
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
             )}
