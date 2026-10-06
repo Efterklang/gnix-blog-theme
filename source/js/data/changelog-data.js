@@ -3,6 +3,18 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "10.7",
+        cn: [
+          "Mermaid 构建期渲染器由 beautiful-mermaid 换为 agentic-mermaid，Gantt、饼图、思维导图和 Git 图也可直接生成内联 SVG。保留主题配色、字体与平移 / 缩放 / 复制操作，同步新库文字色阶并使用原生 ID 隔离；不支持的语法或渲染错误仍告警后回退，不中断构建。Node.js 最低版本更新为 22",
+          "修正《图片加载》及英文版 Gantt 示例中的重复任务 ID，低分辨率占位图的请求与显示使用独立 ID，恢复构建期渲染",
+        ],
+        en: [
+          "Replace beautiful-mermaid with agentic-mermaid for build-time Mermaid rendering, adding inline SVG output for Gantt, pie, mindmap and Git diagrams. Keep theme colors, fonts and pan / zoom / copy controls, adopt the new text contrast levels and native ID namespacing, and retain warning-based fallback for unsupported syntax or renderer errors without stopping the build. Require Node.js 22 or later",
+          "Fix duplicate task IDs in the Chinese and English image-loading Gantt examples. Give placeholder fetching and display separate IDs so both diagrams render at build time",
+        ],
+        category: "feature",
+      },
+      {
         date: "10.6",
         cn: [
           "图片元数据缓存默认启用并由正文、封面共用，复用项目根目录的 thumbcache.json，合并重复请求并限制并发；正文图片按实际显示宽度选择资源，封面使用真实尺寸与 ThumbHash / 32px 占位图。Nerd Font 细分为常用图标与 Unicode 分片，常用 48 个字符仅需约 9.4 KB，其余分片按字符加载，保留完整字形覆盖",

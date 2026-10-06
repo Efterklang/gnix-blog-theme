@@ -55,16 +55,16 @@ async function test(name, run) {
 
 async function main() {
   const md = await createMd();
-  const themedSvgBlock = css.match(/\[data-mermaid-renderer="beautiful-mermaid"\] \.mermaid-content svg \{([\s\S]*?)\n\}/);
+  const themedSvgBlock = css.match(/\[data-mermaid-renderer\]:not\(\[data-mermaid-renderer="mermaid-js"\]\) \.mermaid-content svg \{([\s\S]*?)\n\}/);
   assert.ok(themedSvgBlock, "mermaid.css declares the scoped derived-variable block");
   const cssDeclarations = new Set([...themedSvgBlock[1].matchAll(/(--_[\w-]+):\s*([^;]+);/g)].map(([, name, value]) => `${name}:${value.replace(/\s+/g, "")}`));
 
   await test("mermaid fences become build-time inline SVG inside the pan/zoom shell", async () => {
     const html = await md.renderAsync(fence(SUPPORTED.flowchart));
-    assert.match(html, /<div class="mermaid-container" data-mermaid-renderer="beautiful-mermaid">/);
+    assert.match(html, /<div class="mermaid-container" data-mermaid-renderer="agentic-mermaid">/);
     assert.match(
       html,
-      /<div class="mermaid-content"><svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="[^"]+" width="[^"]+" height="[^"]+" style="--bg:var\(--mantle\);--fg:var\(--body-text-color\);--accent:var\(--lavender\)">/,
+      /<div class="mermaid-content"><svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"[^>]* style="--bg:var\(--mantle\);--fg:var\(--body-text-color\);--accent:var\(--lavender\);--font:var\(--font-sans-serif\)">/,
     );
     assert.match(html, /<text[^>]*>开始<\/text>/);
     assert.match(html, /<button class="btn copy-code"/);
@@ -104,15 +104,15 @@ async function main() {
   });
 
   await test("mermaid.css derivations match the library's own color-mix weights", async () => {
-    const { renderMermaidSVG } = await import("beautiful-mermaid");
+    const { renderMermaidSVG } = await import("agentic-mermaid");
     const style = renderMermaidSVG("graph LR\n  A --> B").match(/<style>([\s\S]*?)<\/style>/)[1];
     const libraryDeclarations = [...style.matchAll(/(--_[\w-]+):\s*([^;]+);/g)].map(([, name, value]) => `${name}:${value.replace(/\s+/g, "")}`);
     assert.ok(libraryDeclarations.length >= 12);
     for (const declaration of libraryDeclarations) {
-      assert.ok(cssDeclarations.has(declaration), `mermaid.css is out of sync with beautiful-mermaid: ${declaration}`);
+      assert.ok(cssDeclarations.has(declaration), `mermaid.css is out of sync with agentic-mermaid: ${declaration}`);
     }
-    assert.match(css, /\[data-mermaid-renderer="beautiful-mermaid"\] \.mermaid-content svg \{[^}]*max-width: 100%;[^}]*height: auto;/);
-    assert.match(themedSvgBlock[1], /text \{\s*font-family: var\(--font-sans-serif\);/);
+    assert.match(css, /\[data-mermaid-renderer\]:not\(\[data-mermaid-renderer="mermaid-js"\]\) \.mermaid-content svg \{[^}]*max-width: 100%;[^}]*height: auto;/);
+    assert.match(themedSvgBlock[1], /text \{\s*font-family: var\(--font, var\(--font-sans-serif\)\);/);
     assert.match(themedSvgBlock[1], /\.mono \{\s*font-family: var\(--font-mono\);/);
   });
 
@@ -139,20 +139,20 @@ async function main() {
 
   await test("unsupported diagram types fall back to the client-side mermaid.js shell with a warning", async () => {
     const { result: html, warnings } = await withCapturedWarnings(() =>
-      md.renderAsync(fence("gantt\n  title t\n  section s\n  a :a1, 2024-01-01, 3d"), { path: `${process.cwd()}/source/_posts/demo.md` }),
+      md.renderAsync(fence("sankey-beta\n\nA,B,10"), { path: `${process.cwd()}/source/_posts/demo.md` }),
     );
     assert.match(html, /<div class="mermaid-container" data-mermaid-renderer="mermaid-js">/);
     assert.match(html, /<div class="mermaid-content"><\/div>/);
-    assert.match(html, /<textarea class="mermaid-code" style="display:none">gantt\n {2}title t/);
+    assert.match(html, /<textarea class="mermaid-code" style="display:none">sankey-beta\n\nA,B,10/);
     assert.equal(svgsOf(html).length, 0, "no diagram svg, only the toolbar icons");
     assert.equal(warnings.length, 1);
-    assert.match(warnings[0], /^\[mermaid\] beautiful-mermaid could not render `gantt` in source\/_posts\/demo\.md, falling back to client-side mermaid\.js: /);
+    assert.match(warnings[0], /^\[mermaid\] agentic-mermaid could not render `sankey-beta` in source\/_posts\/demo\.md, falling back to client-side mermaid\.js: /);
   });
 
   await test("fallback: false emits the source as a plain code block instead", async () => {
     const strict = await createMd({ fallback: false });
-    const { result: html, warnings } = await withCapturedWarnings(() => strict.renderAsync(fence('pie title x\n  "a" : 1')));
-    assert.equal(html.trim(), '<pre><code class="language-mermaid">pie title x\n  "a" : 1</code></pre>');
+    const { result: html, warnings } = await withCapturedWarnings(() => strict.renderAsync(fence("sankey-beta\n\nA,B,10")));
+    assert.equal(html.trim(), '<pre><code class="language-mermaid">sankey-beta\n\nA,B,10</code></pre>');
     assert.equal(warnings.length, 1);
     assert.match(warnings[0], /emitting the source as a code block/);
   });
@@ -160,7 +160,7 @@ async function main() {
   await test("render options merge over the defaults", async () => {
     const custom = await createMd({ render: { accent: "var(--peach)", font: "Inter" } });
     const html = await custom.renderAsync(fence(SUPPORTED.flowchart));
-    assert.match(html, /style="--bg:var\(--mantle\);--fg:var\(--body-text-color\);--accent:var\(--peach\)"/);
+    assert.match(html, /style="--bg:var\(--mantle\);--fg:var\(--body-text-color\);--accent:var\(--peach\);--font:Inter"/);
   });
 
   await test("other fences are left to the previous fence renderer", async () => {

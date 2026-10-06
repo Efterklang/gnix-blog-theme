@@ -1,7 +1,7 @@
-// Mermaid 代码块在构建期由 beautiful-mermaid 渲染为内联 SVG（同步、无 DOM 依赖）。
+// Mermaid 代码块在构建期由 agentic-mermaid 渲染为内联 SVG（同步、无 DOM 依赖）。
 // 颜色一律写成站内色板的 CSS 变量，主题 / 夜间模式切换由级联即时生效，无需像 mermaid.js
 // 那样监听主题重渲染；平移缩放与复制的外壳（toolbar / grid panel）沿用 source/js/mdit/mermaid.js。
-// 不支持的图类型（gantt / pie / mindmap / gitGraph…）回退为浏览器端 mermaid.js 渲染。
+// 尚不支持的图类型或语法回退为浏览器端 mermaid.js 渲染。
 const { createHash } = require("node:crypto");
 const path = require("node:path");
 
@@ -45,13 +45,15 @@ const gridPanelTemplate = `<div class="mermaid-viewer-grid-panel">
 const DEFAULT_OPTIONS = {
   // 不支持的图类型是否回退为浏览器端 mermaid.js 渲染；关闭则改为输出源码块
   fallback: true,
-  // 透传给 beautiful-mermaid 的 RenderOptions。bg 与 .mermaid-wrapper 的底色同为 --mantle，
+  // 透传给 agentic-mermaid 的 RenderOptions。bg 与 .mermaid-wrapper 的底色同为 --mantle，
   // 配合 transparent 让底色透出，color-mix 派生色阶才与实际底色吻合
   render: {
     bg: "var(--mantle)",
     fg: "var(--body-text-color)",
     accent: "var(--lavender)",
+    font: "var(--font-sans-serif)",
     transparent: true,
+    embedFontImport: false,
   },
 };
 
@@ -66,43 +68,39 @@ function escapeHtml(text) {
   return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 
-// beautiful-mermaid 仅提供 ESM 导出，与 markdown-it-ts 一样走惰性动态 import，模块级缓存一次
-let beautifulMermaid = null;
-function loadBeautifulMermaid() {
-  beautifulMermaid ??= import("beautiful-mermaid");
-  return beautifulMermaid;
+// agentic-mermaid 仅提供 ESM 导出，与 markdown-it-ts 一样走惰性动态 import，模块级缓存一次
+let agenticMermaid = null;
+function loadAgenticMermaid() {
+  agenticMermaid ??= import("agentic-mermaid");
+  return agenticMermaid;
 }
 
-// 库输出的 SVG 自带一段 <style>：Google Fonts 的 @import，以及 text / svg / .mono 这类不限定作用域
-// 的规则——内联进 HTML 后会作用于整个文档且逐图重复。这里整段剥除，等价的派生色阶与字体规则
+// 库输出的 SVG 自带 text / svg / .mono 等不限定作用域的规则，内联进 HTML 后会作用于整个文档
+// 且逐图重复。这里剥除通用主题块，等价的派生色阶与字体规则
 // 收敛到 source/css/optional/mermaid.css、限定在图内声明（test/mermaid_render.test.js 校验两者同步）。
-// xychart 追加的第二段 <style> 只含 .xychart-* 规则，保留。
+// xychart、gantt、pie 等图表自己的样式保留。
 function stripThemeStyle(svg) {
-  return svg.replace(/<style>[\s\S]*?<\/style>\s*/, "");
-}
-
-// marker 等 id 以源码哈希作后缀：同页多图时 url(#arrowhead) 不再一律解析到首图的定义
-function scopeIds(svg, code) {
-  const suffix = createHash("sha1").update(code).digest("base64url").slice(0, 8);
-  return svg.replace(/ id="([^"]+)"/g, ` id="$1-${suffix}"`).replace(/url\(#([^)]+)\)/g, `url(#$1-${suffix})`);
+  return svg.replace(/<style>[\s\S]*?<\/style>\s*/, (style) => style.includes("--_text:") ? "" : style);
 }
 
 async function renderSvg(code, options, env) {
-  const { renderMermaidSVG } = await loadBeautifulMermaid();
   try {
-    return scopeIds(stripThemeStyle(renderMermaidSVG(code, options.render)), code);
+    const { renderMermaidSVG } = await loadAgenticMermaid();
+    // 由库同时隔离 defs ID 和引用，避免手工替换漏掉滤镜、href 或无障碍引用。
+    const prefix = `gnix-${createHash("sha1").update(code).digest("base64url").slice(0, 8)}-`;
+    return stripThemeStyle(renderMermaidSVG(code, { idPrefix: prefix, ...options.render }));
   } catch (error) {
     const header = code.trim().split("\n")[0].trim();
     const source = env?.path ? ` in ${path.relative(process.cwd(), env.path)}` : "";
     const action = options.fallback ? "falling back to client-side mermaid.js" : "emitting the source as a code block";
-    console.warn(`[mermaid] beautiful-mermaid could not render \`${header}\`${source}, ${action}: ${String(error?.message || error).split("\n")[0]}`);
+    console.warn(`[mermaid] agentic-mermaid could not render \`${header}\`${source}, ${action}: ${String(error?.message || error).split("\n")[0]}`);
     return null;
   }
 }
 
 // 回退图的 .mermaid-content 留空，由 source/js/mdit/mermaid.js 按 data-mermaid-renderer 判断是否需要浏览器端渲染
 function renderContainer(code, svg) {
-  return `<div class="mermaid-container" data-mermaid-renderer="${svg ? "beautiful-mermaid" : "mermaid-js"}">
+  return `<div class="mermaid-container" data-mermaid-renderer="${svg ? "agentic-mermaid" : "mermaid-js"}">
   <div class="mermaid-wrapper">
     ${toolbarTemplate}
     <textarea class="mermaid-code" style="display:none">${escapeHtml(code)}</textarea>

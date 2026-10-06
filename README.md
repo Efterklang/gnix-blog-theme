@@ -27,6 +27,25 @@ Support multiple light and dark themes:
 
 ## Components
 
+### Mermaid diagrams
+
+Mermaid fences render at build time as inline SVG using
+[agentic-mermaid](https://github.com/adewale/agentic-mermaid), requiring Node.js
+22 or later. Diagrams inherit the site's colors and fonts and retain the
+pan, zoom and copy controls. Gantt, pie, mindmap and Git graphs can now render
+at build time alongside flowcharts, sequence diagrams, class diagrams and ER
+diagrams.
+
+`markdown_exit.mermaid_options.render` passes options through to
+`agentic-mermaid` (for example `style`, `padding` or `font`). The defaults use a
+transparent background, theme CSS variables and no external font imports.
+Unsupported syntax or renderer errors produce a warning and fall back to
+browser-side Mermaid; set `markdown_exit.mermaid_options.fallback: false` to
+display the source as a code block instead.
+
+Cached SVGs from the previous renderer remain styled. Regenerate cached
+Markdown in Hexo's database to render existing posts with agentic-mermaid.
+
 ### Responsive images and metadata cache
 
 Bitiful Markdown images and article covers share a metadata cache at
