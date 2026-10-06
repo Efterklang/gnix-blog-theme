@@ -3,6 +3,20 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "10.6",
+        cn: [
+          "推荐字体新增 Noto Serif SC 与 Maple Mono NF CN；默认等宽字体改用系统字体，Maple 由读者自行选择下载。自托管 Symbols Nerd Font Mono 补齐图标，按 Unicode 范围拆分、遇到对应字符才加载，自定义字体同样保留图标回退",
+          "精简九套主题的中性色，移除 overlay2、surface2 与 crust；同步调整组件、设置页与评论样式，并将存量文章迁移到保留的背景色与语义文字色变量",
+          "修正脚注浮层定位：跟随脚注标记并在视口边缘避让，使用顶层 popover 避免遮挡，背景改为主题纯色",
+        ],
+        en: [
+          "Add Noto Serif SC and Maple Mono NF CN to Recommended Fonts. The default monospace stack now uses system fonts, with Maple available as an optional download. Self-hosted Symbols Nerd Font Mono supplies missing icons through Unicode subsets loaded when matching characters are needed; custom font stacks retain the same icon fallback",
+          "Simplify neutral palettes across all nine themes by removing overlay2, surface2 and crust. Update components, preferences and comments, and migrate existing posts to the retained background tokens and semantic text colors",
+          "Stabilize footnote popover positioning around its reference with viewport collision handling. Use the browser's top layer to avoid clipping and a solid theme background",
+        ],
+        category: "uiux",
+      },
+      {
         date: "10.1",
         cn: [
           "重调全部九套主题的文字与中性色阶：统一为 title-text-color / body-text-color / sub-text-color 三级，标题最醒目、正文适中、辅助信息更淡；各主题独立定义固定色值，不再用 color-mix 推导色板。surface / overlay 专用于底色、边框与装饰，文章、归档、设置页、评论和组件同步使用语义文字色，主题预览同步展示新色板",
