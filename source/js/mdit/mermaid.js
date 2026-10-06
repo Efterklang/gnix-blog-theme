@@ -1,4 +1,4 @@
-// Mermaid 图的浏览器端外壳：平移缩放 / 复制源码，以及回退图的 mermaid.js 渲染。
+// Mermaid 图的浏览器端外壳：全屏预览 / 平移缩放 / 复制源码，以及回退图的 mermaid.js 渲染。
 // 大多数图已在构建期由 agentic-mermaid 内联为 SVG（include/hexo/mdit/mermaid.js），
 // 颜色走 CSS 变量随主题即时切换，这里只挂交互；只有 data-mermaid-renderer="mermaid-js"
 // 的回退图才加载 mermaid.min.js 并监听主题重渲染
@@ -7,6 +7,7 @@
   const mermaidFontFamily = "Avenir, system-ui";
   let mermaidPromise = null;
   let renderSeq = 0;
+  let activePreview = null;
 
   const isZhLocale = () => (document.documentElement.lang || "").toLowerCase().startsWith("zh");
 
@@ -15,6 +16,9 @@
     const messages = {
       copied: zh ? "已复制" : "Copied!",
       copyCode: zh ? "复制代码" : "Copy Code",
+      preview: zh ? "全屏预览" : "Fullscreen preview",
+      previewTitle: zh ? "图表预览" : "Diagram preview",
+      closePreview: zh ? "关闭全屏预览" : "Close fullscreen preview",
       panDown: zh ? "向下平移" : "Pan down",
       panLeft: zh ? "向左平移" : "Pan left",
       panRight: zh ? "向右平移" : "Pan right",
@@ -24,6 +28,19 @@
       zoomOut: zh ? "缩小" : "Zoom out",
     };
     return messages[key] || key;
+  };
+
+  // 与现有 16px 工具栏图标保持相同尺寸和线条粗细。
+  const previewIcon = (path) => `<svg class="mermaid-preview-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="${path}"/></svg>`;
+
+  const previewButton = (label, path) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "btn";
+    button.setAttribute("aria-label", label);
+    button.title = label;
+    button.innerHTML = previewIcon(path);
+    return button;
   };
 
   const loadMermaid = (jsUrl) => {
@@ -96,6 +113,13 @@
       this.startX = 0;
       this.startY = 0;
       this.wrapper = container.querySelector(".mermaid-wrapper");
+      const toolbar = container.querySelector(".mermaid-toolbar");
+      if (toolbar && !toolbar.querySelector(".preview-diagram")) {
+        const button = previewButton(getUiText("preview"), "M6 2H2v4M10 2h4v4M14 10v4h-4M2 10v4h4");
+        button.classList.add("preview-diagram");
+        button.setAttribute("aria-haspopup", "dialog");
+        toolbar.append(button);
+      }
       this.localizeControls();
       this.initEvents();
     }
@@ -103,6 +127,7 @@
     localizeControls() {
       const labels = [
         [".copy-code", getUiText("copyCode")],
+        [".preview-diagram", getUiText("preview")],
         [".up", getUiText("panUp")],
         [".down", getUiText("panDown")],
         [".left", getUiText("panLeft")],
@@ -114,10 +139,83 @@
 
       labels.forEach(([selector, label]) => {
         this.container.querySelectorAll(selector).forEach((button) => {
+          button.type = "button";
           button.setAttribute("aria-label", label);
-          if (button.classList.contains("copy-code")) button.setAttribute("title", label);
+          button.title = label;
         });
       });
+    }
+
+    openPreview() {
+      if (activePreview || !this.content || !this.wrapper) return;
+
+      const trigger = this.container.querySelector(".preview-diagram");
+      const previousView = { scale: this.scale, tx: this.tx, ty: this.ty };
+      const bounds = this.container.getBoundingClientRect();
+      const style = getComputedStyle(this.container);
+      const placeholder = document.createElement("div");
+      placeholder.style.height = `${bounds.height}px`;
+      placeholder.style.marginBlockStart = style.marginBlockStart;
+      placeholder.style.marginBlockEnd = style.marginBlockEnd;
+      placeholder.setAttribute("aria-hidden", "true");
+
+      const dialog = document.createElement("dialog");
+      dialog.className = "mermaid-preview";
+      dialog.setAttribute("aria-label", getUiText("previewTitle"));
+      const header = document.createElement("div");
+      header.className = "mermaid-preview-header";
+      const title = document.createElement("h2");
+      title.className = "mermaid-preview-title";
+      title.textContent = getUiText("previewTitle");
+      const close = previewButton(getUiText("closePreview"), "m4 4 8 8M12 4l-8 8");
+      close.autofocus = true;
+      header.append(title, close);
+
+      // 移动原节点，保留异步渲染与交互，并避免复制 SVG 的 defs/无障碍 ID。
+      this.container.replaceWith(placeholder);
+      dialog.append(header, this.container);
+      placeholder.after(dialog);
+      this.scale = 1;
+      this.tx = 0;
+      this.ty = 0;
+      this.apply();
+
+      let restored = false;
+      const restore = () => {
+        if (restored) return;
+        restored = true;
+        if (dialog.open) dialog.close();
+        placeholder.replaceWith(this.container);
+        Object.assign(this, previousView);
+        this.apply();
+        dialog.remove();
+        activePreview = null;
+        if (trigger?.isConnected) trigger.focus({ preventScroll: true });
+      };
+      activePreview = { close: restore };
+      close.addEventListener("click", restore);
+      dialog.addEventListener("close", restore);
+      dialog.addEventListener("cancel", (event) => {
+        event.preventDefault();
+        restore();
+      });
+      dialog.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") event.stopPropagation();
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+        const action = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", "+": "zoom-in", "=": "zoom-in", "-": "zoom-out", "0": "reset" }[event.key];
+        if (!action) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this.container.querySelector(`.${action}`)?.click();
+      });
+
+      try {
+        dialog.showModal();
+        close.focus({ preventScroll: true });
+      } catch (error) {
+        restore();
+        console.warn("[mermaid] Unable to open preview:", error);
+      }
     }
 
     apply() {
@@ -142,6 +240,10 @@
         if (!btn) return;
         const cl = btn.classList;
 
+        if (cl.contains("preview-diagram")) {
+          this.openPreview();
+          return;
+        }
         if (cl.contains("zoom-in")) this.scale = Math.min(this.scale * 1.2, 5);
         else if (cl.contains("zoom-out")) this.scale = Math.max(this.scale / 1.2, 0.2);
         else if (cl.contains("reset")) {
@@ -267,4 +369,6 @@
     attributes: true,
     attributeFilter: ["class"],
   });
+
+  window.addEventListener("pagehide", () => activePreview?.close());
 })();

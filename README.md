@@ -32,7 +32,10 @@ Support multiple light and dark themes:
 Mermaid fences render at build time as inline SVG using
 [agentic-mermaid](https://github.com/adewale/agentic-mermaid), requiring Node.js
 22 or later. Diagrams inherit the site's colors and fonts and retain the
-pan, zoom and copy controls. Gantt, pie, mindmap and Git graphs can now render
+pan, zoom and copy controls. The fullscreen-preview button opens a viewport-sized
+dialog with the same controls. Escape or the close button returns to the article
+and restores its previous zoom and pan; inside the preview, arrow keys pan,
+`+` / `-` zoom and `0` resets the view. Gantt, pie, mindmap and Git graphs can now render
 at build time alongside flowcharts, sequence diagrams, class diagrams and ER
 diagrams.
 

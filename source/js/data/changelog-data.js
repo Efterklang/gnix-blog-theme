@@ -7,10 +7,12 @@ window.__CHANGELOG_DATA__ = [
         cn: [
           "Mermaid 构建期渲染器由 beautiful-mermaid 换为 agentic-mermaid，Gantt、饼图、思维导图和 Git 图也可直接生成内联 SVG。保留主题配色、字体与平移 / 缩放 / 复制操作，同步新库文字色阶并使用原生 ID 隔离；不支持的语法或渲染错误仍告警后回退，不中断构建。Node.js 最低版本更新为 22",
           "修正《图片加载》及英文版 Gantt 示例中的重复任务 ID，低分辨率占位图的请求与显示使用独立 ID，恢复构建期渲染",
+          "Mermaid 工具栏新增全屏预览：原生弹窗铺满视口，复用原图与平移 / 缩放 / 复制操作；方向键平移、+ / - 缩放、0 重置，Esc 或关闭按钮返回文章并恢复原来的视图与焦点。入口兼容缓存图表，触屏按钮扩大到 44px，并尊重减少动态效果偏好",
         ],
         en: [
           "Replace beautiful-mermaid with agentic-mermaid for build-time Mermaid rendering, adding inline SVG output for Gantt, pie, mindmap and Git diagrams. Keep theme colors, fonts and pan / zoom / copy controls, adopt the new text contrast levels and native ID namespacing, and retain warning-based fallback for unsupported syntax or renderer errors without stopping the build. Require Node.js 22 or later",
           "Fix duplicate task IDs in the Chinese and English image-loading Gantt examples. Give placeholder fetching and display separate IDs so both diagrams render at build time",
+          "Add fullscreen Mermaid previews in a viewport-sized native dialog, reusing the original diagram and pan / zoom / copy controls. Arrow keys pan, + / - zoom, 0 resets, and Escape or Close returns to the article with its previous view and focus restored. Cached diagrams also receive the preview button; touch controls use 44px targets and reduced-motion preferences are respected",
         ],
         category: "feature",
       },
