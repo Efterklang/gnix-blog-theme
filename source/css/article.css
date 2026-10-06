@@ -489,108 +489,62 @@
   margin: calc(var(--spacing) * 12) 0 calc(var(--spacing) * 6);
 }
 
+/* Keep the rendered content beside its reference for reading order. The native
+   popover lifts it out of article overflow, transforms and stacking contexts. */
 .footnote-ref .footnote-tooltip {
   display: none;
 }
 
-sup.footnote-ref.is-footnote-tooltip-open {
-  position: relative;
-}
-
-sup.footnote-ref.is-footnote-tooltip-open .footnote-tooltip {
-  display: block;
+.footnote-tooltip[popover] {
   position: fixed;
-  right: 1rem;
-  bottom: calc(1rem + env(safe-area-inset-bottom));
-  left: 1rem;
+  inset: auto 1rem calc(1rem + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  width: auto;
+  height: auto;
   max-height: min(52dvh, 22rem);
+  margin: 0;
   overflow: auto;
+  overscroll-behavior: contain;
+  overflow-wrap: anywhere;
   padding: 0.75rem 0.9rem;
-  /* 玻璃底栏：自身可滚动，描边高光走 inset box-shadow（同 .glass-scroll） */
   border: none;
-  border-radius: 18px;
-  background: var(--glass-fill-strong);
-  box-shadow:
-    0 0 0 0.5px var(--glass-edge),
-    inset 0 1px 0 var(--glass-rim-lo),
-    inset 0 0 0 1px var(--glass-rim-mid),
-    var(--glass-shadow-lg);
-  -webkit-backdrop-filter: blur(16px) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
-  backdrop-filter: blur(16px) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
+  border-radius: var(--radius);
+  background: var(--base);
+  box-shadow: 0 0 0 1px var(--surface0), 0 6px 20px rgb(0 0 0 / 0.12);
   color: var(--body-text-color);
+  font-family: var(--article-font-family);
   font-size: 0.9rem;
   font-style: normal;
   font-weight: var(--article-font-weight);
   line-height: 1.65;
-  text-align: left;
+  text-align: start;
   white-space: normal;
-  pointer-events: auto;
-  z-index: 1000;
+
+  &:popover-open {
+    display: block;
+  }
+
+  /* Footnotes are small previews, without the global popover's page backdrop. */
+  &::before {
+    content: none;
+  }
+
+  &::backdrop {
+    background: transparent;
+    pointer-events: none;
+  }
 }
 
-/* Hover preview for footnote refs; content is injected at build time by
-   include/hexo/mdit/footnote-tooltip.js. Hover-capable pointers only —
-   on touch, simulated hover would eat the first tap on the ref link. */
 @media (hover: hover) and (pointer: fine) {
-  sup.footnote-ref {
-    position: relative;
-
-    .footnote-tooltip {
-      display: block;
-      position: absolute;
-      bottom: calc(100% + 0.4em);
-      left: 50%;
-      /* --footnote-tooltip-shift 由 main.js 在 hover 时测量设置，
-         防止靠近 .content（overflow: auto）两端时被裁剪 */
-      transform: translateX(calc(-50% + var(--footnote-tooltip-shift, 0px))) translateY(0.25em);
-      width: max-content;
-      max-width: min(24rem, 70vw);
-      padding: 0.6em 0.85em;
-      /* 玻璃气泡：::after 已用作悬停桥，描边高光改走 inset box-shadow */
-      border: none;
-      border-radius: 12px;
-      background: var(--glass-fill-strong);
-      box-shadow:
-        0 0 0 0.5px var(--glass-edge),
-        inset 0 1px 0 var(--glass-rim-lo),
-        inset 0 0 0 1px var(--glass-rim-mid),
-        var(--glass-shadow);
-      -webkit-backdrop-filter: blur(14px) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
-      backdrop-filter: blur(14px) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
-      color: var(--body-text-color);
-      font-size: 0.8rem;
-      font-style: normal;
-      font-weight: var(--article-font-weight);
-      line-height: 1.6;
-      text-align: left;
-      white-space: normal;
-      opacity: 0;
-      visibility: hidden;
-      transition:
-        opacity 0.15s ease,
-        transform 0.15s var(--ease-out),
-        visibility 0.15s;
-      pointer-events: none;
-      z-index: 10;
-
-      /* invisible bridge across the gap so hover survives the mouse travel */
-      &::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        height: 0.5em;
-      }
-    }
-
-    &:hover .footnote-tooltip,
-    &:focus-within .footnote-tooltip {
-      opacity: 1;
-      visibility: visible;
-      transform: translateX(calc(-50% + var(--footnote-tooltip-shift, 0px))) translateY(0);
-      pointer-events: auto;
-    }
+  .footnote-tooltip[popover] {
+    /* article.js supplies viewport coordinates; geometry is never animated. */
+    inset: auto;
+    width: max-content;
+    max-width: min(24rem, calc(100vw - 24px));
+    max-height: calc(100dvh - 24px);
+    padding: 0.65rem 0.85rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
   }
 }
 

@@ -1,5 +1,5 @@
 // Embeds each footnote's rendered content inside its <sup class="footnote-ref">
-// so CSS alone can show it as a hover tooltip — no client-side JS.
+// so article.js can show a positioned popover without fetching the content.
 // Must be .use()d after markdown-it-footnote.
 module.exports = function footnoteTooltip(md) {
   // footnote_tail moves footnote bodies to the end of the token stream, keyed by

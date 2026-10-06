@@ -30,56 +30,133 @@ function getLocalizedUiText(key) {
 
 const FOOTNOTE_HOVER_TOOLTIP_MEDIA = "(hover: hover) and (pointer: fine)";
 let openFootnoteRef = null;
+let footnoteCloseTimer;
+let footnotePositionFrame;
+let footnoteResizeObserver;
+let footnoteTooltipId = 0;
 
-function closeFootnoteTooltip() {
+function closeFootnoteTooltip(restoreFocus = false) {
+  clearTimeout(footnoteCloseTimer);
+  cancelAnimationFrame(footnotePositionFrame);
+  footnotePositionFrame = null;
+  footnoteResizeObserver?.disconnect();
   if (!openFootnoteRef) return;
 
-  openFootnoteRef.classList.remove("is-footnote-tooltip-open");
-  openFootnoteRef.querySelector(":scope > a")?.setAttribute("aria-expanded", "false");
+  const ref = openFootnoteRef;
+  const tooltip = ref.querySelector(":scope > .footnote-tooltip");
+  const link = ref.querySelector(":scope > a");
+  const hadFocus = tooltip?.contains(document.activeElement);
+  if (restoreFocus && hadFocus) link?.focus({ preventScroll: true });
   openFootnoteRef = null;
+  link?.setAttribute("aria-expanded", "false");
+  if (tooltip?.matches(":popover-open")) tooltip.hidePopover();
 }
 
-function toggleFootnoteTooltip(ref) {
-  if (openFootnoteRef === ref) {
+function positionFootnoteTooltip() {
+  if (!openFootnoteRef) return;
+  const ref = openFootnoteRef;
+  const tooltip = ref.querySelector(":scope > .footnote-tooltip");
+  if (!ref.isConnected || !tooltip?.matches(":popover-open")) {
     closeFootnoteTooltip();
     return;
   }
 
-  closeFootnoteTooltip();
-  openFootnoteRef = ref;
-  ref.classList.add("is-footnote-tooltip-open");
-  ref.querySelector(":scope > a")?.setAttribute("aria-expanded", "true");
+  const scrollTop = tooltip.scrollTop;
+  for (const property of ["left", "top", "max-width", "max-height"]) tooltip.style.removeProperty(property);
+  // Touch previews remain a bottom sheet, now outside ancestor clipping/transforms.
+  if (!window.matchMedia(FOOTNOTE_HOVER_TOOLTIP_MEDIA).matches) return;
+
+  const rect = ref.querySelector(":scope > a").getBoundingClientRect();
+  const viewport = window.visualViewport;
+  const margin = 12;
+  const gap = 8;
+  const minLeft = (viewport?.offsetLeft || 0) + margin;
+  const minTop = (viewport?.offsetTop || 0) + margin;
+  const maxRight = minLeft + (viewport?.width || document.documentElement.clientWidth) - margin * 2;
+  const maxBottom = minTop + (viewport?.height || window.innerHeight) - margin * 2;
+  if (rect.bottom < minTop || rect.top > maxBottom || rect.right < minLeft || rect.left > maxRight) {
+    closeFootnoteTooltip();
+    return;
+  }
+
+  tooltip.style.maxWidth = `min(24rem, ${maxRight - minLeft}px)`;
+  const above = Math.max(0, rect.top - minTop - gap);
+  const below = Math.max(0, maxBottom - rect.bottom - gap);
+  const placeAbove = tooltip.offsetHeight <= above || above >= below;
+  tooltip.style.maxHeight = `${placeAbove ? above : below}px`;
+  // Measure layout dimensions, never an animated transform or the previous offset.
+  const left = Math.max(minLeft, Math.min(rect.left + rect.width / 2 - tooltip.offsetWidth / 2, maxRight - tooltip.offsetWidth));
+  const top = placeAbove ? rect.top - gap - tooltip.offsetHeight : rect.bottom + gap;
+  tooltip.style.left = `${left}px`;
+  tooltip.style.top = `${Math.max(minTop, Math.min(top, maxBottom - tooltip.offsetHeight))}px`;
+  tooltip.scrollTop = scrollTop;
 }
 
-// hover tooltip 是纯 CSS 居中定位，而 .content 有 overflow: auto，
-// ref 靠近两端时 tooltip 会被裁剪；hover 时测量并写入水平偏移量
-function clampFootnoteTooltip(event) {
-  if (!window.matchMedia(FOOTNOTE_HOVER_TOOLTIP_MEDIA).matches) return;
-  if (event.target.closest?.(".footnote-tooltip")) return;
+function scheduleFootnotePosition(event) {
+  // Scrolling a long footnote must not remeasure/reset its own scroll container.
+  if (event?.type === "scroll" && event.target?.closest?.(".footnote-tooltip")) return;
+  if (!openFootnoteRef || footnotePositionFrame != null) return;
+  footnotePositionFrame = requestAnimationFrame(() => {
+    footnotePositionFrame = null;
+    positionFootnoteTooltip();
+  });
+}
 
+function showFootnoteTooltip(ref) {
+  clearTimeout(footnoteCloseTimer);
+  if (openFootnoteRef === ref) return;
+  const tooltip = ref.querySelector(":scope > .footnote-tooltip");
+  const link = ref.querySelector(":scope > a");
+  // Older browsers retain the ordinary footnote link.
+  if (!link || !tooltip?.showPopover) return;
+  closeFootnoteTooltip();
+  tooltip.setAttribute("popover", "manual");
+  if (!tooltip.id) {
+    tooltip.id = `footnote-preview-${++footnoteTooltipId}`;
+    tooltip.addEventListener("toggle", () => {
+      if (openFootnoteRef === ref && !tooltip.matches(":popover-open")) closeFootnoteTooltip();
+    });
+  }
+  link.setAttribute("aria-controls", tooltip.id);
+  link.setAttribute("aria-expanded", "true");
+  tooltip.showPopover();
+  openFootnoteRef = ref;
+  positionFootnoteTooltip();
+  if (openFootnoteRef && window.ResizeObserver) {
+    footnoteResizeObserver ||= new ResizeObserver(scheduleFootnotePosition);
+    footnoteResizeObserver.observe(tooltip);
+    const content = ref.closest(".content");
+    if (content) footnoteResizeObserver.observe(content);
+  }
+}
+
+function handleFootnoteTooltipEnter(event) {
   const ref = event.target.closest?.("sup.footnote-ref");
-  const tooltip = ref?.querySelector(":scope > .footnote-tooltip");
-  if (!tooltip) return;
+  if (!ref) return;
+  if (event.type === "focusin") {
+    // A touch-generated focus must not open the sheet before click toggles it.
+    if (!event.target.matches(":focus-visible")) return;
+  } else if (!window.matchMedia(FOOTNOTE_HOVER_TOOLTIP_MEDIA).matches) return;
+  if (ref.contains(event.relatedTarget)) {
+    clearTimeout(footnoteCloseTimer);
+    return;
+  }
+  showFootnoteTooltip(ref);
+}
 
-  const clip = ref.closest(".content");
-  if (!clip) return;
-
-  tooltip.style.setProperty("--footnote-tooltip-shift", "0px");
-  const rect = tooltip.getBoundingClientRect();
-  const clipRect = clip.getBoundingClientRect();
-  const margin = 4;
-  const minLeft = Math.max(clipRect.left, 0) + margin;
-  const maxRight = Math.min(clipRect.right, window.innerWidth) - margin;
-
-  let shift = 0;
-  if (rect.left < minLeft) shift = minLeft - rect.left;
-  else if (rect.right > maxRight) shift = maxRight - rect.right;
-  tooltip.style.setProperty("--footnote-tooltip-shift", `${shift}px`);
+function handleFootnoteTooltipLeave(event) {
+  if (!openFootnoteRef?.contains(event.target) || openFootnoteRef.contains(event.relatedTarget)) return;
+  clearTimeout(footnoteCloseTimer);
+  // Allow crossing the small gap, including when a long preview is scrollable.
+  footnoteCloseTimer = setTimeout(() => {
+    if (!openFootnoteRef || openFootnoteRef.contains(document.activeElement)) return;
+    if (window.matchMedia(FOOTNOTE_HOVER_TOOLTIP_MEDIA).matches && openFootnoteRef.matches(":hover")) return;
+    closeFootnoteTooltip();
+  }, 120);
 }
 
 function handleFootnoteTooltipClick(event) {
   if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-  if (window.matchMedia(FOOTNOTE_HOVER_TOOLTIP_MEDIA).matches) return;
   if (event.target.closest?.(".footnote-tooltip")) return;
 
   const ref = event.target.closest?.("sup.footnote-ref");
@@ -87,13 +164,15 @@ function handleFootnoteTooltipClick(event) {
     closeFootnoteTooltip();
     return;
   }
+  if (window.matchMedia(FOOTNOTE_HOVER_TOOLTIP_MEDIA).matches) return;
 
   const link = event.target.closest?.("a");
   const tooltip = ref.querySelector(":scope > .footnote-tooltip");
-  if (!link || !tooltip) return;
+  if (!link || !tooltip?.showPopover) return;
 
   event.preventDefault();
-  toggleFootnoteTooltip(ref);
+  if (openFootnoteRef === ref) closeFootnoteTooltip();
+  else showFootnoteTooltip(ref);
 }
 
 // #endregion
@@ -363,7 +442,7 @@ function addHighlightTool() {
 
 function handleArticleKeyDown(e) {
   if (e.key === "Escape") {
-    closeFootnoteTooltip();
+    closeFootnoteTooltip(true);
     closeImageZoom();
   }
 
@@ -515,8 +594,15 @@ document.addEventListener("click", handleFootnoteTooltipClick, {
   capture: true,
   passive: false,
 });
-document.addEventListener("mouseover", clampFootnoteTooltip, { passive: true });
-document.addEventListener("focusin", clampFootnoteTooltip, { passive: true });
+document.addEventListener("mouseover", handleFootnoteTooltipEnter, { passive: true });
+document.addEventListener("focusin", handleFootnoteTooltipEnter, { passive: true });
+document.addEventListener("mouseout", handleFootnoteTooltipLeave, { passive: true });
+document.addEventListener("focusout", handleFootnoteTooltipLeave, { passive: true });
+document.addEventListener("scroll", scheduleFootnotePosition, { capture: true, passive: true });
+window.addEventListener("resize", scheduleFootnotePosition, { passive: true });
+window.visualViewport?.addEventListener("resize", scheduleFootnotePosition, { passive: true });
+window.visualViewport?.addEventListener("scroll", scheduleFootnotePosition, { passive: true });
+window.matchMedia(FOOTNOTE_HOVER_TOOLTIP_MEDIA).addEventListener("change", () => closeFootnoteTooltip());
 // 图片缩放走事件委托：不依赖逐图绑定时机，Swup 导航/解密内容/延迟渲染的
 // 自定义元素只需打上 data-zoomable 标记即可
 document.addEventListener("click", handleImageZoomClick);
