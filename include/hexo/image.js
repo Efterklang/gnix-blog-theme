@@ -17,7 +17,7 @@ module.exports = function getImageMetadata(hexo) {
     if (process.env.NODE_ENV === "development") return;
     const covers = new Set();
     for (const model of ["Post", "Page"]) {
-      hexo.model(model).find().forEach((page) => {
+      hexo.model(model).find({}).forEach((page) => {
         if (images.supports(page.cover)) covers.add(page.cover);
       });
     }
