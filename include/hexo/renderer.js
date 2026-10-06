@@ -4,6 +4,7 @@ const ratex = require("./mdit/ratex");
 const code = require("./mdit/shiki");
 const obsidianCallouts = require("./mdit/obsidian-callouts");
 const s3Image = require("./mdit/image");
+const table = require("./mdit/table");
 const getImageMetadata = require("./image");
 const anchor = require("markdown-it-anchor");
 const footnote = require("markdown-it-footnote");
@@ -14,28 +15,6 @@ const createTitlebasedLink = require("./mdit/titlebased-link");
 
 function resolveDefault(module) {
   return module && typeof module === "object" && "default" in module ? module.default : module;
-}
-
-function wrapMarkdownItTable(md, options = {}) {
-  const { figureClass = "table-wrapper", tableClass = "" } = options;
-
-  const defaultTableOpen = md.renderer.rules.table_open || ((tokens, idx, opts, _env, self) => self.renderToken(tokens, idx, opts));
-
-  const defaultTableClose = md.renderer.rules.table_close || ((tokens, idx, opts, _env, self) => self.renderToken(tokens, idx, opts));
-
-  md.renderer.rules.table_open = (tokens, idx, opts, env, self) => {
-    if (tableClass) {
-      tokens[idx].attrJoin("class", tableClass);
-    }
-
-    return `<figure class="${figureClass}">\n${defaultTableOpen(tokens, idx, opts, env, self)}`;
-  };
-
-  md.renderer.rules.table_close = (tokens, idx, opts, env, self) => {
-    return `${defaultTableClose(tokens, idx, opts, env, self)}\n</figure>`;
-  };
-
-  return md;
 }
 
 class MarkdownRenderer {
@@ -85,7 +64,7 @@ class MarkdownRenderer {
         .use(ratex, this.config.ratex_options)
         .use(obsidianCallouts, this.config.callout_options)
         .use(s3Image, this.config.image_options, getImageMetadata(this.hexo))
-        .use(wrapMarkdownItTable)
+        .use(table)
         .use(resolveDefault(anchor), {
           permalink: resolveDefault(anchor).permalink.headerLink(),
         });

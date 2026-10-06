@@ -36,11 +36,16 @@ class TextImageSection extends HTMLElement {
   }
 
   initZoom() {
-    // main.js 的委托监听会处理点击，这里只需打上标记
+    // article.js 委托处理点击与键盘；组件可能在文章初始化后才渲染。
     const img = this.querySelector(".ti-figure img");
     if (img) {
       img.dataset.zoomable = "true";
       img.style.cursor = "zoom-in";
+      img.tabIndex = 0;
+      img.setAttribute("role", "button");
+      img.setAttribute("aria-haspopup", "dialog");
+      const label = (document.documentElement.lang || "").toLowerCase().startsWith("zh") ? "图片预览" : "Image preview";
+      img.setAttribute("aria-label", `${label}${img.alt ? `: ${img.alt}` : ""}`);
     }
   }
 

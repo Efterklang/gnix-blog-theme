@@ -22,6 +22,10 @@ function getLocalizedUiText(key) {
   const messages = {
     copied: isZh ? "已复制" : "Copied",
     copyCode: isZh ? "复制代码" : "Copy code",
+    imagePreview: isZh ? "图片预览" : "Image preview",
+    previousImage: isZh ? "上一张图片" : "Previous image",
+    nextImage: isZh ? "下一张图片" : "Next image",
+    closeImage: isZh ? "关闭图片预览" : "Close image preview",
   };
   return messages[key] || key;
 }
@@ -178,77 +182,138 @@ function handleFootnoteTooltipClick(event) {
 // #endregion
 
 // #region image zoom
-// 简易 medium-zoom：点击图片 FLIP 放大到视口中心。原图仅隐藏占位，
-// 动画作用于 fixed 定位的克隆节点——.content 有 overflow:auto，直接
-// transform 原图会被裁剪；克隆挂在 body 下也不受祖先 stacking context 影响。
-// 类名沿用 medium-zoom 以复用 article.css 中的 backdrop-filter 等覆盖样式
-const IMAGE_ZOOM_BACKGROUND = "hsla(from var(--mantle) / 0.9)";
-const IMAGE_ZOOM_MARGIN = 24;
+// 原生 dialog 提供顶层渲染、背景 inert 与焦点约束；图片保留 FLIP 放大，
+// 底部操作区独立占位，竖图也不会遮住按钮。切图不做位移动画。
 const IMAGE_ZOOM_DURATION_MS = 300;
 let activeImageZoom = null;
 
 function markImageZoomable(img) {
-  if (img.dataset.zoomable === "true") return;
+  if (img.dataset.zoomable === "false" || img.closest("a, button")) return;
   img.dataset.zoomable = "true";
-  img.style.cursor = "zoom-in";
+  img.tabIndex = 0;
+  img.setAttribute("role", "button");
+  img.setAttribute("aria-haspopup", "dialog");
+  img.setAttribute("aria-label", `${getLocalizedUiText("imagePreview")}${img.alt ? `: ${img.alt}` : ""}`);
+}
+
+function imageZoomButton(label, path, action) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "image-zoom-button";
+  button.title = label;
+  button.setAttribute("aria-label", label);
+  button.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${path}"/></svg>`;
+  button.addEventListener("click", action);
+  return button;
+}
+
+function layoutImageZoom() {
+  const zoom = activeImageZoom;
+  if (!zoom || zoom.closing) return;
+  const rect = zoom.img.getBoundingClientRect();
+  const width = zoom.img.naturalWidth || zoom.clone.naturalWidth || rect.width;
+  const height = zoom.img.naturalHeight || zoom.clone.naturalHeight || rect.height;
+  if (!width || !height) return;
+  // 不超过原始尺寸；stage 已扣除 toolbar、间距及安全区域。
+  const scale = Math.min(1, zoom.stage.clientWidth / width, zoom.stage.clientHeight / height);
+  zoom.clone.style.width = `${width * scale}px`;
+  zoom.clone.style.height = `${height * scale}px`;
+}
+
+function imageZoomTransform(from, to) {
+  return `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})`;
+}
+
+function showZoomImage(zoom, index) {
+  if (zoom.img) zoom.img.style.visibility = zoom.visibility;
+  zoom.animation?.cancel();
+  zoom.img = zoom.images[index];
+  zoom.index = index;
+  zoom.visibility = zoom.img.style.visibility;
+  zoom.img.style.visibility = "hidden";
+
+  // 使用干净的节点，避免复制原图的 tabindex、缩略图占位背景和行内事件。
+  const clone = new Image();
+  clone.className = "image-zoom-image";
+  clone.alt = zoom.img.alt;
+  clone.decoding = "async";
+  clone.src = zoom.img.currentSrc || zoom.img.src;
+  clone.addEventListener("load", () => {
+    if (activeImageZoom === zoom && zoom.clone === clone) layoutImageZoom();
+  });
+  zoom.clone = clone;
+  zoom.stage.replaceChildren(clone);
+  layoutImageZoom();
+  zoom.counter.textContent = `${index + 1} / ${zoom.images.length}`;
+  // 保留端点按钮的焦点，键盘用户到达首尾后仍可反向切换。
+  zoom.previous.setAttribute("aria-disabled", String(index === 0));
+  zoom.next.setAttribute("aria-disabled", String(index === zoom.images.length - 1));
+}
+
+function stepImageZoom(direction) {
+  const zoom = activeImageZoom;
+  if (!zoom || zoom.closing) return;
+  const index = zoom.index + direction;
+  if (index < 0 || index >= zoom.images.length) return;
+  showZoomImage(zoom, index);
 }
 
 function openImageZoom(img) {
   if (activeImageZoom) return;
   const rect = img.getBoundingClientRect();
   if (!rect.width || !rect.height) return;
-
-  const overlay = document.createElement("div");
-  overlay.className = "medium-zoom-overlay";
-  Object.assign(overlay.style, {
-    position: "fixed",
-    inset: "0",
-    zIndex: "150",
-    background: IMAGE_ZOOM_BACKGROUND,
-    opacity: "0",
-    transition: `opacity ${IMAGE_ZOOM_DURATION_MS}ms ease`,
-    cursor: "zoom-out",
+  const scope = img.closest(".content") || document;
+  const images = Array.from(scope.querySelectorAll('img[data-zoomable="true"]')).filter((image) => {
+    if (image.closest("a, button, [hidden], [inert]") || getComputedStyle(image).visibility === "hidden") return false;
+    const bounds = image.getBoundingClientRect();
+    return bounds.width > 0 && bounds.height > 0;
   });
+  if (!images.includes(img)) return;
 
-  const clone = img.cloneNode();
-  clone.removeAttribute("id");
-  clone.classList.add("medium-zoom-image--opened");
-  clone.loading = "eager";
-  Object.assign(clone.style, {
-    position: "fixed",
-    top: `${rect.top}px`,
-    left: `${rect.left}px`,
-    width: `${rect.width}px`,
-    height: `${rect.height}px`,
-    maxWidth: "none",
-    maxHeight: "none",
-    margin: "0",
-    zIndex: "151",
-    cursor: "zoom-out",
-    transform: "none",
-    transition: `transform ${IMAGE_ZOOM_DURATION_MS}ms cubic-bezier(0.2, 0, 0.2, 1)`,
-    willChange: "transform",
+  const dialog = document.createElement("dialog");
+  dialog.className = "image-zoom";
+  dialog.setAttribute("aria-label", getLocalizedUiText("imagePreview"));
+  const stage = document.createElement("div");
+  stage.className = "image-zoom-stage";
+  const toolbar = document.createElement("div");
+  toolbar.className = "image-zoom-toolbar glass";
+  toolbar.setAttribute("role", "group");
+  toolbar.setAttribute("aria-label", getLocalizedUiText("imagePreview"));
+  const previous = imageZoomButton(getLocalizedUiText("previousImage"), "m15 18-6-6 6-6", () => stepImageZoom(-1));
+  const next = imageZoomButton(getLocalizedUiText("nextImage"), "m9 18 6-6-6-6", () => stepImageZoom(1));
+  const close = imageZoomButton(getLocalizedUiText("closeImage"), "m6 6 12 12M6 18 18 6", closeImageZoom);
+  close.classList.add("image-zoom-close");
+  close.autofocus = true;
+  const counter = document.createElement("span");
+  counter.className = "image-zoom-counter";
+  counter.setAttribute("role", "status");
+  counter.setAttribute("aria-atomic", "true");
+  toolbar.append(previous, counter, next, close);
+  dialog.append(stage, toolbar);
+  dialog.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    closeImageZoom();
   });
-
-  const viewportWidth = document.documentElement.clientWidth;
-  const viewportHeight = document.documentElement.clientHeight;
-  // 放大上限不超过图片原始尺寸，避免小图被拉糊
-  const maxWidth = Math.min(viewportWidth - IMAGE_ZOOM_MARGIN * 2, Math.max(img.naturalWidth || Infinity, rect.width));
-  const maxHeight = viewportHeight - IMAGE_ZOOM_MARGIN * 2;
-  const scale = Math.min(maxWidth / rect.width, maxHeight / rect.height);
-  const translateX = viewportWidth / 2 - (rect.left + rect.width / 2);
-  const translateY = viewportHeight / 2 - (rect.top + rect.height / 2);
-
-  document.body.append(overlay, clone);
-  img.style.visibility = "hidden";
-  activeImageZoom = { img, clone, overlay, closing: false };
-
-  requestAnimationFrame(() => {
-    overlay.style.opacity = "1";
-    clone.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+  dialog.addEventListener("click", (event) => {
+    if (!toolbar.contains(event.target)) closeImageZoom();
   });
+  document.body.append(dialog);
+  const zoom = { dialog, stage, previous, next, counter, images, trigger: img, closing: false };
+  activeImageZoom = zoom;
+  dialog.showModal();
+  showZoomImage(zoom, images.indexOf(img));
 
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const target = zoom.clone.getBoundingClientRect();
+    if (target.width && target.height) {
+      zoom.animation = zoom.clone.animate([{ transform: imageZoomTransform(rect, target) }, { transform: "none" }], {
+        duration: IMAGE_ZOOM_DURATION_MS,
+        easing: "cubic-bezier(0.2, 0, 0.2, 1)",
+      });
+    }
+  }
   window.addEventListener("scroll", closeImageZoom, { passive: true });
+  window.addEventListener("resize", layoutImageZoom, { passive: true });
 }
 
 function closeImageZoom() {
@@ -256,34 +321,50 @@ function closeImageZoom() {
   if (!zoom || zoom.closing) return;
   zoom.closing = true;
   window.removeEventListener("scroll", closeImageZoom);
+  window.removeEventListener("resize", layoutImageZoom);
 
-  zoom.overlay.style.opacity = "0";
-  zoom.clone.style.transform = "none";
+  const current = zoom.clone.getBoundingClientRect();
+  zoom.animation?.cancel();
+  const base = zoom.clone.getBoundingClientRect();
+  const target = zoom.img.getBoundingClientRect();
+  const canReturn = target.width > 0 && target.height > 0 && target.top >= 0 && target.bottom <= window.innerHeight && target.left >= 0 && target.right <= document.documentElement.clientWidth;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  zoom.dialog.classList.add("is-closing");
 
   let cleaned = false;
   const cleanup = () => {
     if (cleaned) return;
     cleaned = true;
-    zoom.clone.remove();
-    zoom.overlay.remove();
-    zoom.img.style.visibility = "";
+    zoom.img.style.visibility = zoom.visibility;
+    zoom.dialog.close();
+    zoom.dialog.remove();
     if (activeImageZoom === zoom) activeImageZoom = null;
+    if (zoom.trigger.isConnected) zoom.trigger.focus({ preventScroll: true });
   };
-  zoom.clone.addEventListener("transitionend", cleanup, { once: true });
-  // 页面不可见时 transitionend 不触发，兜底回收
-  setTimeout(cleanup, IMAGE_ZOOM_DURATION_MS + 100);
+  if (reducedMotion || !base.width || !base.height) {
+    cleanup();
+    return;
+  }
+  // 切到正文视口之外的图片后关闭，只淡出，避免图片飞向屏幕外。
+  zoom.animation = zoom.clone.animate(
+    [
+      { transform: imageZoomTransform(current, base), opacity: 1 },
+      { transform: canReturn ? imageZoomTransform(target, base) : imageZoomTransform(current, base), opacity: canReturn ? 1 : 0 },
+    ],
+    { duration: IMAGE_ZOOM_DURATION_MS, easing: "cubic-bezier(0.2, 0, 0.2, 1)", fill: "forwards" },
+  );
+  zoom.animation.finished.then(cleanup, cleanup);
+  // 后台页的动画可能暂停，仍需回收 dialog 与原图占位。
+  window.setTimeout(cleanup, IMAGE_ZOOM_DURATION_MS + 100);
 }
 
 function handleImageZoomClick(event) {
   if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
-  if (activeImageZoom) {
-    closeImageZoom();
-    return;
-  }
+  if (activeImageZoom) return;
 
   const img = event.target.closest?.('img[data-zoomable="true"]');
-  if (!img || img.closest("a")) return;
+  if (!img || img.closest("a, button")) return;
   openImageZoom(img);
 }
 // #endregion
@@ -441,9 +522,28 @@ function addHighlightTool() {
 // #region Keyboard Shortcuts
 
 function handleArticleKeyDown(e) {
+  if (activeImageZoom) {
+    if (!e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeImageZoom();
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        e.preventDefault();
+        stepImageZoom(e.key === "ArrowLeft" ? -1 : 1);
+      }
+    }
+    return;
+  }
+
+  const image = e.target.closest?.('img[data-zoomable="true"]');
+  if (image && !image.closest("a, button") && (e.key === "Enter" || e.key === " ") && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+    e.preventDefault();
+    openImageZoom(image);
+    return;
+  }
+
   if (e.key === "Escape") {
     closeFootnoteTooltip(true);
-    closeImageZoom();
   }
 
   // 满高首屏上按空格：正文开头尚在视口下半部时直接对齐视口顶部；

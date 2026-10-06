@@ -170,6 +170,7 @@ function handleLazyAssetError(error) {
 function handleKeyDown(e) {
   const isModifier = e.metaKey || e.ctrlKey;
   if (!isModifier) return;
+  if (document.querySelector("dialog:modal")) return;
 
   const tag = e.target.tagName;
   if (["INPUT", "TEXTAREA"].includes(tag) || e.target.isContentEditable) return;

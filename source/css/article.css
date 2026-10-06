@@ -549,24 +549,99 @@
 }
 
 .table-wrapper {
+  box-sizing: border-box;
   max-width: 100%;
-  overflow-x: auto;
+
+  > .table-caption {
+    /* 只由表格决定外层的固有宽度，长表题按最终可见宽度换行。 */
+    contain: inline-size;
+    margin: 0 0 calc(var(--spacing) * 2);
+    color: var(--sub-text-color);
+    font-family: var(--article-font-family);
+    font-size: 0.875em;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.6;
+    text-align: center;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+
+  > .table-scroll {
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    border: 1px solid var(--surface0);
+    border-radius: var(--radius);
+    background: var(--base);
+    scrollbar-width: thin;
+    scrollbar-color: var(--overlay0) transparent;
+
+    &:focus-visible {
+      outline-offset: -3px;
+    }
+  }
 
   table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
     border-spacing: 0;
+    font-size: 0.9375em;
+    line-height: 1.6;
+    text-align: start;
   }
 
   td,
   th {
-    /* 正常换行；仅不可断的元素（如行内 code）会撑开表格，交给 wrapper 横向滚动 */
+    padding: 0.875em 1.125em;
+    vertical-align: top;
     white-space: normal;
     overflow-wrap: anywhere;
 
     code {
       white-space: nowrap;
     }
+  }
+
+  thead th {
+    background: color-mix(in oklab, var(--surface0) 40%, var(--base));
+    color: var(--title-text-color);
+    font-weight: 600;
+  }
+
+  tbody tr:nth-child(even) {
+    background: color-mix(in oklab, var(--surface0) 14%, var(--base));
+  }
+
+  @media (hover: hover) {
+    tbody tr:hover {
+      background: color-mix(in oklab, var(--surface0) 28%, var(--base));
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    td,
+    th {
+      padding: 0.75em 0.875em;
+    }
+  }
+}
+
+/* 正文仍建立 BFC，但不裁切宽表格；仅顶层表格向两侧扩展，
+   列表、引用和组件里的表格继续遵循各自容器。窄表保留正文宽度。 */
+@media screen and (min-width: 769px) {
+  #article-content {
+    display: flow-root;
+    overflow: visible;
+  }
+
+  #article-content > .table-wrapper {
+    width: max-content;
+    min-width: 100%;
+    max-width: calc(100vw - 3rem - env(safe-area-inset-left) - env(safe-area-inset-right));
+    margin-inline: 50% 0;
+    transform: translateX(-50%);
   }
 }
 
@@ -662,15 +737,147 @@ input.task-list-item-checkbox {
   }
 }
 
-.medium-zoom-overlay {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: 150;
+img[data-zoomable="true"] {
+  &,
+  &:hover {
+    cursor: zoom-in;
+  }
+
+  &:focus-visible {
+    /* 渐进图片的 wrapper 会裁切，焦点环留在图内。 */
+    outline-offset: -3px;
+  }
 }
 
-.medium-zoom-image--opened {
-  z-index: 151;
+.image-zoom {
   position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: max(1.5rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  border: 0;
+  background: transparent;
+  color: var(--body-text-color);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  cursor: zoom-out;
+
+  &[open] {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 1rem;
+  }
+
+  &::backdrop {
+    background: color-mix(in oklab, var(--mantle) 90%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+.image-zoom-stage {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+}
+
+.image-zoom-image {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transform-origin: top left;
+}
+
+.image-zoom-toolbar {
+  display: flex;
+  align-items: center;
+  justify-self: center;
+  gap: 0.25rem;
+  padding: 0.375rem;
+  max-width: 100%;
+  box-sizing: border-box;
+  cursor: default;
+  direction: ltr;
+}
+
+.image-zoom-button {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--title-text-color);
+  cursor: pointer;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  &[aria-disabled="true"] {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) {
+    &:hover:not([aria-disabled="true"]) {
+      background: var(--glass-hover);
+    }
+  }
+}
+
+.image-zoom-close {
+  margin-inline-start: 0.5rem;
+  background: var(--glass-hover);
+}
+
+.image-zoom-counter {
+  min-width: 5ch;
+  padding-inline: 0.375rem;
+  font: 500 0.8125rem / 1.5 var(--font-sans-serif);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .image-zoom::backdrop,
+  .image-zoom-toolbar {
+    transition: opacity 200ms ease-out;
+  }
+
+  .image-zoom.is-closing::backdrop,
+  .image-zoom.is-closing .image-zoom-toolbar {
+    opacity: 0;
+  }
+
+  .image-zoom-button {
+    transition: scale 150ms var(--ease-out), background-color 150ms ease;
+
+    &:active:not([aria-disabled="true"]) {
+      scale: 0.96;
+    }
+  }
+}
+
+@starting-style {
+  .image-zoom[open]::backdrop {
+    opacity: 0;
+  }
 }
 
 .heimu {
