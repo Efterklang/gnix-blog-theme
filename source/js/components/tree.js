@@ -52,7 +52,7 @@ const FILE_ICONS = {
   fish: "\uf489",
   rs: "\ue7a8",
   go: "\ue626",
-  vue: "\ufde1",
+  vue: "\ue6a0",
   svelte: "\ue697",
   png: "\uf1c5",
   jpg: "\uf1c5",
@@ -196,6 +196,7 @@ const STYLES = `
     color: var(--blue, #89b4fa);
     display: inline-flex;
     align-items: center;
+    font-family: var(--font-symbols, "Symbols Nerd Font Mono");
     font-size: 15px;
     line-height: 1;
   }

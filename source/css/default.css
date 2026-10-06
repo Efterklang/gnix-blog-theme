@@ -1,9 +1,10 @@
 :root {
   /* font */
-  --font-serif: serif;
-  --font-sans-serif: system-ui, sans-serif;
-  --font-mono: "SF Mono", "Maple Mono NF CN Local", "Maple Mono NF CN", Monaco, Consolas, monospace;
-  --font-handwriting: "Bradley Hand", "homemade-apple", XingKai SC, cursive;
+  --font-symbols: "Symbols Nerd Font Mono";
+  --font-serif: var(--font-symbols), serif;
+  --font-sans-serif: system-ui, var(--font-symbols), sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", var(--font-symbols), monospace;
+  --font-handwriting: "Bradley Hand", "homemade-apple", XingKai SC, var(--font-symbols), cursive;
   --article-font-size: 1rem;
   --article-font-family: var(--font-sans-serif);
   /* 行高实际值由 head 内联脚本 / preferences.js 写入行内
@@ -669,9 +670,22 @@ hr {
 }
 
 @font-face {
-  font-family: "Maple Mono NF CN Local";
-  font-weight: 100 900;
-  src: local("MapleMono-NF-CN-Regular");
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-bmp.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  /* Only symbol glyphs wait for this font; ordinary text uses the system stack. */
+  font-display: block;
+  unicode-range: U+23FB-23FE, U+2630, U+2665, U+26A1, U+276C-2771, U+2B58, U+E000-F8FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-supplementary.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0000-FFFFD;
 }
 
 @font-face {

@@ -98,7 +98,9 @@
   function applyCustomFontFamilies(html, families, familyOptions) {
     Object.keys(familyOptions || {}).forEach((key) => {
       if (families?.[key]) {
-        html.style.setProperty(familyOptions[key], families[key]);
+        // Keep icon coverage when a reader supplies a family without Nerd glyphs.
+        // The saved/editable family stays as entered; only the applied stack changes.
+        html.style.setProperty(familyOptions[key], `${families[key]}, var(--font-symbols, "Symbols Nerd Font Mono")`);
       } else {
         html.style.removeProperty(familyOptions[key]);
       }

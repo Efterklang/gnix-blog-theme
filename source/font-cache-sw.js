@@ -7,7 +7,7 @@ self.addEventListener("install", (event) => event.waitUntil(self.skipWaiting()))
 self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));
 
 function isPresetStylesheet(url) {
-  if (url.origin === "https://fontsapi.zeoseven.com" && ["/5/main/result.css", "/505/main/result.css"].includes(url.pathname)) return true;
+  if (url.origin === "https://fontsapi.zeoseven.com" && ["/5/main/result.css", "/442/main/result.css", "/505/main/result.css"].includes(url.pathname)) return true;
   if (url.origin !== "https://fonts.googleapis.com" || url.pathname !== "/css2") return false;
   const families = url.searchParams.getAll("family");
   return families.length > 0 && families.every((family) => GOOGLE_FAMILIES.has(family.split(":")[0]));
