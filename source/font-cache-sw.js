@@ -1,13 +1,13 @@
 // Scoped runtime cache for recommended font CSS and font binaries only.
 const FONT_CACHE = "gnix-fonts-v1";
 const FONT_HOSTS = new Set(["fonts.gstatic.com", "fontsapi.zeoseven.com"]);
-const GOOGLE_FAMILIES = new Set(["Elms Sans", "Geist Mono"]);
+const GOOGLE_FAMILIES = new Set(["Elms Sans", "Geist Mono", "Noto Serif SC"]);
 
 self.addEventListener("install", (event) => event.waitUntil(self.skipWaiting()));
 self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));
 
 function isPresetStylesheet(url) {
-  if (url.origin === "https://fontsapi.zeoseven.com" && url.pathname === "/505/main/result.css") return true;
+  if (url.origin === "https://fontsapi.zeoseven.com" && ["/5/main/result.css", "/505/main/result.css"].includes(url.pathname)) return true;
   if (url.origin !== "https://fonts.googleapis.com" || url.pathname !== "/css2") return false;
   const families = url.searchParams.getAll("family");
   return families.length > 0 && families.every((family) => GOOGLE_FAMILIES.has(family.split(":")[0]));
