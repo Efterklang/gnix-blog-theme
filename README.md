@@ -11,7 +11,7 @@ hexo config theme gnix
 
 Support multiple light and dark themes:
 
-- **System Theme**: Follow system theme automatically, use `Nord` for light mode and `Mocha` for dark mode by default
+- **System Theme**: Follow system theme automatically, use `Mono Light` for light mode and `Mono Dark` for dark mode by default
 - **Light Themes**: `Nord Light`, `Catppuccin Latte`, `Song Porcelain`, `Mono Light`
 - **Dark Themes**: `Catppuccin Mocha`, `Nord Night`, `Rosé Pine`, `Tokyo Night`, `Mono Dark`
 

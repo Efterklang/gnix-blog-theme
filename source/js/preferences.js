@@ -17,7 +17,7 @@
   }
 
   const themeConfig = window.__GNIX_THEME_CONFIG__ || {};
-  const THEME_DEFAULT_PREFERENCES = themeConfig.defaultPreferences || { mode: "system", light: "nord", dark: "mocha" };
+  const THEME_DEFAULT_PREFERENCES = themeConfig.defaultPreferences || { mode: "system", light: "mono_light", dark: "mono_dark" };
 
   function getDefaultThemePreferences() {
     return { ...THEME_DEFAULT_PREFERENCES };

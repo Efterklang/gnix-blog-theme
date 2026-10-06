@@ -3,8 +3,8 @@ const DEFAULT_THEME = "system";
 const DEFAULT_MODE = "system";
 
 const SYSTEM_THEME = Object.freeze({
-  dark: "mocha",
-  light: "nord",
+  dark: "mono_dark",
+  light: "mono_light",
 });
 
 const DEFAULT_PREFERENCES = Object.freeze({
