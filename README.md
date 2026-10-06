@@ -35,6 +35,11 @@ reuses the existing file. Identical in-flight requests are combined, and at most
 four images request metadata concurrently. The cache is saved after generation
 and on Hexo exit.
 
+Metadata failures only produce warnings and do not stop the build. If dimensions
+are unavailable, the image uses standard markup and its original URL. If only
+ThumbHash generation fails, responsive sizing remains available without a
+placeholder.
+
 Optional overrides belong in the site's `_config.yml`:
 
 ```yaml

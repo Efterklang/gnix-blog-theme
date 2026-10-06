@@ -130,25 +130,32 @@ class ImageMetadata {
   }
 
   async fetch(src) {
-    await this.ready;
-    if (!this.supports(src)) return null;
-    const key = cacheKey(src);
-    const cached = this.records.get(key);
-    if (cached) return cached;
-    if (this.pending.has(key)) return this.pending.get(key);
-    const promise = this.limit(async () => {
-      const [dimensions, dataURL] = await Promise.all([
-        getBitifulDimension(src, this.options.request_timeout),
-        getBitifulThumbhash(src, this.options.request_timeout),
-      ]);
-      if (!validMetadata(dimensions)) return null;
-      const result = { ...dimensions, dataURL: dataURL ?? "" };
-      this.records.set(key, result);
-      this.version += 1;
-      return result;
-    }).finally(() => this.pending.delete(key));
-    this.pending.set(key, promise);
-    return promise;
+    // Metadata is optional: neither Markdown rendering nor before_generate
+    // should fail because an image service or placeholder conversion failed.
+    try {
+      await this.ready;
+      if (!this.supports(src)) return null;
+      const key = cacheKey(src);
+      const cached = this.records.get(key);
+      if (cached) return cached;
+      if (this.pending.has(key)) return await this.pending.get(key);
+      const promise = this.limit(async () => {
+        const [dimensions, dataURL] = await Promise.all([
+          getBitifulDimension(src, this.options.request_timeout),
+          getBitifulThumbhash(src, this.options.request_timeout),
+        ]);
+        if (!validMetadata(dimensions)) return null;
+        const result = { ...dimensions, dataURL: dataURL ?? "" };
+        this.records.set(key, result);
+        this.version += 1;
+        return result;
+      }).finally(() => this.pending.delete(key));
+      this.pending.set(key, promise);
+      return await promise;
+    } catch (error) {
+      console.warn(`[ImageCache] Metadata unavailable for ${src}; using the original image:`, error instanceof Error ? error.message : String(error));
+      return null;
+    }
   }
 }
 
@@ -167,7 +174,7 @@ async function getBitifulDimension(imageUrl, timeout) {
     }
     return null;
   } catch (error) {
-    console.warn(`[Bitiful] Dimension error for ${imageUrl}:`, error instanceof Error ? error.message : String(error));
+    console.warn(`[Bitiful] Dimensions unavailable for ${imageUrl}; using the original image:`, error instanceof Error ? error.message : String(error));
     return null;
   }
 }
@@ -192,7 +199,7 @@ async function getBitifulThumbhash(imageUrl, timeout) {
     const webpBuffer = await sharp(buffer).webp({ quality: 80 }).toBuffer();
     return `data:image/webp;base64,${webpBuffer.toString("base64")}`;
   } catch (error) {
-    console.warn(`[Bitiful] Thumbhash error for ${imageUrl}:`, error instanceof Error ? error.message : String(error));
+    console.warn(`[Bitiful] Thumbhash unavailable for ${imageUrl}; continuing without a placeholder:`, error instanceof Error ? error.message : String(error));
     return null;
   }
 }
