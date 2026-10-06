@@ -869,7 +869,7 @@
 .tk-lightbox {
   display: block;
   position: fixed;
-  background-color: hsl(from var(--crust) h s l / 0.5);
+  background-color: hsl(from var(--mantle) h s l / 0.5);
   inset: 0;
   z-index: 999;
   cursor: zoom-out;

@@ -427,14 +427,14 @@
   min-width: 0;
   min-height: 2.5rem;
   padding: 0.5rem 2rem 0.5rem 0.62rem;
-  border: 1px solid hsl(from var(--surface2) h s l / 0.66);
+  border: 1px solid hsl(from var(--surface1) h s l / 0.66);
   border-radius: 7px;
   color: var(--title-text-color);
   background: hsl(from var(--base) h s l / 0.62);
   font: 550 0.84rem / 1.2 var(--font-sans-serif);
 
   &:hover {
-    border-color: hsl(from var(--surface2) h s l / 0.86);
+    border-color: hsl(from var(--overlay0) h s l / 0.86);
     background: hsl(from var(--base) h s l / 0.78);
   }
 
@@ -594,7 +594,7 @@
   width: var(--slider-thumb-size);
   height: var(--slider-thumb-height);
   margin-top: calc((0.375rem - var(--slider-thumb-height)) / 2);
-  border: 1px solid var(--surface2);
+  border: 1px solid var(--surface1);
   border-radius: 999px;
   appearance: none;
   background: var(--title-text-color);
@@ -611,7 +611,7 @@
   box-sizing: border-box;
   width: var(--slider-thumb-size);
   height: var(--slider-thumb-height);
-  border: 1px solid var(--surface2);
+  border: 1px solid var(--surface1);
   border-radius: 999px;
   background: var(--title-text-color);
 }
@@ -1129,7 +1129,7 @@
   width: 2.6rem;
   height: 1.5rem;
   padding: 0;
-  border: 1px solid hsl(from var(--surface2) h s l / 0.66);
+  border: 1px solid hsl(from var(--surface1) h s l / 0.66);
   border-radius: 999px;
   background: hsl(from var(--surface1) h s l / 0.58);
   cursor: pointer;
@@ -1212,7 +1212,7 @@
   inset: 0;
   margin: 0;
   padding: 0.9rem 1.1rem;
-  color: var(--crust);
+  color: var(--base);
   font: 700 1.05rem / 1.5 var(--font-sans-serif);
   opacity: 0.8;
 }

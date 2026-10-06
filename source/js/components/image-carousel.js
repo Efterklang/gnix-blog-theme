@@ -80,7 +80,7 @@ const STYLES = `
     margin-inline: auto;
     border-radius: var(--radius, 12px);
     overflow: hidden;
-    background: var(--crust, #11111b);
+    background: var(--mantle, #181825);
     contain: content;
   }
 

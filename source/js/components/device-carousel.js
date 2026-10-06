@@ -154,7 +154,7 @@ class DeviceCarousel extends HTMLElement {
         margin-right: var(--card-gap);
         padding: var(--card-padding);
         border-radius: 12px;
-        background: var(--crust, #1e1e2e);
+        background: var(--base, #1e1e2e);
         border: 1px solid var(--surface0, #313244);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         display: flex;

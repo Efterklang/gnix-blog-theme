@@ -98,7 +98,8 @@
 /* #region Color */
 
 /* 每个主题独立定义固定色值，嵌套 data-theme 的预览也能拿到完整色板。
-   文字仅分标题、正文、辅助三级；surface / overlay 只用于底色、边框与装饰。 */
+   文字仅分标题、正文、辅助三级；中性色保留 base / mantle、surface0 / surface1、
+   overlay0 / overlay1，用于底色、边框与装饰。 */
 :where([data-theme]) {
   &:where([data-theme="latte"]) {
     color-scheme: light;
@@ -116,13 +117,10 @@
     --sub-text-color: #646879;
     --surface0: #dce0e8;
     --surface1: #ccd0da;
-    --surface2: #bcc0cc;
     --overlay0: #acb0be;
     --overlay1: #9ca0b0;
-    --overlay2: #8c8fa1;
     --base: #eff1f5;
     --mantle: #e6e9ef;
-    --crust: #dce0e8;
   }
 
   &:where([data-theme="rose_pine"]) {
@@ -141,13 +139,10 @@
     --sub-text-color: #928da6;
     --surface0: #302c40;
     --surface1: #3e394f;
-    --surface2: #504a63;
     --overlay0: #645d78;
     --overlay1: #78718b;
-    --overlay2: #8c859f;
     --base: #191726;
     --mantle: #161422;
-    --crust: #11111b;
   }
 
   &:where([data-theme="nord"]) {
@@ -166,13 +161,10 @@
     --sub-text-color: #5e697b;
     --surface0: #d8dee9;
     --surface1: #c9d1dd;
-    --surface2: #b8c3d2;
     --overlay0: #a2afc1;
     --overlay1: #8e9baf;
-    --overlay2: #7a889e;
     --base: #eceff4;
     --mantle: #e5e9f0;
-    --crust: #d8dee9;
   }
 
   &:where([data-theme="song_ci"]) {
@@ -191,13 +183,10 @@
     --sub-text-color: #646f5e;
     --surface0: #dedfd1;
     --surface1: #cdd2c1;
-    --surface2: #b9c2ac;
     --overlay0: #a4b296;
     --overlay1: #8e9e80;
-    --overlay2: #7a8b6e;
     --base: #f4efe3;
     --mantle: #f1efea;
-    --crust: #c4d1b5;
   }
 
   &:where([data-theme="mocha"]) {
@@ -216,13 +205,10 @@
     --sub-text-color: #8e99b2;
     --surface0: #313244;
     --surface1: #45475a;
-    --surface2: #585b70;
     --overlay0: #6c7086;
     --overlay1: #7f849c;
-    --overlay2: #9399b2;
     --base: #1e1e2e;
     --mantle: #181825;
-    --crust: #11111b;
   }
 
   &:where([data-theme="tokyo_night"]) {
@@ -241,13 +227,10 @@
     --sub-text-color: #8492b2;
     --surface0: #292d41;
     --surface1: #363c54;
-    --surface2: #454d69;
     --overlay0: #59637f;
     --overlay1: #6b7694;
-    --overlay2: #7d89a8;
     --base: #1a1b26;
     --mantle: #16161e;
-    --crust: #101014;
   }
 
   &:where([data-theme="nord_night"]) {
@@ -266,13 +249,10 @@
     --sub-text-color: #929eb0;
     --surface0: #3b4252;
     --surface1: #434c5e;
-    --surface2: #4c566a;
     --overlay0: #606d82;
     --overlay1: #738198;
-    --overlay2: #8795aa;
     --base: #2e3440;
     --mantle: #292e39;
-    --crust: #242933;
   }
 
   &:where([data-theme="mono_light"]) {
@@ -291,13 +271,10 @@
     --sub-text-color: #757575;
     --surface0: #e5e5e5;
     --surface1: #d4d4d4;
-    --surface2: #bfbfbf;
     --overlay0: #a6a6a6;
     --overlay1: #929292;
-    --overlay2: #808080;
     --base: #fff;
     --mantle: #fff;
-    --crust: #fff;
   }
 
   &:where([data-theme="mono_dark"]) {
@@ -316,13 +293,10 @@
     --sub-text-color: #898989;
     --surface0: #242424;
     --surface1: #333333;
-    --surface2: #444444;
     --overlay0: #575757;
     --overlay1: #686868;
-    --overlay2: #7a7a7a;
     --base: #000;
     --mantle: #000;
-    --crust: #000;
   }
 }
 
@@ -1112,7 +1086,7 @@ input.command-palette-input {
 
 /* 面板自己就是玻璃，身后不再铺全屏模糊：只压一层淡淡的暗色，页面透过面板被折射、模糊 */
 .command-palette:popover-open::before {
-  background: hsl(from var(--crust) h s l / 0.22);
+  background: hsl(from var(--mantle) h s l / 0.22);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -1290,7 +1264,7 @@ input.command-palette-input {
   height: 1.05em;
   border-radius: 50%;
   background-color: var(--base);
-  box-shadow: inset 0 0 0 1px var(--surface2);
+  box-shadow: inset 0 0 0 1px var(--surface1);
 
   &::after {
     content: "";

@@ -30,7 +30,7 @@
 .encrypt-input-wrap input {
   width: 100%;
   padding: 0.6rem 0.8rem;
-  border: 1.5px solid var(--surface2);
+  border: 1.5px solid var(--overlay0);
   border-radius: var(--radius);
   background: var(--mantle);
   color: var(--body-text-color);

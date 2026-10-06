@@ -16,10 +16,8 @@ const PREVIEW_COLORS = [
   "title-text-color",
   "body-text-color",
   "sub-text-color",
-  "overlay2",
   "overlay1",
   "overlay0",
-  "surface2",
   "surface1",
   "surface0",
 ];
@@ -241,7 +239,7 @@ class ThemeStackedElement extends HTMLElement {
             bottom: 100%;
             left: 50%;
             transform: translateX(-50%) translateY(-6px);
-            background: var(--crust);
+            background: var(--base);
             color: var(--body-text-color);
             padding: 0.4rem 0.6rem;
             border-radius: 6px;
@@ -268,7 +266,7 @@ class ThemeStackedElement extends HTMLElement {
           flex: 1;
           padding: 0.6rem 1rem;
           background: var(--blue);
-          color: var(--crust);
+          color: var(--base);
           border: none;
           border-radius: 8px;
           font-family: var(--font-mono);
