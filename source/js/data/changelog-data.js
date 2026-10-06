@@ -5,11 +5,13 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "10.6",
         cn: [
+          "图片元数据缓存默认启用并由正文、封面共用，复用项目根目录的 thumbcache.json，合并重复请求并限制并发；正文图片按实际显示宽度选择资源，封面使用真实尺寸与 ThumbHash / 32px 占位图。Nerd Font 细分为常用图标与 Unicode 分片，常用 48 个字符仅需约 9.4 KB，其余分片按字符加载，保留完整字形覆盖",
           "推荐字体新增 Noto Serif SC 与 Maple Mono NF CN；默认等宽字体改用系统字体，Maple 由读者自行选择下载。自托管 Symbols Nerd Font Mono 补齐图标，按 Unicode 范围拆分、遇到对应字符才加载，自定义字体同样保留图标回退",
           "精简九套主题的中性色，移除 overlay2、surface2 与 crust；同步调整组件、设置页与评论样式，并将存量文章迁移到保留的背景色与语义文字色变量",
           "修正脚注浮层定位：跟随脚注标记并在视口边缘避让，使用顶层 popover 避免遮挡，背景改为主题纯色",
         ],
         en: [
+          "Enable a shared image metadata cache for Markdown and covers, reusing the project's thumbcache.json, deduplicating requests and limiting concurrency. Markdown images select resources from their rendered width; covers use real dimensions and ThumbHash / 32px placeholders. Split Nerd Font into a 9.4 KB subset of 48 common characters and character-loaded Unicode shards, retaining full glyph coverage",
           "Add Noto Serif SC and Maple Mono NF CN to Recommended Fonts. The default monospace stack now uses system fonts, with Maple available as an optional download. Self-hosted Symbols Nerd Font Mono supplies missing icons through Unicode subsets loaded when matching characters are needed; custom font stacks retain the same icon fallback",
           "Simplify neutral palettes across all nine themes by removing overlay2, surface2 and crust. Update components, preferences and comments, and migrate existing posts to the retained background tokens and semantic text colors",
           "Stabilize footnote popover positioning around its reference with viewport collision handling. Use the browser's top layer to avoid clipping and a solid theme background",
