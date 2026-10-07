@@ -11,11 +11,12 @@
  * Attributes:
  * - height: Frame height as a CSS length (default: responsive clamp)
  * - gap: Space between images as a CSS length
- * - wide: Expand beyond the article column, centered in the viewport
+ * - wide: Legacy attribute; all groups now extend to the viewport edges
  * - label: Accessible region label
  *
  * Images are never cropped. The group reserves a stable vertical size from
  * the start, then each item uses the image's natural ratio when available.
+ * The first image starts at the text edge; scrolling can use the full viewport.
  */
 
 let _sheet;
@@ -23,28 +24,6 @@ let _documentStylesInjected = false;
 
 const DEFAULT_RATIO = 4 / 3;
 const DEFAULT_HEIGHT = "clamp(160px, 32vw, 320px)";
-const CHEVRON_LEFT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>`;
-const CHEVRON_RIGHT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>`;
-
-function isZhLocale() {
-  return (document.documentElement.lang || "").toLowerCase().startsWith("zh");
-}
-
-function getUiText(key) {
-  const zh = isZhLocale();
-  const messages = {
-    nextImages: zh ? "下一组图片" : "Next images",
-    previousImages: zh ? "上一组图片" : "Previous images",
-  };
-  return messages[key] || key;
-}
-
-/** 把玻璃按钮交给 glass-lens.js 补边缘折射（是否支持由它判断；模块未就绪时先排队，由它加载后统一补挂） */
-function registerGlassLens(elements) {
-  globalThis.__gnixGlassLensQueue ||= [];
-  for (const element of elements) globalThis.__gnixGlassLensQueue.push(element);
-}
-
 const STYLES = `
   :host {
     display: block;
@@ -58,6 +37,8 @@ const STYLES = `
 
   .group {
     position: relative;
+    width: var(--image-group-viewport-width, 100%);
+    margin-left: calc(-1 * var(--image-group-left-inset, 0px));
     isolation: isolate;
     contain: layout paint;
   }
@@ -71,25 +52,16 @@ const STYLES = `
     overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-inline: contain;
-    scroll-padding-inline: 0.25rem;
+    scroll-padding-left: var(--image-group-left-inset, 0px);
+    scroll-padding-right: var(--image-group-right-inset, 0px);
     scroll-snap-type: x proximity;
-    padding: 0.25rem 0.25rem 0.65rem;
+    padding: 0.25rem var(--image-group-right-inset, 0px) 0.65rem var(--image-group-left-inset, 0px);
     outline: none;
-    scrollbar-width: thin;
-    scrollbar-color: var(--overlay0, rgba(127, 127, 127, 0.45)) transparent;
+    scrollbar-width: none;
   }
 
   .rail::-webkit-scrollbar {
-    height: 8px;
-  }
-
-  .rail::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .rail::-webkit-scrollbar-thumb {
-    background: var(--overlay0, rgba(127, 127, 127, 0.45));
-    border-radius: 999px;
+    display: none;
   }
 
   .rail:focus-visible {
@@ -106,7 +78,7 @@ const STYLES = `
     );
     height: var(--image-group-height);
     margin: 0;
-    scroll-snap-align: center;
+    scroll-snap-align: start;
   }
 
   .frame {
@@ -152,94 +124,16 @@ const STYLES = `
     opacity: 1;
   }
 
-  /* 与 image-carousel 同款的透明玻璃圆：暗色薄层托住白色箭头，照片透过模糊与提饱和浮上来 */
-  .nav {
-    position: absolute;
-    top: calc(var(--image-group-height) / 2 + 0.25rem);
-    z-index: 2;
-    display: grid;
-    place-items: center;
-    width: 2.4rem;
-    height: 2.4rem;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background: rgb(0 0 0 / 0.18);
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.42),
-      inset 0 0 0 1px rgb(255 255 255 / 0.14),
-      0 6px 18px -6px rgb(0 0 0 / 0.45);
-    -webkit-backdrop-filter: blur(8px) saturate(1.7) brightness(1.08);
-    backdrop-filter: var(--glass-lens,) blur(8px) saturate(1.7) brightness(1.08);
-    color: #fff;
-    cursor: pointer;
-    opacity: 0;
-    transform: translateY(-50%);
-    transition:
-      background-color 0.18s ease-out,
-      opacity 0.18s ease-out,
-      scale 420ms var(--glass-spring, ease-out);
-  }
-
-  .nav svg {
-    width: 1.4rem;
-    height: 1.4rem;
-  }
-
-  .group.is-scrollable:hover .nav,
-  .group.is-scrollable:focus-within .nav {
-    opacity: 1;
-  }
-
-  .nav:hover {
-    background: rgb(0 0 0 / 0.3);
-  }
-
-  .nav:focus-visible {
-    opacity: 1;
-    outline: 2px solid #fff;
-    outline-offset: 2px;
-  }
-
-  .nav:active {
-    scale: 0.96;
-    transition-duration: 0.18s, 0.18s, 140ms;
-  }
-
-  .group:not(.is-scrollable) .nav {
-    display: none;
-  }
-
-  .prev { left: 0.6rem; }
-  .next { right: 0.6rem; }
-
-  @media (min-width: 900px) {
-    :host([wide]) {
-      --image-group-wide-size: min(var(--image-group-wide-max-width, 72rem), calc(100vw - 2rem));
-      width: var(--image-group-wide-size);
-      max-width: var(--image-group-wide-size);
-      margin-inline: calc((100% - var(--image-group-wide-size)) / 2);
-    }
-  }
-
   @media (max-width: 640px) {
     :host {
       --image-group-height: var(--image-group-mobile-height, clamp(140px, 58vw, 240px));
-    }
-
-    .nav {
-      width: 2.1rem;
-      height: 2.1rem;
-      opacity: 1;
     }
   }
 `;
 
 const DOCUMENT_STYLES = `
-  @media (min-width: 900px) {
-    .content:has(> image-group[wide]) {
-      overflow: visible;
-    }
+  .content:has(image-group) {
+    overflow: visible;
   }
 `;
 
@@ -252,7 +146,7 @@ class ImageGroup extends HTMLElement {
     this._rail = null;
     this._group = null;
     this._resizeObserver = null;
-    this._updateScrollable = () => this._setScrollableState();
+    this._updateLayout = () => this._updateViewportLayout();
   }
 
   connectedCallback() {
@@ -261,16 +155,17 @@ class ImageGroup extends HTMLElement {
 
     this._injectDocumentStyles();
     this._render();
+    this._updateViewportLayout();
     this._setupListeners();
-    this._setScrollableState();
   }
 
   disconnectedCallback() {
     this._resizeObserver?.disconnect();
+    window.removeEventListener("resize", this._updateLayout);
   }
 
   static get observedAttributes() {
-    return ["height", "gap", "label", "wide"];
+    return ["height", "gap", "label"];
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -279,7 +174,6 @@ class ImageGroup extends HTMLElement {
     if (name === "label" && this._group) {
       this._group.setAttribute("aria-label", this._getLabel());
     }
-    if (name === "wide") this._setScrollableState();
   }
 
   _collectImages() {
@@ -315,7 +209,7 @@ class ImageGroup extends HTMLElement {
     this._items = this._images.map((image, index) => this._createItem(image, index));
     rail.append(...this._items);
 
-    group.append(this._createNavButton("prev"), rail, this._createNavButton("next"));
+    group.append(rail);
 
     const slot = document.createElement("slot");
     slot.style.display = "none";
@@ -323,7 +217,6 @@ class ImageGroup extends HTMLElement {
     this.shadowRoot.append(group, slot);
     this._group = group;
     this._rail = rail;
-    registerGlassLens(group.querySelectorAll(".nav"));
   }
 
   _createItem(image, index) {
@@ -350,7 +243,6 @@ class ImageGroup extends HTMLElement {
       const loadedRatio = this._ratioFromDimensions(img.naturalWidth, img.naturalHeight);
       if (loadedRatio) {
         item.style.setProperty("--image-group-ratio", String(loadedRatio));
-        this._setScrollableState();
       }
     };
 
@@ -373,16 +265,6 @@ class ImageGroup extends HTMLElement {
     return item;
   }
 
-  _createNavButton(direction) {
-    const button = document.createElement("button");
-    button.className = `nav ${direction}`;
-    button.type = "button";
-    button.setAttribute("aria-label", direction === "prev" ? getUiText("previousImages") : getUiText("nextImages"));
-    button.innerHTML = direction === "prev" ? CHEVRON_LEFT : CHEVRON_RIGHT;
-    button.addEventListener("click", () => this._scroll(direction === "prev" ? -1 : 1));
-    return button;
-  }
-
   _injectDocumentStyles() {
     if (_documentStylesInjected) return;
     const style = document.createElement("style");
@@ -393,23 +275,22 @@ class ImageGroup extends HTMLElement {
 
   _setupListeners() {
     this._resizeObserver?.disconnect();
-    this._resizeObserver = new ResizeObserver(this._updateScrollable);
+    this._resizeObserver = new ResizeObserver(this._updateLayout);
     this._resizeObserver.observe(this);
+    this._resizeObserver.observe(document.documentElement);
     if (this._rail) this._resizeObserver.observe(this._rail);
+    window.addEventListener("resize", this._updateLayout);
   }
 
-  _scroll(direction) {
-    if (!this._rail) return;
-    this._rail.scrollBy({
-      left: direction * Math.max(this._rail.clientWidth * 0.82, 180),
-      behavior: "smooth",
-    });
-  }
-
-  _setScrollableState() {
-    if (!this._group || !this._rail) return;
-    const isScrollable = this._rail.scrollWidth > this._rail.clientWidth + 1;
-    this._group.classList.toggle("is-scrollable", isScrollable);
+  _updateViewportLayout() {
+    if (!this._group) return;
+    // Keep the host in the text column as a stable measurement anchor.
+    // Only its inner scroller breaks out, excluding the browser scrollbar.
+    const bounds = this.getBoundingClientRect();
+    const viewportWidth = document.documentElement.clientWidth;
+    this._group.style.setProperty("--image-group-viewport-width", `${viewportWidth}px`);
+    this._group.style.setProperty("--image-group-left-inset", `${Math.max(0, bounds.left)}px`);
+    this._group.style.setProperty("--image-group-right-inset", `${Math.max(0, viewportWidth - bounds.right)}px`);
   }
 
   _applyHostOptions() {
