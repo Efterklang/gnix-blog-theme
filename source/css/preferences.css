@@ -4,9 +4,38 @@
 /* #region Preferences page */
 
 .preference-page {
+  /* 所有行内控件的右轨宽度与统一高度（分段轨道内层按钮 2rem + 上下 0.25rem 内边距） */
   --preference-control-width: 20rem;
-  --preference-border: hsl(from var(--surface1) h s l / 0.65);
-  --preference-selected: hsl(from var(--lavender) h s l / 0.1);
+  --preference-control-height: 2rem;
+
+  /* 分隔线：面板之间较重，同一面板内的行之间较轻 */
+  --preference-line: hsl(from var(--surface1) h s l / 0.55);
+  --preference-line-soft: hsl(from var(--surface1) h s l / 0.3);
+
+  /* 控件描边与填充。填充取自 surface0 而非 base / mantle：后两者在 mono 主题里
+     与页面背景同色，填充会整个消失，只剩描边 */
+  --preference-border: hsl(from var(--surface1) h s l / 0.75);
+  --preference-border-hover: hsl(from var(--overlay0) h s l / 0.9);
+  --preference-field: hsl(from var(--surface0) h s l / 0.45);
+  --preference-field-strong: hsl(from var(--surface0) h s l / 0.72);
+
+  /* 选中态：底色 + 描边，分段组、卡片、预设项共用同一套 */
+  --preference-selected: hsl(from var(--lavender) h s l / 0.12);
+  --preference-selected-border: hsl(from var(--lavender) h s l / 0.5);
+
+  --preference-radius-xs: 6px;
+  --preference-radius-sm: 8px;
+  --preference-radius-md: 10px;
+  --preference-radius-lg: 12px;
+
+  --preference-focus-ring: 2px solid var(--lavender);
+  --preference-focus-offset: 2px;
+
+  /* 小字号三级：辅助说明 / 控件与标签 / 数值 */
+  --preference-font-meta: 0.75rem;
+  --preference-font-ui: 0.8125rem;
+  --preference-font-value: 0.875rem;
+
   box-sizing: border-box;
   color: var(--body-text-color);
 }
@@ -47,15 +76,15 @@
   align-items: center;
   min-width: 0;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid hsl(from var(--surface1) h s l / 0.5);
+  border-bottom: 1px solid var(--preference-line);
 
   h1 {
     grid-area: title;
     margin: 0;
     color: var(--title-text-color);
     font-size: clamp(1.5rem, 3vw, 1.8rem);
-    font-weight: 720;
-    letter-spacing: 0;
+    font-weight: 700;
+    letter-spacing: -0.01em;
     line-height: 1.2;
   }
 }
@@ -69,7 +98,7 @@
 .preference-panel__header p {
   margin: 0.45rem 0 0;
   color: var(--sub-text-color);
-  font-size: 0.78rem;
+  font-size: var(--preference-font-ui);
   line-height: 1.5;
 }
 
@@ -93,10 +122,10 @@
   min-height: 2.25rem;
   padding: 0.5rem 0.72rem;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--preference-radius-sm);
   color: var(--sub-text-color);
   background: transparent;
-  font: 650 0.84rem / 1.2 var(--font-sans-serif);
+  font: 650 var(--preference-font-ui) / 1.2 var(--font-sans-serif);
   text-decoration: none;
   cursor: pointer;
 
@@ -108,14 +137,14 @@
   }
 
   &:hover {
-    border-color: hsl(from var(--surface1) h s l / 0.6);
+    border-color: var(--preference-border);
     color: var(--title-text-color);
-    background: hsl(from var(--base) h s l / 0.36);
+    background: var(--preference-field);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--lavender);
-    outline-offset: 2px;
+    outline: var(--preference-focus-ring);
+    outline-offset: var(--preference-focus-offset);
   }
 }
 
@@ -133,7 +162,7 @@
 
 .preference-panel + .preference-panel {
   margin-top: 0.25rem;
-  border-top: 1px solid hsl(from var(--surface1) h s l / 0.52);
+  border-top: 1px solid var(--preference-line);
   padding-top: 1.75rem;
 }
 
@@ -149,7 +178,8 @@
     margin: 0;
     color: var(--title-text-color);
     font-size: 1.05rem;
-    font-weight: 720;
+    font-weight: 700;
+    letter-spacing: -0.005em;
     line-height: 1.25;
   }
 }
@@ -164,7 +194,7 @@
 }
 
 .preference-row + .preference-row:not(.preference-row--preview) {
-  border-top: 1px solid hsl(from var(--surface1) h s l / 0.3);
+  border-top: 1px solid var(--preference-line-soft);
 }
 
 .preference-row--stacked {
@@ -188,13 +218,13 @@
   gap: 0.3rem;
   min-width: 0;
   color: var(--title-text-color);
-  font-size: 0.84rem;
+  font-size: var(--preference-font-ui);
   font-weight: 650;
   line-height: 1.28;
 
   small {
     color: var(--sub-text-color);
-    font-size: 0.74rem;
+    font-size: var(--preference-font-meta);
     font-weight: 520;
     line-height: 1.5;
   }
@@ -208,14 +238,16 @@
   min-inline-size: 0;
 }
 
+/* 分段轨道：外层是带描边的凹槽，内层按钮统一 2rem 高。Size / Width / Weight /
+   Spacing 四组共用这一套，只有档位数不同，右轨宽度一致 */
 .preference-choice-group--segmented {
   display: grid;
   justify-self: end;
   gap: 0.25rem;
   padding: 0.25rem;
   border: 1px solid var(--preference-border);
-  border-radius: 10px;
-  background: hsl(from var(--mantle) h s l / 0.45);
+  border-radius: var(--preference-radius-md);
+  background: var(--preference-field);
 }
 
 .preference-choice-group--mode {
@@ -225,12 +257,21 @@
   width: 100%;
 }
 
-.preference-choice-group--font-size {
-  display: flex;
-  align-items: center;
-  justify-self: end;
+.preference-choice-group--font-size,
+.preference-choice-group--article-width,
+.preference-choice-group--font-weight,
+.preference-choice-group--font-spacing {
   width: min(100%, var(--preference-control-width));
-  gap: 0.35rem;
+}
+
+.preference-choice-group--font-size,
+.preference-choice-group--article-width {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.preference-choice-group--font-weight,
+.preference-choice-group--font-spacing {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .preference-choice-group--font-type {
@@ -239,27 +280,21 @@
   gap: 0.625rem;
 }
 
-.preference-choice-group--font-weight,
-.preference-choice-group--font-spacing {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  width: min(100%, var(--preference-control-width));
-}
-
 .preference-choice-button {
   min-width: 0;
-  border-radius: 6px;
+  border-radius: var(--preference-radius-xs);
   color: var(--sub-text-color);
   background: transparent;
   cursor: pointer;
 
   &:hover {
     color: var(--title-text-color);
-    background-color: hsl(from var(--surface1) h s l / 0.42);
+    background-color: var(--preference-field-strong);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--lavender);
-    outline-offset: 2px;
+    outline: var(--preference-focus-ring);
+    outline-offset: var(--preference-focus-offset);
   }
 
   &.is-active {
@@ -273,15 +308,15 @@
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  min-height: 2.15rem;
-  padding: 0.42rem 0.5rem;
+  min-height: var(--preference-control-height);
+  padding: 0.25rem 0.5rem;
   border: 1px solid transparent;
-  border-radius: 8px;
-  font: 650 0.78rem / 1.2 var(--font-sans-serif);
+  border-radius: var(--preference-radius-xs);
+  font: 650 var(--preference-font-ui) / 1.2 var(--font-sans-serif);
 }
 
 .preference-choice-button--segmented.is-active {
-  border-color: hsl(from var(--lavender) h s l / 0.36);
+  border-color: var(--preference-selected-border);
 }
 
 .preference-choice-button--theme-mode {
@@ -293,7 +328,7 @@
   min-width: 0;
   padding: 0;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--preference-radius-md);
   color: var(--sub-text-color);
   background: transparent;
   cursor: pointer;
@@ -311,13 +346,19 @@
   width: 100%;
   aspect-ratio: 1.7;
   overflow: hidden;
-  border: 2px solid var(--surface0);
-  border-radius: 10px;
+  border: 2px solid var(--preference-border);
+  border-radius: var(--preference-radius-md);
   background: transparent;
   box-shadow: inset 0 1px 0 hsl(from var(--title-text-color) h s l / 0.04);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 
   .preference-choice-button--theme-mode.is-active & {
     border-color: var(--lavender);
+    box-shadow:
+      inset 0 1px 0 hsl(from var(--title-text-color) h s l / 0.04),
+      0 0 0 3px hsl(from var(--lavender) h s l / 0.16);
   }
 }
 
@@ -375,7 +416,7 @@
 
 .theme-mode-label {
   color: inherit;
-  font: 680 0.9rem / 1.2 var(--font-sans-serif);
+  font: 680 var(--preference-font-value) / 1.2 var(--font-sans-serif);
 }
 
 .preference-row--control-only > .preference-choice-group {
@@ -412,7 +453,7 @@
 .theme-scheme-title {
   min-width: 0;
   color: var(--body-text-color);
-  font: 650 0.8rem / 1.28 var(--font-sans-serif);
+  font: 650 var(--preference-font-ui) / 1.28 var(--font-sans-serif);
 }
 
 .theme-scheme-select-shell {
@@ -438,42 +479,43 @@
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
-  min-height: 2.5rem;
+  /* 与分段轨道等高：内层 2rem + 上下内边距 0.25rem + 上下描边 1px */
+  min-height: calc(var(--preference-control-height) + 0.5rem + 2px);
   padding-block: 0.5rem;
   padding-inline: 0.85rem 2.5rem;
-  border: 1px solid hsl(from var(--surface1) h s l / 0.66);
-  border-radius: 7px;
+  border: 1px solid var(--preference-border);
+  border-radius: var(--preference-radius-sm);
   color: var(--title-text-color);
-  background: hsl(from var(--base) h s l / 0.62);
-  font: 550 0.84rem / 1.2 var(--font-sans-serif);
+  background: var(--preference-field);
+  font: 550 var(--preference-font-ui) / 1.2 var(--font-sans-serif);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
 
   &:hover {
-    border-color: hsl(from var(--overlay0) h s l / 0.86);
-    background: hsl(from var(--base) h s l / 0.78);
+    border-color: var(--preference-border-hover);
+    background: var(--preference-field-strong);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--lavender);
-    outline-offset: 2px;
+    outline: var(--preference-focus-ring);
+    outline-offset: var(--preference-focus-offset);
   }
 }
 
 .preference-choice-button--size {
   --font-size-preview: 16px;
-  flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 2.2rem;
-  height: 2.5rem;
+  min-height: var(--preference-control-height);
   padding: 0;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--preference-radius-xs);
 
   &.is-active {
-    border-color: hsl(from var(--lavender) h s l / 0.55);
-    color: var(--title-text-color);
-    background-color: var(--preference-selected);
+    border-color: var(--preference-selected-border);
   }
 }
 
@@ -509,20 +551,17 @@
 
 .preference-choice-button--width {
   --width-preview: 60%;
-  flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 2.2rem;
-  height: 2.5rem;
-  padding: 0 0.3rem;
+  min-height: var(--preference-control-height);
+  padding: 0 0.4rem;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--preference-radius-xs);
 
   &.is-active {
-    border-color: hsl(from var(--lavender) h s l / 0.55);
-    color: var(--title-text-color);
-    background-color: var(--preference-selected);
+    border-color: var(--preference-selected-border);
   }
 }
 
@@ -555,18 +594,30 @@
   display: grid;
   justify-self: end;
   width: min(100%, var(--preference-control-width));
-  grid-template-columns: minmax(0, 1fr) 3.2rem;
+  grid-template-columns: minmax(0, 1fr) 4rem;
   gap: 0.7rem;
   align-items: center;
   min-width: 0;
 }
 
+.font-width-value {
+  text-align: end;
+}
+
 .font-line-height-control {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: 2em minmax(0, 1fr) 2em;
   align-items: center;
   gap: 0.5rem;
   min-width: 0;
+}
+
+.font-line-height-control > .font-line-height-label:last-child {
+  text-align: end;
+}
+
+.font-line-height-control:lang(en) {
+  grid-template-columns: 4em minmax(0, 1fr) 4em;
 }
 
 /* A real DOM thumb lets the shared glass lens refract the colored track underneath.
@@ -706,8 +757,8 @@
   }
 
   input:focus-visible + .preference-slider__thumb {
-    outline: 2px solid var(--lavender);
-    outline-offset: 3px;
+    outline: var(--preference-focus-ring);
+    outline-offset: var(--preference-focus-offset);
   }
 }
 
@@ -727,7 +778,7 @@
 
 .font-line-height-label {
   color: var(--sub-text-color);
-  font-size: 0.75rem;
+  font-size: var(--preference-font-meta);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -735,7 +786,7 @@
 .font-line-height-value {
   justify-self: end;
   color: var(--body-text-color);
-  font-size: 0.88rem;
+  font-size: var(--preference-font-value);
   font-variant-numeric: tabular-nums;
 }
 
@@ -746,16 +797,17 @@
   gap: 0.5rem;
   min-width: 0;
   padding: 1rem 0.5rem;
-  border: 1px solid hsl(from var(--surface1) h s l / 0.68);
-  border-radius: 8px;
-  background: hsl(from var(--base) h s l / 0.38);
+  border: 1px solid var(--preference-border);
+  border-radius: var(--preference-radius-sm);
+  background: var(--preference-field);
 
   &:hover {
-    border-color: hsl(from var(--overlay0) h s l / 0.9);
+    border-color: var(--preference-border-hover);
   }
 
   &.is-active {
-    border-color: hsl(from var(--lavender) h s l / 0.5);
+    border-color: var(--preference-selected-border);
+    background: var(--preference-selected);
   }
 }
 
@@ -779,7 +831,7 @@
 
 .font-type-name {
   max-width: 100%;
-  font-size: 0.74rem;
+  font-size: var(--preference-font-meta);
   font-weight: 650;
   line-height: 1.2;
   text-align: center;
@@ -801,7 +853,7 @@
 
 .font-option-name {
   max-width: 100%;
-  font-size: 0.8rem;
+  font-size: var(--preference-font-ui);
   line-height: 1.2;
   text-align: center;
   overflow-wrap: anywhere;
@@ -822,14 +874,14 @@
   legend {
     padding: 0;
     color: var(--title-text-color);
-    font-size: 0.84rem;
+    font-size: var(--preference-font-ui);
     font-weight: 650;
   }
 
   > small {
     display: block;
     margin: 0.375rem 0 0.625rem;
-    font-size: 0.75rem;
+    font-size: var(--preference-font-meta);
     line-height: 1.5;
   }
 }
@@ -837,80 +889,83 @@
 .font-preset-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.625rem;
+  gap: 0.375rem;
 }
 
 .font-preset-option {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-content: start;
-  gap: 0.75rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.125rem 0.625rem;
   min-width: 0;
-  padding: 1rem;
+  padding: 0.5rem 0.625rem;
   border: 1px solid var(--preference-border);
-  border-radius: 10px;
-  background: transparent;
+  border-radius: var(--preference-radius-xs);
+  background: var(--preference-field);
   color: var(--title-text-color);
   text-align: start;
   cursor: pointer;
   transition: border-color 150ms ease, background-color 150ms ease;
 
   .font-preset-copy {
-    display: grid;
-    grid-column: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    grid-column: 2;
     grid-row: 1;
-    gap: 0.375rem;
+    gap: 0.125rem 0.5rem;
     min-width: 0;
   }
 
   input {
-    grid-column: 2;
-    grid-row: 1;
+    grid-column: 1;
+    grid-row: 1 / 3;
     width: 1rem;
     height: 1rem;
-    margin: 0.1rem 0 0;
+    margin: 0;
     accent-color: var(--lavender);
     cursor: pointer;
   }
 
   .font-preset-copy > span {
+    order: 1;
     color: var(--sub-text-color);
-    font-size: 0.75rem;
+    font-size: var(--preference-font-meta);
     line-height: 1.4;
   }
 
   strong {
-    font-size: 0.95rem;
+    font-size: var(--preference-font-ui);
     font-weight: 600;
     line-height: 1.45;
     overflow-wrap: anywhere;
   }
 
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--preference-border-hover);
+      background: var(--preference-field-strong);
+    }
+  }
+
   &:has(input:checked) {
-    border-color: var(--lavender);
-    background: color-mix(in oklab, var(--lavender) 7%, transparent);
+    border-color: var(--preference-selected-border);
+    background: var(--preference-selected);
   }
 
   &:has(input:focus-visible) {
-    outline: 2px solid var(--lavender);
-    outline-offset: 3px;
-  }
-
-  @media (hover: hover) {
-    &:hover {
-      border-color: var(--lavender);
-      background: color-mix(in oklab, var(--lavender) 5%, transparent);
-    }
+    outline: var(--preference-focus-ring);
+    outline-offset: var(--preference-focus-offset);
   }
 }
 
 .font-preset-status {
   display: flex;
-  grid-column: 1 / -1;
+  grid-column: 2;
   align-items: baseline;
   gap: 0.45rem;
   color: var(--sub-text-color);
-  font-size: 0.75rem;
+  font-size: var(--preference-font-meta);
   line-height: 1.5;
 
   &::before {
@@ -946,7 +1001,7 @@
 
 .font-custom-details {
   border: 1px solid var(--preference-border);
-  border-radius: 10px;
+  border-radius: var(--preference-radius-lg);
 
   summary {
     display: flex;
@@ -955,9 +1010,9 @@
     gap: 1rem;
     min-height: 2.75rem;
     padding: 0.75rem 0.9rem;
-    border-radius: 10px;
+    border-radius: calc(var(--preference-radius-lg) - 1px);
     color: var(--body-text-color);
-    font-size: 0.8rem;
+    font-size: var(--preference-font-ui);
     font-weight: 600;
     list-style: none;
     cursor: pointer;
@@ -977,9 +1032,14 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--lavender);
-      outline-offset: 3px;
+      outline: var(--preference-focus-ring);
+      outline-offset: var(--preference-focus-offset);
     }
+  }
+
+  /* 展开时摘要下方要接内容，圆角只留在上缘，避免 hover 底色在面板中间收角 */
+  &[open] summary {
+    border-radius: calc(var(--preference-radius-lg) - 1px) calc(var(--preference-radius-lg) - 1px) 0 0;
   }
 
   &[open] summary::after {
@@ -995,7 +1055,7 @@
   > p {
     margin: 0;
     color: var(--sub-text-color);
-    font-size: 0.75rem;
+    font-size: var(--preference-font-meta);
     line-height: 1.5;
   }
 }
@@ -1003,7 +1063,7 @@
 .font-preset-note {
   margin: 0.5rem 0 0;
   color: var(--sub-text-color);
-  font-size: 0.75rem;
+  font-size: var(--preference-font-meta);
 
   &:empty {
     display: none;
@@ -1016,12 +1076,12 @@
   gap: 0.375rem;
   min-width: 0;
   color: var(--sub-text-color);
-  font-size: 0.75rem;
+  font-size: var(--preference-font-meta);
   font-weight: 650;
 
   small {
     color: var(--sub-text-color);
-    font-size: 0.72rem;
+    font-size: var(--preference-font-meta);
     font-weight: 500;
     line-height: 1.35;
   }
@@ -1032,11 +1092,11 @@
   max-width: 100%;
   min-width: 0;
   padding: 0.625rem 0.75rem;
-  border: 1px solid hsl(from var(--surface1) h s l / 0.68);
-  border-radius: 8px;
+  border: 1px solid var(--preference-border);
+  border-radius: var(--preference-radius-sm);
   color: var(--body-text-color);
-  background: hsl(from var(--base) h s l / 0.42);
-  font: 0.8125rem / 1.45 var(--font-mono);
+  background: var(--preference-field);
+  font: var(--preference-font-ui) / 1.45 var(--font-mono);
   outline: none;
   transition:
     border-color 0.2s ease,
@@ -1059,8 +1119,8 @@
 }
 
 .font-custom-field :is(input, textarea):focus {
-  border-color: hsl(from var(--lavender) h s l / 0.62);
-  background: hsl(from var(--base) h s l / 0.62);
+  border-color: var(--preference-selected-border);
+  background: var(--preference-field-strong);
   box-shadow: 0 0 0 3px hsl(from var(--lavender) h s l / 0.1);
 }
 
@@ -1074,11 +1134,11 @@
   justify-self: start;
   min-height: 2.25rem;
   padding: 0.5rem 0.75rem;
-  border: 1px solid hsl(from var(--surface1) h s l / 0.68);
-  border-radius: 8px;
+  border: 1px solid var(--preference-border);
+  border-radius: var(--preference-radius-sm);
   color: var(--sub-text-color);
   background: transparent;
-  font-size: 0.8125rem;
+  font-size: var(--preference-font-ui);
   font-weight: 650;
   cursor: pointer;
   transition:
@@ -1087,9 +1147,9 @@
     color 0.2s ease;
 
   &:hover {
-    border-color: hsl(from var(--overlay0) h s l / 0.9);
+    border-color: var(--preference-border-hover);
     color: var(--title-text-color);
-    background: hsl(from var(--surface1) h s l / 0.42);
+    background: var(--preference-field);
   }
 }
 
@@ -1098,13 +1158,13 @@
   gap: 1rem;
   padding: clamp(1rem, 3vw, 1.5rem);
   border: 1px solid var(--preference-border);
-  border-radius: 12px;
-  background: hsl(from var(--mantle) h s l / 0.35);
+  border-radius: var(--preference-radius-lg);
+  background: var(--preference-field);
 }
 
 .preference-preview-label {
   color: var(--sub-text-color);
-  font: 600 0.72rem / 1.4 var(--font-sans-serif);
+  font: 600 var(--preference-font-meta) / 1.4 var(--font-sans-serif);
 }
 
 .font-preview-copy {
@@ -1140,10 +1200,11 @@
    martin65536/liquid-glass-webgl, catalog/build-toggle.ts (Kyant LiquidToggle).
    The DOM backdrop lens remains shared with the rest of the theme. */
 .preference-switch {
+  --switch-travel: 16px;
   position: relative;
   justify-self: end;
   flex: 0 0 auto;
-  width: 64px;
+  width: 48px;
   height: 44px;
   padding: 0;
   border: 0;
@@ -1158,7 +1219,7 @@
   &::before {
     content: "";
     position: absolute;
-    inset: 8px 0;
+    inset: 10px 0;
     border-radius: inherit;
     background: hsl(from var(--sub-text-color) h s l / 0.2);
     box-shadow: inset 0 1px 2px oklch(0 0 0 / 0.06);
@@ -1169,24 +1230,34 @@
     background: var(--green);
   }
 
-  &:focus-visible {
-    outline: 2px solid var(--lavender);
-    outline-offset: 3px;
+  /* 关态轨道只比页面深一点，悬停时加深一档，让鼠标用户看得出这是可点的 */
+  @media (hover: hover) and (pointer: fine) {
+    &:not([aria-checked="true"]):not(:disabled):hover::before {
+      background: hsl(from var(--sub-text-color) h s l / 0.32);
+    }
   }
 
-  &:disabled { cursor: not-allowed; }
+  &:focus-visible {
+    outline: var(--preference-focus-ring);
+    outline-offset: var(--preference-focus-offset);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 }
 
 .preference-switch__thumb.glass {
-  --glass-refraction: 5px;
-  --glass-refraction-amount: 10px;
+  --glass-refraction: 4px;
+  --glass-refraction-amount: 8px;
   --glass-surface: transparent;
   --glass-elevation: 0 1px 4px oklch(0 0 0 / 0.12);
   position: absolute;
-  top: 10px;
+  top: 12px;
   left: 2px;
-  width: 40px;
-  height: 24px;
+  width: 28px;
+  height: 20px;
   border-radius: 999px;
   pointer-events: none;
   translate: 0 0;
@@ -1207,10 +1278,10 @@
 
   &::after { opacity: 0.35; transition: opacity 160ms ease; }
 
-  .preference-switch[aria-checked="true"] & { translate: 20px 0; }
+  .preference-switch[aria-checked="true"] & { translate: var(--switch-travel) 0; }
 
   .preference-switch[data-switch-pressed] & {
-    scale: 1.5;
+    scale: 1.2;
     -webkit-backdrop-filter: blur(0px);
     backdrop-filter: var(--glass-lens, blur(0px));
     box-shadow: 0 1px 4px oklch(0 0 0 / 0.05), inset 0 -4px 4px oklch(0 0 0 / 0.15);
@@ -1256,7 +1327,7 @@
 .glass-range-value {
   justify-self: end;
   color: var(--body-text-color);
-  font-size: 0.88rem;
+  font-size: var(--preference-font-value);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1274,8 +1345,8 @@
   place-items: center;
   min-height: 7.5rem;
   overflow: hidden;
-  border: 1px solid hsl(from var(--surface1) h s l / 0.52);
-  border-radius: 12px;
+  border: 1px solid var(--preference-border);
+  border-radius: var(--preference-radius-lg);
   background:
     repeating-linear-gradient(115deg, hsl(from var(--title-text-color) h s l / 0.08) 0 2px, transparent 2px 14px),
     linear-gradient(120deg, var(--lavender), var(--blue) 35%, var(--teal) 65%, var(--peach));
@@ -1312,15 +1383,19 @@
 }
 
 .preference-page :is(.preference-choice-button, .preference-back-link, .preference-reset-action, .font-custom-reset) {
-  transition: transform 160ms ease-out, background-color 160ms ease-out, border-color 160ms ease-out;
+  transition:
+    transform 160ms ease-out,
+    background-color 160ms ease-out,
+    border-color 160ms ease-out,
+    color 160ms ease-out;
 
   &:active {
     transform: scale(0.98);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--lavender);
-    outline-offset: 3px;
+    outline: var(--preference-focus-ring);
+    outline-offset: var(--preference-focus-offset);
   }
 }
 
@@ -1331,12 +1406,12 @@
 
 @media (hover: hover) and (pointer: fine) {
   .preference-choice-button--theme-mode:not(.is-active):hover .theme-mode-preview {
-    border-color: var(--overlay0);
+    border-color: var(--preference-border-hover);
   }
 
   .font-custom-details summary:hover {
     color: var(--title-text-color);
-    background: hsl(from var(--surface0) h s l / 0.3);
+    background: var(--preference-field);
   }
 }
 
@@ -1397,10 +1472,12 @@
     width: 100%;
   }
 
-  .preference-choice-button--size,
-  .preference-choice-button--width,
-  .preference-choice-button--segmented,
-  .theme-scheme-select,
+  /* 触屏上把轨道整体抬高一档：内层 2.25rem + 上下内边距 = 2.75rem 外高。
+     分段组、下拉与滑块都从这个变量派生高度，改一处即可 */
+  .preference-page {
+    --preference-control-height: 2.25rem;
+  }
+
   .font-custom-reset {
     min-height: 2.75rem;
   }
@@ -1435,7 +1512,7 @@
   }
 
   .theme-mode-label {
-    font-size: 0.8rem;
+    font-size: var(--preference-font-ui);
   }
 }
 

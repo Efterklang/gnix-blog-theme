@@ -303,7 +303,10 @@
     let suppressSyncEvent = false;
     let lineHeightFrame = 0;
     const lineHeightSlider = root.querySelector(".font-line-height-slider");
-    const lineHeightValue = root.querySelector(".font-line-height-value");
+    const lineHeightValue = root.querySelector(".font-line-height-value:not(.font-width-value)");
+    const widthSlider = root.querySelector(".font-width-slider");
+    const widthValue = root.querySelector(".font-width-value");
+    const widthLabels = JSON.parse(widthSlider?.dataset.widthLabels || "{}");
     const fontTypeSelects = root.querySelectorAll("[data-article-font-select]");
     const stepButtons = root.querySelectorAll("[data-article-step]");
     const customFontForm = root.querySelector(".font-custom-form");
@@ -315,7 +318,6 @@
     const allSettingsResetButtons = root.querySelectorAll("[data-preference-reset-all]");
     const customFontFamilyInputs = root.querySelectorAll(".font-custom-family-input");
     const sizeButtons = root.querySelectorAll(".font-size-btn");
-    const widthButtons = root.querySelectorAll(".font-width-btn");
     const spacingButtons = root.querySelectorAll(".font-spacing-btn");
     const typeButtons = root.querySelectorAll(".font-type-btn");
     const weightButtons = root.querySelectorAll(".font-weight-btn");
@@ -339,6 +341,15 @@
       if (lineHeightValue) lineHeightValue.textContent = settings.lineHeight.toFixed(2);
     }
 
+    function updateWidthUI() {
+      if (!widthSlider) return;
+      widthSlider.value = String(ARTICLE_WIDTH_LIST.indexOf(settings.width));
+      const label = widthLabels[settings.width] || settings.width;
+      widthSlider.setAttribute("aria-valuetext", label);
+      if (widthValue) widthValue.textContent = getCssVariableValue("--article-max-width", "42em");
+      syncSliderVisual(widthSlider);
+    }
+
     function isStepDisabled(control, dir) {
       if (control === "lineHeight") {
         return dir < 0 ? settings.lineHeight <= ARTICLE_LINE_HEIGHT_MIN + 1e-9 : settings.lineHeight >= ARTICLE_LINE_HEIGHT_MAX - 1e-9;
@@ -360,7 +371,7 @@
       updateButtonStates(sizeButtons, (btn) => btn.dataset.size === settings.size);
       updateButtonStates(typeButtons, (btn) => btn.dataset.font === settings.type);
       updateButtonStates(weightButtons, (btn) => btn.dataset.weight === settings.weight);
-      updateButtonStates(widthButtons, (btn) => btn.dataset.width === settings.width);
+      updateWidthUI();
       updateButtonStates(spacingButtons, (btn) => btn.dataset.spacing === settings.spacing);
       fontTypeSelects.forEach((select) => {
         select.value = settings.type;
@@ -442,12 +453,17 @@
       });
     });
 
-    widthButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        if (!ARTICLE_WIDTH_OPTIONS.has(btn.dataset.width)) return;
-        commitSettings({ ...settings, width: btn.dataset.width });
+    if (widthSlider) {
+      widthSlider.max = String(ARTICLE_WIDTH_LIST.length - 1);
+      widthSlider.addEventListener("input", () => {
+        settings = { ...settings, width: ARTICLE_WIDTH_LIST[Number(widthSlider.value)] };
+        document.documentElement.dataset.articleWidth = settings.width;
+        updateWidthUI();
       });
-    });
+      widthSlider.addEventListener("change", () => {
+        commitSettings({ ...settings, width: ARTICLE_WIDTH_LIST[Number(widthSlider.value)] });
+      });
+    }
 
     spacingButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -677,8 +693,9 @@
       };
       button.addEventListener("pointerdown", (event) => {
         if (button.disabled || !event.isPrimary || event.button !== 0) return;
-        const initial = button.getAttribute("aria-checked") === "true" ? 20 : 0;
-        gesture = { id: event.pointerId, x: event.clientX, initial, position: initial, dragged: false };
+        const travel = parseFloat(getComputedStyle(button).getPropertyValue("--switch-travel")) || 16;
+        const initial = button.getAttribute("aria-checked") === "true" ? travel : 0;
+        gesture = { id: event.pointerId, x: event.clientX, initial, position: initial, travel, dragged: false };
         button.dataset.switchPressed = "";
         button.setPointerCapture(event.pointerId);
       });
@@ -687,18 +704,18 @@
         const delta = event.clientX - gesture.x;
         if (Math.abs(delta) > 3) gesture.dragged = true;
         if (!gesture.dragged) return;
-        gesture.position = Math.max(0, Math.min(20, gesture.initial + delta));
+        gesture.position = Math.max(0, Math.min(gesture.travel, gesture.initial + delta));
         button.dataset.switchDragging = "";
         thumb.style.translate = `${gesture.position}px 0`;
       });
       button.addEventListener("pointerup", (event) => {
         if (!gesture || event.pointerId !== gesture.id) return;
-        const { dragged, position } = gesture;
+        const { dragged, position, travel } = gesture;
         reset();
         if (button.hasPointerCapture(event.pointerId)) button.releasePointerCapture(event.pointerId);
         if (!dragged) return; // 普通点击由原有偏好处理器提交。
         suppressPointerClick = true;
-        const next = position >= 10;
+        const next = position >= travel / 2;
         if (next !== (button.getAttribute("aria-checked") === "true")) button.click();
         setTimeout(() => { suppressPointerClick = false; }, 0);
       });

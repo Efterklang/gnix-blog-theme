@@ -197,6 +197,7 @@ module.exports = class extends Component {
     const themeTitleId = `${idPrefix}-theme-title`;
     const fontTitleId = `${idPrefix}-font-title`;
     const lineHeightSliderId = `${idPrefix}-article-line-height-slider`;
+    const widthSliderId = `${idPrefix}-article-width-slider`;
     const glassTitleId = `${idPrefix}-glass-title`;
     const glassEnabledLabel = translate(helper, "preferences.glass_enabled", "Liquid Glass");
     const glassPressLabel = translate(helper, "preferences.glass_press", "Press Feedback");
@@ -276,7 +277,7 @@ module.exports = class extends Component {
               <div class="preference-row__label">
                 <span>{translate(helper, "preferences.font_size", "Size")}</span>
               </div>
-              <fieldset class="preference-choice-group preference-choice-group--font-size font-size-selector">
+              <fieldset class="preference-choice-group preference-choice-group--segmented preference-choice-group--font-size font-size-selector">
                 <legend class="preference-sr-only">{translate(helper, "preferences.font_size", "Size")}</legend>
                 {FONT_SIZE_OPTIONS.map(([value, key, fallback]) => (
                   <button type="button" class="preference-choice-button preference-choice-button--size font-size-btn" data-size={value} aria-label={translate(helper, key, fallback)}>
@@ -305,14 +306,29 @@ module.exports = class extends Component {
                 <span>{translate(helper, "preferences.content_width", "Article Width")}</span>
                 <small>{translate(helper, "preferences.content_width_description", "Only affects the article column")}</small>
               </div>
-              <fieldset class="preference-choice-group preference-choice-group--article-width font-width-selector">
-                <legend class="preference-sr-only">{translate(helper, "preferences.content_width", "Article Width")}</legend>
-                {ARTICLE_WIDTH_OPTIONS.map(([value, key, fallback]) => (
-                  <button type="button" class="preference-choice-button preference-choice-button--width font-width-btn" data-width={value} aria-label={translate(helper, key, fallback)}>
-                    <span class="font-width-preview" aria-hidden="true"></span>
-                  </button>
-                ))}
-              </fieldset>
+              <div class="font-line-height-stack">
+                <div class="font-line-height-control">
+                  <span class="font-line-height-label">{translate(helper, "preferences.width_narrow", "Narrow")}</span>
+                  <span class="preference-slider">
+                    <input
+                      id={widthSliderId}
+                      class="font-width-slider preference-range-slider"
+                      type="range"
+                      min="0"
+                      max={String(ARTICLE_WIDTH_OPTIONS.length - 1)}
+                      step="1"
+                      value="0"
+                      aria-label={translate(helper, "preferences.content_width", "Article Width")}
+                      data-width-labels={JSON.stringify(Object.fromEntries(ARTICLE_WIDTH_OPTIONS.map(([value, key, fallback]) => [value, translate(helper, key, fallback)])))}
+                    />
+                    <span class="preference-slider__thumb glass" data-glass-lens aria-hidden="true"></span>
+                  </span>
+                  <span class="font-line-height-label">{translate(helper, "preferences.width_wide", "Wide")}</span>
+                </div>
+                <output class="font-width-value font-line-height-value" for={widthSliderId}>
+                  42em
+                </output>
+              </div>
             </div>
 
             <div class="preference-row">
@@ -376,37 +392,42 @@ module.exports = class extends Component {
             <div class="preference-row preference-row--stacked">
               <div class="font-custom-panel">
                 <form class="font-custom-form">
-                  <fieldset class="font-preset-group">
-                    <legend>{translate(helper, "preferences.font_presets", "Recommended Fonts")}</legend>
-                    <small>{translate(helper, "preferences.font_presets_description", "Check to download fonts, then enter their names below to use them.")}</small>
-                    <div class="font-preset-list">
-                      {CUSTOM_FONT_PRESETS.map((preset) => {
-                        const [, labelKey, fallback] = FONT_TYPE_OPTIONS.find(([type]) => type === preset.type);
-                        return (
-                          <label class="font-preset-option">
-                            <input type="checkbox" data-font-preset={preset.id} aria-labelledby={`font-preset-name-${preset.id}`} aria-describedby={`font-preset-status-${preset.id}`} />
-                            <span class="font-preset-copy">
-                              <span>{translate(helper, labelKey, fallback)}</span>
-                              <strong id={`font-preset-name-${preset.id}`}>{preset.name}</strong>
-                            </span>
-                            <small class="font-preset-status" id={`font-preset-status-${preset.id}`} data-font-preset-state={preset.id} data-state="idle" aria-live="polite">
-                              {translate(helper, "preferences.font_preset_idle", "Check to download")}
-                            </small>
-                          </label>
-                        );
-                      })}
+                  <details class="font-custom-details font-preset-details">
+                    <summary>{translate(helper, "preferences.font_presets", "Recommended Fonts")}</summary>
+                    <div class="font-custom-details__body">
+                      <fieldset class="font-preset-group">
+                        <legend class="preference-sr-only">{translate(helper, "preferences.font_presets", "Recommended Fonts")}</legend>
+                        <small>{translate(helper, "preferences.font_presets_description", "Check to download fonts, then enter their names below to use them.")}</small>
+                        <div class="font-preset-list">
+                          {CUSTOM_FONT_PRESETS.map((preset) => {
+                            const [, labelKey, fallback] = FONT_TYPE_OPTIONS.find(([type]) => type === preset.type);
+                            return (
+                              <label class="font-preset-option">
+                                <input type="checkbox" data-font-preset={preset.id} aria-labelledby={`font-preset-name-${preset.id}`} aria-describedby={`font-preset-status-${preset.id}`} />
+                                <span class="font-preset-copy">
+                                  <strong id={`font-preset-name-${preset.id}`}>{preset.name}</strong>
+                                  <span>{translate(helper, labelKey, fallback)}</span>
+                                </span>
+                                <small class="font-preset-status" id={`font-preset-status-${preset.id}`} data-font-preset-state={preset.id} data-state="idle" aria-live="polite">
+                                  {translate(helper, "preferences.font_preset_idle", "Check to download")}
+                                </small>
+                              </label>
+                            );
+                          })}
+                        </div>
+                        <p class="font-preset-note">{translate(helper, "preferences.font_presets_storage", "Font files are cached in this browser for reuse.")}</p>
+                        <span
+                          hidden
+                          data-font-preset-messages
+                          data-idle={translate(helper, "preferences.font_preset_idle", "Check to download")}
+                          data-loading={translate(helper, "preferences.font_preset_loading", "Downloading…")}
+                          data-ready={translate(helper, "preferences.font_preset_ready", "Downloaded")}
+                          data-uncached={translate(helper, "preferences.font_preset_uncached", "Loaded")}
+                          data-error={translate(helper, "preferences.font_preset_error", "Download failed. Uncheck and try again.")}
+                        ></span>
+                      </fieldset>
                     </div>
-                    <p class="font-preset-note">{translate(helper, "preferences.font_presets_storage", "Font files are cached in this browser for reuse.")}</p>
-                    <span
-                      hidden
-                      data-font-preset-messages
-                      data-idle={translate(helper, "preferences.font_preset_idle", "Check to download")}
-                      data-loading={translate(helper, "preferences.font_preset_loading", "Downloading…")}
-                      data-ready={translate(helper, "preferences.font_preset_ready", "Downloaded")}
-                      data-uncached={translate(helper, "preferences.font_preset_uncached", "Loaded")}
-                      data-error={translate(helper, "preferences.font_preset_error", "Download failed. Uncheck and try again.")}
-                    ></span>
-                  </fieldset>
+                  </details>
                   <details class="font-custom-details" open>
                     <summary>{translate(helper, "preferences.custom_fonts", "Custom Fonts")}</summary>
                     <div class="font-custom-details__body">
