@@ -170,16 +170,6 @@ function icon(name, size = 18) {
           <path d="M16.4 13.8a4.8 4.8 0 0 1-1.1 1.6" opacity="0.55" />
         </svg>
       );
-    case "settings-2":
-      return (
-        <svg {...common}>
-          <title>settings-2</title>
-          <path d="M14 17H5" />
-          <path d="M19 7h-9" />
-          <circle cx="17" cy="17" r="3" />
-          <circle cx="7" cy="7" r="3" />
-        </svg>
-      );
     case "settings":
       return (
         <svg {...common}>
@@ -225,13 +215,11 @@ module.exports = class extends Component {
     const title = translate(helper, "preferences.title", "Preferences");
     const langKey = helper.language_key(page);
     const settingsUrl = helper.localized_url_for("/preferences/", langKey);
-    const fontSettingsUrl = `${settingsUrl}#preferences-typography`;
     const languageOptions = getLanguageOptions(page, config, helper);
 
     const modeLabel = translate(helper, "preferences.theme_mode", "Mode");
     const paletteLabel = translate(helper, "preferences.color_palette", "Color Palette");
     const typefaceLabel = translate(helper, "preferences.typeface", "Typeface");
-    const fontSettingsLabel = translate(helper, "article.font_settings", "Font Settings");
     const languageLabel = translate(helper, "preferences.language", "Language");
     const unavailableLabel = translate(helper, "preferences.language_unavailable", "Not translated");
     const glassLabel = translate(helper, "preferences.glass_enabled", "Liquid Glass");
@@ -311,22 +299,17 @@ module.exports = class extends Component {
               </select>
             </div>
 
-            <div class="preference-quick__select-group">
-              <div class="preference-quick__select-row preference-quick__tile glass" data-glass-lens>
-                <span class="preference-quick__select-icon" aria-hidden="true">
-                  {icon("type")}
-                </span>
-                <select id="preference-quick-font-select" class="preference-quick__select" data-article-font-select aria-label={typefaceLabel}>
-                  {FONT_TYPE_OPTIONS.map(([value, key, fallback]) => (
-                    <option value={value} selected={value === ARTICLE_FONT_DEFAULTS.type}>
-                      {translate(helper, key, fallback)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <a class="preference-quick__round preference-quick__tile glass glass-button" href={fontSettingsUrl} title={fontSettingsLabel} aria-label={fontSettingsLabel} data-glass-lens>
-                {icon("settings-2", 16)}
-              </a>
+            <div class="preference-quick__select-row preference-quick__tile glass" data-glass-lens>
+              <span class="preference-quick__select-icon" aria-hidden="true">
+                {icon("type")}
+              </span>
+              <select id="preference-quick-font-select" class="preference-quick__select" data-article-font-select aria-label={typefaceLabel}>
+                {FONT_TYPE_OPTIONS.map(([value, key, fallback]) => (
+                  <option value={value} selected={value === ARTICLE_FONT_DEFAULTS.type}>
+                    {translate(helper, key, fallback)}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {languageOptions ? (

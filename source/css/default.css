@@ -2131,18 +2131,6 @@ input.command-palette-input {
   }
 }
 
-/* 字体行：下拉胶囊 + 右侧一颗独立的圆形玻璃（进入排版设置） */
-.preference-quick__select-group {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  min-width: 0;
-
-  .preference-quick__select-row {
-    flex: 1 1 auto;
-  }
-}
-
 .preference-quick__select-icon {
   position: absolute;
   left: 0.85rem;
@@ -2198,7 +2186,7 @@ html.night .preference-quick__select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-opacity='0.55' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
 }
 
-/* 圆形玻璃图标（控制中心的圆钮）：排版设置入口、玻璃开关、设置页入口 */
+/* 圆形玻璃图标：玻璃开关、设置页入口 */
 .preference-quick__round {
   flex: 0 0 auto;
   display: inline-flex;
@@ -2281,7 +2269,6 @@ html.night .preference-quick__select {
 
   .preference-quick__steppers,
   .preference-quick__selects,
-  .preference-quick__select-group,
   .preference-quick__dock {
     gap: 0.7rem;
   }
