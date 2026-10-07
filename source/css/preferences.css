@@ -754,7 +754,7 @@
 }
 
 .font-type-btn[data-font="handwriting"] {
-  --font-type-preview-family: var(--font-handwriting);
+  --font-type-preview-family: var(--font-handwritten);
 }
 
 .font-type-preview {

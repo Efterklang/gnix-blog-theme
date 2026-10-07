@@ -54,7 +54,7 @@
     serif: "--font-serif",
     "sans-serif": "--font-sans-serif",
     mono: "--font-mono",
-    handwriting: "--font-handwriting",
+    handwriting: "--font-handwritten",
   };
   const ARTICLE_CUSTOM_FONT_IMPORT_LIMIT = articleFontConfig.customFonts?.importLimit ?? 6;
   const ARTICLE_CUSTOM_FONT_LINK_SELECTOR = 'link[data-gnix-custom-font="true"]';

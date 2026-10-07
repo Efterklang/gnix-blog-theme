@@ -24,7 +24,7 @@ const CUSTOM_FONT_FAMILY_OPTIONS = Object.freeze({
   serif: "--font-serif",
   "sans-serif": "--font-sans-serif",
   mono: "--font-mono",
-  handwriting: "--font-handwriting",
+  handwriting: "--font-handwritten",
 });
 
 const CUSTOM_FONT_IMPORT_LIMIT = 6;

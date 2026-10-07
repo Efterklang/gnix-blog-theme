@@ -193,7 +193,7 @@ class ThemeStackedElement extends HTMLElement {
 
         }
         .card-title {
-          font-family: var(--font-handwriting);
+          font-family: var(--font-handwritten);
           font-size: 2em;
           font-weight: 600;
           color: var(--title-text-color);
