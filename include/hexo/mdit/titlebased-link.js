@@ -1,5 +1,5 @@
 const path = require("node:path");
-const { slugize } = require("hexo-util");
+const { slugize, stripHTML, unescapeHTML } = require("hexo-util");
 
 const MARKDOWN_EXTENSIONS = new Set([".md", ".markdown"]);
 const LINK_RE = /^\[\[\s*([^*"\\/<>:?[\]|#]+)\s*(#[^"\\/[\]|]+)?\s*(\\?\|[^/[\]]*)?\s*\]\]/;
@@ -38,7 +38,7 @@ function buildPostIndex(hexo) {
     const fileName = getFileName(item);
     if (!fileName) continue;
 
-    index.set(fileName.toLowerCase(), getPermalink(item));
+    index.set(fileName.toLowerCase(), { href: getPermalink(item), title: String(item.title || fileName) });
   }
 
   return index;
@@ -55,6 +55,25 @@ function createTitlebasedLink(hexo) {
     postIndex = buildPostIndex(hexo);
   });
 
+  // Generators run after post rendering: excerpt is already available, including
+  // <!-- more --> excerpts. Never render content again to construct previews.
+  hexo.extend.generator.register("wiki-link-previews", (locals) => {
+    const previews = Object.create(null);
+    for (const item of [...locals.posts.toArray(), ...locals.pages.toArray()]) {
+      if (!MARKDOWN_EXTENSIONS.has(path.extname(item.source || "").toLowerCase()) || item.published === false) continue;
+      const fileName = getFileName(item);
+      if (!fileName) continue;
+      const encrypted = item.encrypt || (item.password !== undefined && item.password !== null && item.password !== "");
+      const plain = encrypted ? "" : unescapeHTML(stripHTML(String(item.excerpt || "").replace(/<\/(?:p|li|div|h[1-6])>|<br\s*\/?>/gi, " "))).replace(/\s+/g, " ").trim();
+      const characters = Array.from(plain);
+      previews[fileName.toLowerCase()] = {
+        title: String(item.title || fileName),
+        excerpt: characters.length > 280 ? `${characters.slice(0, 280).join("")}…` : plain,
+      };
+    }
+    return { path: "wiki-link-previews.json", data: JSON.stringify(previews) };
+  });
+
   return (md) => {
     md.inline.ruler.before("text", "titlebased_link", (state, silent) => {
       const start = state.pos;
@@ -65,8 +84,8 @@ function createTitlebasedLink(hexo) {
       if (!match) return false;
 
       const fileName = decodePart(match[1]).trim();
-      const href = ensurePostIndex().get(fileName.toLowerCase());
-      if (!href) return false;
+      const target = ensurePostIndex().get(fileName.toLowerCase());
+      if (!target) return false;
       if (silent) return true;
 
       const alias = match[3] ? decodePart(match[3]).replace(/^\\?\|/, "") : "";
@@ -75,7 +94,11 @@ function createTitlebasedLink(hexo) {
       const anchor = slug ? `#${slug}` : "";
 
       const open = state.push("link_open", "a", 1);
-      open.attrSet("href", `${href}${anchor}`);
+      open.attrSet("href", `${target.href}${anchor}`);
+      open.attrSet("class", "wiki-link");
+      open.attrSet("data-wiki-title", target.title);
+      open.attrSet("data-wiki-key", fileName.toLowerCase());
+      open.attrSet("title", target.title);
 
       const text = state.push("text", "", 0);
       text.content = alias || fileName;

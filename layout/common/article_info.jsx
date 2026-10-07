@@ -80,7 +80,7 @@ module.exports = class extends Component {
     }
 
     return (
-      <div id="article-info-popover" popover="auto" class="article-popover article-info-popover" aria-label={helper.__("article.article_info")}>
+      <div id="article-info-popover" popover="auto" role="dialog" class="article-popover article-info-popover" aria-label={helper.__("article.article_info")}>
         <button class="article-popover-backdrop" type="button" popovertarget="article-info-popover" popovertargetaction="hide" tabindex="-1" aria-label={closeLabel}></button>
         <button class="article-info-close" type="button" popovertarget="article-info-popover" popovertargetaction="hide" aria-label={closeLabel}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">

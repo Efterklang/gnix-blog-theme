@@ -3,6 +3,7 @@
 // 共享基础设施（激活门控、懒加载资源）从 main.js 导入
 import { handleLazyAssetError, loadScriptOnce, loadStyleOnce, prewarmLazyAssetsOnIdle, runWhenActivated } from "./main.js";
 import { initScrollReveal } from "./scroll-reveal.js";
+import { initWikiLinkPreview } from "./wiki-link.js";
 
 let cleanupArticleReveal = () => {};
 
@@ -680,6 +681,7 @@ function initPage() {
 // #region boot
 // article.js 与 main.js 同为 <script type="module">，具备 defer 语义：执行到这里时 DOM
 // 必已解析完毕，无需 DOMContentLoaded 门控；prerender 页面经 runWhenActivated 推迟到激活后初始化
+runWhenActivated(initWikiLinkPreview);
 runWhenActivated(initPage);
 document.addEventListener("gnix:decrypted-content-ready", () => runWhenActivated(initPage));
 

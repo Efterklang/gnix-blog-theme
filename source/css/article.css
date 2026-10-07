@@ -95,6 +95,78 @@
   }
 }
 
+.content a.wiki-link {
+  border-radius: 0.2em;
+  background: color-mix(in oklab, var(--lavender) 9%, transparent);
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+
+  &:hover {
+    background: color-mix(in oklab, var(--lavender) 17%, transparent);
+    text-decoration-style: solid;
+    text-decoration-thickness: 1px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mauve);
+    outline-offset: 3px;
+  }
+}
+
+.wiki-link-preview[popover] {
+  /* Match Archive previews: paper surface, article typography, muted excerpt. */
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: fit-content;
+  min-width: min(20rem, calc(100vw - 24px));
+  max-width: min(34rem, calc(100vw - 24px));
+  height: auto;
+  max-height: min(50dvh, calc(100dvh - 24px));
+  box-sizing: border-box;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0.85rem 1rem 0.9rem;
+  border: 1px solid color-mix(in oklab, var(--sub-text-color) 20%, transparent);
+  border-radius: 0;
+  background: var(--mantle);
+  background-image: var(--page-texture);
+  color: var(--body-text-color);
+  font-family: var(--article-font-family);
+  font-size: var(--article-font-size);
+  font-weight: var(--article-font-weight);
+  line-height: var(--article-line-height);
+  overflow-wrap: anywhere;
+  text-align: start;
+
+  &::before {
+    content: none;
+  }
+
+  &::backdrop {
+    background: transparent;
+    pointer-events: none;
+  }
+}
+
+.wiki-link-preview__title {
+  margin: 0;
+  color: var(--title-text-color);
+  font-weight: 600;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.wiki-link-preview__excerpt {
+  margin: 0.5em 0 0;
+  color: var(--sub-text-color);
+}
+
 .content {
   overflow: auto;
   overflow-wrap: break-word;
