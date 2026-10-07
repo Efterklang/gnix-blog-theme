@@ -648,6 +648,72 @@
     sync();
   }
 
+  function initPageTexturePreferences(root) {
+    if (typeof window.applyPageTexture !== "function") return;
+    const toggles = root.querySelectorAll("[data-page-texture-toggle]");
+    const isEnabled = () => document.documentElement.dataset.pageTexture === "on";
+    const sync = () => toggles.forEach((toggle) => toggle.setAttribute("aria-checked", String(isEnabled())));
+    toggles.forEach((toggle) => {
+      toggle.addEventListener("click", () => window.applyPageTexture(!isEnabled(), true));
+    });
+    root.querySelectorAll("[data-preference-reset-all]").forEach((button) => {
+      button.addEventListener("click", () => window.applyPageTexture(false, true));
+    });
+    window.addEventListener("gnix:page-texture-change", sync);
+    sync();
+  }
+
+  function initLiquidSwitchInteractions(root) {
+    root.querySelectorAll(".preference-switch").forEach((button) => {
+      const thumb = button.querySelector(".preference-switch__thumb");
+      if (!thumb) return;
+      let gesture = null;
+      let suppressPointerClick = false;
+      const reset = () => {
+        gesture = null;
+        delete button.dataset.switchPressed;
+        delete button.dataset.switchDragging;
+        thumb.style.removeProperty("translate");
+      };
+      button.addEventListener("pointerdown", (event) => {
+        if (button.disabled || !event.isPrimary || event.button !== 0) return;
+        const initial = button.getAttribute("aria-checked") === "true" ? 20 : 0;
+        gesture = { id: event.pointerId, x: event.clientX, initial, position: initial, dragged: false };
+        button.dataset.switchPressed = "";
+        button.setPointerCapture(event.pointerId);
+      });
+      button.addEventListener("pointermove", (event) => {
+        if (!gesture || event.pointerId !== gesture.id) return;
+        const delta = event.clientX - gesture.x;
+        if (Math.abs(delta) > 3) gesture.dragged = true;
+        if (!gesture.dragged) return;
+        gesture.position = Math.max(0, Math.min(20, gesture.initial + delta));
+        button.dataset.switchDragging = "";
+        thumb.style.translate = `${gesture.position}px 0`;
+      });
+      button.addEventListener("pointerup", (event) => {
+        if (!gesture || event.pointerId !== gesture.id) return;
+        const { dragged, position } = gesture;
+        reset();
+        if (button.hasPointerCapture(event.pointerId)) button.releasePointerCapture(event.pointerId);
+        if (!dragged) return; // 普通点击由原有偏好处理器提交。
+        suppressPointerClick = true;
+        const next = position >= 10;
+        if (next !== (button.getAttribute("aria-checked") === "true")) button.click();
+        setTimeout(() => { suppressPointerClick = false; }, 0);
+      });
+      button.addEventListener("click", (event) => {
+        if (suppressPointerClick && event.detail > 0) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      }, true);
+      button.addEventListener("pointercancel", reset);
+      button.addEventListener("lostpointercapture", reset);
+      window.addEventListener("pagehide", reset);
+    });
+  }
+
   function initNavigationControls(root) {
     // 弹窗里的链接和语言切换都会离开当前页，跳转前先收起弹窗：popover 的开合
     // 状态随 DOM 一起进 bfcache，否则返回上一页时还压着一层浮层。
@@ -687,6 +753,8 @@
     initThemePreferences(root);
     initArticleFontPreferences(root);
     initGlassPreferences(root);
+    initPageTexturePreferences(root);
+    initLiquidSwitchInteractions(root);
     initNavigationControls(root);
   }
 

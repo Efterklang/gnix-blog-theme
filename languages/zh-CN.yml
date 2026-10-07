@@ -63,6 +63,8 @@ archive:
   close_topic_picker: "关闭标签选择器"
   all_posts: "全部文章"
 preferences:
+  paper_texture: "纸质纹理"
+  paper_texture_description: "为页面背景添加细腻的纸张质感"
   title: "偏好设置"
   autosave_note: "更改会自动保存在当前浏览器。"
   live_preview: "实时预览"

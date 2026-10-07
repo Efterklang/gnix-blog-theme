@@ -100,7 +100,7 @@ const GLASS_RANGE_OPTIONS = [
 function renderGlassSwitch(key, label) {
   return (
     <button type="button" class="preference-switch" role="switch" aria-checked={String(GLASS_DEFAULTS[key])} aria-label={label} data-glass-toggle={key}>
-      <span class="preference-switch__thumb" aria-hidden="true"></span>
+      <span class="preference-switch__thumb glass" data-glass-lens aria-hidden="true"></span>
     </button>
   );
 }
@@ -157,6 +157,9 @@ function renderThemeSchemeControl(helper, kind, themes, idPrefix) {
             </option>
           ))}
         </select>
+        <svg class="theme-scheme-select-chevron" aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m6 9 6 6 6-6" />
+        </svg>
       </span>
     </div>
   );
@@ -241,6 +244,23 @@ module.exports = class extends Component {
                 {renderThemeSchemeControl(helper, "light", lightThemes, idPrefix)}
                 {renderThemeSchemeControl(helper, "dark", darkThemes, idPrefix)}
               </div>
+            </div>
+            <div class="preference-row preference-row--switch">
+              <div class="preference-row__label">
+                <span id={`${idPrefix}-paper-texture-label`}>{translate(helper, "preferences.paper_texture", "Paper Texture")}</span>
+                <small id={`${idPrefix}-paper-texture-description`}>{translate(helper, "preferences.paper_texture_description", "Add a subtle paper texture to the page background")}</small>
+              </div>
+              <button
+                type="button"
+                class="preference-switch"
+                role="switch"
+                aria-checked="false"
+                aria-labelledby={`${idPrefix}-paper-texture-label`}
+                aria-describedby={`${idPrefix}-paper-texture-description`}
+                data-page-texture-toggle
+              >
+                <span class="preference-switch__thumb glass" data-glass-lens aria-hidden="true"></span>
+              </button>
             </div>
           </section>
 

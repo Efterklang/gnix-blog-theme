@@ -63,6 +63,8 @@ archive:
   close_topic_picker: "Close tag picker"
   all_posts: "All Posts"
 preferences:
+  paper_texture: "Paper Texture"
+  paper_texture_description: "Add a subtle paper texture to the page background"
   title: "Preferences"
   autosave_note: "Changes are saved automatically in this browser."
   live_preview: "Live Preview"

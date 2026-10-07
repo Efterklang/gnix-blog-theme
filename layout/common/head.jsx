@@ -5,6 +5,7 @@ const StructuredData = require("../../layout/misc/structured_data");
 const Plugins = require("./plugins");
 const { getArticleFontInitScript } = require("../../include/util/article_font");
 const { getGlassInitScript } = require("../../include/util/glass");
+const { getPageTextureInitScript } = require("../../include/util/page_texture");
 const { getThemeInitScript } = require("../../include/util/theme");
 const { getDefaultLanguageKey, getLanguage, getPageLanguageKey, getPageLocale, isI18nEnabled, normalizeLocale } = require("../../include/util/i18n");
 const fs = require("node:fs");
@@ -299,6 +300,7 @@ module.exports = class extends Component {
         <script dangerouslySetInnerHTML={{ __html: articleFontUtilsScript }}></script>
         <script dangerouslySetInnerHTML={{ __html: articleFontInitScript }}></script>
         <script dangerouslySetInnerHTML={{ __html: glassInitScript }}></script>
+        <script dangerouslySetInnerHTML={{ __html: getPageTextureInitScript() }}></script>
         <script dangerouslySetInnerHTML={{ __html: PRERENDER_HELPER_SCRIPT }}></script>
         <script dangerouslySetInnerHTML={{ __html: PAGE_REVEAL_SCRIPT }}></script>
         <meta name="viewport" content="width=device-width, initial-scale=1" />

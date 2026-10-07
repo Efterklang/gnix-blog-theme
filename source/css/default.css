@@ -1,4 +1,8 @@
 :root {
+  --page-texture: none;
+  &[data-page-texture="on"] {
+    --page-texture: url("../img/page-grain.svg");
+  }
   /* font */
   --font-symbols: "Symbols Nerd Font Mono";
   --font-serif: var(--font-symbols), serif;
@@ -303,6 +307,9 @@
 
 body {
   background: var(--mantle);
+  /* 全站纸质纹理：纸浆明暗、细纤维与表面凹凸，仅绘制在背景层。 */
+  background-image: var(--page-texture);
+  background-attachment: fixed;
   color: var(--body-text-color);
   min-height: 100%;
   line-height: 1.7;

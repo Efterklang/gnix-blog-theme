@@ -145,6 +145,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
       inset: 0;
       z-index: 130;
       background: var(--mantle);
+      background-image: var(--page-texture);
+      background-attachment: fixed;
       opacity: 0;
       pointer-events: none;
       transition: opacity var(--archive-popup-exit-duration) var(--ease-out);
@@ -165,6 +167,15 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
+}
+
+/* 页面内容已在 tags 打开时淡出，直接透出原背景，避免遮罩重复叠色。 */
+.archive-topic-picker:popover-open::before {
+  content: none;
+}
+
+.archive-topic-picker::backdrop {
+  background: transparent;
 }
 
 /* Curtain mode: the picker hangs from the hero's bottom divider, filling down
@@ -213,8 +224,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
     }
   }
 
-  /* Immersive: no card surface — the tag list floats directly over the
-     blurred, receded page, filling down to the bottom of the viewport. */
+  /* The tag list floats directly over the original paper background,
+     filling down to the bottom of the viewport. */
   .archive-topic-picker__body {
     width: 100%;
     height: 100%;

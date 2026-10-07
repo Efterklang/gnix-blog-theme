@@ -416,17 +416,31 @@
 }
 
 .theme-scheme-select-shell {
+  position: relative;
   display: block;
   justify-self: end;
   width: min(100%, var(--preference-control-width));
   min-width: 0;
 }
 
+.theme-scheme-select-chevron {
+  position: absolute;
+  inset-inline-end: 0.85rem;
+  top: 50%;
+  translate: 0 -50%;
+  color: var(--sub-text-color);
+  pointer-events: none;
+}
+
 .theme-scheme-select {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
   width: 100%;
   min-width: 0;
   min-height: 2.5rem;
-  padding: 0.5rem 2rem 0.5rem 0.62rem;
+  padding-block: 0.5rem;
+  padding-inline: 0.85rem 2.5rem;
   border: 1px solid hsl(from var(--surface1) h s l / 0.66);
   border-radius: 7px;
   color: var(--title-text-color);
@@ -1122,50 +1136,110 @@
 }
 
 /* Liquid glass 设置：开关、滑块与一块压在彩条和文字上的玻璃胶囊，调参时即时可见 */
+/* Toggle geometry/press behavior reference:
+   martin65536/liquid-glass-webgl, catalog/build-toggle.ts (Kyant LiquidToggle).
+   The DOM backdrop lens remains shared with the rest of the theme. */
 .preference-switch {
   position: relative;
   justify-self: end;
   flex: 0 0 auto;
-  width: 2.6rem;
-  height: 1.5rem;
+  width: 64px;
+  height: 44px;
   padding: 0;
-  border: 1px solid hsl(from var(--surface1) h s l / 0.66);
+  border: 0;
   border-radius: 999px;
-  background: hsl(from var(--surface1) h s l / 0.58);
+  background: transparent;
+  overflow: visible;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
+  touch-action: pan-y;
 
-  &[aria-checked="true"] {
-    border-color: transparent;
-    background: var(--lavender);
+  /* A separate track keeps the button's backdrop unfiltered, so the knob
+     can refract both the track and the surrounding page while pressed. */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 8px 0;
+    border-radius: inherit;
+    background: hsl(from var(--sub-text-color) h s l / 0.2);
+    box-shadow: inset 0 1px 2px oklch(0 0 0 / 0.06);
+    transition: background-color 160ms ease;
+  }
+
+  &[aria-checked="true"]::before {
+    background: var(--green);
   }
 
   &:focus-visible {
     outline: 2px solid var(--lavender);
-    outline-offset: 2px;
+    outline-offset: 3px;
   }
 
-  &:disabled {
-    cursor: not-allowed;
+  &:disabled { cursor: not-allowed; }
+}
+
+.preference-switch__thumb.glass {
+  --glass-refraction: 5px;
+  --glass-refraction-amount: 10px;
+  --glass-surface: transparent;
+  --glass-elevation: 0 1px 4px oklch(0 0 0 / 0.12);
+  position: absolute;
+  top: 10px;
+  left: 2px;
+  width: 40px;
+  height: 24px;
+  border-radius: 999px;
+  pointer-events: none;
+  translate: 0 0;
+  scale: 1;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: translate 240ms var(--ease-out), scale 160ms var(--ease-out);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: #fff;
+    opacity: 1;
+    transition: opacity 160ms ease;
+  }
+
+  &::after { opacity: 0.35; transition: opacity 160ms ease; }
+
+  .preference-switch[aria-checked="true"] & { translate: 20px 0; }
+
+  .preference-switch[data-switch-pressed] & {
+    scale: 1.5;
+    -webkit-backdrop-filter: blur(0px);
+    backdrop-filter: var(--glass-lens, blur(0px));
+    box-shadow: 0 1px 4px oklch(0 0 0 / 0.05), inset 0 -4px 4px oklch(0 0 0 / 0.15);
+    &::before { opacity: 0; }
+    &::after { opacity: 1; }
+  }
+
+  .preference-switch[data-switch-dragging] & { transition-property: scale; }
+}
+
+:root[data-glass="off"] .preference-switch__thumb.glass {
+  scale: 1;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  &::before { opacity: 1; }
+}
+
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  :root .preference-switch .preference-switch__thumb.glass {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    &::before { opacity: 1; }
   }
 }
 
-.preference-switch__thumb {
-  position: absolute;
-  top: 50%;
-  left: 0.16rem;
-  width: 1.1rem;
-  height: 1.1rem;
-  border-radius: 50%;
-  background: var(--base);
-  box-shadow: 0 1px 3px oklch(0 0 0 / 0.24);
-  translate: 0 -50%;
-  transition: translate 0.24s var(--ease-out, ease-out);
-
-  .preference-switch[aria-checked="true"] & {
-    translate: 1.1rem -50%;
+@media (prefers-reduced-motion: reduce) {
+  :root .preference-switch .preference-switch__thumb.glass {
+    scale: 1;
+    transition: none;
   }
 }
 
@@ -1231,6 +1305,10 @@
 .preference-page :is(button, select, summary, input[type="checkbox"]) {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+}
+
+.preference-page .preference-switch {
+  touch-action: pan-y;
 }
 
 .preference-page :is(.preference-choice-button, .preference-back-link, .preference-reset-action, .font-custom-reset) {
