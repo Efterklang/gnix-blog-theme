@@ -95,7 +95,7 @@ export function parseTime(value) {
   if (/^\d+(\.\d+)?$/.test(raw)) return Number(raw);
   if (/^\d+(:\d{1,2}){1,2}$/.test(raw)) return raw.split(":").reduce((total, part) => total * 60 + Number(part), 0);
   const match = raw.match(/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/i);
-  if (!match || !match[0]) return 0;
+  if (!match?.[0]) return 0;
   return Number(match[1] || 0) * 3600 + Number(match[2] || 0) * 60 + Number(match[3] || 0);
 }
 
@@ -2080,7 +2080,7 @@ class VideoPlayer extends HTMLElement {
         const { createVideoLens } = await import("./video-lens.js");
         if (lensState !== "pending" || !this.isConnected) return;
         lens = createVideoLens(canvas, { onLost: stopLens });
-        if (!lens || !lens.upload(video)) throw new Error("video-lens unavailable");
+        if (!lens?.upload(video)) throw new Error("video-lens unavailable");
         frameDirty = false;
         lensState = "live";
         player.dataset.lens = "webgl";

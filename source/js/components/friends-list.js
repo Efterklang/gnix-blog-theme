@@ -30,7 +30,7 @@ function escapeAttribute(value) {
 function displayUrlFromHref(href) {
   try {
     const url = new URL(href);
-    return url.hostname.replace(/^www\./, "www.");
+    return url.hostname;
   } catch {
     return href.replace(/^https?:\/\//, "").replace(/\/$/, "");
   }

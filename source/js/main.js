@@ -34,24 +34,29 @@ function waitForLazyAsset(element, key) {
   if (element.dataset.loadState === "loaded") return Promise.resolve(element);
   if (lazyAssetPromises.has(key)) return lazyAssetPromises.get(key);
 
+  element.dataset.loadState = "loading";
   const promise = new Promise((resolve, reject) => {
+    const controller = new AbortController();
     element.addEventListener(
       "load",
       () => {
+        controller.abort();
         element.dataset.loadState = "loaded";
         lazyAssetPromises.delete(key);
         resolve(element);
       },
-      { once: true },
+      { once: true, signal: controller.signal },
     );
     element.addEventListener(
       "error",
       () => {
+        controller.abort();
         element.dataset.loadState = "error";
+        element.remove();
         lazyAssetPromises.delete(key);
         reject(new Error(`Unable to load ${element.href || element.src}`));
       },
-      { once: true },
+      { once: true, signal: controller.signal },
     );
   });
 
@@ -90,7 +95,6 @@ function loadScriptOnce(path, options = {}) {
   script.src = resolveAssetHref(path);
   script.async = options.async ?? true;
   script.defer = options.defer ?? true;
-  script.dataset.loadState = "loading";
   setFetchPriority(script, options.fetchPriority);
 
   const promise = waitForLazyAsset(script, key);

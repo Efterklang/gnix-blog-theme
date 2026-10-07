@@ -468,6 +468,13 @@ function addHighlightTool() {
       });
     }
 
+    function collapsedHeight(computed) {
+      const showLines = parseInt(figure.dataset.maxLines, 10);
+      const lineHeight = parseFloat(computed.lineHeight) || 20;
+      const padding = (parseFloat(computed.paddingTop) || 0) + (parseFloat(computed.paddingBottom) || 0);
+      return `${showLines * lineHeight + padding}px`;
+    }
+
     // Expand button handler
     if (expandBtn) {
       let expandTimer = null;
@@ -476,11 +483,8 @@ function addHighlightTool() {
         e.preventDefault();
         e.stopPropagation();
 
-        const showLines = parseInt(figure.dataset.maxLines, 10);
         const isExpanded = figure.classList.contains(CLS.expanded);
         const computed = getComputedStyle(pre);
-        const lineHeight = parseFloat(computed.lineHeight) || 20;
-        const padding = (parseFloat(computed.paddingTop) || 0) + (parseFloat(computed.paddingBottom) || 0);
 
         clearTimeout(expandTimer);
 
@@ -490,7 +494,7 @@ function addHighlightTool() {
             pre.getBoundingClientRect();
           }
           figure.classList.remove(CLS.expanded);
-          pre.style.maxHeight = `${showLines * lineHeight + padding}px`;
+          pre.style.maxHeight = collapsedHeight(computed);
           expandBtn.classList.remove(CLS.expandDone);
         } else {
           figure.classList.add(CLS.expanded);
@@ -508,10 +512,7 @@ function addHighlightTool() {
     if (figure.dataset.collapsible === "true" && pre) {
       requestAnimationFrame(() => {
         const computed = getComputedStyle(pre);
-        const lineHeight = parseFloat(computed.lineHeight) || 20;
-        const padding = (parseFloat(computed.paddingTop) || 0) + (parseFloat(computed.paddingBottom) || 0);
-        const showLines = parseInt(figure.dataset.maxLines, 10);
-        pre.style.maxHeight = `${showLines * lineHeight + padding}px`;
+        pre.style.maxHeight = collapsedHeight(computed);
         pre.style.overflow = "hidden";
       });
     }

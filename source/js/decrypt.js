@@ -67,7 +67,11 @@ async function decrypt(container, password) {
     script.textContent = inert.textContent;
     inert.replaceWith(script);
   }
-  localStorage.setItem(getCacheKey(), password);
+  try {
+    localStorage.setItem(getCacheKey(), password);
+  } catch {
+    // Password caching is optional when browser storage is unavailable.
+  }
   buildToc();
   document.dispatchEvent(new CustomEvent("gnix:decrypted-content-ready"));
 }
@@ -99,11 +103,6 @@ async function tryDecrypt(container, password) {
 function init() {
   const container = document.getElementById("encrypted-article");
   if (!container) return;
-  const cached = localStorage.getItem(getCacheKey());
-  if (cached) {
-    tryDecrypt(container, cached);
-    return;
-  }
   const form = container.querySelector("#encrypt-form");
   if (form) {
     form.addEventListener("submit", (e) => {
@@ -112,8 +111,17 @@ function init() {
       if (pw) tryDecrypt(container, pw);
     });
   }
-  const input = container.querySelector("#encrypt-pass");
-  if (input) input.focus();
+  let cached;
+  try {
+    cached = localStorage.getItem(getCacheKey());
+  } catch {
+    // Keep manual decryption available when browser storage is unavailable.
+  }
+  if (cached) {
+    tryDecrypt(container, cached);
+  } else {
+    container.querySelector("#encrypt-pass")?.focus();
+  }
 }
 
 (window.__gnixPrerender?.runWhenActivated || ((callback) => callback()))(init);
