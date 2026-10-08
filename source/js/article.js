@@ -442,6 +442,7 @@ function addHighlightTool() {
 
     // Copy button handler
     if (toolbar) {
+      let copyNoticeTimer = null;
       toolbar.addEventListener("click", (e) => {
         const target = e.target;
         if (target.closest(".copy-button")) {
@@ -452,9 +453,10 @@ function addHighlightTool() {
           navigator.clipboard
             .writeText(code.innerText)
             .then(() => {
+              clearTimeout(copyNoticeTimer);
               notice.textContent = getLocalizedUiText("copied");
               notice.classList.add("show");
-              setTimeout(() => notice.classList.remove("show"), 800);
+              copyNoticeTimer = setTimeout(() => notice.classList.remove("show"), 800);
             })
             .catch(() => {});
         }

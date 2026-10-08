@@ -103,6 +103,10 @@ const STYLES = `
     pointer-events: auto;
   }
 
+  .carousel[data-navigation-input="keyboard"] .slide {
+    transition: none;
+  }
+
   .slide figure {
     margin: 0;
     width: 100%;
@@ -410,16 +414,17 @@ class ImageCarousel extends HTMLElement {
 
   // ─── navigation ────────────────────────────────────────────────────
 
-  _next() {
-    this._goTo((this._currentIndex + 1) % this._images.length);
+  _next(input = "pointer") {
+    this._goTo((this._currentIndex + 1) % this._images.length, input);
   }
 
-  _prev() {
+  _prev(input = "pointer") {
     const n = this._images.length;
-    this._goTo((this._currentIndex - 1 + n) % n);
+    this._goTo((this._currentIndex - 1 + n) % n, input);
   }
 
-  _goTo(index) {
+  _goTo(index, input = "pointer") {
+    this.shadowRoot.querySelector(".carousel").dataset.navigationInput = input;
     const prev = this._currentIndex;
     if (prev === index) return;
     this._currentIndex = index;
@@ -438,8 +443,8 @@ class ImageCarousel extends HTMLElement {
 
   /** User triggered a navigation — restart the autoplay clock so the
    *  next auto-advance doesn't fire immediately after their action. */
-  _userNav(direction) {
-    direction === "next" ? this._next() : this._prev();
+  _userNav(direction, input = "pointer") {
+    direction === "next" ? this._next(input) : this._prev(input);
     this._syncAutoplay(true);
   }
 
@@ -488,13 +493,13 @@ class ImageCarousel extends HTMLElement {
     const root = this.shadowRoot;
     const carousel = root.querySelector(".carousel");
 
-    root.querySelector(".prev")?.addEventListener("click", () => this._userNav("prev"));
-    root.querySelector(".next")?.addEventListener("click", () => this._userNav("next"));
+    root.querySelector(".prev")?.addEventListener("click", (e) => this._userNav("prev", e.detail === 0 ? "keyboard" : "pointer"));
+    root.querySelector(".next")?.addEventListener("click", (e) => this._userNav("next", e.detail === 0 ? "keyboard" : "pointer"));
 
     root.querySelector(".dots")?.addEventListener("click", (e) => {
       const dot = e.target.closest(".dot");
       if (!dot) return;
-      this._goTo(parseInt(dot.dataset.index, 10));
+      this._goTo(parseInt(dot.dataset.index, 10), e.detail === 0 ? "keyboard" : "pointer");
       this._syncAutoplay(true);
     });
 
@@ -522,8 +527,10 @@ class ImageCarousel extends HTMLElement {
 
     // Keyboard navigation
     carousel.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") this._userNav("prev");
-      else if (e.key === "ArrowRight") this._userNav("next");
+      if (e.defaultPrevented || e.isComposing || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      e.preventDefault();
+      this._userNav(e.key === "ArrowLeft" ? "prev" : "next", "keyboard");
     });
 
     // Touch / swipe

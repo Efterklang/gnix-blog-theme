@@ -61,7 +61,8 @@ class ThemeStackedElement extends HTMLElement {
   disconnectedCallback() {
     this._observer?.disconnect();
     this._cardStack?.removeEventListener("keydown", this._keyHandler);
-    document.removeEventListener("mouseup", this._mouseUpHandler);
+    this._dragEvents?.abort();
+    this._finishDrag(false);
   }
 
   loadThemeData() {
@@ -347,6 +348,21 @@ class ThemeStackedElement extends HTMLElement {
         .stacked-container[data-navigation-input="keyboard"] .dot {
           transition: none;
         }
+
+        .stacked-container[data-navigation-input="drag"] .theme-card {
+          transition: transform 420ms var(--glass-spring, var(--ease-out)), opacity 240ms var(--ease-out);
+        }
+
+        .card-stack[data-dragging] .theme-card,
+        .card-stack[data-dragging] .theme-card * {
+          cursor: grabbing;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .stacked-container[data-navigation-input="drag"] .theme-card {
+            transition: opacity 160ms ease;
+          }
+        }
       </style>
 
       <div class="stacked-container">
@@ -438,8 +454,9 @@ class ThemeStackedElement extends HTMLElement {
   goTo(index, animate = true, input = "pointer") {
     if (this._themes.length === 0) return;
 
-    this._currentIndex = ((index % this._themes.length) + this._themes.length) % this._themes.length;
     this._stackedContainer.dataset.navigationInput = input;
+    this._finishDrag(false);
+    this._currentIndex = ((index % this._themes.length) + this._themes.length) % this._themes.length;
     this.updateStack();
     if (animate)
       this.dispatchEvent(
@@ -503,32 +520,105 @@ class ThemeStackedElement extends HTMLElement {
     };
     this._cardStack.addEventListener("keydown", this._keyHandler);
 
-    let startX = 0,
-      dragging = false;
-    const onStart = (x) => {
-      if (!this._isVisible) return;
-      startX = x;
-      dragging = true;
-    };
-    const onEnd = (x) => {
-      if (!dragging) return;
-      dragging = false;
-      const diff = startX - x;
-      if (Math.abs(diff) > 50) diff > 0 ? this.next() : this.prev();
-    };
+    this.attachDragEvents();
+  }
 
-    this._cardStack.addEventListener("touchstart", (e) => onStart(e.touches[0].clientX), { passive: true });
-    this._cardStack.addEventListener("touchend", (e) => onEnd(e.changedTouches[0].clientX));
-    this._cardStack.addEventListener("mousedown", (e) => {
-      onStart(e.clientX);
-      this._cardStack.style.cursor = "grabbing";
-    });
-    this._mouseUpHandler = (e) => {
-      if (!this._isVisible) return;
-      onEnd(e.clientX);
-      this._cardStack.style.cursor = "";
-    };
-    document.addEventListener("mouseup", this._mouseUpHandler, { passive: true });
+  attachDragEvents() {
+    this._dragEvents = new AbortController();
+    const { signal } = this._dragEvents;
+
+    this._cardStack.addEventListener("pointerdown", (event) => {
+      if (this._drag || !event.isPrimary || event.button !== 0 || !this._isVisible || this._themes.length < 2) return;
+      this._suppressDragClick = false;
+      const card = event.target.closest(".theme-card.active");
+      if (!card) return;
+      this._drag = {
+        pointerId: event.pointerId,
+        card,
+        startX: event.clientX,
+        startY: event.clientY,
+        offset: 0,
+        locked: false,
+        samples: [{ x: event.clientX, time: event.timeStamp }],
+      };
+    }, { signal });
+
+    // Listen outside the stack while deciding the axis; capture only once a
+    // horizontal drag is confirmed, leaving pan-y and ordinary clicks intact.
+    window.addEventListener("pointermove", (event) => this._moveDrag(event), { signal, passive: false });
+    window.addEventListener("pointerup", (event) => {
+      if (event.pointerId !== this._drag?.pointerId) return;
+      if (this._drag.locked) this._moveDrag(event);
+      this._finishDrag(true);
+    }, { signal });
+    window.addEventListener("pointercancel", (event) => {
+      if (event.pointerId === this._drag?.pointerId) this._finishDrag(false);
+    }, { signal });
+    this._cardStack.addEventListener("lostpointercapture", (event) => {
+      if (event.target === this._cardStack && event.pointerId === this._drag?.pointerId) this._finishDrag(false);
+    }, { signal });
+    window.addEventListener("blur", () => this._finishDrag(false), { signal });
+
+    this._cardStack.addEventListener("click", (event) => {
+      if (!this._suppressDragClick || event.detail === 0) return;
+      this._suppressDragClick = false;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }, { signal, capture: true });
+  }
+
+  _moveDrag(event) {
+    const drag = this._drag;
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    const dx = event.clientX - drag.startX;
+    const dy = event.clientY - drag.startY;
+    if (!drag.locked) {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 8) return;
+      if (Math.abs(dy) >= Math.abs(dx)) {
+        this._finishDrag(false);
+        return;
+      }
+
+      // Freeze the rendered position, including an interrupted settle, before
+      // adding the pointer displacement. No transition runs under the finger.
+      const transform = getComputedStyle(drag.card).transform;
+      drag.transform = transform === "none" ? "" : transform;
+      drag.card.style.transition = "none";
+      drag.locked = true;
+      this._stackedContainer.dataset.navigationInput = "drag";
+      this._cardStack.dataset.dragging = "";
+      this._cardStack.setPointerCapture(event.pointerId);
+      this._cardStack.focus({ preventScroll: true });
+    }
+
+    if (event.cancelable) event.preventDefault();
+    drag.offset = dx;
+    drag.card.style.transform = `translateX(${dx}px) ${drag.transform}`;
+    drag.samples.push({ x: event.clientX, time: event.timeStamp });
+    while (drag.samples.length > 2 && drag.samples[0].time < event.timeStamp - 100) drag.samples.shift();
+  }
+
+  _finishDrag(commit) {
+    const drag = this._drag;
+    if (!drag) return;
+    this._drag = null;
+    delete this._cardStack.dataset.dragging;
+    if (this._cardStack.hasPointerCapture(drag.pointerId)) this._cardStack.releasePointerCapture(drag.pointerId);
+    if (!drag.locked) return;
+
+    this._suppressDragClick = true;
+    // Commit the last pointer position before letting CSS retarget from it.
+    void getComputedStyle(drag.card).transform;
+    drag.card.style.removeProperty("transition");
+    drag.card.style.removeProperty("transform");
+
+    const first = drag.samples[0];
+    const last = drag.samples[drag.samples.length - 1];
+    const velocity = (last.x - first.x) / Math.max(1, last.time - first.time);
+    // Recent samples make a quick flick count, but not a swipe held still
+    // before release. A reversal near release follows its latest direction.
+    const direction = Math.abs(velocity) > 0.5 ? Math.sign(velocity) : Math.abs(drag.offset) > 50 ? Math.sign(drag.offset) : 0;
+    if (commit && direction) this.goTo(this._currentIndex - direction, true, "drag");
   }
 
   getCurrentTheme() {

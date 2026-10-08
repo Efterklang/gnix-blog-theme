@@ -283,7 +283,7 @@
 .preference-choice-button {
   min-width: 0;
   border-radius: var(--preference-radius-xs);
-  color: var(--sub-text-color);
+  color: var(--body-text-color);
   background: transparent;
   cursor: pointer;
 

@@ -260,6 +260,7 @@ import {
     let items = [];
     let activeIndex = -1;
     let renderRequest = 0;
+    let lastPointerPosition = null;
 
     // #region 状态读取
     // 主题 / 字体要读 localStorage 并 JSON.parse，一次渲染里十几个命令都会问同一个问题：
@@ -611,6 +612,7 @@ import {
     }
 
     function setActive(index) {
+      if (index === activeIndex || !items[index]) return;
       const previous = items[activeIndex];
       if (previous) {
         previous.classList.remove("active");
@@ -722,6 +724,20 @@ import {
 
     input.addEventListener("input", scheduleRender);
 
+    // 鼠标与键盘共用选中态；只响应实际位移，列表重绘或键盘滚动不抢回选中项。
+    container.addEventListener("pointermove", (event) => {
+      if (event.pointerType === "touch") return;
+      if (lastPointerPosition?.x === event.clientX && lastPointerPosition?.y === event.clientY) return;
+      lastPointerPosition = { x: event.clientX, y: event.clientY };
+      const item = event.target.closest(".command-palette-item");
+      const index = items.indexOf(item);
+      if (index !== -1) setActive(index);
+    });
+
+    container.addEventListener("pointerleave", () => {
+      lastPointerPosition = null;
+    });
+
     input.addEventListener("keydown", (event) => {
       // 中文等输入法组合期间的回车 / 方向键属于输入法，不能当作面板操作
       if (event.isComposing) return;
@@ -753,6 +769,7 @@ import {
     });
 
     main.addEventListener("toggle", (event) => {
+      lastPointerPosition = null;
       if (event.newState === "open") {
         fetchData();
         activeGroup = null;

@@ -1489,7 +1489,7 @@ small {
 
    原搜索框升级：同一输入框检索文章 / 页面 / 标签与内置命令，`>` 只搜命令、`#` 只搜标签，
    空查询列出命令与最近文章；主题 / 字体等选项多的命令进入子列表，输入框前显示范围标签。
-   选中态随方向键高频移动，指示条与底色一律即时落位，整段不做过渡（有测试守住） */
+   鼠标与方向键共用选中态，指示条与底色一律即时落位，整段不做过渡 */
 
 input.command-palette-input {
   color: inherit;
@@ -1505,6 +1505,12 @@ input.command-palette-input {
 
   &::placeholder {
     color: var(--sub-text-color);
+  }
+}
+
+@media (pointer: coarse), (max-width: 768px) {
+  input.command-palette-input {
+    font-size: 16px;
   }
 }
 
@@ -1697,10 +1703,6 @@ input.command-palette-input {
     background-color: var(--mauve);
     border-radius: 0 2px 2px 0;
     opacity: 0;
-  }
-
-  &:hover {
-    background-color: color-mix(in oklab, var(--title-text-color) 5%, transparent);
   }
 
   &.active {

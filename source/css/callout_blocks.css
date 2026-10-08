@@ -17,7 +17,7 @@
 
 .callout-title {
   align-items: center;
-  color: var(--callout-color);
+  color: var(--title-text-color);
   display: flex;
   font-size: inherit;
   font-weight: bold;
@@ -35,10 +35,6 @@
 details.callout > .callout-title {
   cursor: pointer;
   user-select: none;
-}
-
-details.callout > .callout-title:hover {
-  color: hsl(from var(--callout-color) h s calc(l + 5));
 }
 
 .callout-icon,
