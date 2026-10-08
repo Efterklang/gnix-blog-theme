@@ -1,6 +1,6 @@
 // Liquid glass 折射层（渐进增强，Chromium 内核：桌面与 Android 皆可）。
 //
-// 材质本身（表面色 / 模糊 / 提饱和 / 发丝光 / 投影）全在 CSS（default.css「Liquid glass」区），
+// 材质本身（表面色 / 模糊 / 轻微压暗 / 发丝光 / 投影）全在 CSS（default.css「Liquid glass」区），
 // 这里只补原作最有辨识度的一层：边缘把背景「卷」进来的 lens。移植 Kyant AndroidLiquidGlass
 // 的 lens 效果（对照 martin65536/liquid-glass-webgl 的 GLSL 版 RoundedRectRefraction）：
 // 圆角矩形的有向距离场给出离边深度与梯度，贴边 refractionHeight 宽的一圈里，取样点沿梯度
@@ -18,7 +18,7 @@
 //
 // 偏移按元素实际尺寸与圆角烘成位移贴图，装进同一棵树里的 <filter>（feImage → feDisplacementMap），
 // 再以 --glass-lens: url(#id) 接在 backdrop-filter 链尾——与原作 effects 的顺序一致：
-// vibrancy → blur → lens，折射的是已模糊的背景；偏移只向内，不会读到 backdrop 范围之外的空白。
+// 压暗 → blur → lens，折射的是已处理的背景；偏移只向内，不会读到 backdrop 范围之外的空白。
 //
 // 性能：贴图 ≤ 384px 采样、只在尺寸变化时经空闲回调重算（toBlob 异步编码，不阻塞输入）；
 // 滤镜只跑在少数常驻元素上；随输入改变高度的命令面板标 live，尺寸一变下一帧重烘。

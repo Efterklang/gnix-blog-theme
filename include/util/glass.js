@@ -6,7 +6,6 @@ const DEFAULT_SETTINGS = Object.freeze({
   enabled: true,
   press: true,
   blur: 0,
-  saturate: 1.5,
   // 折射默认拉满（2×），与 default.css 的 --glass-lens-strength 一致
   refraction: 2,
   tint: 1,
@@ -15,7 +14,6 @@ const DEFAULT_SETTINGS = Object.freeze({
 // 滑块取值范围；refraction / tint 是相对主题原值的倍率
 const RANGES = Object.freeze({
   blur: Object.freeze({ min: 0, max: 24, step: 1 }),
-  saturate: Object.freeze({ min: 1, max: 2.5, step: 0.05 }),
   refraction: Object.freeze({ min: 0, max: 2, step: 0.05 }),
   tint: Object.freeze({ min: 0.5, max: 1.5, step: 0.05 }),
 });
@@ -24,7 +22,6 @@ const RANGES = Object.freeze({
 // --glass-tint 缩放 --glass-fill / --glass-fill-strong 的不透明度
 const CSS_VARIABLES = Object.freeze({
   blur: Object.freeze({ name: "--glass-blur", unit: "px" }),
-  saturate: Object.freeze({ name: "--glass-saturate", unit: "" }),
   refraction: Object.freeze({ name: "--glass-lens-strength", unit: "" }),
   tint: Object.freeze({ name: "--glass-tint", unit: "" }),
 });
@@ -83,6 +80,8 @@ function getGlassInitScript() {
 
   function applyGlassSettings(value, persist) {
     var settings = normalizeSettings(value);
+    // 鲜艳度已移除：清掉旧版行内覆盖，保持背景原始饱和度。
+    html.style.removeProperty("--glass-saturate");
     html.setAttribute("data-glass", settings.enabled ? "on" : "off");
     html.setAttribute("data-glass-press-effect", settings.press ? "on" : "off");
     Object.keys(config.variables).forEach(function(key) {

@@ -234,8 +234,8 @@ const STYLES = `
     --vp-glass-strong: rgb(24 24 28 / 0.56);
     --vp-rim: inset 0 1px 0 rgb(255 255 255 / 0.42), inset 0 0 0 1px rgb(255 255 255 / 0.14);
     --vp-rim-soft: inset 0 1px 0 rgb(255 255 255 / 0.2), inset 0 0 0 1px rgb(255 255 255 / 0.1);
-    --vp-blur: blur(8px) saturate(1.8) brightness(1.08);
-    --vp-blur-strong: blur(24px) saturate(1.8);
+    --vp-blur: blur(8px) saturate(var(--glass-saturate, 1)) brightness(var(--glass-brightness, 0.95));
+    --vp-blur-strong: blur(24px) saturate(var(--glass-saturate, 1)) brightness(var(--glass-brightness, 0.95));
   }
 
   :host([hidden]) {

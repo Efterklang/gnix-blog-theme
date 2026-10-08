@@ -600,7 +600,6 @@
   // window.getGlassSettings / applyGlassSettings 完成，这里只管 UI
   const GLASS_VALUE_FORMATS = {
     blur: (value) => `${value}px`,
-    saturate: (value) => `${value.toFixed(2)}×`,
     refraction: (value) => `${value.toFixed(2)}×`,
     tint: (value) => `${Math.round(value * 100)}%`,
   };

@@ -157,8 +157,6 @@ preferences:
   glass_press_description: "Springy swell and a highlight that follows your pointer"
   glass_blur: "Blur"
   glass_blur_description: "Frost what shows through the glass"
-  glass_saturate: "Vibrancy"
-  glass_saturate_description: "Saturation boost for the background behind the glass"
   glass_refraction: "Refraction"
   glass_refraction_description: "Edge lensing strength; Chromium browsers only (Chrome, Edge, Android)"
   glass_tint: "Surface Opacity"

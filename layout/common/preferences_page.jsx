@@ -92,7 +92,6 @@ const ARTICLE_SPACING_OPTIONS = [
 // [设置键, 标题 key, 标题回退, 说明 key, 说明回退]；数值显示格式由 preferences.js 统一处理
 const GLASS_RANGE_OPTIONS = [
   ["blur", "preferences.glass_blur", "Blur", "preferences.glass_blur_description", "Frost what shows through the glass"],
-  ["saturate", "preferences.glass_saturate", "Vibrancy", "preferences.glass_saturate_description", "Saturation boost for the background behind the glass"],
   ["refraction", "preferences.glass_refraction", "Refraction", "preferences.glass_refraction_description", "Edge lensing strength; Chromium browsers only (Chrome, Edge, Android)"],
   ["tint", "preferences.glass_tint", "Surface Opacity", "preferences.glass_tint_description", "How much of the theme color tints the glass"],
 ];

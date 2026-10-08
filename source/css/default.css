@@ -353,7 +353,7 @@ hr {
 
    按钮、胶囊与弹层共用 .glass，移植 Kyant AndroidLiquidGlass 的玻璃（对照
    martin65536/liquid-glass-webgl 的 WebGL 版），按原作 drawBackdrop 的绘制顺序逐层落到 DOM 上：
-   1. effects：vibrancy（饱和度 1.5）→ blur → lens，依次写在 backdrop-filter 链里。lens 是边缘
+   1. effects：轻微压暗 → blur → lens，依次写在 backdrop-filter 链里。lens 是边缘
       一圈把背景「卷」进来的折射，由 glass-lens.js 按元素尺寸生成位移贴图、经 --glass-lens 接在
       链尾，只有 Chromium 桌面端渲染，其余浏览器止于模糊
    2. onDrawSurface：主题 base 调出的表面色，即元素自身的 background-color。材质不放伪元素：
@@ -366,11 +366,12 @@ hr {
    5. InteractiveHighlight（.glass-button 与 [data-glass-press]，glass-press.js 驱动）：按下以
       欠阻尼弹簧胀大 4px，铺一层 8% 的白并在指尖处亮起一团径向光，拖动时带阻尼地跟手、顺势
       拉伸，松手弹回
-   .glass-panel 换成原作对话框的参数：更厚的表面、更重的模糊与提亮、Plain 光、24dp 的折射带
-   加 depthEffect。深色主题照原作的另一套：表面更通透、面板模糊减半、不提亮。
+   .glass-panel 使用更宽的折射带并加 depthEffect。深色主题的表面更通透，描边更暗；
+   深浅主题都保持背景原始饱和度，仅将亮度降到 95%，让前景文字更清晰。
    降级：减少透明度偏好 / 不支持 backdrop-filter / 设置页关闭玻璃（html[data-glass="off"]）时退回实色面。
-   设置页的参数经 include/util/glass.js 写到 <html> 行内：--glass-blur、--glass-saturate 直接覆盖
-   下方默认值，--glass-tint 缩放表面色的不透明度，--glass-lens-strength 由 glass-lens.js 读取 */
+   设置页的参数经 include/util/glass.js 写到 <html> 行内：--glass-blur 覆盖默认模糊，
+   --glass-tint 缩放表面色的不透明度，--glass-lens-strength 由 glass-lens.js 读取。
+   饱和度与亮度固定由样式表控制，不再作为用户设置 */
 
 /* 不做模糊（--glass-blur: 0）：透过玻璃看到清晰的背景，只在边缘被折弯。
    折射适中：按钮 10px 折射带、最外沿偏移 15px；面板 16px / 24px 并开 depthEffect */
@@ -379,8 +380,8 @@ hr {
   --glass-fill-strong: color-mix(in oklab, var(--base) min(100%, 76% * var(--glass-tint, 1)), transparent);
   --glass-hover: color-mix(in oklab, var(--title-text-color) 7%, transparent);
   --glass-blur: 0px;
-  --glass-saturate: 1.5;
-  --glass-brightness: 1;
+  --glass-saturate: 1;
+  --glass-brightness: 0.95;
   --glass-refraction: 10px;
   --glass-refraction-amount: 15px;
   --glass-depth: 0;
@@ -408,7 +409,6 @@ hr {
   --glass-edge: oklch(1 0 0 / 0.07);
   --glass-press-mix: 12%;
   --glass-shadow: 0 1px 2px oklch(0 0 0 / 0.35), 0 8px 24px -6px oklch(0 0 0 / 0.5);
-  --glass-brightness: 1;
   --glass-shadow-lg: 0 2px 8px oklch(0 0 0 / 0.3), 0 26px 64px -18px oklch(0 0 0 / 0.7);
 }
 
@@ -420,7 +420,7 @@ hr {
     0 0 0 0.5px var(--glass-edge),
     var(--glass-elevation, var(--glass-shadow));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
-  /* vibrancy → blur → lens：折射接在链尾，与原作 effects 的顺序一致 */
+  /* 压暗 → blur → lens：折射接在链尾，文字本身不参与滤镜 */
   backdrop-filter: saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) blur(var(--glass-blur)) var(--glass-lens,);
 
   &::after {

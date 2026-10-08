@@ -50,7 +50,6 @@ uniform vec4 u_fx[3];     // xy 指针位置（画布 CSS px）、z 悬停 0..1
 
 const float IOR = 1.5;
 const float MERGE = 8.0;
-const vec3 LUMA = vec3(0.2126, 0.7152, 0.0722);
 
 float smin(float a, float b, float k) {
   float h = max(k - abs(a - b), 0.0) / k;
@@ -144,13 +143,8 @@ void main() {
     sampleVideo(at + refractOffset(n, 1.0 / (IOR + 0.02), thickness, limit), lod).b
   );
 
-  // 可读性：粗 mip 级读出整枚按钮下方的平均亮度，画面越亮压得越暗
-  float regionLod = lod + log2(max(radius * 2.0 * u_dpr, 1.0));
-  float luminance = dot(sampleVideo(orb.xy + u_origin, regionLod), LUMA);
-  color *= 1.0 - (0.1 + smoothstep(0.32, 0.8, luminance) * 0.28);
-
-  float lum = dot(color, LUMA);
-  color = mix(vec3(lum), color, 1.12) * 1.03;
+  // 与 CSS 玻璃一致：保留原始饱和度，仅将背景亮度降到 95%。
+  color *= 0.95;
 
   // 斜面菲涅尔提亮 + 顶部内侧一弯柔光
   vec2 light = normalize(vec2(-0.6, -0.8));

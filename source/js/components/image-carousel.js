@@ -132,7 +132,7 @@ const STYLES = `
   }
 
   /* 翻页按钮是压在照片上的透明玻璃圆（iOS 照片 App 的浮层按钮）：薄薄一层暗色保证白色
-     箭头的对比，模糊 + 提饱和让身后的照片透上来，inset 高光勾出玻璃边缘；Chromium 下
+     箭头的对比，模糊 + 轻微压暗弱化身后的照片，inset 高光勾出玻璃边缘；Chromium 下
      glass-lens.js 经 --glass-lens 补上边缘折射。显隐走按钮自身的 opacity，
      不挂在容器上，避免淡入期间成为 Backdrop Root */
   .nav {
@@ -144,8 +144,8 @@ const STYLES = `
       inset 0 1px 0 rgb(255 255 255 / 0.42),
       inset 0 0 0 1px rgb(255 255 255 / 0.14),
       0 6px 18px -6px rgb(0 0 0 / 0.45);
-    -webkit-backdrop-filter: blur(8px) saturate(1.7) brightness(1.08);
-    backdrop-filter: var(--glass-lens,) blur(8px) saturate(1.7) brightness(1.08);
+    -webkit-backdrop-filter: blur(8px) saturate(var(--glass-saturate, 1)) brightness(var(--glass-brightness, 0.95));
+    backdrop-filter: var(--glass-lens,) blur(8px) saturate(var(--glass-saturate, 1)) brightness(var(--glass-brightness, 0.95));
     color: white;
     border: none;
     width: 2.5rem;

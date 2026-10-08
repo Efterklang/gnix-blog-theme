@@ -7,10 +7,12 @@ window.__CHANGELOG_DATA__ = [
         cn: [
           "文章扉页与正文改用原生 CSS 滚动吸附：两个独立区域明确首屏与正文开头的落点，长正文保持连续滚动；同步调整桌面、平板与手机端首屏高度，短文章补足滚动空间，页尾保留可到达的落点。移除首屏空格键的 JavaScript 拦截，恢复浏览器原生翻页",
           "标题、目录与脚注锚点不再预留导航条高度，仅保留阅读间距与安全区；平滑滚动遵循系统减少动态效果偏好",
+          "移除液态玻璃的「鲜艳度」设置，旧保存值不再生效；玻璃背景保持原始饱和度，仅将亮度降到 95%，前景文字与图标保持原色。图片轮播、视频控件与 WebGL 视频透镜同步采用这一默认效果",
         ],
         en: [
           "Use native CSS scroll snapping for article title pages and reading areas. Separate regions define the opening screen and body start while long articles retain continuous scrolling. Adjust title-page height across desktop, tablet and mobile, provide enough scroll space for short articles, and keep the footer reachable. Remove the opening-screen JavaScript Space-key override to restore native browser paging",
           "Remove the obsolete navbar-height offset from heading, table-of-contents and footnote anchors, retaining only reading space and safe-area insets. Smooth scrolling now respects the system reduced-motion preference",
+          "Remove the Liquid Glass Vibrancy setting and ignore its saved values. Glass backdrops retain their original saturation with brightness reduced to 95%, while foreground text and icons retain their original colors. Image carousels, video controls and WebGL video lenses use the same default treatment",
         ],
         category: "uiux",
       },

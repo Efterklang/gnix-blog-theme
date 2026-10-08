@@ -27,8 +27,8 @@ const COOKIE_CONSENT_STYLE = `
     inset 0 1px 0 var(--glass-rim-lo, transparent),
     inset 0 0 0 1px var(--glass-rim-mid, transparent),
     var(--glass-shadow-lg, 0 20px 60px -32px rgba(0, 0, 0, 0.58));
-  -webkit-backdrop-filter: blur(20px) saturate(var(--glass-saturate, 1.2)) brightness(var(--glass-brightness, 1));
-  backdrop-filter: blur(20px) saturate(var(--glass-saturate, 1.2)) brightness(var(--glass-brightness, 1));
+  -webkit-backdrop-filter: blur(20px) saturate(var(--glass-saturate, 1)) brightness(var(--glass-brightness, 0.95));
+  backdrop-filter: blur(20px) saturate(var(--glass-saturate, 1)) brightness(var(--glass-brightness, 0.95));
   font-family: var(--font-sans-serif);
   line-height: 1.55;
   opacity: 0;
