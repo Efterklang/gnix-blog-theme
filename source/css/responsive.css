@@ -19,11 +19,9 @@
     padding: 1rem 0.875rem 0;
   }
 
-  /* 导航条在窄屏已移到底部，满高首屏不再扣它：只扣正文顶部的
-     safe area（.main-content）与 .article 的 1rem 内边距，恰好一屏。
-     用 svh 而不是 dvh：地址栏收放时首屏高度不跳 */
-  .article-hero-full {
-    min-height: calc(100svh - env(safe-area-inset-top) - 1rem);
+  /* 首屏吸附区域从页面顶部开始，含安全区与 article 的上内边距。 */
+  .article-intro {
+    --article-intro-offset: calc(env(safe-area-inset-top) + 1rem);
   }
 
   /* 紧凑版头的操作居中，并扩大手机端按钮命中区。 */
@@ -101,6 +99,7 @@
   /* 工具条浮在内容之上，页尾留出它的高度，最后一行不被压住 */
   body {
     padding-bottom: calc(62px + env(safe-area-inset-bottom));
+    --article-footer-offset: calc(62px + env(safe-area-inset-bottom));
   }
 
   .main-content {
@@ -294,9 +293,8 @@
 @media screen and (min-width: 769px) and (max-width: 1023px) {
   /* 平板导航在底部，main-content 顶部已只剩 safe area；只再扣 article 的 1.25em，
      不重复扣桌面的 3rem，否则正文会提前露出。 */
-  .article-hero-full {
-    box-sizing: border-box;
-    min-height: calc(100svh - env(safe-area-inset-top) - 1.25em);
+  .article-intro {
+    --article-intro-offset: calc(env(safe-area-inset-top) + 1.25em);
   }
 }
 

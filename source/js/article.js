@@ -548,26 +548,6 @@ function handleArticleKeyDown(e) {
     closeFootnoteTooltip(true);
   }
 
-  // 满高首屏上按空格：正文开头尚在视口下半部时直接对齐视口顶部；
-  // 已进入阅读区、焦点在控件上或有弹层打开时交还浏览器默认行为
-  if (e.code === "Space" && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
-    const content = document.querySelector(".article-hero-full") ? document.getElementById("article-content") : null;
-    if (
-      content &&
-      content.getBoundingClientRect().top > window.innerHeight * 0.5 &&
-      !["INPUT", "TEXTAREA", "SELECT", "BUTTON", "A", "SUMMARY", "VIDEO", "AUDIO", "VIDEO-PLAYER"].includes(e.target.tagName) &&
-      !e.target.isContentEditable &&
-      !document.querySelector(":popover-open")
-    ) {
-      e.preventDefault();
-      window.scrollTo({
-        top: window.scrollY + content.getBoundingClientRect().top,
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
-      });
-      return;
-    }
-  }
-
   if (!(e.metaKey || e.ctrlKey) || e.code !== "KeyT") return;
 
   const tag = e.target.tagName;

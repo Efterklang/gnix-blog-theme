@@ -86,6 +86,40 @@
   }
 }
 
+/* 扉页与阅读区各自形成完整的吸附区域，滚动结束后必须落在区域内。
+   长正文大于视口，浏览器允许在区域内部自由滚动，不对每段文字吸附。 */
+:root:has(.article-intro) {
+  scroll-snap-type: y mandatory;
+}
+
+.article-intro,
+.article-reading {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.article-intro {
+  /* 将外层已有的顶部间距纳入首屏吸附区域，初始落点仍是页面 0，
+     不会一加载就把扉页往上推；正文不使用这个偏移。 */
+  --article-intro-offset: calc(var(--navbar-height) + env(safe-area-inset-top) + 4.25rem);
+  scroll-margin-top: var(--article-intro-offset);
+  min-height: calc(100svh - var(--article-intro-offset));
+  display: flex;
+  flex-direction: column;
+}
+
+.article-reading {
+  display: flow-root;
+  /* 短文章也要能将正文开头对齐顶部，不受页面剩余滚动距离限制。 */
+  min-height: 100dvh;
+}
+
+/* 页尾也有可到达的落点，避免 mandatory 把滚动拉回正文末尾。 */
+:root:has(.article-intro) .footer {
+  scroll-snap-align: end;
+  scroll-margin-bottom: var(--article-footer-offset, 0px);
+}
+
 /* 正文入口独立于目录锚点：跳过扉页后不预留导航条或首段外边距。 */
 #article-content {
   scroll-margin-top: 0;
@@ -197,16 +231,6 @@
     &:hover::after {
       opacity: 1;
     }
-  }
-
-  sup.footnote-ref > a,
-  li.footnote-item,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    scroll-margin-top: var(--navbar-height);
   }
 
   .footnote-ref > a,
@@ -995,9 +1019,10 @@ a strong {
   padding: calc(var(--spacing) * 8) 0 calc(var(--spacing) * 5);
 }
 
-/* 文章页满高首屏：100dvh 扣去 navbar 与 main-content(3rem)/article(1.25em) 顶部内边距 */
+/* 满高首屏由 article-intro 承担，header 只负责内部排版。 */
 .article-hero-full {
-  min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 4.25rem);
+  flex: 1;
+  box-sizing: border-box;
   padding: 0 0 calc(var(--spacing) * 6);
 }
 
@@ -1371,7 +1396,7 @@ a strong {
 /* 桌面扉页是横向对页，不把手机海报放大：标题占主版面，摘要退到右栏；
    只有 header 跳出正文列，阅读宽度、目录与正文组件不受影响。 */
 @media screen and (min-width: 1024px) {
-  .article > .article-hero-full {
+  .article-intro > .article-hero-full {
     --hero-gutter: clamp(2rem, 4vw, 4rem);
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -1382,7 +1407,6 @@ a strong {
     width: min(90vw, 96rem);
     margin-inline: calc((100% - min(90vw, 96rem)) / 2);
     margin-bottom: 0;
-    min-height: calc(100svh - var(--navbar-height) - env(safe-area-inset-top) - 4.25rem);
     padding: 1rem 0 2rem;
 
     .article-hero-body {
@@ -1479,13 +1503,13 @@ a strong {
   }
 
   /* 无摘要时让标题占满版面，短标题不会被困在一个空的双栏框架里。 */
-  .article > .article-hero-full:not(.article-hero-with-cover):not(:has(.article-excerpt)) .article-title {
+  .article-intro > .article-hero-full:not(.article-hero-with-cover):not(:has(.article-excerpt)) .article-title {
     grid-column: 1 / -1;
     max-width: 15em;
   }
 
   /* 摄影文章：左页排字，右页放略横向的封面；收小图像面积，让留白也参与构图。 */
-  .article > .article-hero-full.article-hero-with-cover {
+  .article-intro > .article-hero-full.article-hero-with-cover {
     grid-template-rows: auto minmax(12rem, 1fr) auto auto;
     row-gap: 2rem;
 

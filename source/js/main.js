@@ -170,7 +170,7 @@ function handleLazyAssetError(error) {
 
 // #region Keyboard Shortcuts
 
-// 全站快捷键；文章页专属快捷键（Esc 关脚注/缩放、空格跳过首屏、Cmd/Ctrl+T 目录）在 article.js
+// 全站快捷键；文章页专属快捷键（图片操作、Esc 关脚注/缩放、Cmd/Ctrl+T 目录）在 article.js
 function handleKeyDown(e) {
   const isModifier = e.metaKey || e.ctrlKey;
   if (!isModifier) return;

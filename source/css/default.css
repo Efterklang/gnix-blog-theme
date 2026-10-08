@@ -1208,11 +1208,17 @@ html {
   min-width: 300px;
   overflow-x: hidden;
   overflow-y: scroll;
-  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 :where([id], a[name]) {
-  scroll-margin-top: calc(var(--navbar-height) + env(safe-area-inset-top) + 1rem);
+  /* 顶部不再有遮挡正文的导航条，锚点只留阅读间距与安全区。 */
+  scroll-margin-top: calc(env(safe-area-inset-top) + 1rem);
 }
 
 /* 触屏点按不画系统的高亮底色（iOS / Android 默认一块半透明色块，像文本被选中），按钮自己的

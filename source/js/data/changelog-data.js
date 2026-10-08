@@ -3,6 +3,18 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "10.8",
+        cn: [
+          "文章扉页与正文改用原生 CSS 滚动吸附：两个独立区域明确首屏与正文开头的落点，长正文保持连续滚动；同步调整桌面、平板与手机端首屏高度，短文章补足滚动空间，页尾保留可到达的落点。移除首屏空格键的 JavaScript 拦截，恢复浏览器原生翻页",
+          "标题、目录与脚注锚点不再预留导航条高度，仅保留阅读间距与安全区；平滑滚动遵循系统减少动态效果偏好",
+        ],
+        en: [
+          "Use native CSS scroll snapping for article title pages and reading areas. Separate regions define the opening screen and body start while long articles retain continuous scrolling. Adjust title-page height across desktop, tablet and mobile, provide enough scroll space for short articles, and keep the footer reachable. Remove the opening-screen JavaScript Space-key override to restore native browser paging",
+          "Remove the obsolete navbar-height offset from heading, table-of-contents and footnote anchors, retaining only reading space and safe-area insets. Smooth scrolling now respects the system reduced-motion preference",
+        ],
+        category: "uiux",
+      },
+      {
         date: "10.7",
         cn: [
           "Mermaid 构建期渲染器由 beautiful-mermaid 换为 agentic-mermaid，Gantt、饼图、思维导图和 Git 图也可直接生成内联 SVG。保留主题配色、字体与平移 / 缩放 / 复制操作，同步新库文字色阶并使用原生 ID 隔离；不支持的语法或渲染错误仍告警后回退，不中断构建。Node.js 最低版本更新为 22",
