@@ -49,7 +49,7 @@ const DEFAULT_OPTIONS = {
   // 配合 transparent 让底色透出，color-mix 派生色阶才与实际底色吻合
   render: {
     bg: "var(--mantle)",
-    fg: "var(--body-text-color)",
+    fg: "var(--sub-text-color)",
     accent: "var(--lavender)",
     font: "var(--font-sans-serif)",
     transparent: true,

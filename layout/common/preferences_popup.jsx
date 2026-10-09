@@ -59,25 +59,6 @@ function icon(name, size = 18) {
           <path d="m6 8-4 4 4 4" />
         </svg>
       );
-    case "rows-tight":
-      return (
-        <svg {...common}>
-          <title>rows-tight</title>
-          <path d="M4 6h16" />
-          <path d="M4 10h16" />
-          <path d="M4 14h16" />
-          <path d="M4 18h16" />
-        </svg>
-      );
-    case "rows-loose":
-      return (
-        <svg {...common}>
-          <title>rows-loose</title>
-          <path d="M4 6h16" />
-          <path d="M4 12h16" />
-          <path d="M4 18h16" />
-        </svg>
-      );
     case "fold-vertical":
       return (
         <svg {...common}>
@@ -106,68 +87,12 @@ function icon(name, size = 18) {
           <path d="m15 5-3-3-3 3" />
         </svg>
       );
-    case "sun":
-      return (
-        <svg {...common}>
-          <title>sun</title>
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2" />
-          <path d="M12 20v2" />
-          <path d="m4.93 4.93 1.41 1.41" />
-          <path d="m17.66 17.66 1.41 1.41" />
-          <path d="M2 12h2" />
-          <path d="M20 12h2" />
-          <path d="m6.34 17.66-1.41 1.41" />
-          <path d="m19.07 4.93-1.41 1.41" />
-        </svg>
-      );
-    case "moon":
-      return (
-        <svg {...common}>
-          <title>moon</title>
-          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-        </svg>
-      );
-    case "palette":
-      return (
-        <svg {...common}>
-          <title>palette</title>
-          <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
-          <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
-          <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
-          <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
-          <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
-        </svg>
-      );
-    case "type":
-      return (
-        <svg {...common}>
-          <title>type</title>
-          <path d="M4 7V4h16v3" />
-          <path d="M9 20h6" />
-          <path d="M12 4v16" />
-        </svg>
-      );
-    case "languages":
-      return (
-        <svg {...common}>
-          <title>languages</title>
-          <path d="m5 8 6 6" />
-          <path d="m4 14 6-6 2-3" />
-          <path d="M2 5h12" />
-          <path d="M7 2h1" />
-          <path d="m22 22-5-10-5 10" />
-          <path d="M14 18h6" />
-        </svg>
-      );
     case "glass":
-      // 一枚透镜：外圈 + 左上的高光弧 + 右下的回光短弧
       return (
         <svg {...common}>
           <title>glass</title>
-          <circle cx="12" cy="12" r="8.5" />
-          <path d="M7.6 10.2a4.8 4.8 0 0 1 2.6-2.6" />
-          <path d="M16.4 13.8a4.8 4.8 0 0 1-1.1 1.6" opacity="0.55" />
+          <path d="M8 7V6a3 3 0 0 1 3-3h7a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-1" />
+          <rect x="3" y="7" width="14" height="14" rx="3" fill="currentColor" fill-opacity="0.08" />
         </svg>
       );
     case "settings":
@@ -196,15 +121,18 @@ const FONT_TYPE_OPTIONS = [
   ["handwriting", "preferences.typeface_handwriting", "Handwriting"],
 ];
 
-function renderStepper(control, decreaseIcon, increaseIcon, decreaseLabel, increaseLabel) {
+function renderStepper(label, control, decreaseIcon, increaseIcon, decreaseLabel, increaseLabel) {
   return (
-    <div class="preference-quick__stepper preference-quick__tile glass" data-glass-lens>
-      <button type="button" class="preference-quick__step-btn" data-article-step={control} data-step-dir="-1" title={decreaseLabel} aria-label={decreaseLabel}>
-        {icon(decreaseIcon)}
-      </button>
-      <button type="button" class="preference-quick__step-btn" data-article-step={control} data-step-dir="1" title={increaseLabel} aria-label={increaseLabel}>
-        {icon(increaseIcon)}
-      </button>
+    <div class="preference-quick__stepper" role="group" aria-label={label}>
+      <span class="preference-quick__step-label">{label}</span>
+      <div class="preference-quick__step-controls">
+        <button type="button" class="preference-quick__step-btn" data-article-step={control} data-step-dir="-1" title={decreaseLabel} aria-label={decreaseLabel}>
+          {icon(decreaseIcon)}
+        </button>
+        <button type="button" class="preference-quick__step-btn" data-article-step={control} data-step-dir="1" title={increaseLabel} aria-label={increaseLabel}>
+          {icon(increaseIcon)}
+        </button>
+      </div>
     </div>
   );
 }
@@ -228,10 +156,31 @@ module.exports = class extends Component {
     const darkThemes = THEME_OPTIONS.filter((theme) => theme.colorScheme === "night");
 
     return (
-      <div id="preference-popup" class="preference-popup" popover="auto" role="dialog" aria-label={title}>
-        <div class="preference-quick" data-preferences-page data-preference-surface="quick">
+      <div id="preference-popup" class="preference-popup" popover="auto" role="dialog" aria-labelledby="preference-quick-title">
+        <div class="preference-quick glass glass-scroll" data-glass-lens data-preferences-page data-preference-surface="quick">
+          <header class="preference-quick__header">
+            <span id="preference-quick-title" class="preference-quick__title">{title}</span>
+            <div class="preference-quick__actions">
+              <button
+                type="button"
+                class="preference-quick__action preference-quick__toggle"
+                role="switch"
+                aria-checked={String(GLASS_DEFAULTS.enabled)}
+                title={glassLabel}
+                aria-label={glassLabel}
+                data-glass-toggle="enabled"
+              >
+                {icon("glass", 20)}
+              </button>
+              <a class="preference-quick__action" href={settingsUrl} title={settingsLabel} aria-label={settingsLabel}>
+                {icon("settings")}
+              </a>
+            </div>
+          </header>
+
           <div class="preference-quick__steppers">
             {renderStepper(
+              translate(helper, "preferences.font_size", "Size"),
               "size",
               "minus",
               "plus",
@@ -239,6 +188,7 @@ module.exports = class extends Component {
               translate(helper, "preferences.increase_font_size", "Increase font size"),
             )}
             {renderStepper(
+              translate(helper, "preferences.content_width", "Article Width"),
               "width",
               "fold-horizontal",
               "move-horizontal",
@@ -246,13 +196,7 @@ module.exports = class extends Component {
               translate(helper, "preferences.increase_width", "Increase article width"),
             )}
             {renderStepper(
-              "lineHeight",
-              "rows-tight",
-              "rows-loose",
-              translate(helper, "preferences.decrease_line_height", "Decrease line height"),
-              translate(helper, "preferences.increase_line_height", "Increase line height"),
-            )}
-            {renderStepper(
+              translate(helper, "preferences.spacing", "Spacing"),
               "spacing",
               "fold-vertical",
               "unfold-vertical",
@@ -262,13 +206,8 @@ module.exports = class extends Component {
           </div>
 
           <div class="preference-quick__selects">
-            <div class="preference-quick__select-row preference-quick__tile glass" data-glass-lens>
-              <span class="preference-quick__select-icon preference-quick__select-icon--sun" aria-hidden="true">
-                {icon("sun")}
-              </span>
-              <span class="preference-quick__select-icon preference-quick__select-icon--moon" aria-hidden="true">
-                {icon("moon")}
-              </span>
+            <label class="preference-quick__field">
+              <span class="preference-quick__field-label">{modeLabel}</span>
               <select id="preference-quick-mode-select" class="preference-quick__select" data-theme-mode-select aria-label={modeLabel}>
                 {THEME_MODE_OPTIONS.map(([value, fallback]) => (
                   <option value={value} selected={value === "system"}>
@@ -276,19 +215,15 @@ module.exports = class extends Component {
                   </option>
                 ))}
               </select>
-            </div>
+            </label>
 
-            <div class="preference-quick__select-row preference-quick__tile glass" data-glass-lens>
-              <span class="preference-quick__select-icon" aria-hidden="true">
-                {icon("palette")}
-              </span>
-              {/* 选项由 preferences.js 按当前生效的配色方案（light/dark）重建 */}
+            <label class="preference-quick__field">
+              <span class="preference-quick__field-label">{paletteLabel}</span>
+              {/* preferences.js 按当前明暗模式重建配色选项。 */}
               <select id="preference-quick-palette-select" class="preference-quick__select" data-theme-palette-select aria-label={paletteLabel}>
                 <optgroup label={translate(helper, "preferences.light_theme", "Light Theme")}>
                   {lightThemes.map((theme) => (
-                    <option value={theme.value} selected={theme.value === DEFAULT_PREFERENCES.light}>
-                      {theme.name}
-                    </option>
+                    <option value={theme.value} selected={theme.value === DEFAULT_PREFERENCES.light}>{theme.name}</option>
                   ))}
                 </optgroup>
                 <optgroup label={translate(helper, "preferences.dark_theme", "Dark Theme")}>
@@ -297,26 +232,20 @@ module.exports = class extends Component {
                   ))}
                 </optgroup>
               </select>
-            </div>
+            </label>
 
-            <div class="preference-quick__select-row preference-quick__tile glass" data-glass-lens>
-              <span class="preference-quick__select-icon" aria-hidden="true">
-                {icon("type")}
-              </span>
+            <label class="preference-quick__field">
+              <span class="preference-quick__field-label">{typefaceLabel}</span>
               <select id="preference-quick-font-select" class="preference-quick__select" data-article-font-select aria-label={typefaceLabel}>
                 {FONT_TYPE_OPTIONS.map(([value, key, fallback]) => (
-                  <option value={value} selected={value === ARTICLE_FONT_DEFAULTS.type}>
-                    {translate(helper, key, fallback)}
-                  </option>
+                  <option value={value} selected={value === ARTICLE_FONT_DEFAULTS.type}>{translate(helper, key, fallback)}</option>
                 ))}
               </select>
-            </div>
+            </label>
 
             {languageOptions ? (
-              <div class="preference-quick__select-row preference-quick__tile glass" data-glass-lens>
-                <span class="preference-quick__select-icon" aria-hidden="true">
-                  {icon("languages")}
-                </span>
+              <label class="preference-quick__field">
+                <span class="preference-quick__field-label">{languageLabel}</span>
                 <select id="preference-quick-language-select" class="preference-quick__select" data-language-select aria-label={languageLabel}>
                   {languageOptions.map((item) => (
                     <option value={item.current || !item.url ? "" : item.url} selected={item.current} disabled={!item.current && !item.available} lang={item.locale}>
@@ -324,26 +253,8 @@ module.exports = class extends Component {
                     </option>
                   ))}
                 </select>
-              </div>
+              </label>
             ) : null}
-          </div>
-
-          <div class="preference-quick__dock">
-            <button
-              type="button"
-              class="preference-quick__round preference-quick__toggle preference-quick__tile glass glass-button"
-              role="switch"
-              aria-checked={String(GLASS_DEFAULTS.enabled)}
-              title={glassLabel}
-              aria-label={glassLabel}
-              data-glass-toggle="enabled"
-              data-glass-lens
-            >
-              {icon("glass", 20)}
-            </button>
-            <a class="preference-quick__round preference-quick__tile glass glass-button" href={settingsUrl} title={settingsLabel} aria-label={settingsLabel} data-glass-lens>
-              {icon("settings")}
-            </a>
           </div>
         </div>
       </div>

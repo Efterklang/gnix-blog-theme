@@ -21,7 +21,7 @@ const COOKIE_CONSENT_STYLE = `
   border: none;
   border-radius: 26px;
   background: var(--glass-fill-strong, var(--mantle));
-  color: var(--body-text-color);
+  color: var(--sub-text-color);
   box-shadow:
     0 0 0 0.5px var(--glass-edge, transparent),
     inset 0 1px 0 var(--glass-rim-lo, transparent),
@@ -58,7 +58,7 @@ const COOKIE_CONSENT_STYLE = `
 .gnix-cookie-consent__message {
   min-width: 0;
   margin: 0;
-  color: var(--body-text-color);
+  color: var(--sub-text-color);
   font-size: 0.9rem;
 }
 

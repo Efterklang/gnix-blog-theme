@@ -121,7 +121,7 @@ class InfoCard extends HTMLElement {
         font-family: var(--font-sans-serif);
         font-size: 0.8rem;
         font-weight: 300;
-        color: var(--body-text-color);
+        color: var(--sub-text-color);
         margin: 0.2rem 0 0;
       }
 
@@ -154,7 +154,7 @@ class InfoCard extends HTMLElement {
       .x-info-value {
         font-family: var(--font-mono);
         font-size: 0.8125rem;
-        color: var(--body-text-color);
+        color: var(--sub-text-color);
         text-decoration: none;
         word-break: break-word;
         transition: color 0.2s ease;

@@ -84,7 +84,7 @@ class Changelog extends HTMLElement {
         border: 1px solid var(--surface1);
         border-radius: 6px;
         background: transparent;
-        color: var(--body-text-color);
+        color: var(--sub-text-color);
         font-size: 0.85rem;
         font-family: var(--font-mono);
         cursor: pointer;
@@ -168,7 +168,7 @@ class Changelog extends HTMLElement {
         padding: 0;
         box-shadow: none;
         line-height: 1.6;
-        color: var(--body-text-color);
+        color: var(--sub-text-color);
         font-size: 0.95rem;
       }
 
@@ -199,7 +199,7 @@ class Changelog extends HTMLElement {
         margin-top: 0.4rem;
         padding-left: 0;
         list-style: none;
-        color: var(--body-text-color);
+        color: var(--sub-text-color);
         font-size: 0.9rem;
         display: flex;
         align-items: flex-start;

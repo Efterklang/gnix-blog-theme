@@ -170,11 +170,11 @@
   border-radius: 0;
   background: var(--mantle);
   background-image: var(--page-texture);
-  color: var(--body-text-color);
+  color: var(--sub-text-color);
   font-family: var(--article-font-family);
   font-size: var(--article-font-size);
   font-weight: var(--article-font-weight);
-  line-height: var(--article-line-height);
+  line-height: var(--type-body-leading);
   overflow-wrap: anywhere;
   text-align: start;
 
@@ -191,7 +191,7 @@
 .wiki-link-preview__title {
   margin: 0;
   color: var(--title-text-color);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   line-height: 1.4;
   text-wrap: pretty;
 }
@@ -204,23 +204,45 @@
 .content {
   overflow: auto;
   overflow-wrap: break-word;
-  color: var(--body-text-color);
+  color: var(--sub-text-color);
   font-size: var(--article-font-size);
   font-family: var(--article-font-family);
-  line-height: var(--article-line-height);
+  line-height: var(--type-body-leading);
   font-weight: var(--article-font-weight);
-  /* 纵向节奏（参考 openai.com 文章页的 4px 栅格）：正文所有纵向留白都是
-     --spacing 的整数倍——段落、列表等文字块 6 格，图片、代码块、表格、引用等
-     媒体块 8 格；标题上方 16/10/8/6 格、下方 4/3/2 格。相邻块的外边距折叠取
-     大者；标题之后的首块清零上边距，与正文的距离由标题自己的下边距决定 */
-  --flow: calc(var(--spacing) * 6);
-  --flow-media: calc(var(--spacing) * 8);
+  /* 间距只放在块上方，em 随当前文字字号缩放；以 14px 为换算基准。
+     --flow 别名也供文章中的自定义组件使用。 */
+  --flow: var(--prose-gap);
+  --flow-media: var(--prose-gap);
+
+  :is(h1, h2, h3, h4, h5, h6) {
+    color: var(--title-text-color);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: normal;
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: var(--type-display-size);
+    line-height: var(--type-display-leading);
+    font-weight: var(--font-weight-bold);
+    margin-block: var(--prose-heading-gap) 0;
+  }
+
+  :is(strong, b) {
+    font-weight: var(--article-bold-font-weight);
+  }
+
+  figcaption {
+    color: var(--sub-text-color);
+    font-size: var(--type-caption-size);
+    line-height: var(--type-caption-leading);
+  }
 
   a.header-anchor {
     color: var(--title-text-color);
     font-family: var(--article-font-family);
     text-decoration: none;
-    font-weight: 400;
+    font-weight: inherit;
     &::after {
       margin-left: 0.4em;
       opacity: 0;
@@ -239,10 +261,9 @@
   }
 
   h2 {
-    font-size: 1.5em;
-    line-height: 1.3;
-    margin: calc(var(--spacing) * 16) 0 calc(var(--spacing) * 4);
-    letter-spacing: -0.01em;
+    font-size: var(--type-title-size);
+    line-height: var(--type-title-leading);
+    margin: var(--prose-heading-gap) 0 0;
     counter-increment: h2-counter;
     display: flex;
     align-items: center;
@@ -261,7 +282,6 @@
       color: var(--sub-text-color);
       font-family: var(--font-serif);
       font-style: italic;
-      letter-spacing: -0.01em;
       font-size: 0.7em;
       font-weight: 400;
       font-variant-numeric: oldstyle-nums;
@@ -270,10 +290,9 @@
   }
 
   h3 {
-    font-size: 1.25em;
-    margin: calc(var(--spacing) * 10) 0 calc(var(--spacing) * 3);
-    line-height: 1.35;
-    letter-spacing: -0.005em;
+    font-size: var(--type-subtitle-size);
+    margin: var(--prose-subheading-gap) 0 0;
+    line-height: var(--type-subtitle-leading);
 
     > a.header-anchor:hover::after {
       content: "###";
@@ -281,9 +300,9 @@
   }
 
   h4 {
-    font-size: 1.15em;
-    margin: calc(var(--spacing) * 8) 0 calc(var(--spacing) * 2);
-    line-height: 1.4;
+    font-size: var(--type-subtitle-size);
+    margin: var(--prose-subheading-gap) 0 0;
+    line-height: var(--type-subtitle-leading);
 
     > a.header-anchor:hover::after {
       content: "####";
@@ -291,9 +310,9 @@
   }
 
   h5 {
-    font-size: 1em;
-    margin: calc(var(--spacing) * 6) 0 calc(var(--spacing) * 2);
-    line-height: 1.5;
+    font-size: var(--type-subtitle-size);
+    margin: var(--prose-subheading-gap) 0 0;
+    line-height: var(--type-subtitle-leading);
 
     > a.header-anchor:hover::after {
       content: "#####";
@@ -301,11 +320,9 @@
   }
 
   h6 {
-    font-size: 0.8125em;
-    margin: calc(var(--spacing) * 6) 0 calc(var(--spacing) * 2);
-    line-height: 1.5;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: var(--type-subtitle-size);
+    margin: var(--prose-subheading-gap) 0 0;
+    line-height: var(--type-subtitle-leading);
 
     > a.header-anchor {
       color: inherit;
@@ -316,40 +333,34 @@
     }
   }
 
-  /* 文字块 6 格。:where 压平特定性，便于下方的媒体块与标题后清零规则覆盖；
-     自定义元素的宿主样式（shadow 里的 :host 或 light DOM 的元素选择器）都让位于此处 */
-  :where(p, ul, ol, dl, details, aside, side-note, text-image-section, .footnotes) {
-    margin-block: var(--flow);
-  }
-
-  /* 媒体块 8 格：figure 含 shiki 代码块、表格外层（renderer.js）与带说明的图片
-     （image.js）；markdown 图片被 <p> 包裹，仅含媒体的段落同档；callout / mermaid /
-     accordion / blockquote 在各自的规则里引用 --flow-media */
-  :where(figure, hr, pre, .ratex-display, x-tree, x-chat, x-info-card, image-group, image-carousel, video-player, p:has(> :is(img, iframe, video):only-child)),
+  /* 文字、媒体和嵌入组件使用同一个段落节奏。 */
+  :where(p, ul, ol, dl, details, aside, side-note, text-image-section, .footnotes,
+    figure, pre, .ratex-display, x-tree, x-chat, x-info-card, image-group,
+    image-carousel, video-player, .table-wrapper, .callout, .accordion, .mermaid-container),
   > :where(img, iframe, video) {
-    margin-block: var(--flow-media);
+    margin-block: var(--flow) 0;
   }
 
-  /* 代码块的留白由外层 figure.shiki 承担，内层 pre 不再叠加（figure 是 BFC，
-     子元素的下边距会撑高盒子，此前每个代码块底部都多出 1rem 空白） */
+  /* 外层 figure 承担代码块间距，避免内层 pre 再叠加。 */
   figure > pre {
     margin-block: 0;
   }
 
-  /* 标题之后的首块：与标题的距离交给标题的下边距 */
-  :is(h2, h3, h4, h5, h6) + * {
-    margin-top: 0;
+  :is(h1, h2, h3, h4, h5, h6) + * {
+    margin-block-start: var(--prose-heading-after);
   }
 
-  /* 首块与 hero 的距离固定为一档段距（开篇即标题时也不留 16 格——标题单列一个
-     选择器，特定性才压得过上方的 .content h2），末块不留下边距 */
-  > :first-child,
-  > :is(h2, h3, h4, h5, h6):first-child {
-    margin-top: var(--flow);
+  hr {
+    margin-block: var(--prose-divider-gap) 0;
   }
 
-  > :last-child {
-    margin-bottom: 0;
+  hr + * {
+    margin-block-start: var(--prose-divider-gap);
+  }
+
+  /* 正文与扉页的距离由容器负责，首块不额外留白。 */
+  > :first-child {
+    margin-block-start: 0;
   }
 
   p,
@@ -359,16 +370,20 @@
   }
 
   li + li {
-    margin-top: calc(var(--spacing) * 2);
+    margin-top: var(--prose-list-gap);
   }
 
-  /* 列表项内的段落与块（松散列表、项内代码块/引用）统一 3 格；嵌套列表贴近父项 */
+  /* 松散列表中的段落沿用段落间距，嵌套列表只留一档列表项间距。 */
   li > :where(p, figure, blockquote, details, .callout, .ratex-display) {
-    margin-block: calc(var(--spacing) * 3);
+    margin-block: var(--prose-gap) 0;
   }
 
   li > :is(ul, ol) {
-    margin-block: calc(var(--spacing) * 2);
+    margin-block: var(--prose-list-gap) 0;
+  }
+
+  li > :first-child {
+    margin-block-start: 0;
   }
 
   img,
@@ -395,7 +410,7 @@
   }
 
   figcaption {
-    margin-top: calc(var(--spacing) * 2);
+    margin-block: var(--prose-caption-gap) 0;
     color: var(--sub-text-color);
     font-style: italic;
     font-family: var(--font-serif);
@@ -460,7 +475,7 @@
   .ratex {
     max-width: 100%;
     line-height: 0;
-    color: var(--body-text-color);
+    color: var(--sub-text-color);
 
     svg {
       display: block;
@@ -531,7 +546,7 @@
     padding: 0 0.25em;
     margin: 0 0.2em;
     background-color: var(--base);
-    color: var(--body-text-color);
+    color: var(--sub-text-color);
     border: 1px solid var(--surface0);
     border-radius: 4px;
   }
@@ -607,7 +622,7 @@
   border-radius: var(--radius);
   background: var(--base);
   box-shadow: 0 0 0 1px var(--surface0), 0 6px 20px rgb(0 0 0 / 0.12);
-  color: var(--body-text-color);
+  color: var(--sub-text-color);
   font-family: var(--article-font-family);
   font-size: 0.9rem;
   font-style: normal;
@@ -703,7 +718,7 @@
   thead th {
     background: color-mix(in oklab, var(--surface0) 40%, var(--base));
     color: var(--title-text-color);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
   }
 
   tbody tr:nth-child(even) {
@@ -751,7 +766,7 @@ th {
 }
 
 thead th {
-  font-weight: 700;
+  font-weight: var(--font-weight-semibold);
   border-bottom: 1px solid var(--surface0);
   padding: 1em;
 }
@@ -767,12 +782,12 @@ tbody tr:last-child td {
 blockquote {
   position: relative;
   padding: 0.25rem 0 0.25rem 1.75rem;
-  margin: var(--flow-media, 2rem) 0;
+  margin: var(--flow-media, calc(16em / 14)) 0 0;
   border-left: 2px solid var(--surface1);
   font-family: var(--font-serif);
   font-style: italic;
   font-synthesis: none;
-  color: var(--body-text-color);
+  color: var(--sub-text-color);
 
   /* 引文内的段落靠竖线内侧对齐，不再叠加正文段距 */
   > :first-child {
@@ -829,7 +844,7 @@ input.task-list-item-checkbox {
     left: 40%;
     transform: translate(-50%, -50%);
     font-size: 0.9rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-semibold);
   }
 }
 
@@ -857,7 +872,7 @@ img[data-zoomable="true"] {
   padding: max(1.5rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
   border: 0;
   background: transparent;
-  color: var(--body-text-color);
+  color: var(--sub-text-color);
   overflow: hidden;
   overscroll-behavior: contain;
   cursor: zoom-out;
@@ -944,7 +959,7 @@ img[data-zoomable="true"] {
 .image-zoom-counter {
   min-width: 5ch;
   padding-inline: 0.375rem;
-  font: 500 0.8125rem / 1.5 var(--font-sans-serif);
+  font: var(--font-weight-semibold) 0.8125rem / 1.5 var(--font-sans-serif);
   font-variant-numeric: tabular-nums;
   text-align: center;
   white-space: nowrap;
@@ -992,15 +1007,14 @@ a strong {
 
 /* #region Article Meta*/
 
-/* 首屏是一张扉页：三种声音分层——kicker（标签）用等宽小字大写疏排，标题用大号
-   常规字重无衬线，摘要用正文字体小一号；纵向节奏走 --spacing 栅格 */
+/* 扉页使用 Display 标题、Body 摘要与 Caption 元信息；间距走 --spacing 栅格。 */
 .article-title {
   color: var(--title-text-color);
   font-family: var(--article-font-family);
-  font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
-  font-weight: 400;
-  line-height: 1.18;
-  letter-spacing: 0.02em;
+  font-size: var(--type-display-size);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--type-display-leading);
+  letter-spacing: normal;
   /* 标题通常一到两行，balance 让各行长度相近，避免末行孤字 */
   text-wrap: balance;
   max-width: 18em;
@@ -1037,17 +1051,19 @@ a strong {
   padding-bottom: calc(var(--spacing) * 6);
 }
 
-/* kicker：等宽小字、大写疏排，落在标题上方 5 格处 */
+/* 标签与版记共用 Caption，层级由字号和颜色区分。 */
 .article-kicker {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
   margin-bottom: calc(var(--spacing) * 5);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--article-font-family);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: normal;
+  text-transform: none;
   color: var(--sub-text-color);
 
   .meta-separator {
@@ -1077,7 +1093,7 @@ a strong {
   font-synthesis: none;
   font-size: 0.875rem;
   line-height: 1.8;
-  color: var(--body-text-color);
+  color: var(--sub-text-color);
   text-wrap: pretty;
 
   &::before {
@@ -1132,8 +1148,7 @@ a strong {
     border: none;
     cursor: pointer;
     font: inherit;
-    letter-spacing: inherit;
-    text-transform: inherit;
+    text-transform: capitalize;
     color: inherit;
     transition:
       color 220ms ease,
@@ -1180,9 +1195,9 @@ a strong {
     .article-title {
       width: 100%;
       max-width: none;
-      font-size: clamp(2.25rem, 10.5vw, 3.25rem);
-      line-height: 1.12;
-      letter-spacing: -0.01em;
+      font-size: var(--type-display-size);
+      line-height: var(--type-display-leading);
+      letter-spacing: normal;
       text-align: start;
       overflow-wrap: anywhere;
     }
@@ -1263,9 +1278,9 @@ a strong {
     .article-title {
       margin: 0;
       max-width: 16em;
-      font-size: clamp(2.75rem, 5.5vw, 5rem);
-      line-height: 1.12;
-      letter-spacing: -0.025em;
+      font-size: var(--type-display-size);
+      line-height: var(--type-display-leading);
+      letter-spacing: normal;
       text-align: start;
       overflow-wrap: anywhere;
     }
@@ -1320,8 +1335,8 @@ a strong {
   }
 
   .article-title {
-    font-size: clamp(2rem, 3.5vw, 3.25rem);
-    line-height: 1.2;
+    font-size: var(--type-display-size);
+    line-height: var(--type-display-leading);
     text-align: start;
     overflow-wrap: anywhere;
     text-wrap: pretty;
@@ -1374,8 +1389,8 @@ a strong {
     }
 
     .article-title {
-      font-size: clamp(1.875rem, 8vw, 2.75rem);
-      line-height: 1.18;
+      font-size: var(--type-display-size);
+      line-height: var(--type-display-leading);
     }
 
     .article-excerpt {
@@ -1431,10 +1446,10 @@ a strong {
       max-width: none;
       margin: 0;
       padding-inline-end: var(--hero-gutter);
-      font-size: clamp(3.15rem, 6.12vw, 6.3rem);
-      font-weight: 400;
-      line-height: 1.12;
-      letter-spacing: -0.04em;
+      font-size: var(--type-display-size);
+      font-weight: var(--font-weight-bold);
+      line-height: var(--type-display-leading);
+      letter-spacing: normal;
       text-align: start;
       text-wrap: balance;
       overflow-wrap: anywhere;
@@ -1537,7 +1552,7 @@ a strong {
     .article-title {
       grid-column: 1 / 8;
       align-self: center;
-      font-size: clamp(2.7rem, 4.77vw, 5.175rem);
+      font-size: var(--type-display-size);
       padding-inline-end: var(--hero-gutter);
     }
 
@@ -1723,7 +1738,7 @@ em,
   padding: 1rem;
   border: none;
   border-radius: 0;
-  color: var(--body-text-color);
+  color: var(--sub-text-color);
   overflow: auto;
 
   /* 遮罩底色 + blur 放在独立 fixed 伪层：popover 内容滚动/重绘（如 Twikoo
@@ -1807,7 +1822,7 @@ em,
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 /* 目录不再落在卡片上：文字直接浮在全局的模糊幕布（:popover-open::before）之上 */
@@ -1845,7 +1860,7 @@ em,
       font-size: clamp(1.25rem, 1.02rem + 0.84vw, 1.8rem);
     }
     .toc-level-3 & {
-      color: var(--body-text-color);
+      color: var(--sub-text-color);
       font-size: clamp(1.15rem, 1.01rem + 0.54vw, 1.5rem);
     }
     .toc-level-4 & {

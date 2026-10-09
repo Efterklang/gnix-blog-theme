@@ -200,7 +200,7 @@ function injectFriendsListStyles() {
     .friend-desc {
       font-family: var(--font-sans-serif);
       font-size: 0.8rem;
-      color: var(--body-text-color);
+      color: var(--sub-text-color);
       margin: 0.5rem 0 0;
       padding: 0;
       overflow: hidden;

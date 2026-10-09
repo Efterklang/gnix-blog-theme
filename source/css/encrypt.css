@@ -33,7 +33,7 @@
   border: 1.5px solid var(--overlay0);
   border-radius: var(--radius);
   background: var(--mantle);
-  color: var(--body-text-color);
+  color: var(--sub-text-color);
   font-size: 0.95rem;
   outline: none;
   transition: border-color 0.2s;

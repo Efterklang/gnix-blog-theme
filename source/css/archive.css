@@ -260,7 +260,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
     color: var(--sub-text-color);
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: var(--font-weight-semibold);
     letter-spacing: 0.16em;
     line-height: 1.35;
     text-transform: uppercase;
@@ -390,7 +390,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   margin: 0 0 calc(1.5rem - 0.4375rem);
   font-family: var(--font-mono);
   font-size: 0.6875rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-semibold);
   line-height: 1.5;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -399,7 +399,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 .archive-label__num {
   /* 年份延续主题的季节强调色。 */
   color: color-mix(in oklch, var(--archive-accent) 70%, var(--sub-text-color));
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .archive-item {
@@ -442,7 +442,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   padding: 0.85rem 1rem 0.9rem;
   font-size: var(--article-font-size);
   font-weight: var(--article-font-weight);
-  line-height: var(--article-line-height);
+  line-height: var(--type-body-leading);
 
   opacity: 0;
   transform: translateY(var(--popup-hidden-shift));

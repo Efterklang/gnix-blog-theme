@@ -58,6 +58,11 @@ class Navbar extends Component {
           ) : null}
         </div>
         <div class="navbar-actions glass" data-glass-lens>
+          <button type="button" class="navbar-item navbar-toc glass-button" popovertarget="toc-body" title={tocTitle} aria-label={tocTitle}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+              <path d="M8 6h12M8 12h12M8 18h8M4 6h.01M4 12h.01M4 18h.01" />
+            </svg>
+          </button>
           <button
             type="button"
             id="preferences-link"
@@ -83,11 +88,6 @@ class Navbar extends Component {
               </svg>
             </button>
           ) : null}
-          <button type="button" class="navbar-item navbar-toc glass-button" popovertarget="toc-body" title={tocTitle} aria-label={tocTitle}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
-              <path d="M8 6h12M8 12h12M8 18h8M4 6h.01M4 12h.01M4 18h.01" />
-            </svg>
-          </button>
         </div>
       </nav>
     );

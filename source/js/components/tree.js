@@ -238,7 +238,7 @@ const STYLES = `
   }
 
   .tree-label {
-    color: var(--body-text-color, #bac4de);
+    color: var(--sub-text-color, #bac4de);
     font-size: 13px;
   }
 

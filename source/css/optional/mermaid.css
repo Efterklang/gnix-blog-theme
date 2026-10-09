@@ -1,5 +1,5 @@
 .mermaid-container {
-  margin-block: var(--flow-media, 1em);
+  margin-block: var(--flow-media, calc(16em / 14)) 0;
   position: relative;
 }
 .mermaid-wrapper {
@@ -157,7 +157,7 @@ dialog.mermaid-preview {
   overflow: hidden;
   overscroll-behavior: contain;
   background: var(--mantle);
-  color: var(--body-text-color);
+  color: var(--sub-text-color);
 }
 .mermaid-preview[open] {
   display: grid;

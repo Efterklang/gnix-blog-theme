@@ -1,5 +1,5 @@
 const { Component } = require("../../include/util/common");
-const { LINE_HEIGHT, CUSTOM_FONT_PRESETS } = require("../../include/util/article_font");
+const { CUSTOM_FONT_PRESETS } = require("../../include/util/article_font");
 const { DEFAULT_PREFERENCES, THEME_OPTIONS } = require("../../include/util/theme");
 const { DEFAULT_SETTINGS: GLASS_DEFAULTS, RANGES: GLASS_RANGES } = require("../../include/util/glass");
 
@@ -195,7 +195,6 @@ module.exports = class extends Component {
     const pageTitleId = `${idPrefix}-title`;
     const themeTitleId = `${idPrefix}-theme-title`;
     const fontTitleId = `${idPrefix}-font-title`;
-    const lineHeightSliderId = `${idPrefix}-article-line-height-slider`;
     const widthSliderId = `${idPrefix}-article-width-slider`;
     const glassTitleId = `${idPrefix}-glass-title`;
     const glassEnabledLabel = translate(helper, "preferences.glass_enabled", "Liquid Glass");
@@ -305,9 +304,9 @@ module.exports = class extends Component {
                 <span>{translate(helper, "preferences.content_width", "Article Width")}</span>
                 <small>{translate(helper, "preferences.content_width_description", "Only affects the article column")}</small>
               </div>
-              <div class="font-line-height-stack">
-                <div class="font-line-height-control">
-                  <span class="font-line-height-label">{translate(helper, "preferences.width_narrow", "Narrow")}</span>
+              <div class="font-range-stack">
+                <div class="font-range-control">
+                  <span class="font-range-label">{translate(helper, "preferences.width_narrow", "Narrow")}</span>
                   <span class="preference-slider">
                     <input
                       id={widthSliderId}
@@ -322,38 +321,10 @@ module.exports = class extends Component {
                     />
                     <span class="preference-slider__thumb glass" data-glass-lens aria-hidden="true"></span>
                   </span>
-                  <span class="font-line-height-label">{translate(helper, "preferences.width_wide", "Wide")}</span>
+                  <span class="font-range-label">{translate(helper, "preferences.width_wide", "Wide")}</span>
                 </div>
-                <output class="font-width-value font-line-height-value" for={widthSliderId}>
+                <output class="font-width-value font-range-value" for={widthSliderId}>
                   42em
-                </output>
-              </div>
-            </div>
-
-            <div class="preference-row">
-              <div class="preference-row__label">
-                <span>{translate(helper, "preferences.line_height", "Line Height")}</span>
-              </div>
-              <div class="font-line-height-stack">
-                <div class="font-line-height-control">
-                  <span class="font-line-height-label">{translate(helper, "preferences.compact", "Compact")}</span>
-                  <span class="preference-slider">
-                    <input
-                      id={lineHeightSliderId}
-                      class="font-line-height-slider"
-                      type="range"
-                      min={String(LINE_HEIGHT.min)}
-                      max={String(LINE_HEIGHT.max)}
-                      step="0.01"
-                      value="1.7"
-                      aria-label={translate(helper, "preferences.line_height", "Line Height")}
-                    />
-                    <span class="preference-slider__thumb glass" data-glass-lens aria-hidden="true"></span>
-                  </span>
-                  <span class="font-line-height-label">{translate(helper, "preferences.relaxed", "Relaxed")}</span>
-                </div>
-                <output class="font-line-height-value" for={lineHeightSliderId}>
-                  1.70
                 </output>
               </div>
             </div>

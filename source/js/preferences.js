@@ -36,7 +36,7 @@
 
   const articleFontConfig = window.__GNIX_ARTICLE_FONT_CONFIG__ || {};
   const ARTICLE_FONT_STORAGE_KEY = articleFontConfig.storageKey || "gnix-article-font";
-  const ARTICLE_FONT_DEFAULT_SETTINGS = articleFontConfig.defaultSettings || { size: "medium", type: "sans-serif", lineHeight: 1.7, weight: "regular", width: "narrow", spacing: "normal" };
+  const ARTICLE_FONT_DEFAULT_SETTINGS = articleFontConfig.defaultSettings || { size: "medium", type: "sans-serif", weight: "regular", width: "narrow", spacing: "normal" };
   const ARTICLE_SIZE_LIST = articleFontConfig.sizeOptions || ["small", "medium-small", "medium", "medium-large", "large"];
   const ARTICLE_WIDTH_LIST = articleFontConfig.widthOptions || ["narrow", "medium-narrow", "medium", "medium-wide", "wide"];
   const ARTICLE_SPACING_LIST = articleFontConfig.spacingOptions || ["compact", "normal", "relaxed"];
@@ -47,9 +47,6 @@
   const ARTICLE_SPACING_OPTIONS = new Set(ARTICLE_SPACING_LIST);
   // 快捷弹窗 stepper 按有序列表步进的控件，键名与 settings 字段一致
   const ARTICLE_STEP_LISTS = { size: ARTICLE_SIZE_LIST, width: ARTICLE_WIDTH_LIST, spacing: ARTICLE_SPACING_LIST };
-  const ARTICLE_LINE_HEIGHT_MIN = articleFontConfig.lineHeight?.min ?? 1.45;
-  const ARTICLE_LINE_HEIGHT_MAX = articleFontConfig.lineHeight?.max ?? 1.9;
-  const ARTICLE_LINE_HEIGHT_STEP = 0.05;
   const ARTICLE_CUSTOM_FONT_OPTIONS = articleFontConfig.customFonts?.familyOptions || {
     serif: "--font-serif",
     "sans-serif": "--font-sans-serif",
@@ -124,22 +121,11 @@
     }
   }
 
-  function normalizeArticleLineHeight(value) {
-    if (value === "compact") return 1.55;
-    if (value === "normal") return 1.7;
-    if (value === "relaxed") return 1.85;
-
-    const parsed = Number(value);
-    if (!Number.isFinite(parsed)) return ARTICLE_FONT_DEFAULT_SETTINGS.lineHeight;
-    return Math.min(ARTICLE_LINE_HEIGHT_MAX, Math.max(ARTICLE_LINE_HEIGHT_MIN, parsed));
-  }
-
   function normalizeArticleFontSettings(value = {}) {
     const candidate = value || {};
     return {
       size: ARTICLE_SIZE_OPTIONS.has(candidate.size) ? candidate.size : ARTICLE_FONT_DEFAULT_SETTINGS.size,
       type: ARTICLE_FONT_OPTIONS.has(candidate.type) ? candidate.type : ARTICLE_FONT_DEFAULT_SETTINGS.type,
-      lineHeight: normalizeArticleLineHeight(candidate.lineHeight),
       weight: ARTICLE_WEIGHT_OPTIONS.has(candidate.weight) ? candidate.weight : ARTICLE_FONT_DEFAULT_SETTINGS.weight,
       width: ARTICLE_WIDTH_OPTIONS.has(candidate.width) ? candidate.width : ARTICLE_FONT_DEFAULT_SETTINGS.width,
       spacing: ARTICLE_SPACING_OPTIONS.has(candidate.spacing) ? candidate.spacing : ARTICLE_FONT_DEFAULT_SETTINGS.spacing,
@@ -176,7 +162,6 @@
     html.dataset.articleFontWeight = settings.weight;
     html.dataset.articleWidth = settings.width;
     html.dataset.articleSpacing = settings.spacing;
-    html.style.setProperty("--article-line-height", String(settings.lineHeight));
     window.dispatchEvent(new CustomEvent("gnix:article-font-settings-change", { detail: settings }));
   }
 
@@ -301,9 +286,6 @@
   function initArticleFontPreferences(root) {
     let settings = getArticleFontSettings();
     let suppressSyncEvent = false;
-    let lineHeightFrame = 0;
-    const lineHeightSlider = root.querySelector(".font-line-height-slider");
-    const lineHeightValue = root.querySelector(".font-line-height-value:not(.font-width-value)");
     const widthSlider = root.querySelector(".font-width-slider");
     const widthValue = root.querySelector(".font-width-value");
     const widthLabels = JSON.parse(widthSlider?.dataset.widthLabels || "{}");
@@ -333,14 +315,6 @@
       });
     }
 
-    function updateLineHeightUI() {
-      if (lineHeightSlider) {
-        lineHeightSlider.value = String(settings.lineHeight);
-        syncSliderVisual(lineHeightSlider);
-      }
-      if (lineHeightValue) lineHeightValue.textContent = settings.lineHeight.toFixed(2);
-    }
-
     function updateWidthUI() {
       if (!widthSlider) return;
       widthSlider.value = String(ARTICLE_WIDTH_LIST.indexOf(settings.width));
@@ -351,9 +325,6 @@
     }
 
     function isStepDisabled(control, dir) {
-      if (control === "lineHeight") {
-        return dir < 0 ? settings.lineHeight <= ARTICLE_LINE_HEIGHT_MIN + 1e-9 : settings.lineHeight >= ARTICLE_LINE_HEIGHT_MAX - 1e-9;
-      }
       const list = ARTICLE_STEP_LISTS[control];
       if (!list) return false;
       const index = list.indexOf(settings[control]);
@@ -377,7 +348,6 @@
         select.value = settings.type;
       });
       updateStepperStates();
-      updateLineHeightUI();
       customFontPresetInputs.forEach((input) => {
         input.checked = settings.customFonts.presets?.includes(input.dataset.fontPreset) || false;
         if (!input.checked) updatePresetStatus(input.dataset.fontPreset, "");
@@ -408,13 +378,7 @@
       });
     }
 
-    function cancelLineHeightPreview() {
-      if (lineHeightFrame) window.cancelAnimationFrame(lineHeightFrame);
-      lineHeightFrame = 0;
-    }
-
     function commitSettings(nextSettings) {
-      cancelLineHeightPreview();
       settings = normalizeArticleFontSettings(nextSettings);
       saveArticleFontSettings(settings);
       suppressSyncEvent = true;
@@ -425,11 +389,6 @@
 
     function stepArticleSetting(control, dir) {
       if (!dir) return;
-      if (control === "lineHeight") {
-        const next = Math.round((settings.lineHeight + dir * ARTICLE_LINE_HEIGHT_STEP) * 100) / 100;
-        commitSettings({ ...settings, lineHeight: normalizeArticleLineHeight(next) });
-        return;
-      }
 
       const list = ARTICLE_STEP_LISTS[control];
       if (!list) return;
@@ -485,27 +444,6 @@
         commitSettings({ ...settings, type: select.value });
       });
     });
-
-    if (lineHeightSlider) {
-      lineHeightSlider.min = String(ARTICLE_LINE_HEIGHT_MIN);
-      lineHeightSlider.max = String(ARTICLE_LINE_HEIGHT_MAX);
-      lineHeightSlider.step = "0.01";
-      lineHeightSlider.addEventListener("input", () => {
-        settings = { ...settings, lineHeight: normalizeArticleLineHeight(lineHeightSlider.value) };
-        // Keep the thumb attached to native input. Only the text preview needs layout;
-        // coalesce it to one update per frame and defer storage/full UI sync until change.
-        syncSliderVisual(lineHeightSlider);
-        if (lineHeightValue) lineHeightValue.textContent = settings.lineHeight.toFixed(2);
-        if (lineHeightFrame) return;
-        lineHeightFrame = window.requestAnimationFrame(() => {
-          lineHeightFrame = 0;
-          document.documentElement.style.setProperty("--article-line-height", String(settings.lineHeight));
-        });
-      });
-      lineHeightSlider.addEventListener("change", () => {
-        commitSettings({ ...settings, lineHeight: normalizeArticleLineHeight(lineHeightSlider.value) });
-      });
-    }
 
     weightButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -579,7 +517,6 @@
     // 弹窗与设置页可能同时存在于一个文档中，跨根保持 UI 一致
     window.addEventListener("gnix:article-font-settings-change", (event) => {
       if (suppressSyncEvent || !event.detail) return;
-      cancelLineHeightPreview();
       settings = normalizeArticleFontSettings(event.detail);
       updateActiveStates();
       updateCustomFontUI();

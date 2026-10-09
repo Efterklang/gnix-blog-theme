@@ -1,7 +1,7 @@
 .accordion {
   display: block;
   interpolate-size: allow-keywords;
-  margin-block: var(--flow-media, 1em);
+  margin-block: var(--flow-media, calc(16em / 14)) 0;
 }
 
 .accordion > details.accordion-item {
@@ -69,7 +69,7 @@
 }
 
 .accordion > details.accordion-item > summary ~ * {
-  color: var(--body-text-color);
+  color: var(--sub-text-color);
   font-size: 14px;
   line-height: 1.6;
   margin-left: 28px;

@@ -180,7 +180,7 @@ class DeviceCarousel extends HTMLElement {
 
       .showcase-content {
         margin-bottom: 0.75rem;
-        color: var(--body-text-color, #bac4de);
+        color: var(--sub-text-color, #bac4de);
       }
 
       .device-image {
@@ -199,7 +199,7 @@ class DeviceCarousel extends HTMLElement {
       .showcase-meta {
         font-family: var(--font-mono, 'Maple Mono', 'Fira Code', monospace);
         font-size: 0.75rem;
-        color: var(--body-text-color, #bac4de);
+        color: var(--sub-text-color, #bac4de);
         padding: 0.5rem 0.75rem;
         background: var(--mantle, #181825);
         border-radius: 6px;

@@ -241,7 +241,7 @@ class ThemeStackedElement extends HTMLElement {
             left: 50%;
             transform: translateX(-50%) translateY(-6px);
             background: var(--base);
-            color: var(--body-text-color);
+            color: var(--sub-text-color);
             padding: 0.4rem 0.6rem;
             border-radius: 6px;
             font-size: 0.7rem;

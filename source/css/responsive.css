@@ -82,8 +82,8 @@
   /* This is used for mobile and tablet devices */
   /* #region Navbar */
 
-  /* 拇指区（iOS 26 Safari 式底部工具条）：导航条常驻屏幕底部，左 burger、右「偏好 · 搜索」，
-     文章页的 TOC 圆钮并入同一行最右——所有入口都在单手拇指可及的一条线上。
+  /* 拇指区（iOS 26 Safari 式底部工具条）：导航条常驻屏幕底部，左 burger、右「目录 · 偏好 · 搜索」，
+     文章页的 TOC 圆钮放在右侧按钮组最左——所有入口都在单手拇指可及的一条线上。
      左侧为站点导航，右侧三项共用一个玻璃胶囊 */
   .navbar {
     position: fixed;
@@ -106,7 +106,7 @@
     padding-top: env(safe-area-inset-top);
   }
 
-  /* 右侧偏好、搜索、目录共用一层玻璃；保留至少 44px 的触控区域。 */
+  /* 右侧目录、偏好、搜索共用一层玻璃；保留至少 44px 的触控区域。 */
   .navbar-actions.glass {
     gap: 0;
     padding: 2px;
@@ -234,7 +234,7 @@
       width: 42px;
       height: 42px;
       padding: 0;
-      color: var(--body-text-color);
+      color: var(--sub-text-color);
 
       svg {
         width: 18px;

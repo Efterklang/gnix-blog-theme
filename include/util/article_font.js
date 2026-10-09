@@ -3,7 +3,6 @@ const STORAGE_KEY = "gnix-article-font";
 const DEFAULT_SETTINGS = Object.freeze({
   size: "medium",
   type: "sans-serif",
-  lineHeight: 1.7,
   weight: "regular",
   width: "narrow",
   spacing: "normal",
@@ -13,12 +12,8 @@ const SIZE_OPTIONS = Object.freeze(["small", "medium-small", "medium", "medium-l
 const FONT_OPTIONS = Object.freeze(["sans-serif", "serif", "mono", "handwriting"]);
 const WEIGHT_OPTIONS = Object.freeze(["light", "regular", "medium"]);
 const WIDTH_OPTIONS = Object.freeze(["narrow", "medium-narrow", "medium", "medium-wide", "wide"]);
-// 正文纵向间距档位：只改 default.css 的 --spacing 基准（3px / 4px / 5px）
+// 正文纵向间距档位：由 default.css 的 --prose-* tokens 统一管理。
 const SPACING_OPTIONS = Object.freeze(["compact", "normal", "relaxed"]);
-const LINE_HEIGHT = Object.freeze({
-  min: 1.45,
-  max: 1.9,
-});
 
 const CUSTOM_FONT_FAMILY_OPTIONS = Object.freeze({
   serif: "--font-serif",
@@ -46,7 +41,6 @@ function getClientArticleFontConfig() {
     weightOptions: WEIGHT_OPTIONS,
     widthOptions: WIDTH_OPTIONS,
     spacingOptions: SPACING_OPTIONS,
-    lineHeight: LINE_HEIGHT,
     customFonts: {
       familyOptions: CUSTOM_FONT_FAMILY_OPTIONS,
       importLimit: CUSTOM_FONT_IMPORT_LIMIT,
@@ -78,23 +72,6 @@ function getArticleFontInitScript() {
     return Array.isArray(options) && options.indexOf(value) !== -1;
   }
 
-  function normalizeLineHeight(value) {
-    if (value === "compact") return 1.55;
-    if (value === "normal") return 1.7;
-    if (value === "relaxed") return 1.85;
-
-    var parsedValue = Number(value);
-    var min = Number(config.lineHeight && config.lineHeight.min);
-    var max = Number(config.lineHeight && config.lineHeight.max);
-    var fallback = Number(defaults.lineHeight);
-
-    if (!Number.isFinite(parsedValue)) parsedValue = Number.isFinite(fallback) ? fallback : 1.7;
-    if (!Number.isFinite(min)) min = 1.45;
-    if (!Number.isFinite(max)) max = 1.9;
-
-    return Math.min(max, Math.max(min, parsedValue));
-  }
-
   function readStoredSettings() {
     var stored = null;
     var parsed = {};
@@ -114,7 +91,6 @@ function getArticleFontInitScript() {
     return {
       size: hasOption(config.sizeOptions, candidate.size) ? candidate.size : defaults.size,
       type: hasOption(config.fontOptions, candidate.type) ? candidate.type : defaults.type,
-      lineHeight: normalizeLineHeight(candidate.lineHeight),
       weight: hasOption(config.weightOptions, candidate.weight) ? candidate.weight : defaults.weight,
       width: hasOption(config.widthOptions, candidate.width) ? candidate.width : defaults.width,
       spacing: hasOption(config.spacingOptions, candidate.spacing) ? candidate.spacing : defaults.spacing,
@@ -138,7 +114,6 @@ function getArticleFontInitScript() {
     html.setAttribute("data-article-font-weight", settings.weight);
     html.setAttribute("data-article-width", settings.width);
     html.setAttribute("data-article-spacing", settings.spacing);
-    html.style.setProperty("--article-line-height", String(settings.lineHeight));
   }
 
   applySettings(readStoredSettings());
@@ -164,7 +139,6 @@ module.exports = {
   CUSTOM_FONT_PRESETS,
   DEFAULT_SETTINGS,
   FONT_OPTIONS,
-  LINE_HEIGHT,
   SIZE_OPTIONS,
   SPACING_OPTIONS,
   STORAGE_KEY,
