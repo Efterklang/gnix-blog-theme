@@ -127,7 +127,17 @@ const STYLES = `
   @media (max-width: 640px) {
     :host {
       --image-group-height: var(--image-group-mobile-height, clamp(140px, 58vw, 240px));
+      --image-group-radius: 0px;
       --image-group-frame-bg: transparent;
+    }
+
+    .frame { border: 0; }
+
+    .caption {
+      right: 0;
+      bottom: 0;
+      left: 0;
+      border-radius: 0;
     }
   }
 `;
