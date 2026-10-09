@@ -13,9 +13,9 @@ const DEFAULT_SETTINGS = Object.freeze({
 
 // 滑块取值范围；refraction / tint 是相对主题原值的倍率
 const RANGES = Object.freeze({
-  blur: Object.freeze({ min: 0, max: 24, step: 1 }),
+  blur: Object.freeze({ min: 0, max: 10, step: 0.25 }),
   refraction: Object.freeze({ min: 0, max: 2, step: 0.05 }),
-  tint: Object.freeze({ min: 0.5, max: 1.5, step: 0.05 }),
+  tint: Object.freeze({ min: 0.5, max: 1, step: 0.01 }),
 });
 
 // 数值参数写到 <html> 上的 CSS 变量：--glass-lens-strength 由 glass-lens.js 读取，
@@ -55,7 +55,9 @@ function getGlassInitScript() {
     if (value === null || value === undefined || value === "") return fallback;
     var parsed = Number(value);
     if (!Number.isFinite(parsed)) return fallback;
-    return Math.min(range.max, Math.max(range.min, Math.round(parsed * 100) / 100));
+    var clamped = Math.min(range.max, Math.max(range.min, parsed));
+    var steps = Math.round((clamped - range.min) / range.step);
+    return Number((range.min + steps * range.step).toFixed(2));
   }
 
   function normalizeSettings(value) {

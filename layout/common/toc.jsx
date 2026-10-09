@@ -1,4 +1,5 @@
 const { Component } = require("../../include/util/common");
+const { Icon } = require("../../include/util/lucide");
 
 class FloatingToc extends Component {
   render() {
@@ -17,9 +18,7 @@ class FloatingToc extends Component {
     return (
       <div class="toc-container" id="toc" style={page.encrypt ? "display:none" : null}>
         <button class="toc-button glass glass-button" type="button" popovertarget="toc-body" aria-label={tocLabel} data-glass-lens>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
+          <Icon name="list-tree" size={20} />
         </button>
         <div id="toc-body" popover="auto" class="toc-body">
           <div id="toc-insert" class="toc-panel" dangerouslySetInnerHTML={{ __html: tocContent || "" }} />

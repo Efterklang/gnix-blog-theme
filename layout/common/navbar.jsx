@@ -1,4 +1,5 @@
 const { Component, cacheComponent } = require("../../include/util/common");
+const { Icon } = require("../../include/util/lucide");
 
 const renderLinkIcon = (link) => {
   if (!link.icon) return null;
@@ -59,9 +60,7 @@ class Navbar extends Component {
         </div>
         <div class="navbar-actions glass" data-glass-lens>
           <button type="button" class="navbar-item navbar-toc glass-button" popovertarget="toc-body" title={tocTitle} aria-label={tocTitle}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
-              <path d="M8 6h12M8 12h12M8 18h8M4 6h.01M4 12h.01M4 18h.01" />
-            </svg>
+            <Icon name="list-tree" size={20} />
           </button>
           <button
             type="button"
@@ -72,20 +71,11 @@ class Navbar extends Component {
             popovertarget="preference-popup"
             data-glass-lens
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <title>{preferencesTitle}</title>
-              <path d="M12 4v16" />
-              <path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2" />
-              <path d="M9 20h6" />
-            </svg>
+            <Icon name="type" size={20} />
           </button>
           {isSearchEnabled ? (
             <button type="button" class="navbar-item search glass glass-button" popovertarget="command-palette" title={searchTitle} aria-label={searchTitle} data-glass-lens>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <title>{searchTitle}</title>
-                <path d="m21 21-4.34-4.34" />
-                <circle cx="11" cy="11" r="8" />
-              </svg>
+              <Icon name="search" size={20} />
             </button>
           ) : null}
         </div>

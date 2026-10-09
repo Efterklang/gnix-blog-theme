@@ -1,4 +1,5 @@
 const { Component } = require("../../include/util/common");
+const { Icon } = require("../../include/util/lucide");
 const { CUSTOM_FONT_PRESETS } = require("../../include/util/article_font");
 const { DEFAULT_PREFERENCES, THEME_OPTIONS } = require("../../include/util/theme");
 const { DEFAULT_SETTINGS: GLASS_DEFAULTS, RANGES: GLASS_RANGES } = require("../../include/util/glass");
@@ -9,43 +10,6 @@ const LOREM_IPSUM =
 function translate(helper, key, fallback) {
   const value = helper.__(key);
   return value === key ? fallback : value;
-}
-
-function icon(name) {
-  const common = {
-    "aria-hidden": "true",
-    fill: "none",
-    focusable: "false",
-    height: "18",
-    stroke: "currentColor",
-    "stroke-linecap": "round",
-    "stroke-linejoin": "round",
-    "stroke-width": "2",
-    viewBox: "0 0 24 24",
-    width: "18",
-    xmlns: "http://www.w3.org/2000/svg",
-  };
-
-  switch (name) {
-    case "arrow-left":
-      return (
-        <svg {...common}>
-          <title>arrow-left</title>
-          <path d="m12 19-7-7 7-7" />
-          <path d="M19 12H5" />
-        </svg>
-      );
-    case "rotate-ccw":
-      return (
-        <svg {...common}>
-          <title>rotate-ccw</title>
-          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-          <path d="M3 3v5h5" />
-        </svg>
-      );
-    default:
-      return null;
-  }
 }
 
 const THEME_MODE_OPTIONS = [
@@ -156,9 +120,7 @@ function renderThemeSchemeControl(helper, kind, themes, idPrefix) {
             </option>
           ))}
         </select>
-        <svg class="theme-scheme-select-chevron" aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m6 9 6 6 6-6" />
-        </svg>
+        <Icon name="chevron-down" class="theme-scheme-select-chevron" />
       </span>
     </div>
   );
@@ -190,6 +152,7 @@ module.exports = class extends Component {
     const lightThemes = THEME_OPTIONS.filter((theme) => theme.colorScheme === "light");
     const darkThemes = THEME_OPTIONS.filter((theme) => theme.colorScheme === "night");
     const backLabel = translate(helper, "preferences.back_to_app", "Back");
+    const resetLabel = translate(helper, "preferences.reset", "Reset");
     const homeUrl = helper.localized_url_for("/");
     const idPrefix = "preference-page";
     const pageTitleId = `${idPrefix}-title`;
@@ -209,12 +172,12 @@ module.exports = class extends Component {
               <p>{translate(helper, "preferences.autosave_note", "Changes are saved automatically in this browser.")}</p>
             </div>
             <div class="preference-header-actions">
-              <button type="button" class="preference-reset-action" data-preference-reset-all>
-                {icon("rotate-ccw")}
-                <span>{translate(helper, "preferences.reset", "Reset")}</span>
+              <button type="button" class="preference-reset-action" aria-label={resetLabel} title={resetLabel} data-preference-reset-all>
+                <Icon name="rotate-ccw" size={18} />
+                <span>{resetLabel}</span>
               </button>
-              <button type="button" class="preference-back-link" aria-label={backLabel} data-preference-back data-home-url={homeUrl}>
-                {icon("arrow-left")}
+              <button type="button" class="preference-back-link" aria-label={backLabel} title={backLabel} data-preference-back data-home-url={homeUrl}>
+                <Icon name="arrow-left" size={18} />
                 <span>{backLabel}</span>
               </button>
             </div>

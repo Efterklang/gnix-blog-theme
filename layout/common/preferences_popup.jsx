@@ -1,4 +1,5 @@
 const { Component } = require("../../include/util/common");
+const { Icon } = require("../../include/util/lucide");
 const { DEFAULT_PREFERENCES, THEME_OPTIONS } = require("../../include/util/theme");
 const { DEFAULT_SETTINGS: ARTICLE_FONT_DEFAULTS } = require("../../include/util/article_font");
 const { DEFAULT_SETTINGS: GLASS_DEFAULTS } = require("../../include/util/glass");
@@ -7,105 +8,6 @@ const { getLanguageOptions } = require("../../include/util/i18n");
 function translate(helper, key, fallback) {
   const value = helper.__(key);
   return value === key ? fallback : value;
-}
-
-function icon(name, size = 18) {
-  const common = {
-    "aria-hidden": "true",
-    fill: "none",
-    focusable: "false",
-    height: String(size),
-    stroke: "currentColor",
-    "stroke-linecap": "round",
-    "stroke-linejoin": "round",
-    "stroke-width": "1.75",
-    viewBox: "0 0 24 24",
-    width: String(size),
-    xmlns: "http://www.w3.org/2000/svg",
-  };
-
-  switch (name) {
-    case "minus":
-      return (
-        <svg {...common}>
-          <title>minus</title>
-          <path d="M5 12h14" />
-        </svg>
-      );
-    case "plus":
-      return (
-        <svg {...common}>
-          <title>plus</title>
-          <path d="M5 12h14" />
-          <path d="M12 5v14" />
-        </svg>
-      );
-    case "fold-horizontal":
-      return (
-        <svg {...common}>
-          <title>fold-horizontal</title>
-          <path d="M18 16 14 12 18 8" />
-          <path d="M1 12h9" />
-          <path d="M14 12h9" />
-          <path d="M6 16 10 12 6 8" />
-        </svg>
-      );
-    case "move-horizontal":
-      return (
-        <svg {...common}>
-          <title>move-horizontal</title>
-          <path d="m18 8 4 4-4 4" />
-          <path d="M2 12h20" />
-          <path d="m6 8-4 4 4 4" />
-        </svg>
-      );
-    case "fold-vertical":
-      return (
-        <svg {...common}>
-          <title>fold-vertical</title>
-          <path d="M12 22v-6" />
-          <path d="M12 8V2" />
-          <path d="M4 12H2" />
-          <path d="M10 12H8" />
-          <path d="M16 12h-2" />
-          <path d="M22 12h-2" />
-          <path d="m15 19-3-3-3 3" />
-          <path d="m15 5-3 3-3-3" />
-        </svg>
-      );
-    case "unfold-vertical":
-      return (
-        <svg {...common}>
-          <title>unfold-vertical</title>
-          <path d="M12 22v-6" />
-          <path d="M12 8V2" />
-          <path d="M4 12H2" />
-          <path d="M10 12H8" />
-          <path d="M16 12h-2" />
-          <path d="M22 12h-2" />
-          <path d="m15 19-3 3-3-3" />
-          <path d="m15 5-3-3-3 3" />
-        </svg>
-      );
-    case "glass":
-      return (
-        <svg {...common}>
-          <title>glass</title>
-          <path d="M8 7V6a3 3 0 0 1 3-3h7a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-1" />
-          <rect x="3" y="7" width="14" height="14" rx="3" fill="currentColor" fill-opacity="0.08" />
-        </svg>
-      );
-    case "settings":
-      return (
-        <svg {...common}>
-          <title>settings</title>
-          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-          <circle cx="12" cy="12" r="3" />
-        </svg>
-      );
-    default:
-      return null;
-  }
 }
 
 const THEME_MODE_OPTIONS = [
@@ -127,10 +29,10 @@ function renderStepper(label, control, decreaseIcon, increaseIcon, decreaseLabel
       <span class="preference-quick__step-label">{label}</span>
       <div class="preference-quick__step-controls">
         <button type="button" class="preference-quick__step-btn" data-article-step={control} data-step-dir="-1" title={decreaseLabel} aria-label={decreaseLabel}>
-          {icon(decreaseIcon)}
+          <Icon name={decreaseIcon} size={18} />
         </button>
         <button type="button" class="preference-quick__step-btn" data-article-step={control} data-step-dir="1" title={increaseLabel} aria-label={increaseLabel}>
-          {icon(increaseIcon)}
+          <Icon name={increaseIcon} size={18} />
         </button>
       </div>
     </div>
@@ -170,10 +72,10 @@ module.exports = class extends Component {
                 aria-label={glassLabel}
                 data-glass-toggle="enabled"
               >
-                {icon("glass", 20)}
+                <Icon name="copy" size={20} />
               </button>
               <a class="preference-quick__action" href={settingsUrl} title={settingsLabel} aria-label={settingsLabel}>
-                {icon("settings")}
+                <Icon name="settings" size={18} />
               </a>
             </div>
           </header>
@@ -215,6 +117,7 @@ module.exports = class extends Component {
                   </option>
                 ))}
               </select>
+              <Icon name="chevron-down" size={14} class="preference-quick__chevron" />
             </label>
 
             <label class="preference-quick__field">
@@ -232,6 +135,7 @@ module.exports = class extends Component {
                   ))}
                 </optgroup>
               </select>
+              <Icon name="chevron-down" size={14} class="preference-quick__chevron" />
             </label>
 
             <label class="preference-quick__field">
@@ -241,6 +145,7 @@ module.exports = class extends Component {
                   <option value={value} selected={value === ARTICLE_FONT_DEFAULTS.type}>{translate(helper, key, fallback)}</option>
                 ))}
               </select>
+              <Icon name="chevron-down" size={14} class="preference-quick__chevron" />
             </label>
 
             {languageOptions ? (
@@ -253,6 +158,7 @@ module.exports = class extends Component {
                     </option>
                   ))}
                 </select>
+                <Icon name="chevron-down" size={14} class="preference-quick__chevron" />
               </label>
             ) : null}
           </div>

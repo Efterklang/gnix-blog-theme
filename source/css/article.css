@@ -1769,6 +1769,10 @@ em,
    .glass / .glass-button；过渡列表沿用 .glass-button 的顺序（scale、底色），末尾补上首屏
    显隐的 opacity，:active 覆写的时长按序循环套用 */
 .toc-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sub-text-color);
   position: fixed;
   bottom: 3rem;
   right: clamp(1rem, 3vw, 3rem);
@@ -1785,27 +1789,6 @@ em,
   &:focus-visible {
     outline: 2px solid var(--mauve);
     outline-offset: 3px;
-  }
-
-  > span {
-    background-color: hsl(from var(--title-text-color) h s l / 0.5);
-    height: 2px;
-    left: calc(50% - 8px);
-    position: absolute;
-    width: 1rem;
-
-    &:nth-child(1) {
-      top: calc(50% - 6px);
-    }
-
-    &:nth-child(2) {
-      width: 0.75rem;
-      top: calc(50% - 1px);
-    }
-
-    &:nth-child(3) {
-      top: calc(50% + 4px);
-    }
   }
 }
 
