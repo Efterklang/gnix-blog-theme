@@ -1025,8 +1025,9 @@ a strong {
   margin-inline: 0.5em;
 }
 
-/* 扉页分三层：顶栏（Back，下有细线）、中部（文字与封面，在剩余高度里居中）、
-   底栏（上有细线，comments / info 靠右）。独立页面没有顶栏，中部文字居中。 */
+/* 扉页分三层：顶栏（Back）、中部（文字与封面，在剩余高度里居中）、
+   底栏（上有细线，comments / info 靠右）。独立页面没有顶栏，中部文字居中。
+   文字块内的间距逐级放大：日期→标题 1rem、标题→摘要 1.5rem、摘要→标签 2rem。 */
 .article-hero {
   display: flex;
   flex-direction: column;
@@ -1038,7 +1039,7 @@ a strong {
 .article-hero-full {
   flex: 1;
   box-sizing: border-box;
-  padding: 0 0 calc(var(--spacing) * 3);
+  padding: 0 0 1.5rem;
 }
 
 /* 顶栏与底栏共用一种小号等宽字 */
@@ -1050,11 +1051,6 @@ a strong {
   font-size: 0.75rem;
   line-height: 1;
   color: var(--sub-text-color);
-}
-
-.article-hero-nav {
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--surface0);
 }
 
 .article-hero-foot {
@@ -1154,7 +1150,7 @@ a strong {
 
 /* 摘要：正文字体小一号，与标题留一档呼吸 */
 .article-hero .article-excerpt {
-  margin-top: calc(var(--spacing) * 6);
+  margin-top: 1.5rem;
   max-width: 34em;
   font-family: var(--article-font-family);
   font-synthesis: none;
@@ -1177,7 +1173,7 @@ a strong {
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
-  margin-top: calc(var(--spacing) * 6);
+  margin-top: 2rem;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--sub-text-color);
@@ -1220,7 +1216,6 @@ a strong {
       grid-template-columns: repeat(12, minmax(0, 1fr));
       column-gap: var(--hero-gutter);
       align-items: center;
-      padding-block: clamp(1rem, 4vh, 2.5rem);
     }
 
     /* 封面在 DOM 里先于文字，两者都钉在第 1 行，否则自动放置会把文字推到下一行 */
