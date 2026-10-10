@@ -85,6 +85,8 @@ module.exports = (hexo) => {
     require("./tag")(hexo);
   }
 
+  require("./home")(hexo);
+
   const archiveConfig = hexo.theme.config.archive_generator || {};
   if (archiveConfig.enabled !== false) {
     require("./archive")(hexo);

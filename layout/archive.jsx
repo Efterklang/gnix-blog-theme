@@ -272,7 +272,8 @@ module.exports = class extends Component {
           allPosts: {
             name: archiveLabels.allPosts,
             count: allPostsCount,
-            url: helper.localized_url_for("/"),
+            // 归档已不在站点根路径，「全部文章」指向 archive 生成器的目录（可由 archive_generator.path 调整）
+            url: helper.localized_url_for(config.archive_generator?.path || "archive"),
             current: !isTagPage && !page.year,
           },
           topicListLabel: topicsTitle,

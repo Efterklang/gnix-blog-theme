@@ -1,4 +1,4 @@
-const { filterByLanguage, getDefaultLanguageKey, getLanguage, getLanguageBasePath, getLanguageKeys, isI18nEnabled } = require("../../util/i18n");
+const { filterByLanguage, getLanguage, getLanguageBasePath, getLanguageKeys, isI18nEnabled, trimSlashes } = require("../../util/i18n");
 
 module.exports = (hexo) => {
   hexo.extend.generator.register("archive", function (locals) {
@@ -6,6 +6,8 @@ module.exports = (hexo) => {
     const fullConfig = Object.assign({}, config, config.theme_config, hexo.theme.config);
     const themeConfig = hexo.theme.config.archive_generator || {};
     const orderBy = themeConfig.order_by || "-date";
+    // 归档目录（默认 archive/）挂在各语言前缀下；站点根路径由 home 生成器负责
+    const archiveDir = `${trimSlashes(themeConfig.path || "archive") || "archive"}/`;
     const result = [];
 
     function buildArchive(path, langKey = null) {
@@ -23,16 +25,11 @@ module.exports = (hexo) => {
     }
 
     if (isI18nEnabled(fullConfig)) {
-      const defaultKey = getDefaultLanguageKey(fullConfig);
-      const defaultBase = getLanguageBasePath(fullConfig, defaultKey);
-      // When the default language lives under a prefix (e.g. "/zh-CN/"),
-      // mirror its archive at site root so /index.html serves real content.
-      if (defaultBase) buildArchive("", defaultKey);
       getLanguageKeys(fullConfig).forEach((langKey) => {
-        buildArchive(getLanguageBasePath(fullConfig, langKey), langKey);
+        buildArchive(`${getLanguageBasePath(fullConfig, langKey)}${archiveDir}`, langKey);
       });
     } else {
-      buildArchive("");
+      buildArchive(archiveDir);
     }
 
     return result;

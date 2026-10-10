@@ -1,0 +1,188 @@
+/* 首页跟随文章宽度偏好（与归档页一致），本文件仅在首页加载 */
+.main-content {
+  max-width: calc(var(--article-max-width) + 3rem);
+}
+
+/* body 是弹性列、main-content 撑满剩余高度：首页主体以 auto 块外边距在导航与页脚之间垂直居中；
+   视口不够高时退化为普通文档流，顶部内容不会被裁出视口 */
+.main-content:has(> .home-page) {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-page {
+  --home-accent: var(--lavender);
+  --home-enter-duration: 700ms;
+  margin-block: auto;
+  padding: 1.25rem 1.5rem;
+}
+
+/* 内容靠栏左、限宽：标题与简介的行长保持在舒适阅读范围内 */
+.home-hero {
+  width: min(100%, 38rem);
+}
+
+/* 标题沿用归档 hero 的字号与字距，两页在同一位置呈现同一尺度的标题 */
+.home-hero__title {
+  margin: 0;
+  color: var(--title-text-color);
+  font-family: var(--article-font-family);
+  font-size: 3rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+
+  @media (min-width: 768px) {
+    font-size: 3.25rem;
+  }
+}
+
+.home-hero__intro {
+  margin: 1.5rem 0 0;
+  max-width: 34rem;
+  color: var(--sub-text-color);
+  font-family: var(--article-font-family);
+  font-size: var(--article-font-size);
+  font-weight: var(--article-font-weight);
+  line-height: var(--type-body-leading);
+  overflow-wrap: anywhere;
+}
+
+/* 简介内链接沿用正文链接的虚线下划线，hover 转实线并上强调色 */
+.home-intro__link {
+  color: var(--title-text-color);
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: color 140ms var(--ease-out);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--home-accent);
+    text-decoration-style: solid;
+  }
+}
+
+/* #region Links */
+
+.home-links {
+  display: grid;
+  gap: 0.25rem;
+  margin: 2.5rem 0 0;
+}
+
+/* 标签列 + 链接列，基线对齐；行间只靠留白分隔，不画分割线 */
+.home-links__row {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 0.25rem 1.25rem;
+  align-items: baseline;
+  padding-block: 0.35rem;
+}
+
+.home-links__label {
+  color: var(--sub-text-color);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.16em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.home-links__value {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  align-items: baseline;
+  margin: 0;
+  min-width: 0;
+}
+
+.home-links__link,
+.home-links__tag {
+  color: var(--title-text-color);
+  font-family: var(--article-font-family);
+  font-size: var(--article-font-size);
+  font-weight: var(--article-font-weight);
+  line-height: 1.4;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  transition: color 140ms var(--ease-out);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--home-accent);
+  }
+
+  /* 按下当帧上色（transition: none）：触屏没有 hover，这是点按到跳转之间唯一的即时确认 */
+  &:active {
+    color: var(--home-accent);
+    transition: none;
+  }
+}
+
+/* 标签沿用归档标签列表的 # 前缀：静息态只带一点强调色，hover 时整体跟随 */
+.home-links__tag::before {
+  content: "#";
+  margin-inline-end: 0.08em;
+  color: color-mix(in oklch, var(--home-accent) 70%, var(--sub-text-color));
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  transition: color 140ms var(--ease-out);
+}
+
+.home-links__tag:is(:hover, :focus-visible, :active)::before {
+  color: var(--home-accent);
+}
+
+:is(.home-intro__link, .home-links__link, .home-links__tag):focus-visible {
+  outline: auto;
+  outline-offset: 3px;
+  transition: none;
+}
+
+/* #endregion */
+
+/* 与归档页同一套入场：标题领先，简介与各行按 --i 以 60ms 间隔跟进；
+   .gnix-revealed 由 head 内联脚本在首帧前加上 */
+:root.gnix-revealed .home-page :is(.home-hero__title, .home-hero__intro, .home-links__row) {
+  animation: home-enter var(--home-enter-duration) var(--ease-out) backwards;
+  animation-delay: calc(min(var(--i, 0), 12) * 60ms);
+}
+
+@keyframes home-enter {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+}
+
+@keyframes home-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-links__row {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-hero__title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root.gnix-revealed .home-page :is(.home-hero__title, .home-hero__intro, .home-links__row) {
+    animation: home-fade 160ms var(--ease-out) backwards;
+    animation-delay: 0ms;
+  }
+}

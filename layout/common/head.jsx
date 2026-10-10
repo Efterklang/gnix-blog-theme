@@ -247,6 +247,7 @@ module.exports = class extends Component {
     const isArchiveLike = is_archive() || is_tag();
     const isStatusPage = page.status === true;
     const isPreferencesPage = page.preferences === true;
+    const isHomePage = page.home === true;
 
     const language = getPageLocale(page, config) || page.lang || page.language || config.language;
     const canonicalUrl = toAbsoluteUrl(page.canonical_url || page.canonical || page.i18n?.canonical || headCanonicalUrl, helper, config);
@@ -359,6 +360,7 @@ module.exports = class extends Component {
         {isArchiveLike && <link rel="stylesheet" href={url_for("/css/archive.css")} />}
         {isStatusPage && <link rel="stylesheet" href={url_for("/css/status.css")} />}
         {isPreferencesPage && <link rel="stylesheet" href={url_for("/css/preferences.css")} />}
+        {isHomePage && <link rel="stylesheet" href={url_for("/css/home.css")} />}
         <link rel="stylesheet" href={url_for("/css/responsive.css")} />
         <link rel="preload" href={url_for("/css/font/woff2/HomemadeApple.woff2")} as="font" type="font/woff2" crossorigin />
         <link rel="preconnect" href="https://fontsapi.zeoseven.com" crossorigin />
