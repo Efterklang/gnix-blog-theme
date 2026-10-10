@@ -186,10 +186,11 @@ function handleKeyDown(e) {
     return;
   }
 
-  // 命令面板（搜索 + 命令）；面板脚本尚未就绪时退回直接打开 popover
+  // 命令面板（搜索 + 命令）：脚本按需加载，就绪后再打开；加载器都不在时退回直接开 popover
   if (e.code === "KeyK") {
     e.preventDefault();
     if (window.gnixCommandPalette) window.gnixCommandPalette.open();
+    else if (window.gnixOpenCommandPalette) window.gnixOpenCommandPalette();
     else document.getElementById("command-palette")?.showPopover();
   }
 }

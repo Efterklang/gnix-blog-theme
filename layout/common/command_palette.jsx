@@ -126,17 +126,61 @@ module.exports = class extends Component {
       navigate: translate(helper, "palette.navigate", "Go to"),
     };
 
+    // 面板脚本（约 19 KB，含内联的 lucide 图标）不再随首屏加载：页面 load 后空闲时预取；
+    // 在此之前悬停 / 聚焦搜索按钮即开始加载，点击或 Cmd+K 则等脚本就绪再打开，
+    // 保证打开时 loadCommandPalette 已绑定（它只在之后的 toggle 事件里渲染列表）。
+    // 字体类命令要用到 preferences.js 的 window.gnixPreferences，一并触发其加载
+    const scriptUrl = helper.url_for("/js/command-palette.js");
     const js = `(function() {
-      function init() {
-        window.loadCommandPalette(${stringifyForScript(paletteConfig)}, ${stringifyForScript(translation)});
+      var config = ${stringifyForScript(paletteConfig)};
+      var translation = ${stringifyForScript(translation)};
+      var loading = null;
+      function load() {
+        if (!loading) {
+          window.gnixLoadPreferences?.();
+          loading = import(${stringifyForScript(scriptUrl)}).then(function() {
+            if (!window.gnixCommandPalette) window.loadCommandPalette(config, translation);
+          }).catch(function(error) {
+            loading = null;
+            console.warn("[gnix] Unable to load the command palette", error);
+          });
+        }
+        return loading;
+      }
+      function open(query) {
+        return load().then(function() {
+          if (window.gnixCommandPalette) window.gnixCommandPalette.open(query);
+        });
+      }
+      window.gnixLoadCommandPalette = load;
+      window.gnixOpenCommandPalette = open;
+      function schedule() {
+        document.querySelectorAll('[popovertarget="command-palette"]').forEach(function(trigger) {
+          trigger.addEventListener("pointerenter", load, { once: true, passive: true });
+          trigger.addEventListener("focus", load, { once: true });
+          // 拦下声明式的 popover 开关，改为脚本就绪后再打开
+          trigger.addEventListener("click", function(event) {
+            event.preventDefault();
+            open();
+          });
+        });
+        if (["#command-palette", "#insight-search"].includes(location.hash.trim())) {
+          open();
+          return;
+        }
+        var idle = function() {
+          (window.requestIdleCallback || function(fn) { setTimeout(fn, 250); })(load, { timeout: 3000 });
+        };
+        if (document.readyState === "complete") idle();
+        else window.addEventListener("load", idle, { once: true });
       }
       function runWhenActivated(callback) {
         (window.__gnixPrerender?.runWhenActivated || function(fn) { fn(); })(callback);
       }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() { runWhenActivated(init); }, { once: true });
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", function() { runWhenActivated(schedule); }, { once: true });
       } else {
-        runWhenActivated(init);
+        runWhenActivated(schedule);
       }
     })();`;
 
@@ -175,7 +219,6 @@ module.exports = class extends Component {
             </div>
           </div>
         </div>
-        <script type="module" src={helper.url_for("/js/command-palette.js")}></script>
         <script dangerouslySetInnerHTML={{ __html: js }}></script>
       </>
     );
