@@ -4,8 +4,18 @@ window.__CHANGELOG_DATA__ = [
     items: [
       {
         date: "10.11",
-        cn: ["新增独立首页：姓名、简短自我介绍与常用链接；归档列表迁至 /archive/"],
-        en: ["Add a dedicated home page with the name, a short introduction and key links; move the archive list to /archive/"],
+        cn: [
+          "新增独立首页：姓名、简短自我介绍与常用链接；归档列表迁至 /archive/",
+          "统计脚本、命令面板与偏好脚本改为页面空闲后加载；移除 homemade-apple 手写字体",
+          "导航 logo 改为菜单里的 HOME 项；文章扉页左上角增加返回归档的图标；桌面端导航栏中部不再拦截点击",
+          "文章扉页按极简风格重排为三层：顶栏 Back、中部文字与封面、底栏 comments / info 靠右，顶底各一条细线；文字块为日期（英文全称）、标题、摘要、标签的左对齐单列，封面在桌面占右 5 栏、窄屏置于文字上方；移除 Read 链接、摘要上方的装饰短线与三栏页脚",
+        ],
+        en: [
+          "Add a dedicated home page with the name, a short introduction and key links; move the archive list to /archive/",
+          "Load analytics, the command palette and the preferences script once the page is idle; remove the homemade-apple handwriting font",
+          "Replace the navbar logo with a HOME menu item; add a back-to-archive icon at the top-left of the article title page; the middle of the desktop navbar no longer blocks clicks",
+          "Restructure the article title page into three minimal bands: a Back bar on top, text and cover in the middle, and comments / info at the bottom right, with a hairline above and below; the text block is a left-aligned column of full-month date, title, excerpt and tags, and the cover takes the right five columns on desktop or sits above the text on narrow screens; remove the Read link, the decorative rule above the excerpt and the three-column footer",
+        ],
         category: "feature",
       },
       {

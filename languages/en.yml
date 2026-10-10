@@ -37,6 +37,7 @@ article:
   translation_llm_unreviewed: "LLM · unreviewed"
   toc: "Table of Contents"
   skip_to_content: "Skip to content"
+  back_to_archive: "Back to archive"
 code:
   copied: "Copied"
   copy_code: "Copy code"

@@ -24,30 +24,9 @@
     --article-intro-offset: calc(env(safe-area-inset-top) + 1rem);
   }
 
-  /* 紧凑版头的操作居中，并扩大手机端按钮命中区。 */
-  .article-hero-foot {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    gap: calc(var(--spacing) * 2);
-
-    /* 独立页面无版记，空元素不占一行留出空隙 */
-    .article-colophon:empty {
-      display: none;
-    }
-  }
-
-  .article-colophon,
-  .article-hero-actions {
+  /* 独立页面的标签随文字块居中 */
+  .article-hero:not(.article-hero-full) .article-colophon {
     justify-content: center;
-  }
-
-  .article-hero-actions {
-    gap: 1.5rem;
-
-    button {
-      padding: 0.75em 0.5em;
-      margin: -0.75em -0.5em;
-    }
   }
 
   .article-comment-popover,
@@ -242,12 +221,7 @@
     }
   }
 
-  /* burger 顶替 logo 常驻左侧；偏好/搜索常驻右侧动作区 */
-  #navbar-logo-link {
-    display: none;
-  }
-
-  /* 四宫格表示站点导航，与文章目录的列表图标区分。 */
+  /* 四宫格表示站点导航，与文章目录的列表图标区分。burger 常驻左侧；偏好/搜索常驻右侧动作区 */
   .navbar-burger {
     align-self: center;
     width: 48px;
@@ -349,6 +323,13 @@
     display: flex;
     padding: 0;
     flex-shrink: 0;
+    /* 中部可点穿：菜单容器撑满导航条中段却不接收指针，下方内容可直接点击；
+       指针只交给菜单项本身 */
+    pointer-events: none;
+  }
+
+  .navbar-menu .navbar-item {
+    pointer-events: auto;
   }
 
   .navbar-menu {
@@ -375,24 +356,23 @@
   }
 }
 
-/* Keep the desktop hit area and tab order, revealing links from the logo or menu.
+/* Keep the desktop hit area and tab order: links stay hoverable while invisible, so moving the
+   pointer over their own spot (top-left, where the logo used to sit) or over the actions capsule
+   reveals them; the empty middle of the bar no longer takes the pointer.
    Touch devices retain visible links because they cannot hover. */
 @media screen and (min-width: 1024px) and (hover: hover) and (pointer: fine) {
   .navbar-start .navbar-item {
     opacity: 0;
-    pointer-events: none;
     transition: opacity 160ms ease-out, color 160ms ease-out;
   }
 
   .navbar:is(:hover, :focus-within) .navbar-start .navbar-item {
     opacity: 1;
-    pointer-events: auto;
   }
 
   :root.gnix-revealed:has(.article-hero-full):not(.gnix-past-hero) .navbar:is(:hover, :focus-within) > .navbar-menu {
     opacity: 1;
     visibility: visible;
-    pointer-events: auto;
   }
 
   .navbar:focus-within .navbar-start .navbar-item {
