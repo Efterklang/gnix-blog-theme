@@ -148,7 +148,9 @@
 /* #endregion */
 
 /* 与归档页同一套入场：标题领先，简介与各行按 --i 以 60ms 间隔跟进；
-   .gnix-revealed 由 head 内联脚本在首帧前加上 */
+   .gnix-revealed 由 head 内联脚本在首帧前加上。
+   淡入意味着作为 LCP 元素的简介段落要等首帧之后才计入绘制（移动端模拟约多 2 s），
+   这是有意保留的视觉取舍 */
 :root.gnix-revealed .home-page :is(.home-hero__title, .home-hero__intro, .home-links__row) {
   animation: home-enter var(--home-enter-duration) var(--ease-out) backwards;
   animation-delay: calc(min(var(--i, 0), 12) * 60ms);

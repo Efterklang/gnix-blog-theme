@@ -53,9 +53,31 @@
     return { ...customFonts.families };
   }
 
+  // 预设字体来自第三方字体服务：只为启用了预设的读者预先建连，其余访客不付出这次握手
+  // （此前 head 对所有人写死 preconnect，未启用预设的页面被 Lighthouse 标为未使用的连接）
+  function preconnectPresetOrigins(ids, presets) {
+    if (typeof document === "undefined" || !document.head) return;
+    presets.forEach((preset) => {
+      if (!ids.includes(preset.id) || !preset.css) return;
+      var origin;
+      try {
+        origin = new URL(preset.css, window.location.href).origin;
+      } catch (_) {
+        return;
+      }
+      if (origin === window.location.origin || document.querySelector('link[rel="preconnect"][href="' + origin + '"]')) return;
+      var link = document.createElement("link");
+      link.rel = "preconnect";
+      link.href = origin;
+      link.crossOrigin = "anonymous";
+      document.head.appendChild(link);
+    });
+  }
+
   let presetLoader;
   function applyFontPresets(ids = [], presets = []) {
     if (!ids.length && !presetLoader) return;
+    preconnectPresetOrigins(ids, presets);
     presetLoader ||= import("/js/font-presets.js");
     presetLoader.then((module) => module.applyPresetFonts(ids, presets)).catch(() => {
       presetLoader = null;

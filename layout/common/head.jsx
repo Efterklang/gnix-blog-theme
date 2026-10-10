@@ -362,8 +362,7 @@ module.exports = class extends Component {
         {isPreferencesPage && <link rel="stylesheet" href={url_for("/css/preferences.css")} />}
         {isHomePage && <link rel="stylesheet" href={url_for("/css/home.css")} />}
         <link rel="stylesheet" href={url_for("/css/responsive.css")} />
-        <link rel="preload" href={url_for("/css/font/woff2/HomemadeApple.woff2")} as="font" type="font/woff2" crossorigin />
-        <link rel="preconnect" href="https://fontsapi.zeoseven.com" crossorigin />
+        {/* 字体服务的 preconnect 不再对所有人写死，改由启用了字体预设的读者按需建立（article-font-utils.js） */}
         {isArticleLike && <link rel="preload" as="style" href={url_for("/css/shiki/shiki.css")} onload="this.onload=null;this.rel='stylesheet'" />}
         {page.encrypt ? <link rel="stylesheet" href={url_for("/css/encrypt.css")} /> : null}
         <Plugins site={site} config={config} helper={helper} page={page} head={true} />

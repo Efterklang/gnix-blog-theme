@@ -17,7 +17,7 @@ const renderLinkIcon = (link) => {
 
 class Navbar extends Component {
   render() {
-    const { siteUrl, menu, links, preferencesTitle, searchTitle, menuTitle, tocTitle, isSearchEnabled } = this.props;
+    const { menu, links, preferencesTitle, searchTitle, menuTitle, tocTitle, isSearchEnabled } = this.props;
 
     return (
       <nav class="navbar">
@@ -29,9 +29,6 @@ class Navbar extends Component {
             <rect x="14" y="14" width="6" height="6" rx="1" />
           </svg>
         </button>
-        <a id="navbar-logo-link" href={siteUrl}>
-          ga.o
-        </a>
         <div class="navbar-menu" id="navbar-menu" popover="auto">
           {Object.keys(menu).length ? (
             <div class="navbar-start">
@@ -110,7 +107,6 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
   }
 
   return {
-    siteUrl: helper.localized_url_for("/", langKey),
     menu,
     links,
     preferencesTitle: __("preferences.title"),

@@ -8,7 +8,7 @@
   --font-serif: var(--font-symbols), serif;
   --font-sans-serif: system-ui, var(--font-symbols), sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", var(--font-symbols), monospace;
-  --font-handwritten: "Bradley Hand", "homemade-apple", XingKai SC, var(--font-symbols), cursive;
+  --font-handwritten: "Bradley Hand", XingKai SC, var(--font-symbols), cursive;
   --article-font-size: 1rem;
   --article-font-family: var(--font-sans-serif);
   /* Fluid Functionalism 的五档角色，标题比例适配博客的扉页与长文阅读。 */
@@ -295,7 +295,7 @@
     --teal: #1f7265;
     --blue: #2e598f;
     --lavender: #4e508e;
-    --title-text-color: #171717;
+    --title-text-color: #000;
     --sub-text-color: #404040;
     --surface0: #e5e5e5;
     --surface1: #d4d4d4;
@@ -1179,15 +1179,6 @@ hr {
 
 /* #endregion Nerd Font subsets */
 
-@font-face {
-  font-family: homemade-apple;
-  font-display: swap;
-  src:
-    local("Homemade Apple"),
-    local("HomemadeApple-Regular"),
-    url("font/woff2/HomemadeApple.woff2") format("woff2");
-}
-
 /* #endregion */
 
 body,
@@ -1280,17 +1271,6 @@ html {
   background: none;
   border: none;
   cursor: pointer;
-}
-
-#navbar-logo-link {
-  font-family: homemade-apple, var(--font-handwritten);
-  color: var(--sub-text-color);
-  display: flex;
-  align-items: center;
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
-  text-transform: lowercase;
-  padding: 0 0.9rem;
 }
 
 .navbar-item {
@@ -1396,8 +1376,8 @@ html {
   }
 }
 
-/* 文章首屏隐藏导航控件，桌面端保留 logo；与 TOC 共用 gnix-past-hero 状态，进入正文后淡入。
-   不改变布局，visibility 同步移除隐藏控件的键盘焦点；无 JS 时保持可用。 */
+/* 文章首屏隐藏全部导航控件（返回归档的入口由扉页左上角的图标承担）；与 TOC 共用 gnix-past-hero 状态，
+   进入正文后淡入。不改变布局，visibility 同步移除隐藏控件的键盘焦点；无 JS 时保持可用。 */
 :where(:root.gnix-revealed:has(.article-hero-full) .navbar) > :is(.navbar-burger, .navbar-actions) {
   transition:
     scale 420ms var(--glass-spring),
@@ -1406,7 +1386,7 @@ html {
     visibility var(--navbar-reveal-duration, 200ms);
 }
 
-:root.gnix-revealed:has(.article-hero-full):not(.gnix-past-hero) .navbar > :not(#navbar-logo-link) {
+:root.gnix-revealed:has(.article-hero-full):not(.gnix-past-hero) .navbar > * {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -1453,16 +1433,12 @@ html {
 .footer-credit,
 .footer-credit > a {
   font-size: 0.75rem;
-  font-weight: 400;
   margin: 0;
-  letter-spacing: 0.06em;
   color: inherit;
 }
 
 .footer-author {
-  font-family: homemade-apple, var(--font-handwritten);
-  color: var(--sub-text-color);
-  letter-spacing: 0.01em;
+  font-family: var(--font-handwritten);
 }
 
 .footer-meta {
