@@ -120,6 +120,13 @@ const COOKIE_CONSENT_STYLE = `
   color: var(--base);
 }
 
+@media (max-width: 768px) {
+  /* 手机端导航条固定在屏幕底部（62px 加安全区），横幅抬到它上方，不盖住 burger */
+  .gnix-cookie-consent {
+    bottom: calc(62px + env(safe-area-inset-bottom) + 0.75rem);
+  }
+}
+
 @media (max-width: 640px) {
   .gnix-cookie-consent {
     left: max(0.75rem, env(safe-area-inset-left));
