@@ -33,13 +33,15 @@ const STYLES = `
     margin-bottom: 0;
   }
 
+  /* 正文 .content 外还包着一层（扉页重构后的 .article-reading），所以这里一律用后代选择器；
+     只有真正含 side-note 的正文才放开 overflow，不影响其他文章的横向滚动容器 */
   @media screen and (min-width: 1280px) {
-    article.article > .content {
+    article.article .content:has(> side-note) {
       overflow: visible;
       display: flow-root;
     }
 
-    article.article > .content > side-note {
+    article.article .content > side-note {
       float: right;
       clear: right;
       box-sizing: border-box;
@@ -49,11 +51,11 @@ const STYLES = `
       font-size: 0.8em;
     }
 
-    article.article > .content.is-side-note-layout {
+    article.article .content.is-side-note-layout {
       position: relative;
     }
 
-    article.article > .content.is-side-note-layout > side-note {
+    article.article .content.is-side-note-layout > side-note {
       float: none;
       clear: none;
       position: absolute;
@@ -73,8 +75,9 @@ function injectStyles() {
   styleSheetInjected = true;
 }
 
+// 与样式表一致：.content 不是 article 的直接子元素，用后代选择器
 function getArticleContentBlocks() {
-  return document.querySelectorAll("article.article > .content");
+  return document.querySelectorAll("article.article .content");
 }
 
 function getSideNotes(content) {

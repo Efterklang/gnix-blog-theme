@@ -35,8 +35,6 @@ function getUiText(key, value) {
   const zh = isZhLocale();
   const messages = {
     imageCarousel: zh ? "图片轮播" : "Image carousel",
-    nextSlide: zh ? "下一张" : "Next slide",
-    previousSlide: zh ? "上一张" : "Previous slide",
     slide: zh ? `第 ${value} 张` : `Slide ${value}`,
     slideNavigation: zh ? "幻灯片导航" : "Slide navigation",
   };
@@ -51,12 +49,6 @@ function escapeHtml(value) {
 
 function escapeAttribute(value) {
   return escapeHtml(value).replace(/"/g, "&quot;");
-}
-
-/** 把玻璃按钮交给 glass-lens.js 补边缘折射（是否支持由它判断；模块未就绪时先排队，由它加载后统一补挂） */
-function registerGlassLens(elements) {
-  globalThis.__gnixGlassLensQueue ||= [];
-  for (const element of elements) globalThis.__gnixGlassLensQueue.push(element);
 }
 
 const STYLES = `
@@ -135,64 +127,6 @@ const STYLES = `
     pointer-events: none;
   }
 
-  /* 翻页按钮是压在照片上的透明玻璃圆（iOS 照片 App 的浮层按钮）：薄薄一层暗色保证白色
-     箭头的对比，模糊 + 轻微压暗弱化身后的照片，inset 高光勾出玻璃边缘；Chromium 下
-     glass-lens.js 经 --glass-lens 补上边缘折射。显隐走按钮自身的 opacity，
-     不挂在容器上，避免淡入期间成为 Backdrop Root */
-  .nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgb(0 0 0 / 0.18);
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.42),
-      inset 0 0 0 1px rgb(255 255 255 / 0.14),
-      0 6px 18px -6px rgb(0 0 0 / 0.45);
-    -webkit-backdrop-filter: blur(8px) saturate(var(--glass-saturate, 1)) brightness(var(--glass-brightness, 0.95));
-    backdrop-filter: var(--glass-lens,) blur(8px) saturate(var(--glass-saturate, 1)) brightness(var(--glass-brightness, 0.95));
-    color: white;
-    border: none;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: background-color 0.2s ease-out, opacity 0.2s ease-out, scale 420ms var(--glass-spring, ease-out);
-    z-index: 2;
-    padding: 0;
-  }
-
-  .nav svg {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-
-  .carousel:hover .nav,
-  .carousel:focus-within .nav {
-    opacity: 1;
-  }
-
-  .nav:hover {
-    background: rgb(0 0 0 / 0.3);
-  }
-
-  .nav:focus-visible {
-    opacity: 1;
-    outline: 2px solid #fff;
-    outline-offset: 2px;
-  }
-
-  .nav:active {
-    scale: 0.96;
-    transition-duration: 0.2s, 0.2s, 140ms;
-  }
-
-  .prev { left: 0.75rem; }
-  .next { right: 0.75rem; }
-
   .dots {
     display: flex;
     justify-content: center;
@@ -226,9 +160,6 @@ const STYLES = `
   }
 
 `;
-
-const CHEVRON_LEFT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>`;
-const CHEVRON_RIGHT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>`;
 
 class ImageCarousel extends HTMLElement {
   constructor() {
@@ -383,11 +314,6 @@ class ImageCarousel extends HTMLElement {
       })
       .join("");
 
-    const navHTML = multiSlide
-      ? `<button class="nav prev" aria-label="${getUiText("previousSlide")}">${CHEVRON_LEFT}</button>
-         <button class="nav next" aria-label="${getUiText("nextSlide")}">${CHEVRON_RIGHT}</button>`
-      : "";
-
     const dotsHTML = multiSlide
       ? `<div class="dots" role="tablist" aria-label="${getUiText("slideNavigation")}">
           ${this._images
@@ -400,7 +326,6 @@ class ImageCarousel extends HTMLElement {
       <div class="carousel" role="region" aria-label="${getUiText("imageCarousel")}" tabindex="0">
         <div class="stage">
           <div class="slides">${slidesHTML}</div>
-          ${navHTML}
         </div>
         ${dotsHTML}
       </div>
@@ -409,7 +334,6 @@ class ImageCarousel extends HTMLElement {
 
     this._slides = Array.from(this.shadowRoot.querySelectorAll(".slide"));
     this._dots = Array.from(this.shadowRoot.querySelectorAll(".dot"));
-    registerGlassLens(this.shadowRoot.querySelectorAll(".nav"));
   }
 
   // ─── navigation ────────────────────────────────────────────────────
@@ -492,9 +416,6 @@ class ImageCarousel extends HTMLElement {
   _setupListeners() {
     const root = this.shadowRoot;
     const carousel = root.querySelector(".carousel");
-
-    root.querySelector(".prev")?.addEventListener("click", (e) => this._userNav("prev", e.detail === 0 ? "keyboard" : "pointer"));
-    root.querySelector(".next")?.addEventListener("click", (e) => this._userNav("next", e.detail === 0 ? "keyboard" : "pointer"));
 
     root.querySelector(".dots")?.addEventListener("click", (e) => {
       const dot = e.target.closest(".dot");
