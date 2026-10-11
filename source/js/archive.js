@@ -1,10 +1,4 @@
 import { runWhenActivated } from "./main.js";
-import { initScrollReveal } from "./scroll-reveal.js";
-
-function initArchiveReveal() {
-  const page = document.querySelector(".archive-page");
-  if (page) initScrollReveal(page, page.querySelectorAll(".archive-hero, .archive-group__header, .archive-item"));
-}
 
 function initArchivePreview() {
   const page = document.querySelector(".archive-page");
@@ -177,6 +171,5 @@ function initArchivePreview() {
 }
 
 runWhenActivated(() => {
-  initArchiveReveal();
   initArchivePreview();
 });

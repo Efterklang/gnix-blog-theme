@@ -128,15 +128,15 @@ function getPostDateParts(postDate, dateXml, date) {
   };
 }
 
-function renderSeasonGroup({ posts, title, marker = "all", sectionId, order = 1, encryptedLabel, url_for, date_xml, date }) {
+function renderSeasonGroup({ posts, title, marker = "all", sectionId, encryptedLabel, url_for, date_xml, date }) {
   return (
     <section id={sectionId} class={`archive-group ${marker}`} aria-labelledby={`${sectionId}-title`}>
-      <h2 id={`${sectionId}-title`} class="archive-group__header archive-label" style={`--i:${order}`}>
+      <h2 id={`${sectionId}-title`} class="archive-group__header archive-label">
         {/* 单一 span 包住整段：h2 是 flex 容器，多个裸文字/数字节点会各自成 flex 项，
             文字段的行尾空格（如 "June 2026"）会被裁掉，基线对齐也需额外处理 */}
         <span>{renderLabelSegments(title)}</span>
       </h2>
-      {posts.map((post, index) => {
+      {posts.map((post) => {
         const postDate = getPostDateParts(post.date, date_xml, date);
         const excerpt = post.excerpt || null;
         const readMinutes = excerpt ? estimateReadMinutes(post._content) : 0;
@@ -151,7 +151,6 @@ function renderSeasonGroup({ posts, title, marker = "all", sectionId, order = 1,
             dateXml={postDate.xml}
             excerpt={excerpt}
             readTime={readMinutes ? `${readMinutes} min read` : null}
-            order={order + index + 1}
           />
         );
       })}
@@ -227,22 +226,18 @@ module.exports = class extends Component {
     let articleList;
     if (!page.year) {
       // 各分组纵向平铺，组间以 .archive-page 的 grid gap 留白分隔
-      let order = 1;
-      articleList = groupPostsBySeason(visiblePosts).map((group) => {
-        const section = renderSeasonGroup({
+      articleList = groupPostsBySeason(visiblePosts).map((group) =>
+        renderSeasonGroup({
           posts: group.posts,
           title: getSeasonGroupLabel(group),
           marker: group.season.toLowerCase(),
           sectionId: `archive-${group.season.toLowerCase()}-${group.startYear}`,
-          order,
           encryptedLabel,
           url_for,
           date_xml,
           date,
-        });
-        order += group.posts.length + 1;
-        return section;
-      });
+        }),
+      );
     } else {
       const season = page.month ? getSeason(page.month) : null;
       const marker = season ? season.toLowerCase() : "all";

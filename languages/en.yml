@@ -14,6 +14,8 @@ common:
   page:
     one: "Page"
     other: "Pages"
+home:
+  recent_writings: "Recent"
 navbar:
   menu: "Menu"
 article:

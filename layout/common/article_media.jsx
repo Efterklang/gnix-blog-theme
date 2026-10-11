@@ -12,15 +12,12 @@ function formatDate(date, dateXml) {
 
 module.exports = class extends Component {
   render() {
-    const { url, title, date, dateXml, excerpt, readTime, order, encrypted = false, encryptedLabel = "This article is encrypted" } = this.props;
+    const { url, title, date, dateXml, excerpt, readTime, encrypted = false, encryptedLabel = "This article is encrypted" } = this.props;
     const formattedDate = formatDate(date, dateXml);
 
     return (
-      <article class="archive-item" style={typeof order === "number" ? `--i:${order}` : null}>
+      <article class="archive-item">
         <a class={encrypted ? "archive-title archive-title--encrypted" : "archive-title"} href={url}>
-          <time class="archive-title__date" dateTime={dateXml || null}>
-            {formattedDate}
-          </time>
           <span class="archive-title__content">
             <span class="archive-title__text">{title}</span>
             {encrypted && (
@@ -45,6 +42,9 @@ module.exports = class extends Component {
               </svg>
             )}
           </span>
+          <time class="archive-title__date" dateTime={dateXml || null}>
+            {formattedDate}
+          </time>
         </a>
         {excerpt && (
           <div class="archive-popup" inert>

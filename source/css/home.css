@@ -49,6 +49,18 @@
   overflow-wrap: anywhere;
 }
 
+/* 简介为两段：第二段与第一段之间留一个段间距 */
+.home-hero__intro + .home-hero__intro {
+  margin-top: 0.75em;
+}
+
+/* 名字后的音标：衬线斜体与正文区分开，且不在中间折行 */
+.home-hero__ipa {
+  font-family: serif;
+  font-style: italic;
+  white-space: nowrap;
+}
+
 /* 简介内链接沿用正文链接的虚线下划线，hover 转实线并上强调色 */
 .home-intro__link {
   color: var(--title-text-color);
@@ -83,7 +95,9 @@
   padding-block: 0.35rem;
 }
 
-.home-links__label {
+.home-links__label,
+.home-recent__title {
+  margin: 0;
   color: var(--sub-text-color);
   font-family: var(--font-mono);
   font-size: 0.6875rem;
@@ -96,17 +110,23 @@
 .home-links__value {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 1rem;
+  /* 纵向只靠链接自身的内边距撑开，与近期列表同一节奏 */
+  gap: 0 1rem;
   align-items: baseline;
   margin: 0;
   min-width: 0;
 }
 
-.home-links__link,
-.home-links__tag {
+/* 列表里的链接（标签、近期条目、链接行）共用一套，以近期条目为准：
+   15px 级字号，上下 7px 内边距撑出行距；块级 + fit-content 让点击区只包住文字 */
+.home-list-link {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  padding-block: 0.4375rem;
   color: var(--title-text-color);
   font-family: var(--article-font-family);
-  font-size: var(--article-font-size);
+  font-size: calc(var(--article-font-size) * 0.9375);
   font-weight: var(--article-font-weight);
   line-height: 1.4;
   text-decoration: none;
@@ -126,7 +146,7 @@
 }
 
 /* 标签沿用归档标签列表的 # 前缀：静息态只带一点强调色，hover 时整体跟随 */
-.home-links__tag::before {
+.home-list-link--tag::before {
   content: "#";
   margin-inline-end: 0.08em;
   color: color-mix(in oklch, var(--home-accent) 70%, var(--sub-text-color));
@@ -135,14 +155,93 @@
   transition: color 140ms var(--ease-out);
 }
 
-.home-links__tag:is(:hover, :focus-visible, :active)::before {
+.home-list-link--tag:is(:hover, :focus-visible, :active)::before {
   color: var(--home-accent);
 }
 
-:is(.home-intro__link, .home-links__link, .home-links__tag):focus-visible {
+:is(.home-intro__link, .home-list-link, .home-recent__title-link):focus-visible {
   outline: auto;
   outline-offset: 3px;
   transition: none;
+}
+
+/* #endregion */
+
+/* #region Recent */
+
+/* 近期写作：与链接行共用同一栏格——标题（兼全部文章入口）占标签列，列表落在值列 */
+.home-recent {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  column-gap: 1.25rem;
+  align-items: baseline;
+  width: min(100%, 38rem);
+  margin-top: 2.5rem;
+}
+
+.home-recent__body {
+  min-width: 0;
+}
+
+/* Recent 标签本身即全部文章入口：hover / 按下时标签与箭头一起上强调色 */
+.home-recent__title-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  color: inherit;
+  text-decoration: none;
+  transition: color 140ms var(--ease-out);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--home-accent);
+  }
+
+  &:active {
+    color: var(--home-accent);
+    transition: none;
+  }
+}
+
+.home-recent__list {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 加密条目整体退为次级色 */
+.home-list-link--encrypted {
+  color: var(--sub-text-color);
+}
+
+/* 日期作为行内注脚跟在标题后：等宽小字、不折行，hover 时随链接微微上色 */
+.home-recent__date {
+  margin-inline-start: 0.5rem;
+  color: var(--sub-text-color);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+  transition: color 140ms var(--ease-out);
+
+  .home-list-link:is(:hover, :focus-visible, :active) & {
+    color: color-mix(in oklch, var(--home-accent) 72%, var(--sub-text-color));
+  }
+}
+
+.home-recent__lock {
+  display: inline-flex;
+  margin-inline-start: 0.4em;
+  vertical-align: middle;
+  color: var(--sub-text-color);
+  transition: color 140ms var(--ease-out);
+
+  .home-list-link:is(:hover, :focus-visible, :active) & {
+    color: var(--home-accent);
+  }
 }
 
 /* #endregion */
@@ -151,7 +250,7 @@
    .gnix-revealed 由 head 内联脚本在首帧前加上。
    淡入意味着作为 LCP 元素的简介段落要等首帧之后才计入绘制（移动端模拟约多 2 s），
    这是有意保留的视觉取舍 */
-:root.gnix-revealed .home-page :is(.home-hero__title, .home-hero__intro, .home-links__row) {
+:root.gnix-revealed .home-page :is(.home-hero__title, .home-hero__intro, .home-links__row, .home-recent__title, .home-recent__item) {
   animation: home-enter var(--home-enter-duration) var(--ease-out) backwards;
   animation-delay: calc(min(var(--i, 0), 12) * 60ms);
 }
@@ -174,6 +273,11 @@
     grid-template-columns: 1fr;
     gap: 0.15rem;
   }
+
+  .home-recent {
+    grid-template-columns: 1fr;
+    row-gap: 0.5rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -183,7 +287,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root.gnix-revealed .home-page :is(.home-hero__title, .home-hero__intro, .home-links__row) {
+  :root.gnix-revealed .home-page :is(.home-hero__title, .home-hero__intro, .home-links__row, .home-recent__title, .home-recent__item) {
     animation: home-fade 160ms var(--ease-out) backwards;
     animation-delay: 0ms;
   }

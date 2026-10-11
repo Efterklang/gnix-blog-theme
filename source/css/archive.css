@@ -9,7 +9,6 @@
   --archive-popup-open-delay: 140ms;
   --archive-popup-enter-duration: 160ms;
   --archive-popup-exit-duration: 125ms;
-  --archive-enter-duration: 700ms;
   position: relative;
   display: grid;
   /* 参考归档的 56px 分组留白；组内条目以 14px 间距保持紧凑。 */
@@ -32,33 +31,6 @@
   overflow-wrap: anywhere;
 }
 
-/* Apple's overlapping copy entrance, tightened for a reading index: the hero
-   leads by 150ms, then headers and rows follow one page-wide order at 60ms.
-   Bound the delay on tall viewports; content below the fold uses scroll reveal.
-   Only the title moves, leaving its fixed preview's anchor stable. */
-:root.gnix-revealed .archive-page :is(.archive-hero, .archive-group__header):not([data-scroll-reveal]),
-:root.gnix-revealed .archive-page .archive-item:not([data-scroll-reveal]) > .archive-title {
-  animation: archive-enter var(--archive-enter-duration) var(--ease-out) backwards;
-  animation-delay: calc(90ms + min(var(--i, 0), 12) * 60ms);
-}
-
-:root.gnix-revealed .archive-page .archive-hero:not([data-scroll-reveal]) {
-  animation-delay: 0ms;
-}
-
-@keyframes archive-enter {
-  from {
-    opacity: 0;
-    translate: 0 14px;
-  }
-}
-
-@keyframes archive-fade {
-  from {
-    opacity: 0;
-  }
-}
-
 /* #region Hero */
 
 /* The h1 itself: contains only the picker-trigger button. It anchors the
@@ -74,7 +46,7 @@
 
 .archive-hero__title {
   max-width: 100%;
-  /* 与季节标题、日期列共用起始对齐边（此前多出的 0.15rem 让大标题游离于共享边外） */
+  /* 与季节标题、列表条目共用起始对齐边（此前多出的 0.15rem 让大标题游离于共享边外） */
   padding-inline: 0 0.5rem;
   padding-block: 0;
   color: var(--title-text-color);
@@ -567,10 +539,9 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 /* #endregion */
 
 a.archive-title {
-  --archive-date-col: 2.75rem;
-  --archive-date-gap: 1rem;
+  --archive-date-gap: 0.75rem;
   display: grid;
-  grid-template-columns: var(--archive-date-col) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   /* 日期与标题共享首行基线：此前盒居中让两种字号的文字底边错开半个 x-height，
      标题折行时日期还会悬在多行中间；索引/账簿式的惯例是日期钉在首行 */
   align-items: baseline;
@@ -589,7 +560,6 @@ a.archive-title {
   transition: color 140ms var(--ease-out);
 
   @media (min-width: 640px) {
-    --archive-date-gap: 1.5rem;
     font-size: calc(var(--article-font-size) * 0.96875);
   }
 
@@ -661,32 +631,7 @@ a.archive-title:focus-visible > .archive-title__date {
   transition: none;
 }
 
-@media screen and (prefers-reduced-motion: no-preference) {
-  /* Reveal only the title inside each stable anchor. The item and its fixed
-     preview keep their geometry and stacking while the page scrolls. */
-  :is(.archive-hero, .archive-group__header)[data-scroll-reveal="pending"],
-  .archive-item[data-scroll-reveal="pending"] > .archive-title {
-    opacity: 0;
-    translate: 0 var(--scroll-reveal-distance);
-  }
-
-  :is(.archive-hero, .archive-group__header)[data-scroll-reveal="visible"],
-  .archive-item[data-scroll-reveal="visible"] > .archive-title {
-    transition:
-      opacity var(--scroll-reveal-duration) var(--ease-out),
-      translate var(--scroll-reveal-duration) var(--ease-out),
-      color 140ms var(--ease-out);
-    transition-delay: var(--scroll-reveal-delay, 0ms), var(--scroll-reveal-delay, 0ms), 0ms;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  :root.gnix-revealed .archive-page :is(.archive-hero, .archive-group__header):not([data-scroll-reveal]),
-  :root.gnix-revealed .archive-page .archive-item:not([data-scroll-reveal]) > .archive-title {
-    animation: archive-fade 160ms var(--ease-out) backwards;
-    animation-delay: 0ms;
-  }
-
   .archive-popup {
     --popup-hidden-shift: 0px;
   }

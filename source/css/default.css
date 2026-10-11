@@ -296,7 +296,8 @@
     --blue: #2e598f;
     --lavender: #4e508e;
     --title-text-color: #000;
-    --sub-text-color: #404040;
+    /* 纯白底上 #404040 偏重：退到 #666666，对比度 5.7:1，小字仍满足 AA */
+    --sub-text-color: #666666;
     --surface0: #e5e5e5;
     --surface1: #d4d4d4;
     --overlay0: #a6a6a6;
