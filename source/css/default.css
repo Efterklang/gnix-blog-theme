@@ -1376,7 +1376,7 @@ html {
   }
 }
 
-/* 文章首屏隐藏全部导航控件（返回归档的入口由扉页左上角的图标承担）；与 TOC 共用 gnix-past-hero 状态，
+/* 文章首屏隐藏全部导航控件（返回归档的入口由扉页底栏的 Back 承担）；与 TOC 共用 gnix-past-hero 状态，
    进入正文后淡入。不改变布局，visibility 同步移除隐藏控件的键盘焦点；无 JS 时保持可用。 */
 :where(:root.gnix-revealed:has(.article-hero-full) .navbar) > :is(.navbar-burger, .navbar-actions) {
   transition:

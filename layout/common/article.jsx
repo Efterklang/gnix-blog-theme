@@ -26,7 +26,7 @@ module.exports = class extends Component {
     const fullHero = isPost;
     // 日期固定英文全称格式（August 20, 2026），不随站点语言切换
     const createdDate = isPost && page.date ? page.date.clone().locale("en").format("MMMM D, YYYY") : null;
-    // 扉页期间导航条整体隐藏（手机端导航还在屏幕底部），Back 是不滚动就能回到归档的入口
+    // 扉页期间导航条整体隐藏（手机端导航还在屏幕底部），底栏的 Back 是不滚动就能回到归档的入口
     const archiveUrl = helper.localized_url_for(config.archive_generator?.path || "archive", helper.language_key(page));
     const backLabel = translate(helper, "article.back_to_archive", "Back to archive");
 
@@ -37,14 +37,6 @@ module.exports = class extends Component {
         <article class={`article${"direction" in page ? ` ${page.direction}` : ""}`}>
           <div class={fullHero ? "article-intro" : null}>
             <header class={`article-hero${fullHero ? " article-hero-full" : ""}`}>
-              {/* 顶栏：扉页期间导航条整体隐藏，Back 是不滚动就能回到归档的入口 */}
-              {fullHero && (
-                <div class="article-hero-nav">
-                  <a class="article-hero-back" href={archiveUrl} title={backLabel} aria-label={backLabel}>
-                    Back
-                  </a>
-                </div>
-              )}
               {/* 中部：文字与封面——窄屏封面在上，桌面由网格放到右页 */}
               <div class="article-hero-main">
                 {fullHero && cover && <ArticleCover page={page} cover={cover} helper={helper} />}
@@ -74,9 +66,19 @@ module.exports = class extends Component {
                   ) : null}
                 </div>
               </div>
-              {/* 底栏：comments / info 靠右 */}
+              {/* 底栏：back / comments / info 成组靠右 */}
               <div class="article-hero-foot">
                 <div class="article-hero-actions">
+                  {fullHero && (
+                    <Fragment>
+                      <a class="article-hero-back" href={archiveUrl} title={backLabel} aria-label={backLabel}>
+                        Back
+                      </a>
+                      <span class="meta-separator" aria-hidden="true">
+                        /
+                      </span>
+                    </Fragment>
+                  )}
                   {hasComment && (
                     <Fragment>
                       <button type="button" popovertarget="article-comment-popover" aria-label={commentsLabel} title={commentsLabel}>

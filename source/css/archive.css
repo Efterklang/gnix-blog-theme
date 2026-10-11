@@ -69,7 +69,7 @@
   min-width: 0;
   max-width: 100%;
   font: inherit;
-  padding: 1.35rem 0 0;
+  padding: 1.35rem 0 1rem;
 }
 
 .archive-hero__title {
@@ -312,9 +312,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   padding: 0.42rem 0.48rem;
   border-radius: 4px;
   color: var(--title-text-color);
-  font-family: var(--font-serif);
   font-size: 1rem;
-  font-style: italic;
   font-synthesis: none;
   line-height: 1.15;
   text-decoration: none;

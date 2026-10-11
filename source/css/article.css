@@ -1025,9 +1025,9 @@ a strong {
   margin-inline: 0.5em;
 }
 
-/* 扉页分三层：顶栏（Back）、中部（文字与封面，在剩余高度里居中）、
-   底栏（上有细线，comments / info 靠右）。独立页面没有顶栏，中部文字居中。
-   文字块内的间距逐级放大：日期→标题 1rem、标题→摘要 1.5rem、摘要→标签 2rem。 */
+/* 扉页分两段：中部（文字与封面，在剩余高度里居中）、底栏（back / comments / info
+   成组靠右，其上一条细线只占页面宽度的 10%，右端对齐 info）。独立页面没有 Back，
+   中部文字居中。文字块内的间距逐级放大：日期→标题 1rem、标题→摘要 1.5rem、摘要→标签 2rem。 */
 .article-hero {
   display: flex;
   flex-direction: column;
@@ -1035,48 +1035,21 @@ a strong {
   padding: calc(var(--spacing) * 6) 0 calc(var(--spacing) * 3);
 }
 
-/* 满高首屏由 article-intro 撑高，顶栏贴上沿、底栏贴下沿 */
+/* 满高首屏由 article-intro 撑高，中部在剩余高度里居中、底栏贴下沿 */
 .article-hero-full {
   flex: 1;
   box-sizing: border-box;
   padding: 0 0 1.5rem;
 }
 
-/* 顶栏与底栏共用一种小号等宽字 */
-.article-hero-nav,
+/* 底栏的小号等宽字 */
 .article-hero-foot {
   display: flex;
   align-items: center;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
   line-height: 1;
   color: var(--sub-text-color);
-}
-
-.article-hero-foot {
+  position: relative;
   justify-content: flex-end;
-  padding-top: 1rem;
-  border-top: 1px solid var(--surface0);
-}
-
-/* 负 margin 抵消 padding：视觉位置不变，命中区扩大到 44px 高 */
-.article-hero-back {
-  display: inline-flex;
-  align-items: center;
-  padding: 1rem 0.75rem;
-  margin: -1rem -0.75rem;
-  color: inherit;
-  text-decoration: none;
-  transition: color 220ms ease;
-
-  &:hover {
-    color: var(--title-text-color);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--lavender);
-    outline-offset: 2px;
-  }
 }
 
 .article-hero-actions {
@@ -1088,14 +1061,20 @@ a strong {
     margin-inline: 0;
   }
 
-  button {
+  /* Back 是链接、comments / info 是按钮，同一排小字共用命中区与按压反馈。
+     负 margin 抵消 padding：视觉位置不变，命中区扩大到 44px 高 */
+  :is(a, button) {
+    display: inline-flex;
+    align-items: center;
     padding: 1rem 0.5rem;
     margin: -1rem -0.5rem;
     border: none;
     background: none;
     cursor: pointer;
-    font: inherit;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
     color: inherit;
+    text-transform: capitalize;
     transition:
       color 220ms ease,
       scale 120ms var(--ease-out);
