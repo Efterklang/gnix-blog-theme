@@ -9,7 +9,7 @@
   --font-sans-serif: system-ui, var(--font-symbols), sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", var(--font-symbols), monospace;
   --font-handwritten: "Bradley Hand", XingKai SC, var(--font-symbols), cursive;
-  --article-font-size: 1rem;
+  --article-font-size: 0.9375rem;
   --article-font-family: var(--font-sans-serif);
   /* Fluid Functionalism 的五档角色，标题比例适配博客的扉页与长文阅读。 */
   --font-weight-regular: 400;
@@ -49,19 +49,19 @@
   --scroll-reveal-distance: 8px;
 
   &[data-article-font-size="small"] {
-    --article-font-size: 0.875rem;
+    --article-font-size: 0.8125rem;
   }
 
   &[data-article-font-size="medium-small"] {
-    --article-font-size: 0.9375rem;
+    --article-font-size: 0.875rem;
   }
 
   &[data-article-font-size="medium-large"] {
-    --article-font-size: 1.0625rem;
+    --article-font-size: 1rem;
   }
 
   &[data-article-font-size="large"] {
-    --article-font-size: 1.125rem;
+    --article-font-size: 1.0625rem;
   }
 
   &[data-article-font-family="sans-serif"] {
