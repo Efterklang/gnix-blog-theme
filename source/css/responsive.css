@@ -356,36 +356,6 @@
   }
 }
 
-/* Keep the desktop hit area and tab order: links stay hoverable while invisible, so moving the
-   pointer over their own spot (top-left, where the logo used to sit) or over the actions capsule
-   reveals them; the empty middle of the bar no longer takes the pointer.
-   Touch devices retain visible links because they cannot hover. */
-@media screen and (min-width: 1024px) and (hover: hover) and (pointer: fine) {
-  .navbar-start .navbar-item {
-    opacity: 0;
-    transition: opacity 160ms ease-out, color 160ms ease-out;
-  }
-
-  .navbar:is(:hover, :focus-within) .navbar-start .navbar-item {
-    opacity: 1;
-  }
-
-  :root.gnix-revealed:has(.article-hero-full):not(.gnix-past-hero) .navbar:is(:hover, :focus-within) > .navbar-menu {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .navbar:focus-within .navbar-start .navbar-item {
-    transition: none;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .navbar-start .navbar-item {
-      transition: none;
-    }
-  }
-}
-
 @media screen and (min-width: 1280px) {
   /* Side note: float aside into the right margin so it doesn't squeeze .content */
   .content {

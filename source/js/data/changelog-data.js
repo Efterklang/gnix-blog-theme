@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "10.15",
+        cn: [
+          "首页改为整屏分页：首屏只留标题与简介，话题与近期写作同占其后一屏、页尾直接落在该屏底部并逐页吸附，链接行改单列排布；桌面端导航链接不再靠悬停浮现",
+        ],
+        en: [
+          "Turn the home page into full-screen pages: the opening screen holds only the title and intro, topics and recent writings share the next screen with the footer at its bottom and page-by-page snapping, the link rows become single-column, and the desktop nav links are always visible",
+        ],
+        category: "uiux",
+      },
+      {
         date: "10.11",
         cn: [
           "新增独立首页：姓名、简短自我介绍与常用链接；归档列表迁至 /archive/",

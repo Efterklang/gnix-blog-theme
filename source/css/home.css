@@ -3,23 +3,66 @@
   max-width: calc(var(--article-max-width) + 3rem);
 }
 
-/* body 是弹性列、main-content 撑满剩余高度：首页主体以 auto 块外边距在导航与页脚之间垂直居中；
-   视口不够高时退化为普通文档流，顶部内容不会被裁出视口 */
+/* 首页的纵向留白交给每一屏自己（见 .home-page > section）：主内容只保留左右内边距，
+   首屏起点因此正好落在吸顶导航条的下沿，与 .home-hero 的吸附偏移一致 */
 .main-content:has(> .home-page) {
-  display: flex;
-  flex-direction: column;
+  padding-block: 0;
+}
+
+/* 首页按整屏的「页」呈现：首屏是 hero，话题与近期写作同占其后的整屏，滚动逐页吸附 */
+:root:has(.home-page) {
+  scroll-snap-type: y mandatory;
+  /* 页尾高度：由 home.js 量取后写回；未启用时用偏小的估计值兜底。
+     宁可略小也不能偏大——偏大会让第二屏的吸附落点落到可滚动范围之外 */
+  --home-footer-space: 8rem;
 }
 
 .home-page {
   --home-accent: var(--lavender);
   --home-enter-duration: 700ms;
-  margin-block: auto;
-  padding: 1.25rem 1.5rem;
+  /* 首屏之上被吸顶导航条占去的高度；≤1023px 导航条移到底部，值为 0 */
+  --home-navbar-space: calc(var(--navbar-height) + env(safe-area-inset-top));
+  /* 每屏内容与屏幕上下边缘之间的最小边界 */
+  --home-edge-gap: 3rem;
+  /* 页面内容距视口顶端的距离：取视口高度的一档，视觉重心比几何中心更靠上；
+     各屏共用同一档，翻页时内容停在同一条水平线上。桌面视口高、留白足，取更大的一档 */
+  --home-content-top: calc(var(--home-navbar-space) + max(var(--home-edge-gap), 26svh));
+  padding-inline: 1.5rem;
 }
 
-/* 内容靠栏左、限宽：标题与简介的行长保持在舒适阅读范围内 */
-.home-hero {
+/* 每一屏都是一页：内容自页首那一档起向下排，滚动必须落在页首 */
+.home-page > section {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   width: min(100%, 38rem);
+  min-height: 100svh;
+  padding-top: var(--home-content-top);
+  padding-bottom: var(--home-edge-gap);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* 首屏自导航条下沿开始：扣掉导航条已占的那一档，与后续屏内容同一水平线。
+   吸附偏移取导航条高度，初始落点仍是页面 0，不会一加载就往上跳 */
+.home-page > .home-hero {
+  scroll-margin-top: var(--home-navbar-space);
+  min-height: calc(100svh - var(--home-navbar-space));
+  padding-top: calc(var(--home-content-top) - var(--home-navbar-space));
+}
+
+/* 第二屏：话题与近期写作同屏，两块之间只以留白分隔。
+   高度扣掉页尾，页尾因此直接落在这一屏的底部，不必再占一屏 */
+.home-page > .home-index {
+  gap: 2.5rem;
+  min-height: calc(100svh - var(--home-footer-space));
+}
+
+/* 页尾的落点通常与第二屏重合（第二屏已按页尾高度让位）；保留它作为兜底：
+   第二屏的内容长过一屏时，页尾仍有一个可到达的落点，mandatory 不会把它困在折叠线外 */
+:root:has(.home-page) .footer {
+  scroll-snap-align: end;
+  scroll-margin-bottom: var(--article-footer-offset, 0px);
 }
 
 /* 标题沿用归档 hero 的字号与字距，两页在同一位置呈现同一尺度的标题 */
@@ -80,19 +123,18 @@
 
 /* #region Links */
 
-.home-links {
+/* 话题：标签在上、链接在下，单列排布 */
+.home-links__list {
   display: grid;
-  gap: 0.25rem;
-  margin: 2.5rem 0 0;
+  gap: 1.75rem;
+  margin: 0;
+  padding: 0;
 }
 
-/* 标签列 + 链接列，基线对齐；行间只靠留白分隔，不画分割线 */
 .home-links__row {
   display: grid;
-  grid-template-columns: 8.5rem minmax(0, 1fr);
-  gap: 0.25rem 1.25rem;
-  align-items: baseline;
-  padding-block: 0.35rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.25rem;
 }
 
 .home-links__label,
@@ -169,14 +211,11 @@
 
 /* #region Recent */
 
-/* 近期写作：与链接行共用同一栏格——标题（兼全部文章入口）占标签列，列表落在值列 */
+/* 近期写作：标题（兼全部文章入口）在上、列表在下，与话题同一单列节奏 */
 .home-recent {
-  display: grid;
-  grid-template-columns: 8.5rem minmax(0, 1fr);
-  column-gap: 1.25rem;
-  align-items: baseline;
-  width: min(100%, 38rem);
-  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .home-recent__body {
@@ -268,15 +307,16 @@
   }
 }
 
-@media (max-width: 640px) {
-  .home-links__row {
-    grid-template-columns: 1fr;
-    gap: 0.15rem;
+@media (max-width: 1023px) {
+  .home-page {
+    /* 导航条常驻屏幕底部，首屏之上没有它占位；内容上沿补回状态栏安全区 */
+    --home-navbar-space: 0px;
+    --home-content-top: calc(env(safe-area-inset-top) + clamp(var(--home-edge-gap), 20svh, 12rem));
   }
 
-  .home-recent {
-    grid-template-columns: 1fr;
-    row-gap: 0.5rem;
+  /* 底部工具条浮在内容之上：第二屏连同页尾再让出它的高度 */
+  .home-page > .home-index {
+    min-height: calc(100svh - var(--home-footer-space) - var(--article-footer-offset, 0px));
   }
 }
 

@@ -185,40 +185,44 @@ module.exports = class extends Component {
         <section class="home-hero">
           {titleNode}
           {introNode}
-          {rowNodes.length ? <dl class="home-links">{rowNodes}</dl> : null}
         </section>
-        {recentPosts.length ? (
-          <section class="home-recent" aria-labelledby="home-recent-title">
-            <h2 id="home-recent-title" class="home-recent__title" style={`--i:${order++}`}>
-              <a class="home-recent__title-link" href={archiveUrl}>
-                {recentTitle}
-                <Icon name="arrow-up-right" size={12} />
-              </a>
-            </h2>
-            <div class="home-recent__body">
-              <ol class="home-recent__list">
-                {recentPosts.map((post) => {
-                  const postDate = getPostDateParts(post.date, helper.date_xml, helper.date);
-                  const encrypted = Boolean(post.encrypt || post.password || post.password === 0);
-                  return (
-                    <li key={post.path} class="home-recent__item" style={`--i:${order++}`}>
-                      {/* 一行文本：标题在前、日期在后；加密条目在标题后带一把小锁 */}
-                      <a class={encrypted ? "home-list-link home-list-link--encrypted" : "home-list-link"} href={helper.url_for(post.link || post.path)}>
-                        {post.title}
-                        {encrypted && (
-                          <span class="home-recent__lock" role="img" aria-label={encryptedLabel}>
-                            <Icon name="lock" size={12} />
-                          </span>
-                        )}{" "}
-                        <time class="home-recent__date" dateTime={postDate.xml}>
-                          {postDate.label}
-                        </time>
-                      </a>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
+        {rowNodes.length || recentPosts.length ? (
+          <section class="home-index">
+            {rowNodes.length ? <dl class="home-links__list">{rowNodes}</dl> : null}
+            {recentPosts.length ? (
+              <div class="home-recent">
+                <h2 id="home-recent-title" class="home-recent__title" style={`--i:${order++}`}>
+                  <a class="home-recent__title-link" href={archiveUrl}>
+                    {recentTitle}
+                    <Icon name="arrow-up-right" size={12} />
+                  </a>
+                </h2>
+                <div class="home-recent__body">
+                  <ol class="home-recent__list">
+                    {recentPosts.map((post) => {
+                      const postDate = getPostDateParts(post.date, helper.date_xml, helper.date);
+                      const encrypted = Boolean(post.encrypt || post.password || post.password === 0);
+                      return (
+                        <li key={post.path} class="home-recent__item" style={`--i:${order++}`}>
+                          {/* 一行文本：标题在前、日期在后；加密条目在标题后带一把小锁 */}
+                          <a class={encrypted ? "home-list-link home-list-link--encrypted" : "home-list-link"} href={helper.url_for(post.link || post.path)}>
+                            {post.title}
+                            {encrypted && (
+                              <span class="home-recent__lock" role="img" aria-label={encryptedLabel}>
+                                <Icon name="lock" size={12} />
+                              </span>
+                            )}{" "}
+                            <time class="home-recent__date" dateTime={postDate.xml}>
+                              {postDate.label}
+                            </time>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </div>
+              </div>
+            ) : null}
           </section>
         ) : null}
       </main>
