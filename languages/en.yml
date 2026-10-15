@@ -121,6 +121,7 @@ preferences:
   decrease_spacing: "Tighten spacing"
   increase_spacing: "Loosen spacing"
   color_palette: "Color Palette"
+  palette_short: "Palette"
   language: "Language"
   language_unavailable: "Not translated"
   open_settings: "Settings"

@@ -1975,7 +1975,7 @@ input.command-palette-input {
 /* #region Preference quick popup
    一块完整的玻璃面板：标题与全局操作、阅读调节、带标签的选项。 */
 .preference-popup {
-  --quick-popup-padding: 12px;
+  --quick-popup-padding: 14px;
   --quick-max-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 2rem);
   --quick-motion-duration: 160ms;
   --quick-closed-offset: 0 -6px;
@@ -1985,11 +1985,11 @@ input.command-palette-input {
   right: 0.9rem;
   z-index: 1000;
   box-sizing: border-box;
-  width: min(23rem, calc(100vw - 1.8rem));
+  width: min(22rem, calc(100vw - 1.8rem));
   height: auto;
   max-height: var(--quick-max-height);
   margin: 0;
-  padding: var(--quick-popup-padding);
+  padding: 0;
   overflow: visible;
   border: 0;
   background: transparent;
@@ -2026,114 +2026,163 @@ input.command-palette-input {
 .preference-popup::backdrop { background: transparent; }
 .preference-popup::-webkit-scrollbar { display: none; }
 
+/* 滚动容器：四周留出卡片投影的空间，否则滚动容器会把卡片的边切掉 */
 .preference-quick {
   --quick-gap: 0.5rem;
-  --quick-control-height: 2.75rem;
-  --quick-field: color-mix(in oklab, var(--title-text-color) 5%, transparent);
-  --quick-border: color-mix(in oklab, var(--title-text-color) 7%, transparent);
-  --glass-radius: 24px;
-  --glass-surface: var(--glass-fill-strong);
-  --glass-elevation: var(--glass-shadow-lg);
-  display: grid;
   box-sizing: border-box;
-  gap: 0.75rem;
-  min-width: 0;
-  max-height: calc(var(--quick-max-height) - 2 * var(--quick-popup-padding));
+  max-height: var(--quick-max-height);
   overflow: auto;
   scrollbar-width: none;
-  padding: 0.75rem;
+  padding: var(--quick-popup-padding);
   font-family: var(--font-sans-serif);
-  /* 淡出玻璃本身，避免透明父层建立 backdrop root、截断后方页面的折射。 */
-  opacity: 0;
-  transition: opacity var(--quick-motion-duration) var(--ease-out);
 }
 
-.preference-popup:popover-open .preference-quick { opacity: 1; }
-
-@starting-style {
-  .preference-popup:popover-open .preference-quick { opacity: 0; }
-}
-
-.preference-quick__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  min-width: 0;
-  padding-left: 0.25rem;
-}
-
+/* 标题只留给读屏：每张卡自己带标签 */
 .preference-quick__title {
-  color: var(--title-text-color);
-  font-size: 1rem;
-  font-weight: var(--font-weight-semibold);
-  line-height: 1.25;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-.preference-quick__actions {
-  display: flex;
-  flex-shrink: 0;
-  gap: 0.25rem;
+/* 控制中心式网格：四列。宽条占两列，字体是两行两列的大方块，
+   圆形按钮各占一列，语言通栏收尾 */
+.preference-quick__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--quick-gap);
 }
 
-.preference-quick__action {
+/* 卡片：真玻璃——每张都挂 data-glass-lens，边缘折射由 glass-lens.js 烘贴图，
+   与导航、目录、命令面板是同一套材质 */
+.preference-quick__tile {
+  --glass-radius: 18px;
+  --glass-surface: var(--glass-fill-strong);
+  --glass-elevation: var(--glass-shadow);
+  min-width: 0;
+  min-height: 3.25rem;
+  color: var(--sub-text-color);
+}
+
+.preference-quick__tile--wide { grid-column: span 2; }
+.preference-quick__tile--square { grid-column: span 2; grid-row: span 2; }
+.preference-quick__tile--full { grid-column: 1 / -1; }
+
+/* 圆形按钮：玻璃开关与设置 */
+.preference-quick__circle {
+  --glass-radius: 999px;
+  --glass-surface: var(--glass-fill-strong);
+  --glass-elevation: var(--glass-shadow);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 auto;
-  width: var(--quick-control-height);
-  height: var(--quick-control-height);
+  justify-self: center;
+  width: min(100%, 3.25rem);
+  aspect-ratio: 1;
   padding: 0;
   border: 0;
-  border-radius: 50%;
-  background: transparent;
   color: var(--sub-text-color);
   text-decoration: none;
   cursor: pointer;
 }
 
 .preference-quick__toggle[aria-checked="true"] {
-  background: color-mix(in oklab, var(--blue) 12%, transparent);
   color: var(--blue);
 }
 
-/* 标签解释三个调节器的作用；每组按钮保持相同的列宽和点击高度。 */
-.preference-quick__steppers {
+/* 卡内格子：模式与字体共用。选中是一块实心强调色，像控制中心里点亮的磁贴 */
+.preference-quick__modes,
+.preference-quick__fonts {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-  gap: var(--quick-gap);
+  gap: 3px;
+  padding: 3px;
 }
 
-.preference-quick__stepper {
+.preference-quick__modes {
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+}
+
+.preference-quick__fonts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
+.preference-quick__option {
   display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 0.2rem;
   min-width: 0;
-  padding-top: 0.5rem;
-  border-radius: 12px;
-  background: var(--quick-field);
-  box-shadow: inset 0 0 0 1px var(--quick-border);
+  padding: 0.3rem 0.1rem;
+  border: 0;
+  border-radius: 15px;
+  color: inherit;
+  background: transparent;
+  font: var(--font-weight-semibold) 0.65625rem / 1.15 var(--font-sans-serif);
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+
+  /* 选中：一块更实的浅色磁贴，只掺一点强调色。像控制中心那样把颜色留给图标，
+     整块铺满强调色太抢眼 */
+  &.is-active {
+    color: var(--title-text-color);
+    background: color-mix(in oklab, var(--base) 82%, var(--lavender) 18%);
+  }
+}
+
+/* 语言两格里文字就是内容，比图标格大一号；未翻译的语言格不可点 */
+.preference-quick__option--text {
+  padding-inline: 0.4rem;
+  font-size: 0.75rem;
+}
+
+.preference-quick__option:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* 「Aa」按各自的字体族渲染，切换前就能看到字形 */
+.preference-quick__font-preview {
+  font-family: var(--quick-font-preview-family, var(--font-sans-serif));
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.preference-quick__option[data-font="serif"] { --quick-font-preview-family: var(--font-serif); }
+.preference-quick__option[data-font="mono"] { --quick-font-preview-family: var(--font-mono); }
+.preference-quick__option[data-font="handwriting"] { --quick-font-preview-family: var(--font-handwritten); }
+
+/* 调节器：标签在左，减号加号成一小段分段控件 */
+.preference-quick__stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.35rem 0.35rem 0.35rem 0.8rem;
 }
 
 .preference-quick__step-label {
-  padding-inline: 0.25rem;
-  color: var(--sub-text-color);
-  font-size: 0.75rem;
-  line-height: 1.25;
-  text-align: center;
+  min-width: 0;
+  color: var(--title-text-color);
+  font: var(--font-weight-semibold) 0.8125rem / 1.2 var(--font-sans-serif);
 }
 
 .preference-quick__step-controls {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-self: end;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.1rem;
 }
 
 .preference-quick__step-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 0;
-  height: var(--quick-control-height);
+  width: 2rem;
+  height: 2rem;
   padding: 0;
   border: 0;
   border-radius: 10px;
@@ -2142,52 +2191,43 @@ input.command-palette-input {
   cursor: pointer;
 
   &:disabled {
-    opacity: 0.35;
+    opacity: 0.3;
     cursor: default;
   }
 }
 
-.preference-quick__selects {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--quick-gap);
-}
-
+/* 下拉：一行放标签与取值，取值右对齐、撑满卡片高度 */
 .preference-quick__field {
   position: relative;
-  min-width: 0;
-  border-radius: 12px;
-  background: var(--quick-field);
-  box-shadow: inset 0 0 0 1px var(--quick-border);
-
-  &:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 0.7rem 0 0.8rem;
 }
 
 .preference-quick__field-label {
-  position: absolute;
-  top: 0.6rem;
-  left: 0.75rem;
-  right: 0.75rem;
   color: var(--sub-text-color);
   font-size: 0.75rem;
-  line-height: 1;
+  line-height: 1.2;
   pointer-events: none;
 }
 
 .preference-quick__select {
   display: block;
+  align-self: stretch;
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
-  height: 4rem;
-  padding: 1.5rem 1.8rem 0.4rem 0.75rem;
+  padding: 0 1.1rem 0 0;
   appearance: none;
   -webkit-appearance: none;
   border: 0;
-  border-radius: inherit;
+  border-radius: 0;
   color: var(--title-text-color);
   background-color: transparent;
-  font: var(--font-weight-semibold) 0.875rem / 1.3 var(--font-sans-serif);
+  font: var(--font-weight-semibold) 0.8125rem / 1.2 var(--font-sans-serif);
+  text-align: right;
   text-overflow: ellipsis;
   cursor: pointer;
 }
@@ -2195,7 +2235,7 @@ input.command-palette-input {
 .preference-quick__chevron {
   position: absolute;
   top: 50%;
-  right: 0.55rem;
+  right: 0.6rem;
   translate: 0 -50%;
   color: var(--sub-text-color);
   pointer-events: none;
@@ -2207,7 +2247,10 @@ input.command-palette-input {
 }
 
 @media (hover: hover) {
-  .preference-quick__action:hover,
+  .preference-quick__option:hover:not(.is-active) {
+    background-color: var(--glass-hover);
+  }
+
   .preference-quick__step-btn:hover:not(:disabled),
   .preference-quick__select:hover {
     background-color: var(--glass-hover);
@@ -2217,17 +2260,39 @@ input.command-palette-input {
 
 @media (max-width: 768px) {
   .preference-popup {
-    --quick-popup-padding: 8px;
+    --quick-popup-padding: 12px;
     --quick-max-height: calc(100dvh - 6rem - env(safe-area-inset-bottom));
     top: auto;
     right: 8px;
     bottom: calc(8px + env(safe-area-inset-bottom));
     left: 8px;
     width: auto;
+    /* 平板宽度下别把动作栏拉满，居中收成和桌面一样的宽度 */
+    max-width: 24rem;
+    margin-inline: auto;
+  }
+
+  /* 栏宽隐藏后行距会上移，语言改从新一行起排，两枚圆钮才能和它同一行 */
+  .preference-quick__tile--language {
+    grid-column: 1 / span 2;
+  }
+
+  /* 手机端方块压成一行、四种字体并排，否则它占两行、下面会空出半行 */
+  .preference-quick__tile--square {
+    grid-row: auto;
+  }
+
+  .preference-quick__fonts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: 1fr;
+  }
+
+  /* 手机端正文已是满栏，栏宽调节没有意义 */
+  .preference-quick__stepper[data-quick-hide-mobile] {
+    display: none;
   }
 }
 
-/* 手机和平板都从底部动作栏展开，关闭时沿同一路径收回并淡出。 */
 @media (max-width: 1023px) {
   .preference-popup {
     --quick-closed-offset: 0 12px;
@@ -2238,13 +2303,8 @@ input.command-palette-input {
 }
 
 @media (max-width: 360px) {
-  .preference-quick {
-    padding: 0.5rem;
-  }
-
-  .preference-quick__steppers { gap: 0.25rem; }
-  .preference-quick__step-label { font-size: 0.6875rem; }
-  .preference-quick__selects { grid-template-columns: 1fr; }
+  .preference-quick__grid { gap: 0.4rem; }
+  .preference-quick__step-label { font-size: 0.75rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2254,8 +2314,6 @@ input.command-palette-input {
     scale: 1;
     transition: none;
   }
-
-  .preference-quick { transition: none; }
 }
 
 /* #endregion Preference quick popup */

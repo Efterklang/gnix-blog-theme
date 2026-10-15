@@ -7,10 +7,12 @@ window.__CHANGELOG_DATA__ = [
         cn: [
           "首页改为整屏分页：首屏只留标题与简介，话题与近期写作同占其后一屏、页尾直接落在该屏底部并逐页吸附，链接行改单列排布；桌面端导航链接不再靠悬停浮现",
           "偏好设置里的「纸质纹理」开关改为六种背景材质：纸张、牛皮纸、亚麻布、棉纸、印刷网点与胶片颗粒，深浅主题下都可见",
+          "导航栏的偏好快捷面板改为控制中心式排布：各项设置各自成一块液态玻璃，主题只留设备／太阳／月亮三个图标、字体只留四格「Aa」，选中是一块更实的浅色磁贴，语言改成中英两格一点即切，三个调节器统一用减号加号，手机端隐藏栏宽",
         ],
         en: [
           "Turn the home page into full-screen pages: the opening screen holds only the title and intro, topics and recent writings share the next screen with the footer at its bottom and page-by-page snapping, the link rows become single-column, and the desktop nav links are always visible",
           "Turn the Paper Texture switch in preferences into a choice of six background materials — paper, kraft, linen, cotton, halftone and film grain — all visible in both light and dark themes",
+          "Lay the navbar preference popover out like a control center: every setting becomes its own liquid-glass tile, theme mode keeps only its device / sun / moon icons and typefaces only their four “Aa” previews, selection is a more solid pale tile, language becomes a one-tap Chinese/English switch, all three steppers share the same minus and plus pair, and article width is hidden on phones",
         ],
         category: "uiux",
       },

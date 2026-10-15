@@ -1,7 +1,6 @@
 const { Component } = require("../../include/util/common");
 const { Icon } = require("../../include/util/lucide");
 const { DEFAULT_PREFERENCES, THEME_OPTIONS } = require("../../include/util/theme");
-const { DEFAULT_SETTINGS: ARTICLE_FONT_DEFAULTS } = require("../../include/util/article_font");
 const { DEFAULT_SETTINGS: GLASS_DEFAULTS } = require("../../include/util/glass");
 const { getLanguageOptions } = require("../../include/util/i18n");
 
@@ -10,10 +9,11 @@ function translate(helper, key, fallback) {
   return value === key ? fallback : value;
 }
 
+// [值, 名称回退, 图标]；模式用设备 / 太阳 / 月亮区分，一次点击即切换
 const THEME_MODE_OPTIONS = [
-  ["system", "System"],
-  ["light", "Light"],
-  ["dark", "Dark"],
+  ["system", "System", "monitor"],
+  ["light", "Light", "sun"],
+  ["dark", "Dark", "moon"],
 ];
 
 const FONT_TYPE_OPTIONS = [
@@ -23,16 +23,24 @@ const FONT_TYPE_OPTIONS = [
   ["handwriting", "preferences.typeface_handwriting", "Handwriting"],
 ];
 
-function renderStepper(label, control, decreaseIcon, increaseIcon, decreaseLabel, increaseLabel) {
+// 三个调节器统一用减号 / 加号，不再各配一套语义图标；栏宽只作用于正文栏，
+// 手机端正文已是满栏，标记出来交给 CSS 在小屏隐藏
+function renderStepper(label, control, decreaseLabel, increaseLabel) {
   return (
-    <div class="preference-quick__stepper" role="group" aria-label={label}>
+    <div
+      class="preference-quick__tile preference-quick__tile--wide preference-quick__stepper glass"
+      role="group"
+      aria-label={label}
+      data-glass-lens
+      data-quick-hide-mobile={control === "width" ? "" : null}
+    >
       <span class="preference-quick__step-label">{label}</span>
       <div class="preference-quick__step-controls">
         <button type="button" class="preference-quick__step-btn" data-article-step={control} data-step-dir="-1" title={decreaseLabel} aria-label={decreaseLabel}>
-          <Icon name={decreaseIcon} size={18} />
+          <Icon name="minus" size={18} />
         </button>
         <button type="button" class="preference-quick__step-btn" data-article-step={control} data-step-dir="1" title={increaseLabel} aria-label={increaseLabel}>
-          <Icon name={increaseIcon} size={18} />
+          <Icon name="plus" size={18} />
         </button>
       </div>
     </div>
@@ -48,7 +56,8 @@ module.exports = class extends Component {
     const languageOptions = getLanguageOptions(page, config, helper);
 
     const modeLabel = translate(helper, "preferences.theme_mode", "Mode");
-    const paletteLabel = translate(helper, "preferences.color_palette", "Color Palette");
+    // 快捷面板一行里放不下「配色方案」加取值，用短标签
+    const paletteLabel = translate(helper, "preferences.palette_short", "Palette");
     const typefaceLabel = translate(helper, "preferences.typeface", "Typeface");
     const languageLabel = translate(helper, "preferences.language", "Language");
     const unavailableLabel = translate(helper, "preferences.language_unavailable", "Not translated");
@@ -59,68 +68,94 @@ module.exports = class extends Component {
 
     return (
       <div id="preference-popup" class="preference-popup" popover="auto" role="dialog" aria-labelledby="preference-quick-title">
-        <div class="preference-quick glass glass-scroll" data-glass-lens data-preferences-page data-preference-surface="quick">
-          <header class="preference-quick__header">
-            <span id="preference-quick-title" class="preference-quick__title">{title}</span>
-            <div class="preference-quick__actions">
-              <button
-                type="button"
-                class="preference-quick__action preference-quick__toggle"
-                role="switch"
-                aria-checked={String(GLASS_DEFAULTS.enabled)}
-                title={glassLabel}
-                aria-label={glassLabel}
-                data-glass-toggle="enabled"
-              >
-                <Icon name="copy" size={20} />
-              </button>
-              <a class="preference-quick__action" href={settingsUrl} title={settingsLabel} aria-label={settingsLabel}>
-                <Icon name="settings" size={18} />
-              </a>
-            </div>
-          </header>
+        <div class="preference-quick" data-preferences-page data-preference-surface="quick">
+          <span id="preference-quick-title" class="preference-quick__title">{title}</span>
 
-          <div class="preference-quick__steppers">
+          <div class="preference-quick__grid">
+            {/* 主题：三个模式只留图标，一格一点 */}
+            <div class="preference-quick__tile preference-quick__tile--wide preference-quick__modes glass" role="group" aria-label={modeLabel} data-glass-lens>
+              {THEME_MODE_OPTIONS.map(([value, fallback, icon]) => {
+                const label = translate(helper, `preferences.theme_mode_${value}`, fallback);
+                return (
+                  <button type="button" class="preference-quick__option" data-theme-mode={value} aria-pressed="false" title={label} aria-label={label}>
+                    <Icon name={icon} size={18} />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* 字体：两行两列，四格只留「Aa」 */}
+            <div class="preference-quick__tile preference-quick__tile--square preference-quick__fonts glass" role="group" aria-label={typefaceLabel} data-glass-lens>
+              {FONT_TYPE_OPTIONS.map(([value, key, fallback]) => {
+                const label = translate(helper, key, fallback);
+                return (
+                  <button type="button" class="preference-quick__option font-type-btn" data-font={value} aria-pressed="false" title={label} aria-label={label}>
+                    <span class="preference-quick__font-preview">Aa</span>
+                  </button>
+                );
+              })}
+            </div>
+
             {renderStepper(
               translate(helper, "preferences.font_size", "Size"),
               "size",
-              "minus",
-              "plus",
               translate(helper, "preferences.decrease_font_size", "Decrease font size"),
               translate(helper, "preferences.increase_font_size", "Increase font size"),
             )}
             {renderStepper(
               translate(helper, "preferences.content_width", "Article Width"),
               "width",
-              "fold-horizontal",
-              "move-horizontal",
               translate(helper, "preferences.decrease_width", "Decrease article width"),
               translate(helper, "preferences.increase_width", "Increase article width"),
             )}
             {renderStepper(
               translate(helper, "preferences.spacing", "Spacing"),
               "spacing",
-              "fold-vertical",
-              "unfold-vertical",
               translate(helper, "preferences.decrease_spacing", "Tighten spacing"),
               translate(helper, "preferences.increase_spacing", "Loosen spacing"),
             )}
-          </div>
 
-          <div class="preference-quick__selects">
-            <label class="preference-quick__field">
-              <span class="preference-quick__field-label">{modeLabel}</span>
-              <select id="preference-quick-mode-select" class="preference-quick__select" data-theme-mode-select aria-label={modeLabel}>
-                {THEME_MODE_OPTIONS.map(([value, fallback]) => (
-                  <option value={value} selected={value === "system"}>
-                    {translate(helper, `preferences.theme_mode_${value}`, fallback)}
-                  </option>
-                ))}
-              </select>
-              <Icon name="chevron-down" size={14} class="preference-quick__chevron" />
-            </label>
+            {/* 语言：只有中英两版，两格一点即切；格子窄，标签缩到 zh / en */}
+            {languageOptions ? (
+              <div class="preference-quick__tile preference-quick__tile--wide preference-quick__tile--language preference-quick__modes glass" role="group" aria-label={languageLabel} data-glass-lens>
+                {languageOptions.map((item) => {
+                  const short = String(item.key || item.locale || "").split("-")[0].toLowerCase();
+                  return (
+                    <button
+                      type="button"
+                      class={`preference-quick__option preference-quick__option--text${item.current ? " is-active" : ""}`}
+                      data-language-option={item.current || !item.url ? "" : item.url}
+                      aria-pressed={String(Boolean(item.current))}
+                      disabled={!item.current && !item.available}
+                      title={item.available ? item.label : `${item.label} · ${unavailableLabel}`}
+                      aria-label={item.label}
+                      lang={item.locale}
+                    >
+                      {short}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : null}
 
-            <label class="preference-quick__field">
+            <button
+              type="button"
+              class="preference-quick__circle preference-quick__toggle glass glass-button"
+              role="switch"
+              aria-checked={String(GLASS_DEFAULTS.enabled)}
+              title={glassLabel}
+              aria-label={glassLabel}
+              data-glass-toggle="enabled"
+              data-glass-lens
+            >
+              <Icon name="droplets" size={18} />
+            </button>
+            <a class="preference-quick__circle glass glass-button" href={settingsUrl} title={settingsLabel} aria-label={settingsLabel} data-glass-lens>
+              <Icon name="settings" size={18} />
+            </a>
+
+            {/* 配色通栏收尾 */}
+            <label class="preference-quick__tile preference-quick__tile--full preference-quick__field glass" data-glass-lens>
               <span class="preference-quick__field-label">{paletteLabel}</span>
               {/* preferences.js 按当前明暗模式重建配色选项。 */}
               <select id="preference-quick-palette-select" class="preference-quick__select" data-theme-palette-select aria-label={paletteLabel}>
@@ -137,30 +172,6 @@ module.exports = class extends Component {
               </select>
               <Icon name="chevron-down" size={14} class="preference-quick__chevron" />
             </label>
-
-            <label class="preference-quick__field">
-              <span class="preference-quick__field-label">{typefaceLabel}</span>
-              <select id="preference-quick-font-select" class="preference-quick__select" data-article-font-select aria-label={typefaceLabel}>
-                {FONT_TYPE_OPTIONS.map(([value, key, fallback]) => (
-                  <option value={value} selected={value === ARTICLE_FONT_DEFAULTS.type}>{translate(helper, key, fallback)}</option>
-                ))}
-              </select>
-              <Icon name="chevron-down" size={14} class="preference-quick__chevron" />
-            </label>
-
-            {languageOptions ? (
-              <label class="preference-quick__field">
-                <span class="preference-quick__field-label">{languageLabel}</span>
-                <select id="preference-quick-language-select" class="preference-quick__select" data-language-select aria-label={languageLabel}>
-                  {languageOptions.map((item) => (
-                    <option value={item.current || !item.url ? "" : item.url} selected={item.current} disabled={!item.current && !item.available} lang={item.locale}>
-                      {item.available ? item.label : `${item.label} · ${unavailableLabel}`}
-                    </option>
-                  ))}
-                </select>
-                <Icon name="chevron-down" size={14} class="preference-quick__chevron" />
-              </label>
-            ) : null}
           </div>
         </div>
       </div>

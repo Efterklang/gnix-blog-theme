@@ -685,12 +685,11 @@
       if (event.target.closest("a[href]")) closePopup();
     });
 
-    root.querySelectorAll("[data-language-select]").forEach((select) => {
-      select.addEventListener("change", () => {
-        const url = select.value;
+    // 语言是两格切换：点目标语言直接跳转，没有下拉
+    root.querySelectorAll("[data-language-option]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const url = button.dataset.languageOption;
         if (!url) return;
-        // 先恢复当前语言选项，避免 bfcache 返回时残留目标语言
-        select.value = "";
         closePopup();
         window.location.assign(url);
       });

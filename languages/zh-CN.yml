@@ -121,6 +121,7 @@ preferences:
   decrease_spacing: "收紧间距"
   increase_spacing: "放宽间距"
   color_palette: "配色方案"
+  palette_short: "配色"
   language: "语言"
   language_unavailable: "暂无翻译"
   open_settings: "设置"
