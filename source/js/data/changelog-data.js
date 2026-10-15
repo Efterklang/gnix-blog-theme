@@ -6,9 +6,11 @@ window.__CHANGELOG_DATA__ = [
         date: "10.15",
         cn: [
           "首页改为整屏分页：首屏只留标题与简介，话题与近期写作同占其后一屏、页尾直接落在该屏底部并逐页吸附，链接行改单列排布；桌面端导航链接不再靠悬停浮现",
+          "偏好设置里的「纸质纹理」开关改为六种背景材质：纸张、牛皮纸、亚麻布、棉纸、印刷网点与胶片颗粒，深浅主题下都可见",
         ],
         en: [
           "Turn the home page into full-screen pages: the opening screen holds only the title and intro, topics and recent writings share the next screen with the footer at its bottom and page-by-page snapping, the link rows become single-column, and the desktop nav links are always visible",
+          "Turn the Paper Texture switch in preferences into a choice of six background materials — paper, kraft, linen, cotton, halftone and film grain — all visible in both light and dark themes",
         ],
         category: "uiux",
       },

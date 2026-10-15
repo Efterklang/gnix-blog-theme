@@ -419,6 +419,111 @@
   font: var(--font-weight-semibold) var(--preference-font-value) / 1.2 var(--font-sans-serif);
 }
 
+/* 背景纹理色板：色板本身就是预览，铺真实的纹理、底色取页面表面色，深浅主题下
+   都显示实际效果。纹理叠三层是为了让预览看得清——页面上的纹理只有百分之几的
+   浓度，单层在这么小的色板里几乎看不出来。低频结构（棉纸云斑、牛皮纸结块）
+   在色板里缩小显示，否则窗口太小看不出区别；细密的纹理保持原始比例以免摩尔纹 */
+.preference-texture-group {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+  max-width: 40rem;
+}
+
+.preference-texture-button {
+  display: grid;
+  gap: 0.4rem;
+  justify-items: center;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--preference-radius-sm);
+  color: var(--sub-text-color);
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--title-text-color);
+  }
+
+  &:focus-visible {
+    outline: var(--preference-focus-ring);
+    outline-offset: var(--preference-focus-offset);
+  }
+
+  &.is-active {
+    color: var(--title-text-color);
+  }
+}
+
+.preference-texture-swatch {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid var(--preference-border);
+  border-radius: var(--preference-radius-sm);
+  background-color: var(--base);
+  background-size: 512px;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+
+  .preference-texture-button.is-active & {
+    border-color: var(--preference-selected-border);
+    box-shadow: 0 0 0 3px hsl(from var(--lavender) h s l / 0.16);
+  }
+}
+
+/* 关闭：素色表面加一道斜线，表示没有材质 */
+.preference-texture-swatch--off {
+  background-image: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.5px),
+    var(--overlay0) calc(50% - 0.5px),
+    var(--overlay0) calc(50% + 0.5px),
+    transparent calc(50% + 0.5px)
+  );
+}
+
+.preference-texture-swatch--paper {
+  background-image: var(--page-texture-paper), var(--page-texture-paper), var(--page-texture-paper);
+}
+
+.preference-texture-swatch--kraft {
+  background-image: var(--page-texture-kraft), var(--page-texture-kraft), var(--page-texture-kraft);
+  background-size: 224px;
+}
+
+.preference-texture-swatch--linen {
+  background-image: var(--page-texture-linen), var(--page-texture-linen), var(--page-texture-linen);
+}
+
+.preference-texture-swatch--cotton {
+  background-image: var(--page-texture-cotton), var(--page-texture-cotton), var(--page-texture-cotton);
+  background-size: 168px;
+}
+
+.preference-texture-swatch--halftone {
+  background-image: var(--page-texture-halftone), var(--page-texture-halftone), var(--page-texture-halftone);
+}
+
+.preference-texture-swatch--film {
+  background-image: var(--page-texture-film), var(--page-texture-film), var(--page-texture-film);
+}
+
+.preference-texture-name {
+  color: inherit;
+  font: var(--font-weight-semibold) var(--preference-font-meta) / 1.2 var(--font-sans-serif);
+  text-align: center;
+}
+
+/* 七列在窄屏会挤到看不出材质，剩四列两行 */
+@media (max-width: 520px) {
+  .preference-texture-group {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 .preference-row--control-only > .preference-choice-group {
   justify-self: stretch;
   width: 100%;

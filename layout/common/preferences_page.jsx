@@ -1,6 +1,7 @@
 const { Component } = require("../../include/util/common");
 const { Icon } = require("../../include/util/lucide");
 const { CUSTOM_FONT_PRESETS } = require("../../include/util/article_font");
+const { PAGE_TEXTURES } = require("../../include/util/page_texture");
 const { DEFAULT_PREFERENCES, THEME_OPTIONS } = require("../../include/util/theme");
 const { DEFAULT_SETTINGS: GLASS_DEFAULTS, RANGES: GLASS_RANGES } = require("../../include/util/glass");
 
@@ -52,6 +53,19 @@ const ARTICLE_SPACING_OPTIONS = [
   ["normal", "preferences.spacing_normal", "Normal"],
   ["relaxed", "preferences.spacing_relaxed", "Relaxed"],
 ];
+
+// [名称 key, 名称回退]；材质顺序取自 page_texture.js，与 default.css 的变量一一对应
+const TEXTURE_NAMES = {
+  off: ["preferences.texture_off", "None"],
+  paper: ["preferences.texture_paper", "Paper"],
+  kraft: ["preferences.texture_kraft", "Kraft"],
+  linen: ["preferences.texture_linen", "Linen"],
+  cotton: ["preferences.texture_cotton", "Cotton"],
+  halftone: ["preferences.texture_halftone", "Halftone"],
+  film: ["preferences.texture_film", "Film"],
+};
+
+const PAGE_TEXTURE_OPTIONS = ["off", ...PAGE_TEXTURES];
 
 // [设置键, 标题 key, 标题回退, 说明 key, 说明回退]；数值显示格式由 preferences.js 统一处理
 const GLASS_RANGE_OPTIONS = [
@@ -207,22 +221,23 @@ module.exports = class extends Component {
                 {renderThemeSchemeControl(helper, "dark", darkThemes, idPrefix)}
               </div>
             </div>
-            <div class="preference-row preference-row--switch">
+            <div class="preference-row preference-row--stacked">
               <div class="preference-row__label">
-                <span id={`${idPrefix}-paper-texture-label`}>{translate(helper, "preferences.paper_texture", "Paper Texture")}</span>
-                <small id={`${idPrefix}-paper-texture-description`}>{translate(helper, "preferences.paper_texture_description", "Add a subtle paper texture to the page background")}</small>
+                <span>{translate(helper, "preferences.page_texture", "Background Texture")}</span>
+                <small>{translate(helper, "preferences.page_texture_description", "Choose the paper or film grain of the page background")}</small>
               </div>
-              <button
-                type="button"
-                class="preference-switch"
-                role="switch"
-                aria-checked="false"
-                aria-labelledby={`${idPrefix}-paper-texture-label`}
-                aria-describedby={`${idPrefix}-paper-texture-description`}
-                data-page-texture-toggle
-              >
-                <span class="preference-switch__thumb glass" data-glass-lens aria-hidden="true"></span>
-              </button>
+              <fieldset class="preference-choice-group preference-texture-group">
+                <legend class="preference-sr-only">{translate(helper, "preferences.page_texture", "Background Texture")}</legend>
+                {PAGE_TEXTURE_OPTIONS.map((value) => {
+                  const [key, fallback] = TEXTURE_NAMES[value] || [`preferences.texture_${value}`, value];
+                  return (
+                    <button type="button" class="preference-texture-button" data-page-texture-option={value} aria-pressed="false">
+                      <span class={`preference-texture-swatch preference-texture-swatch--${value}`} aria-hidden="true"></span>
+                      <span class="preference-texture-name">{translate(helper, key, fallback)}</span>
+                    </button>
+                  );
+                })}
+              </fieldset>
             </div>
           </section>
 

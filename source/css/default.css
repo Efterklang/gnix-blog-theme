@@ -1,7 +1,30 @@
 :root {
+  /* 背景纹理：每种材质一个变量，body 与偏好设置的色板共用；
+     各 SVG 都用中灰噪声而非纯黑，深色主题下同样可见 */
   --page-texture: none;
-  &[data-page-texture="on"] {
-    --page-texture: url("../img/page-grain.svg");
+  --page-texture-paper: url("../img/page-grain.svg");
+  --page-texture-kraft: url("../img/page-kraft.svg");
+  --page-texture-linen: url("../img/page-linen.svg");
+  --page-texture-cotton: url("../img/page-cotton.svg");
+  --page-texture-halftone: url("../img/page-halftone.svg");
+  --page-texture-film: url("../img/page-film.svg");
+  &:where([data-page-texture="paper"]) {
+    --page-texture: var(--page-texture-paper);
+  }
+  &:where([data-page-texture="kraft"]) {
+    --page-texture: var(--page-texture-kraft);
+  }
+  &:where([data-page-texture="linen"]) {
+    --page-texture: var(--page-texture-linen);
+  }
+  &:where([data-page-texture="cotton"]) {
+    --page-texture: var(--page-texture-cotton);
+  }
+  &:where([data-page-texture="halftone"]) {
+    --page-texture: var(--page-texture-halftone);
+  }
+  &:where([data-page-texture="film"]) {
+    --page-texture: var(--page-texture-film);
   }
   /* font */
   --font-symbols: "Symbols Nerd Font Mono";

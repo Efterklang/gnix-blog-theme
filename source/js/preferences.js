@@ -602,14 +602,21 @@
 
   function initPageTexturePreferences(root) {
     if (typeof window.applyPageTexture !== "function") return;
-    const toggles = root.querySelectorAll("[data-page-texture-toggle]");
-    const isEnabled = () => document.documentElement.dataset.pageTexture === "on";
-    const sync = () => toggles.forEach((toggle) => toggle.setAttribute("aria-checked", String(isEnabled())));
-    toggles.forEach((toggle) => {
-      toggle.addEventListener("click", () => window.applyPageTexture(!isEnabled(), true));
+    const buttons = root.querySelectorAll("[data-page-texture-option]");
+    const current = () => document.documentElement.dataset.pageTexture || "off";
+    const sync = () => {
+      const active = current();
+      buttons.forEach((button) => {
+        const isActive = button.dataset.pageTextureOption === active;
+        button.setAttribute("aria-pressed", String(isActive));
+        button.classList.toggle("is-active", isActive);
+      });
+    };
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => window.applyPageTexture(button.dataset.pageTextureOption, true));
     });
     root.querySelectorAll("[data-preference-reset-all]").forEach((button) => {
-      button.addEventListener("click", () => window.applyPageTexture(false, true));
+      button.addEventListener("click", () => window.applyPageTexture("off", true));
     });
     window.addEventListener("gnix:page-texture-change", sync);
     sync();

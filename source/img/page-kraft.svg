@@ -1,0 +1,33 @@
+<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <!-- 未打散的纸浆结块，比普通纸张更大更明显。 -->
+    <filter id="kraft-blotch" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="4" seed="31" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.075"/>
+      </feComponentTransfer>
+    </filter>
+    <!-- 粗长的木纤维，横纵频率相差一个量级。 -->
+    <filter id="kraft-fiber" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018 0.3" numOctaves="2" seed="44" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.09"/>
+      </feComponentTransfer>
+    </filter>
+    <!-- 表面更粗糙，光照对比比纸张更强。 -->
+    <filter id="kraft-tooth" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.38" numOctaves="3" seed="17" stitchTiles="stitch"/>
+      <feDiffuseLighting surfaceScale="1.7" diffuseConstant="0.7" lighting-color="#fff">
+        <feDistantLight azimuth="235" elevation="42"/>
+      </feDiffuseLighting>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.1"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="100%" height="100%" filter="url(#kraft-blotch)"/>
+  <rect width="100%" height="100%" filter="url(#kraft-fiber)"/>
+  <rect width="100%" height="100%" filter="url(#kraft-tooth)"/>
+</svg>

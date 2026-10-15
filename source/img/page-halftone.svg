@@ -1,0 +1,19 @@
+<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <!-- 印刷网点：45° 网屏角、非整数网点距，避免与屏幕像素形成摩尔纹。
+         网点用中灰而非纯黑，深色主题下同样可见。 -->
+    <pattern id="halftone-dots" width="7.6" height="7.6" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
+      <circle cx="3.8" cy="3.8" r="1" fill="#808080"/>
+    </pattern>
+    <!-- 网点之下垫一层纸底，避免图案显得像屏幕噪点。 -->
+    <filter id="halftone-paper" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="28" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.05"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="100%" height="100%" filter="url(#halftone-paper)"/>
+  <rect width="100%" height="100%" fill="url(#halftone-dots)" opacity="0.2"/>
+</svg>
