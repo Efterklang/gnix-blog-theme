@@ -375,3 +375,17 @@
 
   /* <side-note> uses its component stylesheet for measured placement. */
 }
+
+/* 导航按形态拆成两个 nav（见 layout/common/navbar.jsx）：
+   桌面只留 .navbar-desktop，移动只留 .navbar-mobile */
+@media screen and (min-width: 1024px) {
+  .navbar-mobile {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 1023px) {
+  .navbar-desktop {
+    display: none;
+  }
+}

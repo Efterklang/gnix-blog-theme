@@ -342,24 +342,17 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   position: relative;
   min-width: 0;
 
-  /* 每季的图标轻动：草摇摆、饮料轻晃、叶飘落、雪花慢转（动画规则见 .archive-label__icon） */
   &.spring {
     --archive-accent: var(--peach);
-    --archive-icon-motion: archive-icon-sway 4.8s ease-in-out;
   }
   &.summer {
     --archive-accent: var(--green);
-    --archive-icon-motion: archive-icon-sway 3.8s ease-in-out;
   }
   &.autumn {
     --archive-accent: var(--red);
-    --archive-icon-motion: archive-icon-drift 5.2s ease-in-out;
-    --archive-icon-origin: 50% 30%;
   }
   &.winter {
     --archive-accent: var(--blue);
-    --archive-icon-motion: archive-icon-spin 14s linear;
-    --archive-icon-origin: 50% 50%;
   }
 }
 
@@ -383,7 +376,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 /* 渐进模糊：标签吸附时，滑入标签带的内容逐渐失焦。四层 backdrop-filter 各自只
    承担一段模糊量、渐隐区间互相重叠——单层大步长会在纸纹上留下可见的分界；
-   横向铺满视口，避免模糊区左右边缘切在纸纹上成线。未吸附（.is-stuck 由
+   横向以视口居中铺满（50% - 50vw），既不切边也不撑出横向滚动。未吸附（.is-stuck 由
    archive.js 维护）时完全不绘制，标签保持透明 */
 .archive-group__header::before,
 .archive-group__header::after,
@@ -391,7 +384,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 .archive-label__blur::after {
   content: "";
   position: absolute;
-  inset: 0 -50vw calc(-1 * var(--archive-label-fade)) -50vw;
+  inset: 0 calc(50% - 50vw) calc(-1 * var(--archive-label-fade)) calc(50% - 50vw);
   z-index: -1;
   pointer-events: none;
   opacity: 0;
@@ -487,81 +480,9 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 }
 
-/* 季节涂鸦图标：跟在手写标签后面。悬浮/点按与标签同触发——先把字写完，
-   图标随后逐笔画出；画完后在悬停期间轻轻摇曳。静止时保持完整不绘制 */
-.archive-label__icon {
-  display: block;
-  height: 1.25em;
-  width: auto;
-  margin-inline-start: 0.45em;
-  overflow: visible;
-}
-
-.archive-label__icon path {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.archive-group__header:is(:hover, .is-writing) .archive-label__icon path {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: archive-label-write 150ms var(--ease-out) forwards;
-  animation-delay: calc(420ms + var(--i) * 65ms);
-}
-
-/* 轻动挂在图标整体上（与逐笔书写互不冲突），延迟到画完之后开始；
-   具体动作与时长由各季的 --archive-icon-motion 决定（见 .archive-group） */
-.archive-group__header:is(:hover, .is-writing) .archive-label__icon {
-  transform-origin: var(--archive-icon-origin, 50% 100%);
-  animation: var(--archive-icon-motion, archive-icon-sway 4.8s ease-in-out) 1.6s infinite;
-}
-
-@keyframes archive-icon-sway {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-
-  25% {
-    transform: rotate(3deg);
-  }
-
-  75% {
-    transform: rotate(-3deg);
-  }
-}
-
-@keyframes archive-icon-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes archive-icon-drift {
-  0%,
-  100% {
-    transform: rotate(0deg) translateY(0);
-  }
-
-  35% {
-    transform: rotate(6deg) translateY(3px);
-  }
-
-  70% {
-    transform: rotate(-5deg) translateY(1px);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .archive-group__header:is(:hover, .is-writing) :is(.archive-label__stroke, .archive-label__icon path) {
+  .archive-group__header:is(:hover, .is-writing) .archive-label__stroke {
     stroke-dasharray: none;
-    animation: none;
-  }
-
-  .archive-group__header:is(:hover, .is-writing) .archive-label__icon {
     animation: none;
   }
 }

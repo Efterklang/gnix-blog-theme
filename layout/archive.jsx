@@ -1,7 +1,6 @@
 const { Component, isValidDate, parseISO, dateFormatters, formatMonthDay } = require("../include/util/common");
 const ArticleMedia = require("./common/article_media");
 const { StrokeLabel } = require("../include/util/hershey");
-const { SeasonIcon } = require("../include/util/season_icons");
 const { filterByLanguage } = require("../include/util/i18n");
 
 function collectPosts(collection) {
@@ -133,7 +132,6 @@ function getPostDateParts(postDate, dateXml, date) {
 function renderSeasonGroup({ posts, title, marker = "all", sectionId, encryptedLabel, url_for, date_xml, date }) {
   // 季节/日期标签在构建期转成单线笔画 SVG（无法转换时回退为文字）
   const labelStroke = StrokeLabel({ text: title });
-  const seasonIcon = SeasonIcon({ season: marker });
   return (
     <section id={sectionId} class={`archive-group ${marker}`} aria-labelledby={`${sectionId}-title`}>
       <h2 id={`${sectionId}-title`} class="archive-group__header archive-label">
@@ -145,7 +143,6 @@ function renderSeasonGroup({ posts, title, marker = "all", sectionId, encryptedL
              会被裁掉，基线对齐也需额外处理 */
           <span>{renderLabelSegments(title)}</span>
         )}
-        {seasonIcon}
       </h2>
       {posts.map((post) => {
         const postDate = getPostDateParts(post.date, date_xml, date);

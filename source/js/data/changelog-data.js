@@ -4,8 +4,8 @@ window.__CHANGELOG_DATA__ = [
     items: [
       {
         date: "10.17",
-        cn: ["归档页季节标签改为构建期生成的手写笔画 SVG，悬浮或点按逐笔书写并带四季涂鸦图标；标签置顶吸附、滑入内容渐进模糊，不再依赖访客本地字体"],
-        en: ["Archive season labels become build-time handwritten stroke SVGs that draw themselves on hover or tap with seasonal doodle icons; the label sticks to the viewport top with a progressive blur for content sliding under, and no longer depends on visitors' local fonts"],
+        cn: ["归档页季节标签改为构建期生成的手写笔画 SVG，悬浮或点按逐笔书写；标签置顶吸附、滑入内容渐进模糊，不再依赖访客本地字体"],
+        en: ["Archive season labels become build-time handwritten stroke SVGs that draw themselves on hover or tap; the label sticks to the viewport top with a progressive blur for content sliding under, and no longer depends on visitors' local fonts"],
         category: "uiux",
       },
       {
