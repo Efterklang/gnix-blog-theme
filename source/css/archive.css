@@ -460,9 +460,59 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 }
 
+/* 季节涂鸦图标：跟在手写标签后面。悬浮/点按与标签同触发——先把字写完，
+   图标随后逐笔画出；画完后在悬停期间轻轻摇曳。静止时保持完整不绘制 */
+.archive-label__icon {
+  display: block;
+  height: 1.25em;
+  width: auto;
+  margin-inline-start: 0.45em;
+  overflow: visible;
+}
+
+.archive-label__icon path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.archive-group__header:is(:hover, .is-writing) .archive-label__icon path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: archive-label-write 150ms var(--ease-out) forwards;
+  animation-delay: calc(420ms + var(--i) * 90ms);
+}
+
+/* 摇曳挂在图标整体上（与逐笔书写互不冲突），延迟到画完之后开始 */
+.archive-group__header:is(:hover, .is-writing) .archive-label__icon {
+  animation: archive-icon-sway 3.6s ease-in-out 1.6s infinite;
+  transform-origin: 50% 100%;
+}
+
+@keyframes archive-icon-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  30% {
+    transform: rotate(3.5deg);
+  }
+
+  70% {
+    transform: rotate(-3.5deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .archive-group__header:is(:hover, .is-writing) .archive-label__stroke {
+  .archive-group__header:is(:hover, .is-writing) :is(.archive-label__stroke, .archive-label__icon path) {
     stroke-dasharray: none;
+    animation: none;
+  }
+
+  .archive-group__header:is(:hover, .is-writing) .archive-label__icon {
     animation: none;
   }
 }

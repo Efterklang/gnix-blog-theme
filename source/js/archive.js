@@ -189,9 +189,10 @@ function initArchiveLabelReplay() {
     if (event.animationName !== "archive-label-write") return;
     const header = event.target.closest?.(".archive-group__header");
     if (!header) return;
-    const strokes = header.querySelectorAll(".archive-label__stroke");
-    // 最后一笔结束才摘掉标记；中途摘掉会让后续悬浮不再触发
-    if (event.target === strokes[strokes.length - 1]) header.classList.remove("is-writing");
+    // 标签与图标的书写都结束才摘掉标记（两者先后不定：长标签比图标画得久）；
+    // 中途摘掉会让后续悬浮不再触发、未画完的笔画跳成完整态
+    const writing = header.getAnimations({ subtree: true }).some((animation) => animation.animationName === "archive-label-write" && animation.playState === "running");
+    if (!writing) header.classList.remove("is-writing");
   });
 }
 
