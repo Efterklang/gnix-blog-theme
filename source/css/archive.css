@@ -8,6 +8,9 @@
   --archive-accent: var(--lavender);
   /* 吸附标签下方渐进模糊的渐隐区高度（见 .archive-group__header 的模糊层） */
   --archive-label-fade: 3rem;
+  /* 吸顶标签的落点，也是锚点跳转的落点：紧贴视口顶端。窄视口导航条移到底部，
+     标签只需避开状态栏 */
+  --archive-sticky-top: 0px;
   --archive-popup-open-delay: 140ms;
   --archive-popup-enter-duration: 160ms;
   --archive-popup-exit-duration: 125ms;
@@ -341,6 +344,9 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 .archive-group {
   position: relative;
   min-width: 0;
+  /* 锚点落点：让分组顶边停在标签的吸顶位上——跳转后与手动滚到那里是同一状态，
+     模糊层随即点亮 */
+  scroll-margin-block-start: var(--archive-sticky-top);
 
   &.spring {
     --archive-accent: var(--peach);
@@ -363,7 +369,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
    上下 0.5rem 内边距给吸附状态留呼吸；标签不带实色底，吸附时由渐进模糊层保证可读 */
 .archive-group__header {
   position: sticky;
-  top: 0;
+  top: var(--archive-sticky-top);
   z-index: 1;
   margin: 0 0 calc(1.5rem - 0.4375rem - 0.5rem);
   padding-block: 0.5rem;
@@ -422,9 +428,9 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 6%, transparent 34%);
 }
 
-/* 窄视口（1024 是导航条留在顶部的下限）下吸附标签会与导航链接重叠：
-   标签吸附时让链接淡出，玻璃按钮保留；更宽视口两者不相遇，不做处理 */
-@media (min-width: 1024px) and (max-width: 1080px) {
+/* 桌面端标签吸在视口顶端，与导航链接同处一条带。两者是否相撞取决于阅读宽度偏好与视口宽度，
+   媒体查询读不到列宽，所以由 archive.js 按实际位置判断：相撞时让链接淡出，玻璃按钮保留 */
+@media (min-width: 1024px) {
   :is(.navbar-menu, .navbar-start) {
     transition: opacity 220ms ease;
   }
@@ -437,8 +443,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 /* 窄屏导航条移到底部，吸附只需避开状态栏 */
 @media (max-width: 1023px) {
-  .archive-group__header {
-    top: env(safe-area-inset-top);
+  .archive-page {
+    --archive-sticky-top: env(safe-area-inset-top);
   }
 }
 

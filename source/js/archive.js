@@ -196,28 +196,33 @@ function initArchiveLabelReplay() {
   });
 }
 
-// 吸附检测：标签贴到视口顶端（sticky top）时加 is-stuck，驱动渐进模糊层；
-// 窄视口下由 html.has-stuck-label 让导航链接为标签让位。标签自身 rect.top 在吸附时
-// 恒等于 sticky top、未吸附时等于自然位置，无需哨兵元素即可判定
+// 吸附检测：标签贴到视口顶端（sticky top）时加 is-stuck，驱动渐进模糊层。
+// 标签自身 rect.top 在吸附时恒等于 sticky top、未吸附时等于自然位置，无需哨兵元素即可判定
 function initArchiveLabelStuck() {
   const page = document.querySelector(".archive-page");
   if (!page) return;
   const headers = [...page.querySelectorAll(".archive-group__header")];
   if (!headers.length) return;
 
+  // 标签吸在视口顶端，与导航链接同处一条带。是否相撞取决于阅读宽度偏好与视口宽度，
+  // 媒体查询读不到列宽，只能按实际位置判断：吸住的标签与链接的水平范围相交时让链接让位
+  const navbarLinks = document.querySelector(".navbar-desktop .navbar-start");
   let scheduled = false;
   const update = () => {
     scheduled = false;
     const stickyTop = Number.parseFloat(getComputedStyle(headers[0]).top) || 0;
-    let anyStuck = false;
+    const navRect = navbarLinks?.getBoundingClientRect();
+    let collides = false;
+
     for (const header of headers) {
       // 吸附中且仍可见：被本节末尾顶出视口的标签不再算吸附（模糊层随之关闭）
       const rect = header.getBoundingClientRect();
       const stuck = rect.top <= stickyTop + 0.5 && rect.bottom > stickyTop;
       header.classList.toggle("is-stuck", stuck);
-      anyStuck ||= stuck;
+      if (stuck && navRect?.height && rect.left < navRect.right && rect.right > navRect.left) collides = true;
     }
-    document.documentElement.classList.toggle("has-stuck-label", anyStuck);
+
+    document.documentElement.classList.toggle("has-stuck-label", collides);
   };
   const schedule = () => {
     if (scheduled) return;
