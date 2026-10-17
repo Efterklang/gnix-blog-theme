@@ -137,6 +137,8 @@ function renderSeasonGroup({ posts, title, marker = "all", sectionId, encryptedL
   return (
     <section id={sectionId} class={`archive-group ${marker}`} aria-labelledby={`${sectionId}-title`}>
       <h2 id={`${sectionId}-title`} class="archive-group__header archive-label">
+        {/* 渐进模糊的另外两层伪元素挂在空 span 上（见 archive.css 的 .archive-label__blur） */}
+        <span class="archive-label__blur" aria-hidden="true"></span>
         {labelStroke || (
           /* 回退：单线笔画不可用时按文字渲染；单一 span 包住整段，h2 是 flex 容器，
              多个裸文字/数字节点会各自成 flex 项，文字段的行尾空格（如 "June 2026"）

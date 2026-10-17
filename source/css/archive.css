@@ -342,17 +342,24 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   position: relative;
   min-width: 0;
 
+  /* 每季的图标轻动：草摇摆、饮料轻晃、叶飘落、雪花慢转（动画规则见 .archive-label__icon） */
   &.spring {
     --archive-accent: var(--peach);
+    --archive-icon-motion: archive-icon-sway 4.8s ease-in-out;
   }
   &.summer {
     --archive-accent: var(--green);
+    --archive-icon-motion: archive-icon-sway 3.8s ease-in-out;
   }
   &.autumn {
     --archive-accent: var(--red);
+    --archive-icon-motion: archive-icon-drift 5.2s ease-in-out;
+    --archive-icon-origin: 50% 30%;
   }
   &.winter {
     --archive-accent: var(--blue);
+    --archive-icon-motion: archive-icon-spin 14s linear;
+    --archive-icon-origin: 50% 50%;
   }
 }
 
@@ -374,32 +381,52 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   color: color-mix(in oklch, var(--archive-accent) 70%, var(--sub-text-color));
 }
 
-/* 渐进模糊：标签吸附时，滑入标签带的内容逐渐失焦（两层 backdrop-filter 叠加出
-   由浅到深的模糊量，遮罩错开渐隐区间），比实色底更精致；模糊区 = 标签带 + 下方
-   一小段渐隐区。未吸附（.is-stuck 由 archive.js 维护）时完全不绘制，标签保持透明 */
+/* 渐进模糊：标签吸附时，滑入标签带的内容逐渐失焦。四层 backdrop-filter 各自只
+   承担一段模糊量、渐隐区间互相重叠——单层大步长会在纸纹上留下可见的分界；
+   横向铺满视口，避免模糊区左右边缘切在纸纹上成线。未吸附（.is-stuck 由
+   archive.js 维护）时完全不绘制，标签保持透明 */
 .archive-group__header::before,
-.archive-group__header::after {
+.archive-group__header::after,
+.archive-label__blur::before,
+.archive-label__blur::after {
   content: "";
   position: absolute;
-  inset: 0 0 calc(-1 * var(--archive-label-fade)) 0;
+  inset: 0 -50vw calc(-1 * var(--archive-label-fade)) -50vw;
   z-index: -1;
   pointer-events: none;
   opacity: 0;
   transition: opacity 220ms ease;
 }
 
-.archive-group__header.is-stuck::before {
+.archive-group__header.is-stuck::before,
+.archive-group__header.is-stuck::after,
+.archive-group__header.is-stuck .archive-label__blur::before,
+.archive-group__header.is-stuck .archive-label__blur::after {
   opacity: 1;
-  backdrop-filter: blur(3px);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 82%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 82%);
+}
+
+.archive-group__header.is-stuck::before {
+  backdrop-filter: blur(2px);
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 90%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 90%);
 }
 
 .archive-group__header.is-stuck::after {
-  opacity: 1;
+  backdrop-filter: blur(5px);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 25%, transparent 72%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 25%, transparent 72%);
+}
+
+.archive-group__header.is-stuck .archive-label__blur::before {
   backdrop-filter: blur(10px);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 22%, transparent 58%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 22%, transparent 58%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 10%, transparent 50%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 10%, transparent 50%);
+}
+
+.archive-group__header.is-stuck .archive-label__blur::after {
+  backdrop-filter: blur(16px);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 6%, transparent 34%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 6%, transparent 34%);
 }
 
 /* 窄视口（1024 是导航条留在顶部的下限）下吸附标签会与导航链接重叠：
@@ -482,13 +509,14 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
   animation: archive-label-write 150ms var(--ease-out) forwards;
-  animation-delay: calc(420ms + var(--i) * 90ms);
+  animation-delay: calc(420ms + var(--i) * 65ms);
 }
 
-/* 摇曳挂在图标整体上（与逐笔书写互不冲突），延迟到画完之后开始 */
+/* 轻动挂在图标整体上（与逐笔书写互不冲突），延迟到画完之后开始；
+   具体动作与时长由各季的 --archive-icon-motion 决定（见 .archive-group） */
 .archive-group__header:is(:hover, .is-writing) .archive-label__icon {
-  animation: archive-icon-sway 3.6s ease-in-out 1.6s infinite;
-  transform-origin: 50% 100%;
+  transform-origin: var(--archive-icon-origin, 50% 100%);
+  animation: var(--archive-icon-motion, archive-icon-sway 4.8s ease-in-out) 1.6s infinite;
 }
 
 @keyframes archive-icon-sway {
@@ -497,12 +525,33 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
     transform: rotate(0deg);
   }
 
-  30% {
-    transform: rotate(3.5deg);
+  25% {
+    transform: rotate(3deg);
+  }
+
+  75% {
+    transform: rotate(-3deg);
+  }
+}
+
+@keyframes archive-icon-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes archive-icon-drift {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+
+  35% {
+    transform: rotate(6deg) translateY(3px);
   }
 
   70% {
-    transform: rotate(-3.5deg);
+    transform: rotate(-5deg) translateY(1px);
   }
 }
 
