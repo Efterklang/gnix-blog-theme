@@ -98,7 +98,6 @@ module.exports = class extends Component {
     const home = config.home && typeof config.home === "object" ? config.home : {};
     const langKey = helper.language_key(page);
 
-    const title = home.title || config.author || config.title;
     const rows = Array.isArray(home.rows) && home.rows.length ? home.rows : DEFAULT_ROWS;
 
     const recentLimit = getRecentLimit(home.recent);
@@ -110,28 +109,27 @@ module.exports = class extends Component {
     // --i 为页面级入场次序：标题领先，简介与各行依次跟进（见 home.css）
     let order = 0;
     const titleNode = (
-      <h1 class="home-hero__title" style={`--i:${order++}`}>
-        {title}
+      <h1 class="home-hero__title" style={`--i:${order++};`}>
+        GnixAij Oag
       </h1>
     );
-    // 简介直接写在主题里（本主题仅自用，不走 config）：两段文字，链接为行内 <a>，站内路径随语言本地化
     const introNode = (
       <>
         <p class="home-hero__intro" style={`--i:${order++}`}>
           Hello! I'm GnixAij Oag{" "}
           <span class="home-hero__ipa" lang="und-Latn-fonipa">
             /nɪkˈsaɪdʒ oʊɡ/
-          </span>
-          , born in 2004 in Qingdao, Shandong. The name is a word I coined myself. This is my digital garden, where I archive essays and engineering notes. I
-          also have a{" "}
+          </span> —— a name I coined myself.
+          I was born in 2004 in Qingdao, Shandong.
+          This is my digital garden, where I archive essays and engineering notes. There is also
+          a{" "}
           <a class="home-intro__link" {...linkAttrs("https://wiki.vluv.space", helper, langKey)}>
             Wiki
           </a>{" "}
           and a{" "}
           <a class="home-intro__link" {...linkAttrs("https://gallery.vluv.space", helper, langKey)}>
             Gallery
-          </a>
-          .
+          </a> if you'd like to wander further.
         </p>
         <p class="home-hero__intro" style={`--i:${order++}`}>
           See the{" "}
@@ -147,6 +145,9 @@ module.exports = class extends Component {
             gjx@linux.do
           </a>
           .
+        </p>
+        <p class="home-hero__intro" style={`--i:${order++}`}>
+          Scroll down for the top topics and my recent writings.
         </p>
       </>
     );
