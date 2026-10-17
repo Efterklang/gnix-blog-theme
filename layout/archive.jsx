@@ -1,5 +1,6 @@
 const { Component, isValidDate, parseISO, dateFormatters, formatMonthDay } = require("../include/util/common");
 const ArticleMedia = require("./common/article_media");
+const { StrokeLabel } = require("../include/util/hershey");
 const { filterByLanguage } = require("../include/util/i18n");
 
 function collectPosts(collection) {
@@ -129,12 +130,17 @@ function getPostDateParts(postDate, dateXml, date) {
 }
 
 function renderSeasonGroup({ posts, title, marker = "all", sectionId, encryptedLabel, url_for, date_xml, date }) {
+  // 季节/日期标签在构建期转成单线笔画 SVG（无法转换时回退为文字）
+  const labelStroke = StrokeLabel({ text: title });
   return (
     <section id={sectionId} class={`archive-group ${marker}`} aria-labelledby={`${sectionId}-title`}>
       <h2 id={`${sectionId}-title`} class="archive-group__header archive-label">
-        {/* 单一 span 包住整段：h2 是 flex 容器，多个裸文字/数字节点会各自成 flex 项，
-            文字段的行尾空格（如 "June 2026"）会被裁掉，基线对齐也需额外处理 */}
-        <span>{renderLabelSegments(title)}</span>
+        {labelStroke || (
+          /* 回退：单线笔画不可用时按文字渲染；单一 span 包住整段，h2 是 flex 容器，
+             多个裸文字/数字节点会各自成 flex 项，文字段的行尾空格（如 "June 2026"）
+             会被裁掉，基线对齐也需额外处理 */
+          <span>{renderLabelSegments(title)}</span>
+        )}
       </h2>
       {posts.map((post) => {
         const postDate = getPostDateParts(post.date, date_xml, date);

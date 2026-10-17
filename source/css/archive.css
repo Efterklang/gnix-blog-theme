@@ -6,6 +6,8 @@
 
 .archive-page {
   --archive-accent: var(--lavender);
+  /* 吸附标签下方渐进模糊的渐隐区高度（见 .archive-group__header 的模糊层） */
+  --archive-label-fade: 3rem;
   --archive-popup-open-delay: 140ms;
   --archive-popup-enter-duration: 160ms;
   --archive-popup-exit-duration: 125ms;
@@ -354,10 +356,17 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 }
 
-/* 季节标签：11px 等宽字、0.2em 字距；扣除首行链接的 7px 内边距，
-   让标签与第一条文字之间的实际间距保持 24px。 */
+/* 季节标签：构建期转为单线笔画 SVG（include/util/hershey.js），悬浮或点按逐笔书写；
+   下面的字体样式只用于笔画不可用时的文字回退。扣除首行链接的 7px 内边距，
+   让标签与第一条文字之间的实际间距保持 24px。
+   置顶吸附：在本季分组内滚动时标签钉在视口顶端（导航条的链接与玻璃按钮浮在其上），
+   上下 0.5rem 内边距给吸附状态留呼吸；标签不带实色底，吸附时由渐进模糊层保证可读 */
 .archive-group__header {
-  margin: 0 0 calc(1.5rem - 0.4375rem);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0 0 calc(1.5rem - 0.4375rem - 0.5rem);
+  padding-block: 0.5rem;
   font-family: var(--font-handwritten);
   font-size: 0.875rem;
   letter-spacing: 0.2em;
@@ -365,10 +374,97 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   color: color-mix(in oklch, var(--archive-accent) 70%, var(--sub-text-color));
 }
 
+/* 渐进模糊：标签吸附时，滑入标签带的内容逐渐失焦（两层 backdrop-filter 叠加出
+   由浅到深的模糊量，遮罩错开渐隐区间），比实色底更精致；模糊区 = 标签带 + 下方
+   一小段渐隐区。未吸附（.is-stuck 由 archive.js 维护）时完全不绘制，标签保持透明 */
+.archive-group__header::before,
+.archive-group__header::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 calc(-1 * var(--archive-label-fade)) 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.archive-group__header.is-stuck::before {
+  opacity: 1;
+  backdrop-filter: blur(3px);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 82%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 82%);
+}
+
+.archive-group__header.is-stuck::after {
+  opacity: 1;
+  backdrop-filter: blur(10px);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 22%, transparent 58%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 22%, transparent 58%);
+}
+
+/* 窄视口（1024 是导航条留在顶部的下限）下吸附标签会与导航链接重叠：
+   标签吸附时让链接淡出，玻璃按钮保留；更宽视口两者不相遇，不做处理 */
+@media (min-width: 1024px) and (max-width: 1080px) {
+  :is(.navbar-menu, .navbar-start) {
+    transition: opacity 220ms ease;
+  }
+
+  :root.has-stuck-label :is(.navbar-menu, .navbar-start) {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* 窄屏导航条移到底部，吸附只需避开状态栏 */
+@media (max-width: 1023px) {
+  .archive-group__header {
+    top: env(safe-area-inset-top);
+  }
+}
+
 .archive-label__num {
   /* 年份延续主题的季节强调色。 */
   color: color-mix(in oklch, var(--archive-accent) 70%, var(--sub-text-color));
   font-weight: var(--font-weight-semibold);
+}
+
+/* 单线笔画标签：纵向 viewBox（42 单位）对所有标签固定，横向各自收紧，
+   因此不同文案共用同一缩放比例；stroke 跟随 currentColor 继承季节色 */
+.archive-label__strokes {
+  display: block;
+  height: 1.72em;
+  width: auto;
+  overflow: visible;
+}
+
+.archive-label__stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 悬浮或点按逐笔书写（.is-writing 由 archive.js 加上，触屏没有悬浮）；
+   写完后停在完整状态，中途移开指针直接回到完整态 */
+.archive-group__header:is(:hover, .is-writing) .archive-label__stroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: archive-label-write 140ms var(--ease-out) forwards;
+  animation-delay: calc(var(--i) * var(--stagger, 32ms));
+}
+
+@keyframes archive-label-write {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-group__header:is(:hover, .is-writing) .archive-label__stroke {
+    stroke-dasharray: none;
+    animation: none;
+  }
 }
 
 .archive-item {

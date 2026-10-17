@@ -170,6 +170,67 @@ function initArchivePreview() {
   });
 }
 
+// 季节标签书写动画：触屏没有悬浮，点按重播一次完整书写（桌面端点击同样生效）。
+// 与预览浮层无关，不放进 initArchivePreview（那里在锚点定位不可用时整体退出）。
+function initArchiveLabelReplay() {
+  const page = document.querySelector(".archive-page");
+  if (!page) return;
+
+  page.addEventListener("click", (event) => {
+    const header = event.target.closest?.(".archive-group__header");
+    const strokes = header?.querySelectorAll(".archive-label__stroke");
+    if (!strokes?.length) return;
+    header.classList.remove("is-writing");
+    void header.offsetWidth; // 强制重排，让动画从头重放
+    header.classList.add("is-writing");
+  });
+
+  page.addEventListener("animationend", (event) => {
+    if (event.animationName !== "archive-label-write") return;
+    const header = event.target.closest?.(".archive-group__header");
+    if (!header) return;
+    const strokes = header.querySelectorAll(".archive-label__stroke");
+    // 最后一笔结束才摘掉标记；中途摘掉会让后续悬浮不再触发
+    if (event.target === strokes[strokes.length - 1]) header.classList.remove("is-writing");
+  });
+}
+
+// 吸附检测：标签贴到视口顶端（sticky top）时加 is-stuck，驱动渐进模糊层；
+// 窄视口下由 html.has-stuck-label 让导航链接为标签让位。标签自身 rect.top 在吸附时
+// 恒等于 sticky top、未吸附时等于自然位置，无需哨兵元素即可判定
+function initArchiveLabelStuck() {
+  const page = document.querySelector(".archive-page");
+  if (!page) return;
+  const headers = [...page.querySelectorAll(".archive-group__header")];
+  if (!headers.length) return;
+
+  let scheduled = false;
+  const update = () => {
+    scheduled = false;
+    const stickyTop = Number.parseFloat(getComputedStyle(headers[0]).top) || 0;
+    let anyStuck = false;
+    for (const header of headers) {
+      // 吸附中且仍可见：被本节末尾顶出视口的标签不再算吸附（模糊层随之关闭）
+      const rect = header.getBoundingClientRect();
+      const stuck = rect.top <= stickyTop + 0.5 && rect.bottom > stickyTop;
+      header.classList.toggle("is-stuck", stuck);
+      anyStuck ||= stuck;
+    }
+    document.documentElement.classList.toggle("has-stuck-label", anyStuck);
+  };
+  const schedule = () => {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(update);
+  };
+
+  update();
+  window.addEventListener("scroll", schedule, { passive: true });
+  window.addEventListener("resize", schedule, { passive: true });
+}
+
 runWhenActivated(() => {
   initArchivePreview();
+  initArchiveLabelReplay();
+  initArchiveLabelStuck();
 });

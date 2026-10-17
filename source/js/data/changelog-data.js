@@ -3,6 +3,12 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "10.17",
+        cn: ["归档页季节标签改为构建期生成的手写笔画 SVG，悬浮或点按时逐笔书写，不再依赖访客本地字体"],
+        en: ["Render the archive season labels as build-time handwritten stroke SVGs that draw themselves stroke by stroke on hover or tap, no longer depending on visitors' local fonts"],
+        category: "uiux",
+      },
+      {
         date: "10.15",
         cn: [
           "首页改为整屏分页：首屏只留标题与简介，话题与近期写作同占其后一屏、页尾直接落在该屏底部并逐页吸附，链接行改单列排布；桌面端导航链接不再靠悬停浮现",
