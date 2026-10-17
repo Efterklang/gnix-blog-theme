@@ -539,13 +539,9 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 /* #endregion */
 
 a.archive-title {
-  --archive-date-gap: 0.75rem;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  /* 日期与标题共享首行基线：此前盒居中让两种字号的文字底边错开半个 x-height，
-     标题折行时日期还会悬在多行中间；索引/账簿式的惯例是日期钉在首行 */
-  align-items: baseline;
-  column-gap: var(--archive-date-gap);
+  /* 标题、锁与日期同行内联，与首页近期列表同一排法：短标题一行放完，
+     长标题折行时日期跟在末行文字后，不再被两列网格钉到右缘 */
+  display: block;
   inline-size: fit-content;
   /* 默认偏好下为 15px / 15.5px，仍随用户的正文字号与字体设置缩放。 */
   font-size: calc(var(--article-font-size) * 0.9375);
@@ -580,8 +576,9 @@ a.archive-title {
   }
 }
 
-/* 日期固定为 12px 等宽数字，与标题首行基线对齐。 */
+/* 日期作为行内注脚跟在标题后：等宽小字、不折行，与标题共享文字基线。 */
 .archive-title__date {
+  margin-inline-start: 0.5rem;
   color: var(--sub-text-color);
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -597,19 +594,10 @@ a.archive-title {
   }
 }
 
-.archive-title__content {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-inline-size: 0;
-}
-
-.archive-title__text {
-  min-inline-size: 0;
-}
-
 .archive-title__lock {
-  flex: none;
+  display: inline-flex;
+  vertical-align: middle;
+  margin-inline-start: 0.4em;
   inline-size: 0.75rem;
   block-size: 0.75rem;
   color: var(--sub-text-color);
