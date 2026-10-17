@@ -312,15 +312,14 @@
     --rosewater: #8c5a4d;
     --mauve: #674689;
     --red: #9a3936;
-    --peach: #925a25;
+    --peach: #E88AA0;
     --yellow: #8c6c1f;
     --green: #397247;
     --teal: #1f7265;
     --blue: #2e598f;
     --lavender: #4e508e;
-    --title-text-color: #000;
-    /* 纯白底上 #404040 偏重：退到 #666666，对比度 5.7:1，小字仍满足 AA */
-    --sub-text-color: #666666;
+    --title-text-color: lab(2.75381% 0 0);
+    --sub-text-color: lab(48.496% 0 0);
     --surface0: #e5e5e5;
     --surface1: #d4d4d4;
     --overlay0: #a6a6a6;
@@ -341,7 +340,7 @@
     --blue: #95baea;
     --lavender: #adb2ea;
     --title-text-color: #e8e8e8;
-    --sub-text-color: #bdbdbd;
+    --sub-text-color: #999;
     --surface0: #242424;
     --surface1: #333333;
     --overlay0: #575757;
