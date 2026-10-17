@@ -1,13 +1,16 @@
 import { decryptJson, forgetPasswords, GARDEN_PASSWORD_KEY, readStoredPassword, storePassword } from "./crypto.js";
 import { runWhenActivated } from "./main.js";
 
+// 秘密花园的入口：在归档页的页名上连点五次（见 initArchiveGarden）
+const GARDEN_CLICKS = 5;
+
 function initArchivePreview() {
   const page = document.querySelector(".archive-page");
   if (!page || !CSS.supports("anchor-name: --archive-anchor") || !CSS.supports("anchor-scope: --archive-anchor")) return;
 
   const media = window.matchMedia("(hover: hover) and (pointer: fine) and (min-width: 721px)");
-  // 预览在话题幕帘与秘密花园任一打开时都要让位
-  const overlays = [page.querySelector(".archive-topic-picker"), document.getElementById("archive-garden")].filter(Boolean);
+  // 预览在话题幕帘打开、或页面切到秘密花园视图时都要让位
+  const picker = page.querySelector(".archive-topic-picker");
   const openDelay = Number.parseFloat(getComputedStyle(page).getPropertyValue("--archive-popup-open-delay")) || 140;
   let activeItem = null;
   let pendingItem = null;
@@ -55,7 +58,13 @@ function initArchivePreview() {
   }
 
   function available() {
-    return media.matches && !document.hidden && page.dataset.previewState !== "scrolling" && !overlays.some((overlay) => overlay.matches(":popover-open"));
+    return (
+      media.matches &&
+      !document.hidden &&
+      page.dataset.previewState !== "scrolling" &&
+      page.dataset.view !== "garden" &&
+      !picker?.matches(":popover-open")
+    );
   }
 
   function open(item, source) {
@@ -162,10 +171,8 @@ function initArchivePreview() {
     { passive: true },
   );
 
-  overlays.forEach((overlay) => {
-    overlay.addEventListener("beforetoggle", (event) => {
-      if (event.newState === "open") reset();
-    });
+  picker?.addEventListener("beforetoggle", (event) => {
+    if (event.newState === "open") reset();
   });
   media.addEventListener("change", reset);
   window.addEventListener("pagehide", reset);
@@ -175,10 +182,26 @@ function initArchivePreview() {
 }
 
 // 季节标签书写动画：触屏没有悬浮，点按重播一次完整书写（桌面端点击同样生效）。
-// 与预览浮层无关，不放进 initArchivePreview（那里在锚点定位不可用时整体退出）。
+// 悬浮也走同一条路径（见下面的 pointerover）：一笔落笔就画完。
+// 只靠 CSS 的 :hover 的话，鼠标快速划过时动画会在半途被掐断、直接跳成完整态——
+// 看起来像写了一半被擦掉。与预览浮层无关，不放进 initArchivePreview
+// （那里在锚点定位不可用时整体退出）。
 function initArchiveLabelReplay() {
   const page = document.querySelector(".archive-page");
   if (!page) return;
+
+  // 指针移进标签行时就开始写；写完由下面的 animationend 摘掉标记。
+  // 中途移开指针不影响：动画照旧跑完，不会留下半幅字
+  page.addEventListener(
+    "pointerover",
+    (event) => {
+      if (event.pointerType === "touch") return;
+      const header = event.target.closest?.(".archive-group__header");
+      if (!header || header.classList.contains("is-writing")) return;
+      header.classList.add("is-writing");
+    },
+    { passive: true },
+  );
 
   page.addEventListener("click", (event) => {
     const header = event.target.closest?.(".archive-group__header");
@@ -250,13 +273,17 @@ function initPopoverTriggers() {
   });
 }
 
-// 秘密花园：门禁解锁后把构建期加密的清单渲染成列表。密码记在本地，之后点进任何一篇
-// 加密文章都由 decrypt.js 自动解开（两者共用 crypto.js 的同一个存储键）。
-// 与预览浮层无关，也不依赖锚点定位，所以不放进 initArchivePreview
+// 秘密花园：页面的第二种视图，不是浮层。在页名上连点五次进入——页面上没有任何提示，
+// 知道的人自然知道；键盘上敲 garden 也能进。进入后公开清单换成加密清单，
+// 密码解锁后才把构建期加密的条目渲染成列表（见 include/hexo/encrypt.js 的 encrypt_payload），
+// 未解锁前页面源码里只有密文。密码记在本地，之后点进任何一篇加密文章都由 decrypt.js
+// 自动解开（两者共用 crypto.js 的同一个存储键）
 function initArchiveGarden() {
+  const page = document.querySelector(".archive-page");
   const panel = document.getElementById("archive-garden");
-  if (!panel) return;
+  if (!page || !panel) return;
 
+  const title = document.getElementById("archive-masthead-title");
   const blob = panel.querySelector(".encrypted-data")?.textContent.trim();
   const form = panel.querySelector(".archive-garden__gate");
   const input = form?.querySelector("input");
@@ -265,6 +292,17 @@ function initArchiveGarden() {
   if (!blob || !form || !input || !list) return;
 
   let unlocked = false;
+
+  function setView(view) {
+    if (page.dataset.view === view) return;
+    page.dataset.view = view;
+    if (view !== "garden") return;
+    // 幕帘可能正开着：进花园前先合上，否则它盖在花园上面
+    document.getElementById("archive-topic-picker")?.hidePopover?.();
+    // 触屏不自动聚焦密码框：一聚焦就弹键盘，读者还没决定要不要进
+    if (!window.matchMedia("(hover: hover)").matches) return;
+    (unlocked ? lock : input)?.focus();
+  }
 
   function renderPosts(posts) {
     const items = document.createElement("ol");
@@ -302,6 +340,42 @@ function initArchiveGarden() {
     panel.dataset.state = "unlocked";
   }
 
+  // 入口一：页名连点五次。两次点击间隔超过 900ms 就重新计数，
+  // 免得「偶尔点一下页名」被慢慢攒成一次进入
+  let clicks = 0;
+  let clickTimer = 0;
+  title?.addEventListener("click", () => {
+    clearTimeout(clickTimer);
+    clicks += 1;
+    if (clicks < GARDEN_CLICKS) {
+      clickTimer = setTimeout(() => {
+        clicks = 0;
+      }, 900);
+      return;
+    }
+    clicks = 0;
+    setView(page.dataset.view === "garden" ? "archive" : "garden");
+  });
+
+  // 入口二：敲 garden（不分大小写）。连点五次是给鼠标的，这条是给键盘的
+  const word = "garden";
+  let typed = "";
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      typed = "";
+      return;
+    }
+    // 只认不带修饰键的单字符，且焦点不在输入框里——否则读者在搜索框里打 garden 也会开门
+    if (event.metaKey || event.ctrlKey || event.altKey || event.key.length !== 1) return;
+    const target = event.target;
+    if (target instanceof HTMLElement && (target.isContentEditable || /^(?:INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+
+    typed = (typed + event.key.toLowerCase()).slice(-word.length);
+    if (typed !== word) return;
+    typed = "";
+    setView("garden");
+  });
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const password = input.value.trim();
@@ -316,20 +390,14 @@ function initArchiveGarden() {
   });
 
   lock?.addEventListener("click", () => {
-    // 锁定要连文章页记住的密码一起清掉，否则「锁定」之后已读过的文章仍是开的
+    // 锁定要连文章页记住的密码一起清掉，否则「锁定」之后已读过的文章仍是开的；
+    // 锁上就退出花园，回到公开清单
     forgetPasswords();
     list.textContent = "";
     input.value = "";
     unlocked = false;
     panel.dataset.state = "locked";
-    input.focus();
-  });
-
-  panel.addEventListener("toggle", (event) => {
-    if (event.newState !== "open") return;
-    // 触屏不自动聚焦密码框：一聚焦就弹键盘，读者还没决定要不要进
-    if (!window.matchMedia("(hover: hover)").matches) return;
-    (unlocked ? lock : input)?.focus();
+    setView("archive");
   });
 
   // 进过一次花园就自动开着；密码改过则静默退回门禁，不弹错误
@@ -337,35 +405,10 @@ function initArchiveGarden() {
   if (remembered) unlock(remembered).catch(() => storePassword(GARDEN_PASSWORD_KEY, null));
 }
 
-// 秘密花园的彩蛋：在归档页敲 garden（不分大小写）就开门。刊头末尾那枚记号是给好奇的人看的，
-// 这条键盘路径是给「知道的人」留的
-function initArchiveGardenEgg() {
-  const panel = document.getElementById("archive-garden");
-  if (!panel) return;
-
-  const word = "garden";
-  let typed = "";
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      typed = "";
-      return;
-    }
-    // 只认不带修饰键的单字符，且焦点不在输入框里——否则读者在搜索框里打 garden 也会开门
-    if (event.metaKey || event.ctrlKey || event.altKey || event.key.length !== 1) return;
-    const target = event.target;
-    if (target instanceof HTMLElement && (target.isContentEditable || /^(?:INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
-
-    typed = (typed + event.key.toLowerCase()).slice(-word.length);
-    if (typed === word && !panel.matches(":popover-open")) panel.showPopover();
-  });
-}
-
 runWhenActivated(() => {
   initArchivePreview();
   initArchiveLabelReplay();
   initArchiveLabelStuck();
   initArchiveGarden();
-  initArchiveGardenEgg();
   initPopoverTriggers();
 });

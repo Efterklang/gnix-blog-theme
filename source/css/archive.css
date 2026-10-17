@@ -11,7 +11,7 @@
   /* 秘密花园自己的一支强调色：它是「另一个地方」，与归档的 lavender 分开 */
   --archive-garden-accent: var(--teal);
   /* 吸附标签下方渐进模糊的渐隐区高度（见 .archive-group__header 的模糊层） */
-  --archive-label-fade: 3rem;
+  --archive-label-fade: 3.5rem;
   /* 吸顶标签的落点：紧贴视口顶端。窄视口导航条移到底部，标签只需避开状态栏 */
   --archive-sticky-top: 0px;
   --archive-popup-open-delay: 140ms;
@@ -52,26 +52,18 @@
 
 /* #region Masthead */
 
-/* 刊头两行：上面一行是目录栏（页名在左，规模与两个入口在右，共享一条基线），
-   下面一行是这一页的名字。信息在上、名字在下——读者先看到这页的规模，再看到它叫什么。
-   h1 所在元素同时是幕帘与花园的锚点 */
+/* 刊头一行：页名在左，规模与话题入口在右，共享一条基线。两边都是手写笔画——
+   刊头与下面的季节标签因此出自同一只手。h1 所在元素同时是幕帘的锚点 */
 .archive-masthead {
   anchor-name: --archive-hero;
   display: grid;
-  gap: 0.85rem;
+  gap: 0.5rem;
   margin: 0;
   min-width: 0;
 }
 
-.archive-masthead__bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.4rem 2rem;
-  min-width: 0;
-}
-
+/* 标签页才有的一行小字：说明这一页是按什么筛出来的。归档页的页名已经说清楚了，
+   再写一遍就是同义反复 */
 .archive-masthead__eyebrow {
   margin: 0;
   color: var(--sub-text-color);
@@ -82,35 +74,45 @@
   text-transform: uppercase;
 }
 
-/* 规模与两个入口：一行 mono 小字。数字比单位深一档——否则整行糊成一片灰，
-   而「167 篇」正是读者第一眼想知道的量级 */
+.archive-masthead__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 2rem;
+  min-width: 0;
+}
+
 .archive-masthead__actions {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.3rem 1.1rem;
+  gap: 0.35rem 1.35rem;
   min-width: 0;
   color: var(--sub-text-color);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.06em;
-  line-height: 1.6;
+}
+
+/* 规模与话题数：与季节标签同一支手写笔画（见 include/util/hershey.js）。
+   SVG 没有文字基线，flex 的 baseline 对齐只能拿它的下边缘当基线——
+   把下边距收掉笔画基线到 viewBox 下沿的那一段（0.369 × 1.72em），
+   手写的字就和页名坐在同一条线上 */
+.archive-count__strokes {
+  display: block;
+  height: 1.72em;
+  width: auto;
+  margin-block-end: -0.635em;
+  overflow: visible;
 }
 
 .archive-masthead__stat {
   white-space: nowrap;
 }
 
-.archive-masthead__count {
-  color: var(--title-text-color);
-}
-
 /* 话题入口：无边框无底色，靠颜色表达可点与状态 */
 .archive-masthead__topics {
   display: inline-flex;
-  align-items: center;
-  gap: 0.35em;
+  align-items: baseline;
+  gap: 0.4rem;
   padding: 0;
   border: none;
   background: transparent;
@@ -127,12 +129,8 @@
     color: var(--archive-accent);
   }
 
-  /* 数字跟着按钮一起转强调色（它自己有 title-text 色，不会自动继承） */
-  &:is(:hover, :focus-visible) .archive-masthead__count {
-    color: var(--archive-accent);
-  }
-
-  & svg {
+  /* 只转箭头本身：手写笔画的 svg 在 span 里，别跟着翻过来 */
+  & > svg {
     transition: rotate 200ms var(--ease-out);
   }
 }
@@ -140,35 +138,14 @@
 .archive-page:has(.archive-topic-picker:popover-open) .archive-masthead__topics {
   color: var(--archive-accent);
 
-  & svg {
+  & > svg {
     rotate: 180deg;
   }
 }
 
-/* 秘密花园的入口是一枚几乎看不见的记号：它是彩蛋，不是按钮。静息态只有三分之一的不透明度，
-   悬停或聚焦才亮起来；键盘上敲 garden 也能进（见 archive.js） */
-.archive-masthead__garden {
-  display: inline-flex;
-  align-items: center;
-  align-self: center;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--archive-garden-accent);
-  cursor: pointer;
-  opacity: 0.32;
-  transition:
-    opacity 180ms ease,
-    color 140ms var(--ease-out);
-
-  &:hover,
-  &:focus-visible,
-  &[aria-expanded="true"] {
-    opacity: 1;
-  }
-}
-
-/* 页名沿用首页首屏的字号与字距：两页在同一位置呈现同一尺度的标题 */
+/* 页名沿用首页首屏的字号与字距：两页在同一位置呈现同一尺度的标题。
+   连点五次是秘密花园的入口（见 source/js/archive.js），所以它不能被选中——
+   五次点击落在同一行字上，浏览器会把它们读成三击选段 */
 .archive-masthead__title {
   margin: 0;
   max-width: 100%;
@@ -179,6 +156,8 @@
   line-height: 1;
   letter-spacing: -0.03em;
   overflow-wrap: anywhere;
+  user-select: none;
+  -webkit-user-select: none;
   transition:
     opacity 340ms ease,
     color 340ms ease;
@@ -188,17 +167,12 @@
   }
 }
 
-/* 幕帘或花园打开时，静息态的正文（与花园打开时的页名）一起退到纸面之后 */
+/* 幕帘打开时静息态的正文退到纸面之后；花园是另一种视图，整块换掉，不叠 */
 .archive-page .archive-group {
   transition: opacity 340ms ease;
 }
 
-.archive-page:has(:is(.archive-topic-picker, .archive-garden):popover-open) .archive-group {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.archive-page:has(.archive-garden:popover-open) .archive-masthead__title {
+.archive-page:has(.archive-topic-picker:popover-open) .archive-group {
   opacity: 0;
   pointer-events: none;
 }
@@ -207,7 +181,7 @@
   color: var(--archive-accent);
 }
 
-.archive-page:has(.archive-garden:popover-open) .archive-masthead__title {
+.archive-page[data-view="garden"] .archive-masthead__title {
   color: var(--archive-garden-accent);
 }
 
@@ -233,8 +207,8 @@
       transition: opacity var(--archive-popup-exit-duration) var(--ease-out);
     }
 
-    .archive-page[data-preview-state="open"]:not(:has(:is(.archive-topic-picker, .archive-garden):popover-open))::after,
-    .archive-page:not([data-preview-state]):not(:has(:is(.archive-topic-picker, .archive-garden):popover-open)):has(.archive-item > .archive-title:hover + .archive-popup)::after {
+    .archive-page[data-preview-state="open"]:not([data-view="garden"]):not(:has(.archive-topic-picker:popover-open))::after,
+    .archive-page:not([data-preview-state]):not([data-view="garden"]):not(:has(.archive-topic-picker:popover-open)):has(.archive-item > .archive-title:hover + .archive-popup)::after {
       opacity: 0.9;
       transition-duration: var(--archive-popup-enter-duration);
       transition-delay: var(--archive-popup-open-delay);
@@ -461,82 +435,32 @@
 
 /* #region Secret garden */
 
-/* 花园与幕帘同源：从刊头下沿垂下、左端与刊头共边。不锚在视口上是必须的——
-   面板是透明的，钉在视口固定位置会压在刊头的目录栏上。
-   不支持锚点定位时退回 popover 的默认居中位：面板是独立的一块，居中同样可用
-   （幕帘铺满视口，退回默认位会散架，所以两者对支持的依赖不同） */
+/* 花园不是浮层，而是页面的第二种视图：页名连点五次后，公开清单整块换成它。
+   默认不占位，切换只改 .archive-page 上的 data-view（见 source/js/archive.js） */
 .archive-garden {
-  position: fixed;
-  inset: 0;
-  box-sizing: border-box;
-  width: min(26rem, calc(100vw - 2.5rem));
-  max-height: min(30rem, 68dvh);
-  margin: auto;
-  padding: 0;
-  overflow: visible;
-  border: none;
-  background: transparent;
-  color: var(--sub-text-color);
-  opacity: 0;
-  translate: 0 -0.5rem;
-  transition:
-    opacity 200ms ease,
-    translate 240ms var(--ease-out),
-    display 240ms allow-discrete,
-    overlay 240ms allow-discrete;
-
-  &:popover-open {
-    opacity: 1;
-    translate: 0 0;
-    transition:
-      opacity 200ms ease,
-      translate 280ms var(--ease-out);
-  }
-}
-
-@starting-style {
-  .archive-garden:popover-open {
-    opacity: 0;
-    translate: 0 -0.5rem;
-  }
-}
-
-@supports (anchor-name: --a) {
-  .archive-garden {
-    position-anchor: --archive-hero;
-    inset: auto;
-    top: anchor(bottom);
-    inset-inline-start: anchor(start);
-    margin: 0;
-    /* 刊头很高而视口很矮时，保持贴刊头下沿的方位，压缩到导航条下沿与视口底之间 */
-    position-try-fallbacks: --archive-garden-squeeze;
-  }
-}
-
-@position-try --archive-garden-squeeze {
-  top: calc(var(--navbar-height) + 0.5rem);
-  bottom: 1rem;
-  align-self: start;
-}
-
-.archive-garden::backdrop {
-  background: transparent;
-}
-
-.archive-garden__body {
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 0.7rem;
-  max-height: inherit;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-block: 0.35rem calc(0.35rem + env(safe-area-inset-bottom));
+  margin: 0;
+}
+
+/* 门禁与提示各只有一行的长度，不必跟着清单铺满整个栏宽 */
+.archive-garden :is(.archive-garden__hint, .archive-garden__gate) {
+  max-width: 22rem;
+}
+
+.archive-page[data-view="garden"] .archive-garden {
+  display: flex;
+}
+
+.archive-page[data-view="garden"] :is(.archive-group, .archive-masthead__actions) {
+  display: none;
 }
 
 .archive-garden__header {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: baseline;
   gap: 0.35rem 1rem;
 }
 
@@ -591,7 +515,6 @@
 
 .archive-garden__items {
   display: grid;
-  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -680,11 +603,11 @@
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  margin: 0 0 0.5rem;
-  padding-block: 0.5rem;
+  margin: 0 0 0.4rem;
+  padding-block: 0.45rem;
   color: color-mix(in oklch, var(--archive-accent) 70%, var(--sub-text-color));
   font-family: var(--font-handwritten);
-  font-size: 1rem;
+  font-size: 1.25rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
@@ -752,6 +675,12 @@
     opacity: 0;
     pointer-events: none;
   }
+}
+
+/* 空 span 只是渐进模糊那两层伪元素的宿主。它若是普通 flex 项，
+   会白占一份 gap，把季节标签从条目左缘推开（对齐就断了） */
+.archive-label__blur {
+  position: absolute;
 }
 
 .archive-label__name {
@@ -935,6 +864,11 @@ a.archive-title:is(:hover, :focus-visible) > .archive-title__date {
      兜底折行 */
   overflow-wrap: anywhere;
 
+  /* 与幕后那层纸同一张纸、同一个 fixed 附着点：预览因此是「纸上一块干净的纸」，
+     而不是浮在暗下去的页面上的几行字——摘要压住底下的季节引线也看不出来 */
+  background: var(--mantle);
+  background-image: var(--page-texture);
+  background-attachment: fixed;
   padding: 0.85rem 1rem 0.9rem;
   font-size: var(--article-font-size);
   font-weight: var(--article-font-weight);
@@ -1043,8 +977,8 @@ a.archive-title:is(:hover, :focus-visible) > .archive-title__date {
       --popup-hidden-shift: 0px;
     }
 
-    .archive-page:where(:not(:has(:is(.archive-topic-picker, .archive-garden):popover-open))) .archive-item:where([data-preview-active]),
-    .archive-page:where(:not([data-preview-state]):not(:has(:is(.archive-topic-picker, .archive-garden):popover-open))) .archive-item:where(:has(> .archive-title:hover + .archive-popup)) {
+    .archive-page:where(:not([data-view="garden"]):not(:has(.archive-topic-picker:popover-open))) .archive-item:where([data-preview-active]),
+    .archive-page:where(:not([data-preview-state]):not([data-view="garden"]):not(:has(.archive-topic-picker:popover-open))) .archive-item:where(:has(> .archive-title:hover + .archive-popup)) {
       z-index: 140;
       transition-delay: 0s;
 
@@ -1091,7 +1025,7 @@ a.archive-title:is(:hover, :focus-visible) > .archive-title__date {
 
 /* #region Focus & motion */
 
-:is(.archive-masthead__topics, .archive-masthead__garden, .archive-group__year, .archive-topic-list__item, .archive-garden__lock, a.archive-title):focus-visible {
+:is(.archive-masthead__topics, .archive-group__year, .archive-topic-list__item, .archive-garden__lock, a.archive-title):focus-visible {
   outline: auto;
   outline-offset: 2px;
   transition: none;

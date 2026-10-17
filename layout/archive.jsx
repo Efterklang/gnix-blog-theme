@@ -9,6 +9,9 @@ const { isEncrypted } = require("../include/hexo/encrypt");
 const COMMON_TOPIC_LIMIT = 12;
 // 中日韩字符按每分钟 350 字、其余按每分钟 200 词估算
 const CJK_RE = /[\u3000-\u303f\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff00-\uffef]/g;
+// 归档页的页名。手写笔画标签只认拉丁字母与数字，页名与规模都用英文，
+// 中文页面上这一行因此是「Archive / 162 writings」——拉丁刻度，中文内容
+const ARCHIVE_TITLE = "Archive";
 
 function collectPosts(collection) {
   const posts = [];
@@ -62,8 +65,6 @@ function getSeasonSpan(date) {
   return { season, startYear, endYear: startYear + 1 };
 }
 
-// 分组标题只写季节（autumn）；年份作为刻度落在同一行右端（’25/26 记跨年段）。
-// 两者共处 sticky 的一行，中间由一条细引线相连——季节是这一段的性格，年份是它的坐标
 function getSeasonName({ season }) {
   return season;
 }
@@ -129,6 +130,11 @@ function getPostDateParts(postDate, dateXml, date) {
 function getPostTags(post) {
   if (typeof post?.tags?.toArray === "function") return post.tags.toArray().map((tag) => tag.name).filter(Boolean);
   return [];
+}
+
+// 规模与话题数用与季节标签同一支手写笔画（构建期转 SVG）；转换失败时调用侧回退为 mono 文字
+function getCountStroke(count, noun) {
+  return StrokeLabel({ text: `${count} ${noun}`, className: "archive-count__strokes" });
 }
 
 // 一季一段：标签行在上，条目在一条等距的清单里。标题贴左缘、日期贴右缘，
@@ -216,50 +222,49 @@ function renderTopicPicker({ tags, allPosts, topicListLabel, commonLabel, restLa
   );
 }
 
-// 秘密花园：门禁 + 清单。清单在构建期整体加密（见 include/hexo/encrypt.js 的 encrypt_payload），
-// 未解锁前页面源码里只有密文，标题与链接都不外泄；解锁与列表渲染见 source/js/archive.js
+// 秘密花园：不是浮层，而是页面的第二种视图——页名连点五次后，公开清单换成这一块。
+// 清单在构建期整体加密（见 include/hexo/encrypt.js 的 encrypt_payload），未解锁前页面源码里
+// 只有密文，标题与链接都不外泄；解锁与列表渲染见 source/js/archive.js
 function renderGarden({ title, hint, count, placeholder, unlockLabel, lockLabel, errorLabel, blob }) {
   return (
-    <div id="archive-garden" class="archive-garden" popover="auto" data-state="locked">
-      <div class="archive-garden__body">
-        <header class="archive-garden__header">
-          <h2 id="archive-garden-title" class="archive-garden__title archive-micro">
-            {title}
-          </h2>
-          <p class="archive-garden__count">{count}</p>
-        </header>
-        <p class="archive-garden__hint">{hint}</p>
-        <form class="gate archive-garden__gate" autocomplete="off" aria-labelledby="archive-garden-title">
-          <div class="gate__field">
-            <span class="gate__mark" aria-hidden="true">
-              ✳
-            </span>
-            <input
-              class="gate__input"
-              type="password"
-              name="password"
-              placeholder={placeholder}
-              aria-label={placeholder}
-              enterkeyhint="done"
-              autocomplete="off"
-            />
-            <button class="gate__submit" type="submit">
-              {unlockLabel}
-            </button>
-          </div>
-          <p class="gate__error" role="alert">
-            {errorLabel}
-          </p>
-        </form>
-        <div class="archive-garden__list"></div>
-        <button class="archive-garden__lock archive-micro" type="button">
-          {lockLabel}
-        </button>
-        <div class="encrypted-data" hidden>
-          {blob}
+    <section id="archive-garden" class="archive-garden" data-state="locked" aria-labelledby="archive-garden-title">
+      <header class="archive-garden__header">
+        <h2 id="archive-garden-title" class="archive-garden__title archive-micro">
+          {title}
+        </h2>
+        <span class="archive-garden__count">{count}</span>
+      </header>
+      <p class="archive-garden__hint">{hint}</p>
+      <form class="gate archive-garden__gate" autocomplete="off" aria-labelledby="archive-garden-title">
+        <div class="gate__field">
+          <span class="gate__mark" aria-hidden="true">
+            ✳
+          </span>
+          <input
+            class="gate__input"
+            type="password"
+            name="password"
+            placeholder={placeholder}
+            aria-label={placeholder}
+            enterkeyhint="done"
+            autocomplete="off"
+          />
+          <button class="gate__submit" type="submit">
+            {unlockLabel}
+          </button>
         </div>
+        <p class="gate__error" role="alert">
+          {errorLabel}
+        </p>
+      </form>
+      <div class="archive-garden__list"></div>
+      <button class="archive-garden__lock archive-micro" type="button">
+        {lockLabel}
+      </button>
+      <div class="encrypted-data" hidden>
+        {blob}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -283,26 +288,29 @@ module.exports = class extends Component {
     const groups = groupPostsBySeason(visiblePosts);
     const topicTags = getTopicTags(site?.tags, page, config, helper);
 
-    const heroTitle = isTagPage ? page.tag : helper.__("archive.posts");
-    // 目录栏左端只标这一页是什么：归档页写「归档」，标签页写「标签」，
-    // 具体是谁由下面那行大标题说
-    const eyebrowLabel = helper._p(isTagPage ? "common.tag" : "common.archive", Infinity);
+    // 页名：归档页写 Archive，标签页写标签本身——标签页另有一行 eyebrow 说明这是什么
+    const heroTitle = isTagPage ? page.tag : ARCHIVE_TITLE;
+    const eyebrowLabel = helper._p("common.tag", Infinity);
     const writingsUnit = helper._p("archive.writing", totalVisiblePosts);
     const topicsUnit = helper._p("archive.topic", topicTags.length);
+    const writingsStroke = getCountStroke(totalVisiblePosts, totalVisiblePosts === 1 ? "writing" : "writings");
+    const topicsStroke = getCountStroke(topicTags.length, topicTags.length === 1 ? "topic" : "topics");
     const gardenCountLabel = `${gardenPosts.length} ${helper._p("archive.writing", gardenPosts.length)}`;
     const formatReadTime = (minutes) => helper.__("article.reading_time", minutes);
 
-    // 花园清单整体加密后随页面下发；没配 encrypt.password 时 helper 返回 null，入口随之消失
-    const gardenBlob = gardenPosts.length
-      ? helper.encrypt_payload(
-          JSON.stringify(
-            gardenPosts.map((post) => {
-              const parts = getPostDateParts(post.date, date_xml, date);
-              return { title: post.title, url: url_for(post.link || post.path), date: `${parts.label}, ${post.date.year()}`, dateXml: parts.xml };
-            }),
-          ),
-        )
-      : null;
+    // 花园清单整体加密后随页面下发；没配 encrypt.password 时 helper 返回 null，入口随之消失。
+    // 花园只属于归档页——标签页的页名是标签本身，连点没有意义
+    const gardenBlob =
+      !isTagPage && gardenPosts.length
+        ? helper.encrypt_payload(
+            JSON.stringify(
+              gardenPosts.map((post) => {
+                const parts = getPostDateParts(post.date, date_xml, date);
+                return { title: post.title, url: url_for(post.link || post.path), date: `${parts.label}, ${post.date.year()}`, dateXml: parts.xml };
+              }),
+            ),
+          )
+        : null;
 
     const articleList = groups.map((group) =>
       renderSeasonGroup({
@@ -319,16 +327,17 @@ module.exports = class extends Component {
     );
 
     return (
-      <main class="archive-page">
-        {/* 刊头两行：上面是目录栏（页名在左，规模与两个入口在右），下面是页名本身。
-            信息在上、名字在下，读者先知道这页有多大，再看到它叫什么 */}
+      <main class="archive-page" data-view="archive">
+        {/* 刊头一行：页名在左，规模与话题入口在右，共享一条基线。
+            两边都是手写笔画——刊头与下面的季节标签因此是同一只手写的 */}
         <header class="archive-masthead">
-          <div class="archive-masthead__bar">
-            <p class="archive-masthead__eyebrow archive-micro">{eyebrowLabel}</p>
+          {isTagPage ? <p class="archive-masthead__eyebrow archive-micro">{eyebrowLabel}</p> : null}
+          <div class="archive-masthead__row">
+            <h1 id="archive-masthead-title" class="archive-masthead__title">
+              {heroTitle}
+            </h1>
             <div class="archive-masthead__actions">
-              <span class="archive-masthead__stat">
-                <span class="archive-masthead__count">{totalVisiblePosts}</span> {writingsUnit}
-              </span>
+              <span class="archive-masthead__stat">{writingsStroke || `${totalVisiblePosts} ${writingsUnit}`}</span>
               <button
                 type="button"
                 class="archive-masthead__topics"
@@ -336,28 +345,11 @@ module.exports = class extends Component {
                 aria-expanded="false"
                 aria-controls="archive-topic-picker"
               >
-                <span>
-                  <span class="archive-masthead__count">{topicTags.length}</span> {topicsUnit}
-                </span>
-                <Icon name="chevron-down" size={12} />
+                <span class="archive-masthead__stat">{topicsStroke || `${topicTags.length} ${topicsUnit}`}</span>
+                <Icon name="chevron-down" size={15} />
               </button>
-              {gardenBlob ? (
-                /* 彩蛋：目录栏末尾一枚几乎看不见的记号，悬停才亮成花园色；键盘上敲 garden 也能进 */
-                <button
-                  type="button"
-                  class="archive-masthead__garden"
-                  popovertarget="archive-garden"
-                  aria-expanded="false"
-                  aria-controls="archive-garden"
-                  aria-label={helper.__("encrypt.garden")}
-                  title={helper.__("encrypt.garden")}
-                >
-                  <Icon name="sprout" size={13} />
-                </button>
-              ) : null}
             </div>
           </div>
-          <h1 class="archive-masthead__title">{heroTitle}</h1>
         </header>
 
         {renderTopicPicker({

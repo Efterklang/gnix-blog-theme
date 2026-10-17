@@ -3,9 +3,25 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "10.18",
+        cn: [
+          "归档页按目录式重排：刊头一行只有页名 Archive 与手写笔画的篇数、话题数，条目改两列（标题贴左缘、日期贴右缘），季节标签与年份由一条引线相连；加密文章从归档、首页、搜索索引、站点地图与 feed 中隐去",
+          "秘密花园改为页面的第二种视图：连点页名五次（或敲 garden）后，公开清单整块换成加密清单，密码解锁后才渲染标题与链接",
+        ],
+        en: [
+          "Reorganise the archive page as a catalogue: the masthead is one line holding the name Archive and the handwritten post and topic counts, entries become two columns with titles at the left edge and dates at the right, and every season label is tied to its year by a leader line; encrypted posts disappear from the archive, home, search index, sitemap and feed",
+          "Turn the Secret Garden into a second view of the page: five clicks on the page name (or typing garden) swap the public list for the encrypted one, whose titles and links only render once the password is entered",
+        ],
+        category: "uiux",
+      },
+      {
         date: "10.17",
-        cn: ["归档页季节标签改为构建期生成的手写笔画 SVG，悬浮或点按逐笔书写；标签置顶吸附、滑入内容渐进模糊，不再依赖访客本地字体"],
-        en: ["Archive season labels become build-time handwritten stroke SVGs that draw themselves on hover or tap; the label sticks to the viewport top with a progressive blur for content sliding under, and no longer depends on visitors' local fonts"],
+        cn: [
+          "归档页季节标签改为构建期生成的手写笔画 SVG，悬浮或点按逐笔书写；标签置顶吸附、滑入内容渐进模糊，不再依赖访客本地字体",
+        ],
+        en: [
+          "Archive season labels become build-time handwritten stroke SVGs that draw themselves on hover or tap; the label sticks to the viewport top with a progressive blur for content sliding under, and no longer depends on visitors' local fonts",
+        ],
         category: "uiux",
       },
       {
