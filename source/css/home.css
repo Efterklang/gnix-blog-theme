@@ -97,6 +97,17 @@
   margin-top: 0.75em;
 }
 
+/* 滚动提示是首屏的收尾句，比简介再降一级：更小、更淡 */
+.home-hero__caption {
+  margin: 1.25rem 0 0;
+  max-width: 34rem;
+  color: color-mix(in oklch, var(--sub-text-color) 75%, transparent);
+  font-family: var(--article-font-family);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
 /* 名字后的音标：衬线斜体与正文区分开，且不在中间折行 */
 .home-hero__ipa {
   font-family: serif;
@@ -289,7 +300,7 @@
    .gnix-revealed 由 head 内联脚本在首帧前加上。
    淡入意味着作为 LCP 元素的简介段落要等首帧之后才计入绘制（移动端模拟约多 2 s），
    这是有意保留的视觉取舍 */
-:root.gnix-revealed .home-page :is(.home-hero__title, .home-hero__intro, .home-links__row, .home-recent__title, .home-recent__item) {
+:root.gnix-revealed .home-page :is(.home-hero__title, .home-hero__intro, .home-hero__caption, .home-links__row, .home-recent__title, .home-recent__item) {
   animation: home-enter var(--home-enter-duration) var(--ease-out) backwards;
   animation-delay: calc(min(var(--i, 0), 12) * 60ms);
 }
@@ -327,7 +338,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root.gnix-revealed .home-page :is(.home-hero__title, .home-hero__intro, .home-links__row, .home-recent__title, .home-recent__item) {
+  :root.gnix-revealed .home-page :is(.home-hero__title, .home-hero__intro, .home-hero__caption, .home-links__row, .home-recent__title, .home-recent__item) {
     animation: home-fade 160ms var(--ease-out) backwards;
     animation-delay: 0ms;
   }

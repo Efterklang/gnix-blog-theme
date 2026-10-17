@@ -116,7 +116,7 @@ module.exports = class extends Component {
     const introNode = (
       <>
         <p class="home-hero__intro" style={`--i:${order++}`}>
-          Hello! I'm GnixAij Oag{" "}
+          Hello! My name is pronounced{" "}
           <span class="home-hero__ipa" lang="und-Latn-fonipa">
             /nɪkˈsaɪdʒ oʊɡ/
           </span> —— a name I coined myself.
@@ -146,7 +146,7 @@ module.exports = class extends Component {
           </a>
           .
         </p>
-        <p class="home-hero__intro" style={`--i:${order++}`}>
+        <p class="home-hero__caption" style={`--i:${order++}`}>
           Scroll down for the top topics and my recent writings.
         </p>
       </>
