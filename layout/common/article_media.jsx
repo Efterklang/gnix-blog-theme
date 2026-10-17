@@ -1,5 +1,6 @@
 /**
- * Article media component, used in article lists such as archive page and recent posts widget
+ * Archive list row: title flush left, date flush right, preview popup above the row.
+ * Rendered as an <li> — it belongs inside the archive's <ol class="archive-list">.
  */
 const { Component, formatMonthDay, isValidDate, parseISO } = require("../../include/util/common");
 
@@ -12,46 +13,38 @@ function formatDate(date, dateXml) {
 
 module.exports = class extends Component {
   render() {
-    const { url, title, date, dateXml, excerpt, readTime, encrypted = false, encryptedLabel = "This article is encrypted" } = this.props;
+    const { url, title, date, dateXml, excerpt, readTime, tags = [] } = this.props;
     const formattedDate = formatDate(date, dateXml);
+    // 摘要可以只有一个词（front-matter 的 excerpt 写「随笔」也算），浮层靠下面这行标签 + 时长撑住
+    const tagList = Array.isArray(tags) ? tags.filter(Boolean) : [];
 
     return (
-      <article class="archive-item">
-        <a class={encrypted ? "archive-title archive-title--encrypted" : "archive-title"} href={url}>
-          {/* 标题、锁、日期同行内联，与首页近期列表同一排法 */}
-          {title}
-          {encrypted && (
-            <svg
-              class="archive-title__lock lucide lucide-lock preview-icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              role="img"
-              aria-label={encryptedLabel}
-              focusable="false"
-            >
-              <title>{encryptedLabel}</title>
-              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-          )}{" "}
+      <li class="archive-item">
+        <a class="archive-title" href={url}>
+          {/* 两列：标题占满剩余宽度、贴左缘，日期贴右缘。长标题折行时日期留在首行，
+              全页因此有两条笔直的竖轴 */}
+          <span class="archive-title__text">{title}</span>
           <time class="archive-title__date" dateTime={dateXml || null}>
             {formattedDate}
           </time>
         </a>
-        {excerpt && (
+        {excerpt || tagList.length || readTime ? (
+          /* 预览是给鼠标的顺带好处：静态 inert，不拦标题点击，也不进无障碍树（摘要与时长在文章页都读得到） */
           <div class="archive-popup" inert>
-            <div class="archive-popup__excerpt" dangerouslySetInnerHTML={{ __html: excerpt }}></div>
-            {readTime && <p class="archive-popup__read">{readTime}</p>}
+            {excerpt ? <div class="archive-popup__excerpt" dangerouslySetInnerHTML={{ __html: excerpt }}></div> : null}
+            {tagList.length || readTime ? (
+              <p class="archive-popup__meta">
+                {tagList.map((tag) => (
+                  <span key={tag} class="archive-popup__tag">
+                    {tag}
+                  </span>
+                ))}
+                {readTime ? <span class="archive-popup__read">{readTime}</span> : null}
+              </p>
+            ) : null}
           </div>
-        )}
-      </article>
+        ) : null}
+      </li>
     );
   }
 };

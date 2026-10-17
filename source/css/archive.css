@@ -4,110 +4,214 @@
   max-width: calc(var(--article-max-width) + 3rem);
 }
 
+/* 页面是一条自上而下的栅格：刊头、一季一段，段与段之间靠留白分开，没有任何分隔线。
+   条目内部另有自己的两列栅格（标题 | 日期），见 a.archive-title */
 .archive-page {
   --archive-accent: var(--lavender);
+  /* 秘密花园自己的一支强调色：它是「另一个地方」，与归档的 lavender 分开 */
+  --archive-garden-accent: var(--teal);
   /* 吸附标签下方渐进模糊的渐隐区高度（见 .archive-group__header 的模糊层） */
   --archive-label-fade: 3rem;
-  /* 吸顶标签的落点，也是锚点跳转的落点：紧贴视口顶端。窄视口导航条移到底部，
-     标签只需避开状态栏 */
+  /* 吸顶标签的落点：紧贴视口顶端。窄视口导航条移到底部，标签只需避开状态栏 */
   --archive-sticky-top: 0px;
   --archive-popup-open-delay: 140ms;
   --archive-popup-enter-duration: 160ms;
   --archive-popup-exit-duration: 125ms;
+  /* 条目两列之间的间距：标题与日期之间留出的最小空隙 */
+  --archive-row-gap: 1.25rem;
   position: relative;
   display: grid;
-  /* 参考归档的 56px 分组留白；组内条目以 14px 间距保持紧凑。 */
-  gap: 3.5rem;
-  padding: 1.25rem 1.5rem 0;
+  gap: 3.25rem;
+  padding: 1.5rem 1.5rem 0;
 }
 
-/* season h2 与 hero 触发按钮共用；border/background/font 是按钮样式复位
-   （落在 h2 上无操作） */
-.archive-label {
+@media (max-width: 1023px) {
+  .archive-page {
+    --archive-sticky-top: env(safe-area-inset-top);
+  }
+}
+
+@media (max-width: 640px) {
+  .archive-page {
+    --archive-row-gap: 0.875rem;
+    gap: 2.5rem;
+    padding-inline: 1.25rem;
+  }
+}
+
+/* mono 微型标签的宽字距是站内惯例（导航条、首页的 TOP TOPICS / RECENT），
+   但它只适合拉丁文：中日韩字符铺同样的字距会把字与字拆开、还和数字间的空隙打架。
+   按脚本切换——英文页保持 0.16em，中日韩页收到 0.06em */
+.archive-micro {
+  letter-spacing: 0.06em;
+}
+
+:lang(en) .archive-micro {
+  letter-spacing: 0.16em;
+}
+
+/* #region Masthead */
+
+/* 刊头两行：上面一行是目录栏（页名在左，规模与两个入口在右，共享一条基线），
+   下面一行是这一页的名字。信息在上、名字在下——读者先看到这页的规模，再看到它叫什么。
+   h1 所在元素同时是幕帘与花园的锚点 */
+.archive-masthead {
+  anchor-name: --archive-hero;
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.archive-masthead__bar {
   display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem 2rem;
+  min-width: 0;
+}
+
+.archive-masthead__eyebrow {
+  margin: 0;
+  color: var(--sub-text-color);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+/* 规模与两个入口：一行 mono 小字。数字比单位深一档——否则整行糊成一片灰，
+   而「167 篇」正是读者第一眼想知道的量级 */
+.archive-masthead__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 1.1rem;
+  min-width: 0;
+  color: var(--sub-text-color);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+}
+
+.archive-masthead__stat {
+  white-space: nowrap;
+}
+
+.archive-masthead__count {
+  color: var(--title-text-color);
+}
+
+/* 话题入口：无边框无底色，靠颜色表达可点与状态 */
+.archive-masthead__topics {
+  display: inline-flex;
   align-items: center;
+  gap: 0.35em;
+  padding: 0;
   border: none;
   background: transparent;
   color: var(--sub-text-color);
-  font: inherit;
-  font-size: var(--article-font-size);
-  font-weight: var(--article-font-weight);
-  font-family: var(--article-font-family);
-  overflow-wrap: anywhere;
-}
-
-/* #region Hero */
-
-/* The h1 itself: contains only the picker-trigger button. It anchors the
-   topic picker curtain that drops from its bottom divider. */
-.archive-hero {
-  anchor-name: --archive-hero;
-  margin: 0;
-  min-width: 0;
-  max-width: 100%;
-  font: inherit;
-  padding: 1.35rem 0 1rem;
-}
-
-.archive-hero__title {
-  max-width: 100%;
-  /* 与季节标题、列表条目共用起始对齐边（此前多出的 0.15rem 让大标题游离于共享边外） */
-  padding-inline: 0 0.5rem;
-  padding-block: 0;
-  color: var(--title-text-color);
   cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  white-space: nowrap;
+  transition: color 140ms var(--ease-out);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--archive-accent);
+  }
+
+  /* 数字跟着按钮一起转强调色（它自己有 title-text 色，不会自动继承） */
+  &:is(:hover, :focus-visible) .archive-masthead__count {
+    color: var(--archive-accent);
+  }
+
+  & svg {
+    transition: rotate 200ms var(--ease-out);
+  }
+}
+
+.archive-page:has(.archive-topic-picker:popover-open) .archive-masthead__topics {
+  color: var(--archive-accent);
+
+  & svg {
+    rotate: 180deg;
+  }
+}
+
+/* 秘密花园的入口是一枚几乎看不见的记号：它是彩蛋，不是按钮。静息态只有三分之一的不透明度，
+   悬停或聚焦才亮起来；键盘上敲 garden 也能进（见 archive.js） */
+.archive-masthead__garden {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--archive-garden-accent);
+  cursor: pointer;
+  opacity: 0.32;
+  transition:
+    opacity 180ms ease,
+    color 140ms var(--ease-out);
+
+  &:hover,
+  &:focus-visible,
+  &[aria-expanded="true"] {
+    opacity: 1;
+  }
+}
+
+/* 页名沿用首页首屏的字号与字距：两页在同一位置呈现同一尺度的标题 */
+.archive-masthead__title {
+  margin: 0;
+  max-width: 100%;
+  color: var(--title-text-color);
   font-size: 3rem;
-  font-style: normal;
   font-weight: 400;
   font-family: var(--article-font-family);
   line-height: 1;
   letter-spacing: -0.03em;
-  text-align: start;
-  transition: color 160ms ease;
+  overflow-wrap: anywhere;
+  transition:
+    opacity 340ms ease,
+    color 340ms ease;
 
   @media (min-width: 768px) {
     font-size: 3.25rem;
   }
-
-  &:hover,
-  &:focus-visible {
-    color: var(--lavender);
-  }
 }
 
-/* Softly recede everything below the hero while the topic curtain is open;
-   the hero itself stays sharp and picks up the accent. */
+/* 幕帘或花园打开时，静息态的正文（与花园打开时的页名）一起退到纸面之后 */
 .archive-page .archive-group {
   transition: opacity 340ms ease;
 }
 
-body:has(.archive-page) :is(.navbar, .footer) {
-  transition: opacity 340ms ease;
-}
-
-.archive-page:has(.archive-topic-picker:popover-open) {
-  .archive-hero__title {
-    color: var(--archive-accent);
-  }
-
-  .archive-group {
-    opacity: 0;
-    pointer-events: none;
-  }
-}
-
-body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
+.archive-page:has(:is(.archive-topic-picker, .archive-garden):popover-open) .archive-group {
   opacity: 0;
-  /* 隐形≠不可点：light-dismiss 的关闭点击会穿透，落在透明导航链接上就误跳转 */
   pointer-events: none;
 }
 
-/* 幕帘开启时锁定文档滚动：幕帘锚定在 hero 上，页面一滚就跟着 hero 滑出视口，
-   身后内容又已 opacity: 0，只剩空白页；gutter 抵消滚动条消失引起的布局跳动 */
-:root:has(.archive-topic-picker:popover-open) {
-  overflow: hidden;
-  scrollbar-gutter: stable;
+.archive-page:has(.archive-garden:popover-open) .archive-masthead__title {
+  opacity: 0;
+  pointer-events: none;
 }
+
+.archive-page:has(.archive-topic-picker:popover-open) .archive-masthead__title {
+  color: var(--archive-accent);
+}
+
+.archive-page:has(.archive-garden:popover-open) .archive-masthead__title {
+  color: var(--archive-garden-accent);
+}
+
+/* #endregion */
 
 /* #region Hover overlay */
 
@@ -129,8 +233,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
       transition: opacity var(--archive-popup-exit-duration) var(--ease-out);
     }
 
-    .archive-page[data-preview-state="open"]:not(:has(.archive-topic-picker:popover-open))::after,
-    .archive-page:not([data-preview-state]):not(:has(.archive-topic-picker:popover-open)):has(.archive-item > .archive-title:hover + .archive-popup)::after {
+    .archive-page[data-preview-state="open"]:not(:has(:is(.archive-topic-picker, .archive-garden):popover-open))::after,
+    .archive-page:not([data-preview-state]):not(:has(:is(.archive-topic-picker, .archive-garden):popover-open)):has(.archive-item > .archive-title:hover + .archive-popup)::after {
       opacity: 0.9;
       transition-duration: var(--archive-popup-enter-duration);
       transition-delay: var(--archive-popup-open-delay);
@@ -140,13 +244,15 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 /* #endregion */
 
+/* #region Topic curtain */
+
 .archive-topic-picker__body {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
 }
 
-/* 页面内容已在 tags 打开时淡出，直接透出原背景，避免遮罩重复叠色。 */
+/* 页面内容已在幕帘打开时淡出，直接透出原背景，避免遮罩重复叠色。 */
 .archive-topic-picker:popover-open::before {
   content: none;
 }
@@ -155,7 +261,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   background: transparent;
 }
 
-/* Curtain mode: the picker hangs from the hero's bottom divider, filling down
+/* Curtain mode: the picker hangs from the masthead's bottom edge, filling down
    to the viewport bottom over the receded page. The reveal is carried entirely
    by the per-item stagger so every row animates the same way. Requires anchor
    positioning. */
@@ -176,7 +282,7 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
     border: none;
     background: transparent;
 
-    /* Closed/exit state: tucked back up behind the hero divider. */
+    /* Closed/exit state: tucked back up behind the masthead. */
     opacity: 0;
     translate: 0 -0.6rem;
     transition:
@@ -209,7 +315,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 
   /* Tags rise into place one after another, cascading through the whole list
-     (uncapped: a capped delay made late rows pop in together). */
+     (uncapped: a capped delay made late rows pop in together). The two bands
+     share one running index, so the cascade stays a single top-down sweep. */
   .archive-topic-picker:popover-open .archive-topic-list__item {
     animation: archive-topic-item-in 300ms var(--ease-out) backwards;
     animation-delay: calc(40ms + var(--i, 0) * 5ms);
@@ -223,13 +330,13 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 }
 
-/* Slim eyebrow row: the hero right above already names the page, so the
-   header only carries a small mono label and the stats. */
+/* 幕帘自己的一行刊头：左边是这一叠是什么，右边是总数——与页面刊头同一读法 */
 .archive-topic-picker__header {
   display: flex;
   flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
   gap: 0.35rem 1rem;
-  align-items: center;
   padding: 0.75rem 1rem 0.5rem;
 
   h2 {
@@ -238,7 +345,6 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
     font-family: var(--font-mono);
     font-size: 0.75rem;
     font-weight: var(--font-weight-semibold);
-    letter-spacing: 0.16em;
     line-height: 1.35;
     text-transform: uppercase;
 
@@ -249,49 +355,61 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 }
 
-.archive-topic-picker__stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.65rem;
+.archive-topic-picker__count {
   margin: 0;
-  margin-inline-start: auto;
-  padding: 0;
   color: var(--sub-text-color);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
   line-height: 1.35;
-  list-style: none;
-  text-transform: lowercase;
 }
 
 .archive-topic-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(11rem, 100%), 1fr));
-  gap: 0.15rem 0.35rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(11rem, 100%), 1fr));
+  align-content: start;
+  column-gap: 1.5rem;
+  row-gap: 0;
   min-height: 0;
   max-height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain;
   /* 首列条目文本与 header 文本共边（两处都以 # 起头）：
      条目自带 0.48rem 内边距，容器补足到 header 的 1rem */
-  padding: 0.65rem calc(1rem - 0.48rem);
+  padding: 0.5rem calc(1rem - 0.48rem);
   /* 幕帘贴视口底：留出 iOS home indicator 安全区，末行标签可滚出手势条 */
-  padding-bottom: calc(0.65rem + env(safe-area-inset-bottom));
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+}
+
+/* 分带标题：约 136 个标签平铺是一堵墙，先给按篇数排出的「常用」，其余按字母序。
+   标题跨满整行，文本与条目、与 header 的 # 同一条左边界 */
+.archive-topic-list__band {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0.9rem 0.48rem 0.35rem;
+  color: var(--sub-text-color);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.35;
+  text-transform: uppercase;
+
+  &:first-child {
+    padding-block-start: 0;
+  }
 }
 
 .archive-topic-list__item {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 0.35rem;
+  gap: 0.4rem;
   align-items: baseline;
   min-width: 0;
-  padding: 0.42rem 0.48rem;
-  border-radius: 4px;
+  padding: 0.5rem 0.48rem;
   color: var(--title-text-color);
   font-size: 1rem;
   font-synthesis: none;
-  line-height: 1.15;
+  line-height: 1.25;
   text-decoration: none;
   transition: color 70ms ease;
 
@@ -334,18 +452,206 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 
   .archive-topic-list {
-    padding: 0.55rem calc(0.85rem - 0.48rem);
-    padding-bottom: calc(0.55rem + env(safe-area-inset-bottom));
+    padding: 0.45rem calc(0.85rem - 0.48rem);
+    padding-bottom: calc(0.45rem + env(safe-area-inset-bottom));
   }
 }
 
 /* #endregion */
 
+/* #region Secret garden */
+
+/* 花园与幕帘同源：从刊头下沿垂下、左端与刊头共边。不锚在视口上是必须的——
+   面板是透明的，钉在视口固定位置会压在刊头的目录栏上。
+   不支持锚点定位时退回 popover 的默认居中位：面板是独立的一块，居中同样可用
+   （幕帘铺满视口，退回默认位会散架，所以两者对支持的依赖不同） */
+.archive-garden {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  width: min(26rem, calc(100vw - 2.5rem));
+  max-height: min(30rem, 68dvh);
+  margin: auto;
+  padding: 0;
+  overflow: visible;
+  border: none;
+  background: transparent;
+  color: var(--sub-text-color);
+  opacity: 0;
+  translate: 0 -0.5rem;
+  transition:
+    opacity 200ms ease,
+    translate 240ms var(--ease-out),
+    display 240ms allow-discrete,
+    overlay 240ms allow-discrete;
+
+  &:popover-open {
+    opacity: 1;
+    translate: 0 0;
+    transition:
+      opacity 200ms ease,
+      translate 280ms var(--ease-out);
+  }
+}
+
+@starting-style {
+  .archive-garden:popover-open {
+    opacity: 0;
+    translate: 0 -0.5rem;
+  }
+}
+
+@supports (anchor-name: --a) {
+  .archive-garden {
+    position-anchor: --archive-hero;
+    inset: auto;
+    top: anchor(bottom);
+    inset-inline-start: anchor(start);
+    margin: 0;
+    /* 刊头很高而视口很矮时，保持贴刊头下沿的方位，压缩到导航条下沿与视口底之间 */
+    position-try-fallbacks: --archive-garden-squeeze;
+  }
+}
+
+@position-try --archive-garden-squeeze {
+  top: calc(var(--navbar-height) + 0.5rem);
+  bottom: 1rem;
+  align-self: start;
+}
+
+.archive-garden::backdrop {
+  background: transparent;
+}
+
+.archive-garden__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  max-height: inherit;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-block: 0.35rem calc(0.35rem + env(safe-area-inset-bottom));
+}
+
+.archive-garden__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 1rem;
+}
+
+.archive-garden__title {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  margin: 0;
+  color: var(--archive-garden-accent);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.archive-garden__count {
+  margin: 0;
+  margin-inline-start: auto;
+  color: var(--sub-text-color);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+}
+
+.archive-garden__hint {
+  margin: 0;
+  color: color-mix(in oklch, var(--sub-text-color) 80%, transparent);
+  font-family: var(--article-font-family);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* 门禁与清单互斥：一个 data-state 同时管住两边，JS 只改这一个属性 */
+.archive-garden :is(.archive-garden__list, .archive-garden__lock, .gate__error) {
+  display: none;
+}
+
+.archive-garden[data-state="error"] .gate__error {
+  display: block;
+}
+
+.archive-garden[data-state="unlocked"] :is(.archive-garden__list, .archive-garden__lock) {
+  display: block;
+}
+
+.archive-garden[data-state="unlocked"] .archive-garden__gate {
+  display: none;
+}
+
+.archive-garden__items {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 解锁时逐条上浮，节奏与幕帘一致 */
+.archive-garden__item {
+  min-width: 0;
+  animation: archive-garden-item-in 300ms var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 30ms);
+}
+
+@keyframes archive-garden-item-in {
+  from {
+    opacity: 0;
+    translate: 0 -0.35rem;
+  }
+}
+
+/* 花园里的行沿用归档条目的两列排法，强调色换成花园的那一支 */
+.archive-garden a.archive-title {
+  &:hover,
+  &:focus-visible,
+  &:active {
+    color: var(--archive-garden-accent);
+  }
+
+  &:is(:hover, :focus-visible) > .archive-title__date {
+    color: color-mix(in oklch, var(--archive-garden-accent) 72%, var(--sub-text-color));
+  }
+}
+
+.archive-garden__lock {
+  align-self: start;
+  padding: 0.25rem 0;
+  border: none;
+  background: transparent;
+  color: var(--sub-text-color);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.6;
+  text-transform: uppercase;
+  transition: color 140ms var(--ease-out);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--archive-garden-accent);
+  }
+}
+
+/* #endregion */
+
+/* #region Groups */
+
 .archive-group {
   position: relative;
   min-width: 0;
-  /* 锚点落点：让分组顶边停在标签的吸顶位上——跳转后与手动滚到那里是同一状态，
-     模糊层随即点亮 */
+  /* 年份的落点：让标签正好落在它的吸顶位——与手动滚到那里同一状态，
+     模糊层随之点亮（全局 :where([id]) 的 1rem 阅读间距在这里不够用） */
   scroll-margin-block-start: var(--archive-sticky-top);
 
   &.spring {
@@ -363,27 +669,31 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 }
 
 /* 季节标签：构建期转为单线笔画 SVG（include/util/hershey.js），悬浮或点按逐笔书写；
-   下面的字体样式只用于笔画不可用时的文字回退。扣除首行链接的 7px 内边距，
-   让标签与第一条文字之间的实际间距保持 24px。
-   置顶吸附：在本季分组内滚动时标签钉在视口顶端（导航条的链接与玻璃按钮浮在其上），
+   下面的字体样式只用于笔画不可用时的文字回退。
+   一行三件：季节在左、年份在右，中间一条细引线把两端连成一条线——它们是同一行上的
+   前后关系，不是两端对齐的两块。置顶吸附：在本季分组内滚动时标签紧贴视口顶端，
    上下 0.5rem 内边距给吸附状态留呼吸；标签不带实色底，吸附时由渐进模糊层保证可读 */
 .archive-group__header {
   position: sticky;
   top: var(--archive-sticky-top);
   z-index: 1;
-  margin: 0 0 calc(1.5rem - 0.4375rem - 0.5rem);
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0 0 0.5rem;
   padding-block: 0.5rem;
+  color: color-mix(in oklch, var(--archive-accent) 70%, var(--sub-text-color));
   font-family: var(--font-handwritten);
-  font-size: 0.875rem;
+  font-size: 1rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: color-mix(in oklch, var(--archive-accent) 70%, var(--sub-text-color));
 }
 
 /* 渐进模糊：标签吸附时，滑入标签带的内容逐渐失焦。四层 backdrop-filter 各自只
    承担一段模糊量、渐隐区间互相重叠——单层大步长会在纸纹上留下可见的分界；
-   横向以视口居中铺满（50% - 50vw），既不切边也不撑出横向滚动。未吸附（.is-stuck 由
-   archive.js 维护）时完全不绘制，标签保持透明 */
+   横向以视口居中铺满（50% - 50vw），既不切边也不撑出横向滚动。
+   标签吸在视口顶端，带子的顶边就落在屏幕外沿，内容是在这里被吃掉的。
+   未吸附（.is-stuck 由 archive.js 维护）时完全不绘制，标签保持透明 */
 .archive-group__header::before,
 .archive-group__header::after,
 .archive-label__blur::before,
@@ -404,8 +714,11 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   opacity: 1;
 }
 
+/* 最外那层顺带铺一道极淡的季节色晕：滚动时「当前在哪个季节」被感觉到，
+   而不是只被读到——无边框、无底色块，只是纸面上一层若有若无的色温 */
 .archive-group__header.is-stuck::before {
   backdrop-filter: blur(2px);
+  background: linear-gradient(to bottom, color-mix(in oklch, var(--archive-accent) 7%, transparent), transparent);
   mask-image: linear-gradient(to bottom, #000 0%, transparent 90%);
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 90%);
 }
@@ -428,8 +741,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 6%, transparent 34%);
 }
 
-/* 桌面端标签吸在视口顶端，与导航链接同处一条带。两者是否相撞取决于阅读宽度偏好与视口宽度，
-   媒体查询读不到列宽，所以由 archive.js 按实际位置判断：相撞时让链接淡出，玻璃按钮保留 */
+/* 桌面端标签吸在视口顶端，与导航链接同处一条带。列宽随阅读宽度偏好变化，媒体查询读不到，
+   所以由 archive.js 按实际位置判断：相撞时让链接淡出，玻璃按钮保留 */
 @media (min-width: 1024px) {
   :is(.navbar-menu, .navbar-start) {
     transition: opacity 220ms ease;
@@ -441,17 +754,38 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 }
 
-/* 窄屏导航条移到底部，吸附只需避开状态栏 */
-@media (max-width: 1023px) {
-  .archive-page {
-    --archive-sticky-top: env(safe-area-inset-top);
-  }
+.archive-label__name {
+  display: flex;
+  align-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
-.archive-label__num {
-  /* 年份延续主题的季节强调色。 */
-  color: color-mix(in oklch, var(--archive-accent) 70%, var(--sub-text-color));
-  font-weight: var(--font-weight-semibold);
+/* 引线：把左端的季节与右端的年份连成一条线。1px、跟随季节色、只留一点存在感 */
+.archive-group__leader {
+  flex: 1 1 auto;
+  min-inline-size: 1.5rem;
+  block-size: 1px;
+  background: currentColor;
+  opacity: 0.28;
+}
+
+/* 年份刻度：贴在标签行右端，与手写季节共享一条基线；吸附时随标题一起钉在顶端，
+   于是滚动过程中「哪一季、哪一年」一直在视野里 */
+.archive-group__year {
+  flex: none;
+  color: var(--sub-text-color);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: color 140ms var(--ease-out);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--archive-accent);
+  }
 }
 
 /* 单线笔画标签：纵向 viewBox（42 单位）对所有标签固定，横向各自收紧，
@@ -486,22 +820,93 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .archive-group__header:is(:hover, .is-writing) .archive-label__stroke {
-    stroke-dasharray: none;
-    animation: none;
-  }
+/* #endregion */
+
+/* #region Entries */
+
+/* 一季的清单：条目之间没有分隔线，只有等距的行距。
+   行的两列在 a.archive-title 上——列表本身只是把行码齐 */
+.archive-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .archive-item {
   position: relative;
-  text-align: start;
+  min-width: 0;
 
   /* Each item is its own anchor; anchor-scope keeps the shared name local to
      this subtree so every popup binds to its own item. */
   anchor-name: --archive-anchor;
   anchor-scope: --archive-anchor;
 }
+
+/* 一行两列：标题贴左缘占满剩余宽度，日期贴右缘。列宽由内容决定，
+   所以短标题的行里日期不会跟着标题飘——它始终落在同一条竖轴上 */
+a.archive-title {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--archive-row-gap);
+  align-items: baseline;
+  max-inline-size: 100%;
+  /* 默认偏好下为 15px / 15.5px，仍随用户的正文字号与字体设置缩放。 */
+  font-size: calc(var(--article-font-size) * 0.9375);
+  font-weight: var(--article-font-weight);
+  font-family: var(--article-font-family);
+  line-height: 1.45;
+  color: var(--title-text-color);
+  padding-block: 0.5rem;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+  transition: color 140ms var(--ease-out);
+
+  @media (min-width: 640px) {
+    font-size: calc(var(--article-font-size) * 0.96875);
+  }
+
+  /* 触屏行距：默认约 37px、相邻条目零间距，167 行的列表里误触代价高；
+     粗指针下把行距撑到约 44px */
+  @media (pointer: coarse) {
+    padding-block: 0.625rem;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--archive-accent);
+  }
+
+  /* 按下当帧上色（transition: none）：触屏没有 hover，
+     这是点按到跳转之间唯一的即时确认 */
+  &:active {
+    color: var(--archive-accent);
+    transition: none;
+  }
+}
+
+.archive-title__text {
+  min-width: 0;
+}
+
+/* 日期作为右列的注脚：等宽小字、不折行，与标题首行共享基线 */
+.archive-title__date {
+  justify-self: end;
+  color: var(--sub-text-color);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+  transition: color 140ms var(--ease-out);
+}
+
+a.archive-title:is(:hover, :focus-visible) > .archive-title__date {
+  color: color-mix(in oklch, var(--archive-accent) 72%, var(--sub-text-color));
+}
+
+/* #endregion */
 
 /* #region Popup */
 
@@ -562,7 +967,13 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   align-self: end;
 }
 
+/* 摘要限 4 行：一个词的摘要也好、一段课程提纲也好，浮层高度都可预期，
+   max-block-size 退回兜底 */
 .archive-popup__excerpt {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
   font-family: var(--article-font-family);
   color: var(--sub-text-color);
 
@@ -579,13 +990,32 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
   }
 }
 
-.archive-popup__read {
-  margin: 0.5rem 0 0;
+/* 摘要下面的注脚：标签与阅读时长。摘要只有一个词时，靠这一行撑住浮层 */
+.archive-popup__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.8rem;
+  margin: 0.6rem 0 0;
   color: var(--sub-text-color);
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-align: end;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+
+.archive-popup__tag {
+  color: color-mix(in oklch, var(--archive-accent) 55%, var(--sub-text-color));
+
+  &::before {
+    content: "#";
+  }
+}
+
+.archive-popup__read {
+  margin-inline-start: auto;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* archive.js coordinates hover intent, keyboard focus and scroll dismissal.
@@ -613,8 +1043,8 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
       --popup-hidden-shift: 0px;
     }
 
-    .archive-page:where(:not(:has(.archive-topic-picker:popover-open))) .archive-item:where([data-preview-active]),
-    .archive-page:where(:not([data-preview-state]):not(:has(.archive-topic-picker:popover-open))) .archive-item:where(:has(> .archive-title:hover + .archive-popup)) {
+    .archive-page:where(:not(:has(:is(.archive-topic-picker, .archive-garden):popover-open))) .archive-item:where([data-preview-active]),
+    .archive-page:where(:not([data-preview-state]):not(:has(:is(.archive-topic-picker, .archive-garden):popover-open))) .archive-item:where(:has(> .archive-title:hover + .archive-popup)) {
       z-index: 140;
       transition-delay: 0s;
 
@@ -659,88 +1089,28 @@ body:has(.archive-topic-picker:popover-open) :is(.navbar, .footer) {
 
 /* #endregion */
 
-a.archive-title {
-  /* 标题、锁与日期同行内联，与首页近期列表同一排法：短标题一行放完，
-     长标题折行时日期跟在末行文字后，不再被两列网格钉到右缘 */
-  display: block;
-  inline-size: fit-content;
-  /* 默认偏好下为 15px / 15.5px，仍随用户的正文字号与字体设置缩放。 */
-  font-size: calc(var(--article-font-size) * 0.9375);
-  font-weight: var(--article-font-weight);
-  font-family: var(--article-font-family);
-  max-inline-size: 100%;
-  color: var(--title-text-color);
-  padding-block: 0.375rem;
-  padding-inline: 0 0.35rem;
-  overflow-wrap: anywhere;
-  transition: color 140ms var(--ease-out);
+/* #region Focus & motion */
 
-  @media (min-width: 640px) {
-    font-size: calc(var(--article-font-size) * 0.96875);
-  }
-
-  &.archive-title--encrypted {
-    color: var(--sub-text-color);
-  }
-
-  &:hover,
-  &:focus-visible {
-    color: var(--archive-accent);
-  }
-
-  /* 按下当帧上色（transition: none）：触屏没有 hover，
-     这是点按到跳转之间唯一的即时确认 */
-  &:active {
-    color: var(--archive-accent);
-    transition: none;
-  }
-}
-
-/* 日期作为行内注脚跟在标题后：等宽小字、不折行，与标题共享文字基线。 */
-.archive-title__date {
-  margin-inline-start: 0.5rem;
-  color: var(--sub-text-color);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.025em;
-  white-space: nowrap;
-  transition: color 140ms var(--ease-out);
-
-  a.archive-title:hover &,
-  a.archive-title:focus-visible & {
-    color: color-mix(in oklch, var(--archive-accent) 72%, var(--sub-text-color));
-  }
-}
-
-.archive-title__lock {
-  display: inline-flex;
-  vertical-align: middle;
-  margin-inline-start: 0.4em;
-  inline-size: 0.75rem;
-  block-size: 0.75rem;
-  color: var(--sub-text-color);
-  transition: color 140ms var(--ease-out);
-
-  a.archive-title:is(:hover, :focus-visible, :active) &,
-  .archive-item[data-preview-active] > a.archive-title & {
-    color: var(--archive-accent);
-  }
-}
-
-:is(.archive-hero__title, .archive-topic-list__item, a.archive-title):focus-visible {
+:is(.archive-masthead__topics, .archive-masthead__garden, .archive-group__year, .archive-topic-list__item, .archive-garden__lock, a.archive-title):focus-visible {
   outline: auto;
-  outline-offset: 3px;
-  transition: none;
-}
-
-a.archive-title:focus-visible > .archive-title__date {
+  outline-offset: 2px;
   transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .archive-group__header:is(:hover, .is-writing) .archive-label__stroke {
+    stroke-dasharray: none;
+    animation: none;
+  }
+
   .archive-popup {
     --popup-hidden-shift: 0px;
   }
+
+  .archive-topic-picker:popover-open .archive-topic-list__item,
+  .archive-garden__item {
+    animation: none;
+  }
 }
+
+/* #endregion */

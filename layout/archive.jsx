@@ -1,7 +1,14 @@
-const { Component, isValidDate, parseISO, dateFormatters, formatMonthDay } = require("../include/util/common");
+const { Component, isValidDate, parseISO, formatMonthDay } = require("../include/util/common");
 const ArticleMedia = require("./common/article_media");
 const { StrokeLabel } = require("../include/util/hershey");
 const { filterByLanguage } = require("../include/util/i18n");
+const { Icon } = require("../include/util/lucide");
+const { isEncrypted } = require("../include/hexo/encrypt");
+
+// 「常用」带取几个：单语去重标签约 136 个，平铺是一堵墙，先把真正会被点的那些摆出来
+const COMMON_TOPIC_LIMIT = 12;
+// 中日韩字符按每分钟 350 字、其余按每分钟 200 词估算
+const CJK_RE = /[\u3000-\u303f\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff00-\uffef]/g;
 
 function collectPosts(collection) {
   const posts = [];
@@ -25,12 +32,15 @@ function collectTags(collection) {
   return tags;
 }
 
+// 中文正文按字计，按 200 计会把中文条目的时长普遍估高约一倍
 function estimateReadMinutes(content) {
   if (typeof content !== "string" || !content) return 0;
   const stripped = content.replace(/<\/?[a-z][^>]*>/gi, "").trim();
   if (!stripped) return 0;
-  const tokens = stripped.match(/[ÿ-￿]|[a-zA-Z]+/g);
-  return tokens ? Math.max(1, Math.ceil(tokens.length / 200)) : 0;
+  const cjkCount = stripped.match(CJK_RE)?.length || 0;
+  const wordCount = stripped.replace(CJK_RE, " ").match(/[^\s]+/g)?.length || 0;
+  const minutes = cjkCount / 350 + wordCount / 200;
+  return minutes > 0 ? Math.max(1, Math.ceil(minutes)) : 0;
 }
 
 // month 为 1-12 的自然月（moment#month() 是 0 基，调用侧需 +1）
@@ -52,29 +62,20 @@ function getSeasonSpan(date) {
   return { season, startYear, endYear: startYear + 1 };
 }
 
-// 分组标题：季节全名 + 撇号年份（summer ’26），跨年段记起讫年（winter ’25/26），
-// CSS 转小写呈现
-function getSeasonGroupLabel({ season, startYear, endYear }) {
+// 分组标题只写季节（autumn）；年份作为刻度落在同一行右端（’25/26 记跨年段）。
+// 两者共处 sticky 的一行，中间由一条细引线相连——季节是这一段的性格，年份是它的坐标
+function getSeasonName({ season }) {
+  return season;
+}
+
+function getSeasonYearLabel({ startYear, endYear }) {
   const yy = (value) => String(value % 100).padStart(2, "0");
   const range = startYear === endYear ? yy(startYear) : `${yy(startYear)}/${yy(endYear)}`;
-  return `${season} ’${range}`;
+  return `’${range}`;
 }
 
-// 把数字段拆出来包 span，由 CSS 着季节 accent 色（静息态唯一的季节色伏笔）
-function renderLabelSegments(title) {
-  return String(title)
-    .split(/(\d+)/)
-    .filter(Boolean)
-    .map((segment) => (/^\d+$/.test(segment) ? <span class="archive-label__num">{segment}</span> : segment));
-}
-
-function getArchiveRangeLabel(year, month = null, labels = {}) {
-  if (!year) return labels.allPosts || "All Posts";
-  if (month) {
-    const time = parseISO(`${year}-${String(month).padStart(2, "0")}-01T00:00:00.000Z`);
-    return isValidDate(time) ? `${dateFormatters.longMonth.format(time)} ${year}` : String(year);
-  }
-  return String(year);
+function getSectionId({ season, startYear }) {
+  return `archive-${season.toLowerCase()}-${startYear}`;
 }
 
 function groupPostsBySeason(posts) {
@@ -90,10 +91,6 @@ function groupPostsBySeason(posts) {
 
     return groups;
   }, []);
-}
-
-function collectArchiveYears(posts) {
-  return Array.from(new Set(posts.map((post) => post.date.year()))).sort((a, b) => b - a);
 }
 
 function getTopicTags(siteTags, page, config, helper) {
@@ -129,74 +126,138 @@ function getPostDateParts(postDate, dateXml, date) {
   };
 }
 
-function renderSeasonGroup({ posts, title, marker = "all", sectionId, encryptedLabel, url_for, date_xml, date }) {
-  // 季节/日期标签在构建期转成单线笔画 SVG（无法转换时回退为文字）
+function getPostTags(post) {
+  if (typeof post?.tags?.toArray === "function") return post.tags.toArray().map((tag) => tag.name).filter(Boolean);
+  return [];
+}
+
+// 一季一段：标签行在上，条目在一条等距的清单里。标题贴左缘、日期贴右缘，
+// 全页因此有两条笔直的竖轴，167 行也读得下去
+function renderSeasonGroup({ posts, title, yearLabel, marker, sectionId, formatReadTime, url_for, date_xml, date }) {
+  // 季节标签在构建期转成单线笔画 SVG（无法转换时回退为文字）
   const labelStroke = StrokeLabel({ text: title });
   return (
     <section id={sectionId} class={`archive-group ${marker}`} aria-labelledby={`${sectionId}-title`}>
-      <h2 id={`${sectionId}-title`} class="archive-group__header archive-label">
+      <h2 id={`${sectionId}-title`} class="archive-group__header">
         {/* 渐进模糊的另外两层伪元素挂在空 span 上（见 archive.css 的 .archive-label__blur） */}
         <span class="archive-label__blur" aria-hidden="true"></span>
-        {labelStroke || (
-          /* 回退：单线笔画不可用时按文字渲染；单一 span 包住整段，h2 是 flex 容器，
-             多个裸文字/数字节点会各自成 flex 项，文字段的行尾空格（如 "June 2026"）
-             会被裁掉，基线对齐也需额外处理 */
-          <span>{renderLabelSegments(title)}</span>
-        )}
+        {/* 回退：单线笔画不可用时按文字渲染 */}
+        <span class="archive-label__name">{labelStroke || title}</span>
+        {/* 引线把季节与右端的年份连成一行；吸附时随标题一起钉在顶端 */}
+        <span class="archive-group__leader" aria-hidden="true"></span>
+        <a class="archive-group__year" href={`#${sectionId}`}>
+          {yearLabel}
+        </a>
       </h2>
-      {posts.map((post) => {
-        const postDate = getPostDateParts(post.date, date_xml, date);
-        const excerpt = post.excerpt || null;
-        const readMinutes = excerpt ? estimateReadMinutes(post._content) : 0;
-        return (
-          <ArticleMedia
-            key={post.path}
-            url={url_for(post.link || post.path)}
-            title={post.title}
-            encrypted={Boolean(post.encrypt || post.password || post.password === 0)}
-            encryptedLabel={encryptedLabel}
-            date={postDate.label}
-            dateXml={postDate.xml}
-            excerpt={excerpt}
-            readTime={readMinutes ? `${readMinutes} min read` : null}
-          />
-        );
-      })}
+      <ol class="archive-list">
+        {posts.map((post) => {
+          const postDate = getPostDateParts(post.date, date_xml, date);
+          const excerpt = post.excerpt || null;
+          const readMinutes = excerpt ? estimateReadMinutes(post._content) : 0;
+          return (
+            <ArticleMedia
+              key={post.path}
+              url={url_for(post.link || post.path)}
+              title={post.title}
+              date={postDate.label}
+              dateXml={postDate.xml}
+              excerpt={excerpt}
+              tags={getPostTags(post)}
+              readTime={readMinutes ? formatReadTime(readMinutes) : null}
+            />
+          );
+        })}
+      </ol>
     </section>
   );
 }
 
-function renderTopicPicker({ tags, allPosts, topicListLabel, stats }) {
-  const staggerBase = allPosts ? 1 : 0;
+function renderTopicItem(tag, index) {
+  return (
+    <a key={tag.url} class="archive-topic-list__item" style={`--i:${index}`} href={tag.url} aria-current={tag.current ? "page" : null}>
+      <span class="archive-topic-list__name">{tag.name}</span>
+      <span class="archive-topic-list__count">{tag.count}</span>
+    </a>
+  );
+}
+
+function renderTopicPicker({ tags, allPosts, topicListLabel, commonLabel, restLabel }) {
+  // 第一带按篇数降序（26 篇的 Essay 和 1 篇的 Ruff 不该并排），第二带按字母序，
+  // 两带共用一条连续下标：逐条上浮仍是一整条自上而下的瀑布
+  const byCount = [...tags].sort((a, b) => b.count - a.count || String(a.name).localeCompare(String(b.name)));
+  const common = byCount.slice(0, COMMON_TOPIC_LIMIT);
+  const commonNames = new Set(common.map((tag) => tag.name));
+  const rest = tags.filter((tag) => !commonNames.has(tag.name));
+  const base = allPosts ? 1 : 0;
+
   return (
     <div id="archive-topic-picker" class="archive-topic-picker" popover="auto">
-      <div class="archive-topic-picker__body" role="dialog" aria-labelledby="archive-topic-picker-title">
+      <div class="archive-topic-picker__body">
         <header class="archive-topic-picker__header">
-          <h2 id="archive-topic-picker-title">{topicListLabel}</h2>
-          {stats.length > 0 && (
-            <ul class="archive-topic-picker__stats">
-              {stats.map((stat) => (
-                <li key={stat}>{stat}</li>
-              ))}
-            </ul>
-          )}
+          <h2 id="archive-topic-picker-title" class="archive-micro">
+            {topicListLabel}
+          </h2>
+          <p class="archive-topic-picker__count">{tags.length}</p>
         </header>
-        {(allPosts || tags.length > 0) && (
-          <nav class="archive-topic-list" aria-label={topicListLabel}>
-            {allPosts && (
-              <a class="archive-topic-list__item archive-topic-list__item--all" style="--i:0" href={allPosts.url} aria-current={allPosts.current ? "page" : null}>
-                <span class="archive-topic-list__name">{allPosts.name}</span>
-                <span class="archive-topic-list__count">{allPosts.count}</span>
-              </a>
-            )}
-            {tags.map((tag, index) => (
-              <a key={tag.url} class="archive-topic-list__item" style={`--i:${index + staggerBase}`} href={tag.url} aria-current={tag.current ? "page" : null}>
-                <span class="archive-topic-list__name">{tag.name}</span>
-                <span class="archive-topic-list__count">{tag.count}</span>
-              </a>
-            ))}
-          </nav>
-        )}
+        <nav class="archive-topic-list" aria-labelledby="archive-topic-picker-title">
+          <h3 class="archive-topic-list__band archive-micro">{commonLabel}</h3>
+          {allPosts ? (
+            <a class="archive-topic-list__item archive-topic-list__item--all" style="--i:0" href={allPosts.url} aria-current={allPosts.current ? "page" : null}>
+              <span class="archive-topic-list__name">{allPosts.name}</span>
+              <span class="archive-topic-list__count">{allPosts.count}</span>
+            </a>
+          ) : null}
+          {common.map((tag, index) => renderTopicItem(tag, base + index))}
+          {rest.length ? <h3 class="archive-topic-list__band archive-micro">{restLabel}</h3> : null}
+          {rest.map((tag, index) => renderTopicItem(tag, base + common.length + index))}
+        </nav>
+      </div>
+    </div>
+  );
+}
+
+// 秘密花园：门禁 + 清单。清单在构建期整体加密（见 include/hexo/encrypt.js 的 encrypt_payload），
+// 未解锁前页面源码里只有密文，标题与链接都不外泄；解锁与列表渲染见 source/js/archive.js
+function renderGarden({ title, hint, count, placeholder, unlockLabel, lockLabel, errorLabel, blob }) {
+  return (
+    <div id="archive-garden" class="archive-garden" popover="auto" data-state="locked">
+      <div class="archive-garden__body">
+        <header class="archive-garden__header">
+          <h2 id="archive-garden-title" class="archive-garden__title archive-micro">
+            {title}
+          </h2>
+          <p class="archive-garden__count">{count}</p>
+        </header>
+        <p class="archive-garden__hint">{hint}</p>
+        <form class="gate archive-garden__gate" autocomplete="off" aria-labelledby="archive-garden-title">
+          <div class="gate__field">
+            <span class="gate__mark" aria-hidden="true">
+              ✳
+            </span>
+            <input
+              class="gate__input"
+              type="password"
+              name="password"
+              placeholder={placeholder}
+              aria-label={placeholder}
+              enterkeyhint="done"
+              autocomplete="off"
+            />
+            <button class="gate__submit" type="submit">
+              {unlockLabel}
+            </button>
+          </div>
+          <p class="gate__error" role="alert">
+            {errorLabel}
+          </p>
+        </form>
+        <div class="archive-garden__list"></div>
+        <button class="archive-garden__lock archive-micro" type="button">
+          {lockLabel}
+        </button>
+        <div class="encrypted-data" hidden>
+          {blob}
+        </div>
       </div>
     </div>
   );
@@ -206,82 +267,125 @@ module.exports = class extends Component {
   render() {
     const { config, page, site, helper } = this.props;
     const { url_for, date_xml, date } = helper;
-    const encryptedLabel = helper.__("encrypt.abstract");
+    const langKey = helper.language_key(page);
+    const isTagPage = Boolean(page.tag);
 
-    const visiblePosts = collectPosts(page.posts);
+    // 加密文章不进公开列表：它们只在「秘密花园」里出现（首页近期列表、搜索索引、
+    // 站点地图、feed 与 .md 直出同样排除，见 include/hexo/encrypt.js 的 isEncrypted）
+    const visiblePosts = collectPosts(page.posts).filter((post) => !isEncrypted(post));
     const totalVisiblePosts = visiblePosts.length;
 
-    const years = collectArchiveYears(visiblePosts);
+    const sitePosts = collectPosts(helper.is_i18n_enabled() ? filterByLanguage(site?.posts, langKey, config || {}) : site?.posts);
+    const publicPostCount = sitePosts.filter((post) => !isEncrypted(post)).length;
+    // 花园清单按日期倒序，与归档列表同一顺序；条目带年份——花园没有季节分组给出年份语境
+    const gardenPosts = sitePosts.filter((post) => isEncrypted(post)).sort((a, b) => b.date.valueOf() - a.date.valueOf());
+
+    const groups = groupPostsBySeason(visiblePosts);
     const topicTags = getTopicTags(site?.tags, page, config, helper);
-    const topicsTitle = helper._p("common.tag", Infinity);
-    const archiveLabels = {
-      allPosts: helper.__("archive.all_posts"),
-    };
 
-    const currentYear = page.year ? Number(page.year) : null;
-    const currentMonth = page.month ? Number(page.month) : null;
-    const isTagPage = Boolean(page.tag);
-    const langKey = helper.language_key(page);
-    const allSitePosts = helper.is_i18n_enabled() ? filterByLanguage(site?.posts, langKey, config || {}) : site?.posts;
-    const allPostsCount = allSitePosts?.length || totalVisiblePosts;
-    const writingsLabel = `${totalVisiblePosts} ${helper._p("archive.writing", totalVisiblePosts)}`;
-    const topicLabel = helper._p("archive.topic", topicTags.length);
-    const topicCountLabel = `${topicTags.length} ${topicLabel}`;
-    const sinceYear = years.length ? years[years.length - 1] : currentYear;
-    const sinceLabel = sinceYear ? helper.__("archive.since", sinceYear) : null;
-    const pickerStats = [writingsLabel, sinceLabel].filter(Boolean);
+    const heroTitle = isTagPage ? page.tag : helper.__("archive.posts");
+    // 目录栏左端只标这一页是什么：归档页写「归档」，标签页写「标签」，
+    // 具体是谁由下面那行大标题说
+    const eyebrowLabel = helper._p(isTagPage ? "common.tag" : "common.archive", Infinity);
+    const writingsUnit = helper._p("archive.writing", totalVisiblePosts);
+    const topicsUnit = helper._p("archive.topic", topicTags.length);
+    const gardenCountLabel = `${gardenPosts.length} ${helper._p("archive.writing", gardenPosts.length)}`;
+    const formatReadTime = (minutes) => helper.__("article.reading_time", minutes);
 
-    let articleList;
-    if (!page.year) {
-      // 各分组纵向平铺，组间以 .archive-page 的 grid gap 留白分隔
-      articleList = groupPostsBySeason(visiblePosts).map((group) =>
-        renderSeasonGroup({
-          posts: group.posts,
-          title: getSeasonGroupLabel(group),
-          marker: group.season.toLowerCase(),
-          sectionId: `archive-${group.season.toLowerCase()}-${group.startYear}`,
-          encryptedLabel,
-          url_for,
-          date_xml,
-          date,
-        }),
-      );
-    } else {
-      const season = page.month ? getSeason(page.month) : null;
-      const marker = season ? season.toLowerCase() : "all";
-      articleList = renderSeasonGroup({
-        posts: visiblePosts,
-        title: getArchiveRangeLabel(page.year, page.month, archiveLabels),
-        marker,
-        sectionId: `archive-${page.year}-${marker}-${page.month || "all"}`,
-        encryptedLabel,
+    // 花园清单整体加密后随页面下发；没配 encrypt.password 时 helper 返回 null，入口随之消失
+    const gardenBlob = gardenPosts.length
+      ? helper.encrypt_payload(
+          JSON.stringify(
+            gardenPosts.map((post) => {
+              const parts = getPostDateParts(post.date, date_xml, date);
+              return { title: post.title, url: url_for(post.link || post.path), date: `${parts.label}, ${post.date.year()}`, dateXml: parts.xml };
+            }),
+          ),
+        )
+      : null;
+
+    const articleList = groups.map((group) =>
+      renderSeasonGroup({
+        posts: group.posts,
+        title: getSeasonName(group),
+        yearLabel: getSeasonYearLabel(group),
+        marker: group.season.toLowerCase(),
+        sectionId: getSectionId(group),
+        formatReadTime,
         url_for,
         date_xml,
         date,
-      });
-    }
+      }),
+    );
 
-    const heroTitle = isTagPage ? page.tag : currentYear ? getArchiveRangeLabel(currentYear, currentMonth, archiveLabels) : "Posts";
-    const heroTitleLabel = [heroTitle, ...pickerStats, topicCountLabel].join(" / ");
     return (
       <main class="archive-page">
-        <h1 class="archive-hero">
-          <button type="button" class="archive-hero__title archive-label" popovertarget="archive-topic-picker" aria-haspopup="dialog" aria-label={heroTitleLabel}>
-            {heroTitle}
-          </button>
-        </h1>
+        {/* 刊头两行：上面是目录栏（页名在左，规模与两个入口在右），下面是页名本身。
+            信息在上、名字在下，读者先知道这页有多大，再看到它叫什么 */}
+        <header class="archive-masthead">
+          <div class="archive-masthead__bar">
+            <p class="archive-masthead__eyebrow archive-micro">{eyebrowLabel}</p>
+            <div class="archive-masthead__actions">
+              <span class="archive-masthead__stat">
+                <span class="archive-masthead__count">{totalVisiblePosts}</span> {writingsUnit}
+              </span>
+              <button
+                type="button"
+                class="archive-masthead__topics"
+                popovertarget="archive-topic-picker"
+                aria-expanded="false"
+                aria-controls="archive-topic-picker"
+              >
+                <span>
+                  <span class="archive-masthead__count">{topicTags.length}</span> {topicsUnit}
+                </span>
+                <Icon name="chevron-down" size={12} />
+              </button>
+              {gardenBlob ? (
+                /* 彩蛋：目录栏末尾一枚几乎看不见的记号，悬停才亮成花园色；键盘上敲 garden 也能进 */
+                <button
+                  type="button"
+                  class="archive-masthead__garden"
+                  popovertarget="archive-garden"
+                  aria-expanded="false"
+                  aria-controls="archive-garden"
+                  aria-label={helper.__("encrypt.garden")}
+                  title={helper.__("encrypt.garden")}
+                >
+                  <Icon name="sprout" size={13} />
+                </button>
+              ) : null}
+            </div>
+          </div>
+          <h1 class="archive-masthead__title">{heroTitle}</h1>
+        </header>
+
         {renderTopicPicker({
           tags: topicTags,
           allPosts: {
-            name: archiveLabels.allPosts,
-            count: allPostsCount,
+            name: helper.__("archive.all_posts"),
+            count: publicPostCount,
             // 归档已不在站点根路径，「全部文章」指向 archive 生成器的目录（可由 archive_generator.path 调整）
             url: helper.localized_url_for(config.archive_generator?.path || "archive"),
-            current: !isTagPage && !page.year,
+            current: !isTagPage,
           },
-          topicListLabel: topicsTitle,
-          stats: pickerStats,
+          topicListLabel: helper._p("common.tag", Infinity),
+          commonLabel: helper.__("archive.common_topics"),
+          restLabel: helper.__("archive.all_topics"),
         })}
+
+        {gardenBlob
+          ? renderGarden({
+              title: helper.__("encrypt.garden"),
+              hint: helper.__("encrypt.garden_hint"),
+              count: gardenCountLabel,
+              placeholder: helper.__("encrypt.placeholder"),
+              unlockLabel: helper.__("encrypt.unlock"),
+              lockLabel: helper.__("encrypt.garden_lock"),
+              errorLabel: helper.__("encrypt.error"),
+              blob: gardenBlob,
+            })
+          : null}
 
         {articleList}
       </main>
