@@ -1,3 +1,5 @@
+/* 文章页的加密占位：正文位置上的一块门禁。表单本身是 default.css 的 .gate 语汇，
+   这里只管占位块的居中与留白 */
 .encrypted-content {
   display: flex;
   flex-direction: column;
@@ -7,49 +9,10 @@
   padding: 2rem 1rem;
 }
 
-.encrypt-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-  max-width: 360px;
+.encrypted-content .gate {
+  max-width: 22rem;
 }
 
-.encrypt-message {
-  color: var(--sub-text-color);
-  font-size: 0.95rem;
-  text-align: center;
-  margin: 0;
-}
-
-.encrypt-input-wrap {
-  width: 100%;
-}
-
-.encrypt-input-wrap input {
-  width: 100%;
-  padding: 0.6rem 0.8rem;
-  border: 1.5px solid var(--overlay0);
-  border-radius: var(--radius);
-  background: var(--mantle);
-  color: var(--sub-text-color);
-  font-size: 0.95rem;
-  outline: none;
-  transition: border-color 0.2s;
-  box-sizing: border-box;
-}
-
-.encrypt-input-wrap input:focus {
-  border-color: var(--lavender);
-}
-
-.encrypt-input-wrap input::placeholder {
-  color: var(--sub-text-color);
-}
-
-.encrypt-error {
-  color: var(--red);
-  font-size: 0.85rem;
-  margin: 0;
+.encrypted-data {
+  display: none;
 }

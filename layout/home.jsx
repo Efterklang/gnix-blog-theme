@@ -1,6 +1,7 @@
 const { Component, formatMonthDay, isValidDate, parseISO } = require("../include/util/common");
 const { filterByLanguage, isExternalUrl } = require("../include/util/i18n");
 const { Icon } = require("../include/util/lucide");
+const { isEncrypted } = require("../include/hexo/encrypt");
 
 // 未配置 home.rows 时的兜底：前三个标签
 const DEFAULT_ROWS = [{ label: "Top Topics", tags: 3 }];
@@ -55,12 +56,14 @@ function collectPosts(collection) {
   return posts;
 }
 
-// 当前语言下最新的 limit 篇文章
+// 当前语言下最新的 limit 篇公开文章：加密文章只在归档页的「秘密花园」里出现，
+// 否则首页这一条就把标题漏出去了
 function getRecentPosts(sitePosts, limit, { page, config, helper }) {
   const langKey = helper.language_key(page);
   const collection = helper.is_i18n_enabled() ? filterByLanguage(sitePosts, langKey, config || {}) : sitePosts;
 
   return collectPosts(collection)
+    .filter((post) => !isEncrypted(post))
     .sort((a, b) => b.date.valueOf() - a.date.valueOf())
     .slice(0, limit);
 }
@@ -104,7 +107,6 @@ module.exports = class extends Component {
     const recentPosts = recentLimit ? getRecentPosts(site?.posts, recentLimit, { page, config, helper }) : [];
     const archiveUrl = helper.localized_url_for(config.archive_generator?.path || "archive");
     const recentTitle = helper.__("home.recent_writings");
-    const encryptedLabel = helper.__("encrypt.abstract");
 
     // --i 为页面级入场次序：标题领先，简介与各行依次跟进（见 home.css）
     let order = 0;
@@ -202,17 +204,11 @@ module.exports = class extends Component {
                   <ol class="home-recent__list">
                     {recentPosts.map((post) => {
                       const postDate = getPostDateParts(post.date, helper.date_xml, helper.date);
-                      const encrypted = Boolean(post.encrypt || post.password || post.password === 0);
                       return (
                         <li key={post.path} class="home-recent__item" style={`--i:${order++}`}>
-                          {/* 一行文本：标题在前、日期在后；加密条目在标题后带一把小锁 */}
-                          <a class={encrypted ? "home-list-link home-list-link--encrypted" : "home-list-link"} href={helper.url_for(post.link || post.path)}>
-                            {post.title}
-                            {encrypted && (
-                              <span class="home-recent__lock" role="img" aria-label={encryptedLabel}>
-                                <Icon name="lock" size={12} />
-                              </span>
-                            )}{" "}
+                          {/* 一行文本：标题在前、日期在后 */}
+                          <a class="home-list-link" href={helper.url_for(post.link || post.path)}>
+                            {post.title}{" "}
                             <time class="home-recent__date" dateTime={postDate.xml}>
                               {postDate.label}
                             </time>

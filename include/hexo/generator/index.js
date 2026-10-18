@@ -1,5 +1,6 @@
 const util = require("hexo-util");
 const { filterByLanguage, getLanguageBasePath, getLanguageKeys, getLocalizedTagPath, isI18nEnabled } = require("../../util/i18n");
+const { isEncrypted } = require("../encrypt");
 
 function minify(str) {
   return util
@@ -14,7 +15,7 @@ function minify(str) {
 function mapPost(post, url_for) {
   return {
     title: util.escapeHTML(String(post.title || "")).trim(),
-    text: post.password ? "该文章需要密码" : minify(post.content),
+    text: minify(post.content),
     link: url_for(post.path),
   };
 }
@@ -51,7 +52,8 @@ module.exports = (hexo) => {
     const indexPages = searchConfig.index_pages !== false;
 
     function buildIndex(posts, pages, tags) {
-      const data = { posts: sortByDate(posts).map((post) => mapPost(post, url_for)) };
+      // 加密文章不进检索索引：它们的入口是归档页的「秘密花园」
+      const data = { posts: sortByDate(posts.filter((post) => !isEncrypted(post))).map((post) => mapPost(post, url_for)) };
       if (indexPages) data.pages = indexablePages(pages).map((page) => mapPost(page, url_for));
       data.tags = tags;
       return JSON.stringify(data);

@@ -1,4 +1,5 @@
 const { filterByLanguage, getDefaultLanguageKey, getLanguage, getLanguageBasePath, getLanguageKeys, isI18nEnabled } = require("../../util/i18n");
+const { isEncrypted } = require("../encrypt");
 
 function getCollectionLength(collection) {
   if (typeof collection?.length === "number") return collection.length;
@@ -12,7 +13,9 @@ module.exports = (hexo) => {
     const fullConfig = Object.assign({}, config, config.theme_config, hexo.theme.config);
 
     function buildStatusPage(routePath, langKey = null, i18n = null) {
-      const posts = langKey ? filterByLanguage(locals.posts, langKey, fullConfig) : locals.posts;
+      // 加密文章不计入公开统计：它们的入口是归档页的「秘密花园」
+      const visible = langKey ? filterByLanguage(locals.posts, langKey, fullConfig) : locals.posts;
+      const posts = typeof visible.filter === "function" ? visible.filter((post) => !isEncrypted(post)) : visible;
       const data = {
         status: true,
         title: "Status",

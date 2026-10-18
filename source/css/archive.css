@@ -19,8 +19,6 @@
   --archive-accent: var(--lavender);
   /* 秘密花园自己的一支强调色：它是「另一个地方」，与归档的 lavender 分开 */
   --archive-garden-accent: var(--teal);
-  /* 吸附标签下方渐进模糊的渐隐区高度（见 .archive-group__header 的模糊层） */
-  --archive-label-fade: 3.25rem;
   /* 吸顶标签的落点：紧贴视口顶端。窄视口导航条移到底部，标签只需避开状态栏 */
   --archive-sticky-top: 0px;
   --archive-popup-open-delay: 140ms;
@@ -65,10 +63,19 @@
 
 /* #region Masthead */
 
+/* 刊头行：巨字在左，年份像书口的页码钉在右端、贴着大字的基线 */
+.archive-hero {
+  display: flex;
+  align-items: baseline;
+  gap: 1.25rem;
+}
+
 /* 页名是一行撑满栏宽的巨型标题：字随栏宽缩放，正好占满整栏，不多也不少。
    字号由 source/js/archive.js 按实际字宽算出来（换字体、换栏宽都对得上），
    下面那份 cqw 只是没有脚本时的兜底 */
 .archive-watermark {
+  flex: 1 1 auto;
+  min-width: 0;
   container-type: inline-size;
   overflow: hidden;
   margin: 0;
@@ -133,7 +140,83 @@
 
 .archive-masthead__count {
   color: var(--sub-text-color);
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+}
+
+/* 年份：一枚可以按的像素页码。底下一条很淡的细线直接提示可点；
+   点一下滚到上一年，数字像翻表一样逐位更新——只有变动的位在动 */
+.archive-year {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  gap: calc(2em / 7);
+  padding: 0;
+  border: none;
+  background: none;
+  /* 7 格字高落在整数像素上（0.875rem → 每格 2px），点阵才不糊 */
+  font-size: 0.875rem;
+  line-height: 1;
+  color: color-mix(in oklch, var(--archive-accent) 40%, transparent);
+  cursor: pointer;
+  transition: color 220ms var(--ease-out);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: -0.5em;
+    block-size: 1px;
+    background: color-mix(in oklch, var(--archive-accent) 26%, transparent);
+    transition: background-color 220ms var(--ease-out);
+  }
+
+  &:is(:hover, :focus-visible) {
+    color: color-mix(in oklch, var(--archive-accent) 72%, transparent);
+
+    &::after {
+      background: color-mix(in oklch, var(--archive-accent) 60%, transparent);
+    }
+  }
+}
+
+/* 每一位是一格窗口，里面一条 0-9 的带子；--digit 指到哪，带子就滚到哪 */
+.archive-year__digit {
+  display: block;
+  block-size: 1em;
+  overflow: hidden;
+}
+
+.archive-year__reel {
+  display: block;
+  translate: 0 calc(var(--digit, 0) * -1em);
+  transition: translate 620ms var(--ease-out);
+
+  > svg {
+    display: block;
+    block-size: 1em;
+    inline-size: calc(5em / 7);
+    shape-rendering: crispEdges;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-year__reel {
+    transition: none;
+  }
+}
+
+/* 切片外的季节整段收起（用类而非 hidden：页面上有别的规则给 section 定过显示方式） */
+.archive-group.is-sliced-out {
+  display: none;
+}
+
+/* 切片切换：旧的一层淡出、新的一层浮现（像素字各自再浮现一次）；
+   淡出比浮现快一档，换内容的那一帧落在暗处 */
+.archive-page .archive-groups.is-slicing {
+  opacity: 0;
+  pointer-events: none;
+  transition-duration: 180ms;
 }
 
 /* 与季节标签行同一条引线：刊头和每一季因此是同一句话的两处说法——
@@ -374,9 +457,9 @@
 
 .archive-topic-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(11rem, 100%), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(12rem, 100%), 1fr));
   align-content: start;
-  column-gap: 1.5rem;
+  column-gap: 2.25rem;
   row-gap: 0;
   min-height: 0;
   max-height: 100%;
@@ -384,9 +467,9 @@
   overscroll-behavior: contain;
   /* 幕帘没有自己的刊头：条目文本直接落在刊头那条左轴上（容器与条目都不再缩进），
      与 caption、清单标题共用同一条边 */
-  padding: 0.5rem 0;
+  padding: 0.75rem 0;
   /* 幕帘贴视口底：留出 iOS home indicator 安全区，末行标签可滚出手势条 */
-  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
 }
 
 /* 分带标题：约 136 个标签平铺是一堵墙，先给按篇数排出的「常用」，其余按字母序。
@@ -394,7 +477,7 @@
 .archive-topic-list__band {
   grid-column: 1 / -1;
   margin: 0;
-  padding: 0.9rem 0 0.35rem;
+  padding: 1.35rem 0 0.45rem;
   color: var(--sub-text-color);
   font-family: var(--font-mono);
   font-size: 0.6875rem;
@@ -413,8 +496,9 @@
   gap: 0.4rem;
   align-items: baseline;
   min-width: 0;
-  padding: 0.5rem 0;
+  padding: 0.7rem 0;
   color: var(--title-text-color);
+  font-family: var(--article-font-family);
   font-size: 1rem;
   font-synthesis: none;
   line-height: 1.25;
@@ -477,6 +561,11 @@
 }
 
 .archive-page[data-view="garden"] :is(.archive-groups, .archive-masthead) {
+  display: none;
+}
+
+/* 花园里页名换成它的真名，年份切片不跟着去（花园的清单不按年分） */
+.archive-page[data-view="garden"] .archive-year {
   display: none;
 }
 
@@ -589,12 +678,6 @@
   margin-block-end: 3rem;
 }
 
-/* 多栏容器里 sticky 不成立；两栏读的是「扫一遍索引」而不是「顺着时间走」，
-   季节标签在两栏模式下就地站住，不再吸附 */
-.archive-page[data-columns="2"] .archive-group__header {
-  position: static;
-}
-
 .archive-group {
   position: relative;
   min-width: 0;
@@ -616,147 +699,53 @@
   }
 }
 
-/* 季节标签：构建期转为单线笔画 SVG（include/util/hershey.js），悬浮或点按逐笔书写；
-   下面的字体样式只用于笔画不可用时的文字回退。
-   一行三件：季节在左、年份在右，中间一条细引线把两端连成一条线——它们是同一行上的
-   前后关系，不是两端对齐的两块。置顶吸附：在本季分组内滚动时标签紧贴视口顶端，
-   上下 0.5rem 内边距给吸附状态留呼吸；标签不带实色底，吸附时由渐进模糊层保证可读 */
+/* 季节行：右端一枚浅色的像素字，下半截嵌进清单里（负下距），
+   像盖在日期栏上的一枚印记；它本身就是通往本季的链接 */
 .archive-group__header {
-  position: sticky;
-  top: var(--archive-sticky-top);
-  z-index: 1;
   display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  margin: 0 0 0.4rem;
-  padding-block: 0.45rem;
-  color: color-mix(in oklch, var(--archive-accent) 70%, var(--sub-text-color));
-  font-family: var(--font-handwritten);
-  font-size: 1.125rem;
-  letter-spacing: 0.2em;
+  justify-content: flex-end;
+  margin: 0 0 -1rem;
 }
 
-/* 渐进模糊：标签吸附时，滑入标签带的内容逐渐失焦。四层 backdrop-filter 各自只
-   承担一段模糊量、渐隐区间互相重叠——单层大步长会在纸纹上留下可见的分界；
-   横向以视口居中铺满（50% - 50vw），既不切边也不撑出横向滚动。
-   标签吸在视口顶端，带子的顶边就落在屏幕外沿，内容是在这里被吃掉的。
-   未吸附（.is-stuck 由 archive.js 维护）时完全不绘制，标签保持透明 */
-.archive-group__header::before,
-.archive-group__header::after,
-.archive-label__blur::before,
-.archive-label__blur::after {
-  content: "";
-  position: absolute;
-  inset: 0 calc(50% - 50vw) calc(-1 * var(--archive-label-fade)) calc(50% - 50vw);
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 220ms ease;
-}
-
-.archive-group__header.is-stuck::before,
-.archive-group__header.is-stuck::after,
-.archive-group__header.is-stuck .archive-label__blur::before,
-.archive-group__header.is-stuck .archive-label__blur::after {
-  opacity: 1;
-}
-
-/* 最外那层顺带铺一道极淡的季节色晕：滚动时「当前在哪个季节」被感觉到，
-   而不是只被读到——无边框、无底色块，只是纸面上一层若有若无的色温 */
-.archive-group__header.is-stuck::before {
-  backdrop-filter: blur(2px);
-  background: linear-gradient(to bottom, color-mix(in oklch, var(--archive-accent) 7%, transparent), transparent);
-  mask-image: linear-gradient(to bottom, #000 0%, transparent 90%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 90%);
-}
-
-.archive-group__header.is-stuck::after {
-  backdrop-filter: blur(5px);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 25%, transparent 72%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 25%, transparent 72%);
-}
-
-.archive-group__header.is-stuck .archive-label__blur::before {
-  backdrop-filter: blur(10px);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 10%, transparent 50%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 10%, transparent 50%);
-}
-
-.archive-group__header.is-stuck .archive-label__blur::after {
-  backdrop-filter: blur(16px);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 6%, transparent 34%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 6%, transparent 34%);
-}
-
-/* 桌面端标签吸在视口顶端，与导航链接同处一条带。列宽随阅读宽度偏好变化，媒体查询读不到，
-   所以由 archive.js 按实际位置判断：相撞时让链接淡出，玻璃按钮保留 */
-@media (min-width: 1024px) {
-  :is(.navbar-menu, .navbar-start) {
-    transition: opacity 220ms ease;
-  }
-
-  :root.has-stuck-label :is(.navbar-menu, .navbar-start) {
-    opacity: 0;
-    pointer-events: none;
-  }
-}
-
-/* 空 span 只是渐进模糊那两层伪元素的宿主。它若是普通 flex 项，
-   会白占一份 gap，把季节标签从条目左缘推开（对齐就断了） */
-.archive-label__blur {
-  position: absolute;
-}
-
-.archive-label__name {
-  display: flex;
-  align-items: center;
-  flex: 0 1 auto;
-  min-width: 0;
-}
-
-/* 季节与年份合成一条链接（年份已写在笔画里）：整行可点、跳到本季；悬停整条一起加深 */
 .archive-group__link {
-  display: flex;
-  align-items: center;
-  color: inherit;
+  display: block;
   text-decoration: none;
-  transition: color 140ms var(--ease-out);
 
-  &:hover,
-  &:focus-visible {
-    color: var(--archive-accent);
+  &:is(:hover, :focus-visible) .archive-folio {
+    color: color-mix(in oklch, var(--archive-accent) 46%, transparent);
   }
 }
 
-/* 单线笔画标签：纵向 viewBox（42 单位）对所有标签固定，横向各自收紧，
-   因此不同文案共用同一缩放比例；stroke 跟随 currentColor 继承季节色 */
-.archive-label__strokes {
+/* 像素字：浅得像盖在纸角的一枚印记；滚动到它时从下方浮现
+   （.is-armed / .is-emerging 由 archive.js 的观察器维护） */
+.archive-folio {
   display: block;
-  height: 1.72em;
+  height: clamp(1.5rem, 2.6vw, 2.25rem);
   width: auto;
-  overflow: visible;
+  color: color-mix(in oklch, var(--archive-accent) 26%, transparent);
+  transition: color 220ms var(--ease-out);
 }
 
-.archive-label__stroke {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.1;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.archive-folio.is-armed {
+  opacity: 0;
+  translate: 0 0.6rem;
 }
 
-/* 悬浮或点按逐笔书写（.is-writing 由 archive.js 加上，触屏没有悬浮）；
-   写完后停在完整状态，中途移开指针直接回到完整态 */
-.archive-group__header:is(:hover, .is-writing) .archive-label__stroke {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: archive-label-write 140ms var(--ease-out) forwards;
-  animation-delay: calc(var(--i) * var(--stagger, 32ms));
+.archive-folio.is-emerging {
+  animation: archive-folio-rise 760ms var(--ease-out) both;
 }
 
-@keyframes archive-label-write {
-  to {
-    stroke-dashoffset: 0;
+@keyframes archive-folio-rise {
+  from {
+    opacity: 0;
+    translate: 0 0.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-folio.is-armed {
+    opacity: 1;
+    translate: none;
   }
 }
 
@@ -1031,18 +1020,13 @@ a.archive-title:is(:hover, :focus-visible) > .archive-title__date {
 
 /* #region Focus & motion */
 
-:is(.archive-masthead__topics, .archive-columns__option, .archive-group__link, .archive-topic-list__item, .archive-garden__lock, a.archive-title):focus-visible {
+:is(.archive-masthead__topics, .archive-columns__option, .archive-group__link, .archive-topic-list__item, .archive-garden__lock, .archive-year, a.archive-title):focus-visible {
   outline: auto;
   outline-offset: 2px;
   transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .archive-group__header:is(:hover, .is-writing) .archive-label__stroke {
-    stroke-dasharray: none;
-    animation: none;
-  }
-
   .archive-popup {
     --popup-hidden-shift: 0px;
   }

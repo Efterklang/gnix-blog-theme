@@ -1,5 +1,6 @@
 const path = require("node:path");
 const { slugize, stripHTML, unescapeHTML } = require("hexo-util");
+const { isEncrypted } = require("../encrypt");
 
 const MARKDOWN_EXTENSIONS = new Set([".md", ".markdown"]);
 const LINK_RE = /^\[\[\s*([^*"\\/<>:?[\]|#]+)\s*(#[^"\\/[\]|]+)?\s*(\\?\|[^/[\]]*)?\s*\]\]/;
@@ -63,7 +64,7 @@ function createTitlebasedLink(hexo) {
       if (!MARKDOWN_EXTENSIONS.has(path.extname(item.source || "").toLowerCase()) || item.published === false) continue;
       const fileName = getFileName(item);
       if (!fileName) continue;
-      const encrypted = item.encrypt || (item.password !== undefined && item.password !== null && item.password !== "");
+      const encrypted = isEncrypted(item);
       const plain = encrypted ? "" : unescapeHTML(stripHTML(String(item.excerpt || "").replace(/<\/(?:p|li|div|h[1-6])>|<br\s*\/?>/gi, " "))).replace(/\s+/g, " ").trim();
       const characters = Array.from(plain);
       previews[fileName.toLowerCase()] = {

@@ -64,6 +64,7 @@ archive:
     one: "个主题"
     other: "个主题"
   common_topics: "常用"
+  year_switch: "切换年份"
   all_topics: "全部标签"
   all_posts: "全部文章"
   columns: "栏数"

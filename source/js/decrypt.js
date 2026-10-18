@@ -1,27 +1,7 @@
+import { decryptPayload, GARDEN_PASSWORD_KEY, POST_PASSWORD_PREFIX, readStoredPassword, storePassword } from "./crypto.js";
+
 function getCacheKey() {
-  return `gnix-encrypt:${location.pathname}`;
-}
-
-function b64ToBytes(base64) {
-  const bin = atob(base64);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return bytes;
-}
-
-async function deriveKey(password, salt) {
-  const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
-  return crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" }, material, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
-}
-
-async function decryptPayload(password, base64) {
-  const data = b64ToBytes(base64);
-  const salt = data.slice(0, 16);
-  const iv = data.slice(16, 28);
-  const ciphertext = data.slice(28);
-  const key = await deriveKey(password, salt);
-  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext);
-  return new TextDecoder().decode(plain);
+  return `${POST_PASSWORD_PREFIX}${location.pathname}`;
 }
 
 function buildToc() {
@@ -67,21 +47,18 @@ async function decrypt(container, password) {
     script.textContent = inert.textContent;
     inert.replaceWith(script);
   }
-  try {
-    localStorage.setItem(getCacheKey(), password);
-  } catch {
-    // Password caching is optional when browser storage is unavailable.
-  }
+  storePassword(getCacheKey(), password);
   buildToc();
   document.dispatchEvent(new CustomEvent("gnix:decrypted-content-ready"));
 }
 
 function showError(container) {
   const form = container.querySelector("#encrypt-form");
-  let el = form.querySelector(".encrypt-error");
+  let el = form.querySelector(".gate__error");
   if (!el) {
     el = document.createElement("p");
-    el.className = "encrypt-error";
+    el.className = "gate__error";
+    el.setAttribute("role", "alert");
     form.appendChild(el);
   }
   el.textContent = container.dataset.errorMessage || "Wrong password, please try again";
@@ -92,11 +69,14 @@ function showError(container) {
   }
 }
 
-async function tryDecrypt(container, password) {
+async function attempt(container, password, { silent = false } = {}) {
   try {
     await decrypt(container, password);
+    return true;
   } catch {
-    showError(container);
+    // 自动尝试（本地记住的密码）失败时不报错：读者什么都没输，弹「密码错误」只会让人困惑
+    if (!silent) showError(container);
+    return false;
   }
 }
 
@@ -105,23 +85,31 @@ function init() {
   if (!container) return;
   const form = container.querySelector("#encrypt-form");
   if (form) {
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
       const pw = container.querySelector("#encrypt-pass")?.value.trim();
-      if (pw) tryDecrypt(container, pw);
+      if (pw) attempt(container, pw);
     });
   }
-  let cached;
-  try {
-    cached = localStorage.getItem(getCacheKey());
-  } catch {
-    // Keep manual decryption available when browser storage is unavailable.
-  }
-  if (cached) {
-    tryDecrypt(container, cached);
-  } else {
+
+  // 归档页「秘密花园」里输过的密码同样适用：先试本页记住的，再试花园的
+  const candidates = [readStoredPassword(getCacheKey()), readStoredPassword(GARDEN_PASSWORD_KEY)].filter(
+    (value, index, list) => value && list.indexOf(value) === index,
+  );
+
+  if (!candidates.length) {
     container.querySelector("#encrypt-pass")?.focus();
+    return;
   }
+
+  (async () => {
+    for (const password of candidates) {
+      if (await attempt(container, password, { silent: true })) return;
+    }
+    // 全部落空（比如密码改过）：清掉本页失效的记忆，直接把输入框交给读者
+    storePassword(getCacheKey(), null);
+    container.querySelector("#encrypt-pass")?.focus();
+  })();
 }
 
 (window.__gnixPrerender?.runWhenActivated || ((callback) => callback()))(init);

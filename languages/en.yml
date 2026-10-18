@@ -64,6 +64,7 @@ archive:
     one: "topic"
     other: "topics"
   common_topics: "Most used"
+  year_switch: "Switch year"
   all_topics: "All topics"
   all_posts: "All Posts"
   columns: "Columns"

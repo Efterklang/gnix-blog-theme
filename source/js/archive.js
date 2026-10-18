@@ -184,85 +184,110 @@ function initArchivePreview() {
   });
 }
 
-// 季节标签书写动画：触屏没有悬浮，点按重播一次完整书写（桌面端点击同样生效）。
-// 悬浮也走同一条路径（见下面的 pointerover）：一笔落笔就画完。
-// 只靠 CSS 的 :hover 的话，鼠标快速划过时动画会在半途被掐断、直接跳成完整态——
-// 看起来像写了一半被擦掉。与预览浮层无关，不放进 initArchivePreview
-// （那里在锚点定位不可用时整体退出）。
-function initArchiveLabelReplay() {
+// 季节牌：每一季的像素字是一枚印记——进入视口时从下方浮现，完全离场后复位，
+// 来回滚动都会重放（.is-armed / .is-emerging 见 archive.css）
+function initArchiveFolio() {
   const page = document.querySelector(".archive-page");
-  if (!page) return;
+  const folios = page ? [...page.querySelectorAll(".archive-folio")] : [];
+  if (!folios.length || !("IntersectionObserver" in window)) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  // 指针移进标签行时就开始写；写完由下面的 animationend 摘掉标记。
-  // 中途移开指针不影响：动画照旧跑完，不会留下半幅字
-  page.addEventListener(
-    "pointerover",
-    (event) => {
-      if (event.pointerType === "touch") return;
-      const header = event.target.closest?.(".archive-group__header");
-      if (!header || header.classList.contains("is-writing")) return;
-      header.classList.add("is-writing");
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        const folio = entry.target;
+        if (entry.isIntersecting) {
+          folio.classList.remove("is-armed", "is-emerging");
+          void folio.getBoundingClientRect(); // 重排一次，让动画从头重放
+          folio.classList.add("is-emerging");
+          continue;
+        }
+        // 完全离场（沉到下缘之下或升到上缘之上）才复位，免得复位那一帧被看见
+        const rect = entry.boundingClientRect;
+        if (rect.top >= window.innerHeight || rect.bottom <= 0) {
+          folio.classList.remove("is-emerging");
+          folio.classList.add("is-armed");
+        }
+      }
     },
-    { passive: true },
+    { rootMargin: "0px 0px -10% 0px" },
   );
-
-  page.addEventListener("click", (event) => {
-    const header = event.target.closest?.(".archive-group__header");
-    const strokes = header?.querySelectorAll(".archive-label__stroke");
-    if (!strokes?.length) return;
-    header.classList.remove("is-writing");
-    void header.offsetWidth; // 强制重排，让动画从头重放
-    header.classList.add("is-writing");
-  });
-
-  page.addEventListener("animationend", (event) => {
-    if (event.animationName !== "archive-label-write") return;
-    const header = event.target.closest?.(".archive-group__header");
-    if (!header) return;
-    // 标签与图标的书写都结束才摘掉标记（两者先后不定：长标签比图标画得久）；
-    // 中途摘掉会让后续悬浮不再触发、未画完的笔画跳成完整态
-    const writing = header.getAnimations({ subtree: true }).some((animation) => animation.animationName === "archive-label-write" && animation.playState === "running");
-    if (!writing) header.classList.remove("is-writing");
-  });
+  for (const folio of folios) observer.observe(folio);
 }
 
-// 吸附检测：标签贴到它的吸顶位（导航条下沿）时加 is-stuck，驱动渐进模糊层。
-// 标签自身 rect.top 在吸附时恒等于 sticky top、未吸附时等于自然位置，无需哨兵元素即可判定
-function initArchiveLabelStuck() {
+// 年份切片：一枚可以按的年份——点一下滚到上一年（到头绕回最新的一年），数字像翻表一样
+// 逐位滚动，只有变动的位在动；?year= 由脚本写进地址栏，可分享、可后退
+function initArchiveYears() {
   const page = document.querySelector(".archive-page");
-  if (!page) return;
-  const headers = [...page.querySelectorAll(".archive-group__header")];
-  if (!headers.length) return;
+  const button = page ? page.querySelector(".archive-year") : null;
+  const groups = page ? [...page.querySelectorAll(".archive-group[data-years]")] : [];
+  if (!button || !groups.length) return;
+  const reels = [...button.querySelectorAll(".archive-year__reel")];
+  const countEl = page.querySelector("[data-archive-count]");
+  const wordEl = page.querySelector("[data-archive-count-word]");
+  const groupsBox = page.querySelector(".archive-groups");
+  const counts = new Map(
+    (button.dataset.yearCounts || "")
+      .split(" ")
+      .filter(Boolean)
+      .map((pair) => pair.split(":")),
+  );
+  const years = [...counts.keys()].sort((a, b) => Number(b) - Number(a));
+  // 默认当年；当年还没有文章就退到最近的一年
+  const thisYear = String(new Date().getFullYear());
+  const defaultYear = years.includes(thisYear) ? thisYear : years[0];
+  let active = null;
 
-  // 标签吸在视口顶端，和导航链接同处一条带。列宽随阅读宽度偏好变化，媒体查询读不到这个条件，
-  // 只能按实际位置判断：吸住的标签与链接的水平范围相交时，让链接让位（html.has-stuck-label）
-  const navbarLinks = document.querySelector(".navbar-desktop .navbar-start");
-  let scheduled = false;
-  const update = () => {
-    scheduled = false;
-    const stickyTop = Number.parseFloat(getComputedStyle(headers[0]).top) || 0;
-    const navRect = navbarLinks?.getBoundingClientRect();
-    let collides = false;
+  function roll(year) {
+    // 页码只报两位数（26、25），世纪不进翻表
+    const digits = String(year).slice(-2).split("");
+    reels.forEach((reel, index) => {
+      if (digits[index] != null) reel.style.setProperty("--digit", digits[index]);
+    });
+    button.setAttribute("aria-label", `${year} ${button.dataset.switchLabel || ""}`.trim());
+  }
 
-    for (const header of headers) {
-      // 吸附中且仍可见：被本节末尾顶出视口的标签不再算吸附（模糊层随之关闭）
-      const rect = header.getBoundingClientRect();
-      const stuck = rect.top <= stickyTop + 0.5 && rect.bottom > stickyTop;
-      header.classList.toggle("is-stuck", stuck);
-      if (stuck && navRect?.height && rect.left < navRect.right && rect.right > navRect.left) collides = true;
+  function slice(year, { animate = false, push = false } = {}) {
+    if (year === active) return;
+    active = year;
+    const swap = () => {
+      for (const group of groups) {
+        // 用类而不是 hidden 属性：hidden 被页面样式压住了，类由自己的样式表说了算
+        group.classList.toggle("is-sliced-out", !group.dataset.years.split(" ").includes(year));
+      }
+      roll(year);
+      if (countEl) countEl.textContent = counts.get(year) ?? "";
+      if (wordEl) wordEl.textContent = counts.get(year) === "1" ? "writing" : "writings";
+    };
+    if (animate && groupsBox) {
+      groupsBox.classList.add("is-slicing");
+      window.setTimeout(() => {
+        swap();
+        requestAnimationFrame(() => groupsBox.classList.remove("is-slicing"));
+      }, 240);
+    } else {
+      swap();
     }
+    if (push) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("year", year);
+      history.pushState({ year }, "", url);
+    }
+  }
 
-    document.documentElement.classList.toggle("has-stuck-label", collides);
-  };
-  const schedule = () => {
-    if (scheduled) return;
-    scheduled = true;
-    requestAnimationFrame(update);
-  };
+  button.addEventListener("click", () => {
+    const index = years.indexOf(active);
+    slice(years[(index + 1) % years.length], { animate: true, push: true });
+  });
 
-  update();
-  window.addEventListener("scroll", schedule, { passive: true });
-  window.addEventListener("resize", schedule, { passive: true });
+  window.addEventListener("popstate", () => {
+    const year = new URLSearchParams(window.location.search).get("year");
+    slice(years.includes(year) ? year : defaultYear, { animate: true });
+  });
+
+  // 初始：URL 里合法的年份，否则当年
+  const requested = new URLSearchParams(window.location.search).get("year");
+  slice(years.includes(requested) ? requested : defaultYear);
 }
 
 // 页名的字号由 layout/archive.jsx 里那段内联脚本在首帧之前算好（它必须早于第一次绘制，
@@ -488,8 +513,8 @@ function initArchiveGarden() {
 
 runWhenActivated(() => {
   initArchivePreview();
-  initArchiveLabelReplay();
-  initArchiveLabelStuck();
+  initArchiveFolio();
+  initArchiveYears();
   initArchiveTitleFit();
   initArchiveColumns();
   initArchiveGarden();

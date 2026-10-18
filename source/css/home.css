@@ -260,11 +260,6 @@
   list-style: none;
 }
 
-/* 加密条目整体退为次级色 */
-.home-list-link--encrypted {
-  color: var(--sub-text-color);
-}
-
 /* 日期作为行内注脚跟在标题后：等宽小字、不折行，hover 时随链接微微上色 */
 .home-recent__date {
   margin-inline-start: 0.5rem;
@@ -279,18 +274,6 @@
 
   .home-list-link:is(:hover, :focus-visible, :active) & {
     color: color-mix(in oklch, var(--home-accent) 72%, var(--sub-text-color));
-  }
-}
-
-.home-recent__lock {
-  display: inline-flex;
-  margin-inline-start: 0.4em;
-  vertical-align: middle;
-  color: var(--sub-text-color);
-  transition: color 140ms var(--ease-out);
-
-  .home-list-link:is(:hover, :focus-visible, :active) & {
-    color: var(--home-accent);
   }
 }
 

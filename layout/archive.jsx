@@ -1,8 +1,7 @@
 const { Component, isValidDate, parseISO, formatMonthDay } = require("../include/util/common");
 const ArticleMedia = require("./common/article_media");
-const { StrokeLabel } = require("../include/util/hershey");
 const { Icon } = require("../include/util/lucide");
-const { filterByLanguage } = require("../include/util/i18n");
+const { filterByLanguage, getDefaultLanguageKey } = require("../include/util/i18n");
 const { isEncrypted } = require("../include/hexo/encrypt");
 
 // 「常用」带取几个：单语去重标签约 136 个，平铺是一堵墙，先把真正会被点的那些摆出来
@@ -174,19 +173,83 @@ const TITLE_FIT_SCRIPT = `(function() {
   fit();
 })();`;
 
-// 一季一段：标签行在上，条目在一条等距的清单里。标题贴左缘、日期贴右缘，
-// 全页因此有两条笔直的竖轴，167 行也读得下去
-function renderSeasonGroup({ posts, title, yearLabel, marker, sectionId, formatReadTime, url_for, date_xml, date }) {
-  // 季节与年份一起转成单线笔画 SVG（无法转换时回退为文字）：一行手写里含着刻度
-  const labelStroke = StrokeLabel({ text: `${title} ${yearLabel}` });
+// 像素字：5×7 的方点阵，构建期就摊成 <rect>，前端零成本。
+// 字母给季节用，数字给年份的翻表用（缺字形时整枚不出，宁可空着也不出半句话）
+const PIXEL_GLYPHS = {
+  "0": "01110 10001 10011 10101 11001 10001 01110",
+  "1": "00100 01100 00100 00100 00100 00100 01110",
+  "2": "01110 10001 00001 00010 00100 01000 11111",
+  "3": "11111 00010 00100 00010 00001 10001 01110",
+  "4": "00010 00110 01010 10010 11111 00010 00010",
+  "5": "11111 10000 11110 00001 00001 10001 01110",
+  "6": "00110 01000 10000 11110 10001 10001 01110",
+  "7": "11111 00001 00010 00100 01000 01000 01000",
+  "8": "01110 10001 10001 01110 10001 10001 01110",
+  "9": "01110 10001 10001 01111 00001 00010 01100",
+  A: "01110 10001 10001 11111 10001 10001 10001",
+  E: "11111 10000 10000 11110 10000 10000 11111",
+  G: "01110 10001 10000 10111 10001 10001 01111",
+  I: "11111 00100 00100 00100 00100 00100 11111",
+  M: "10001 11011 10101 10101 10001 10001 10001",
+  N: "10001 11001 10101 10011 10001 10001 10001",
+  P: "11110 10001 10001 11110 10000 10000 10000",
+  R: "11110 10001 10001 11110 10100 10010 10001",
+  S: "01111 10000 10000 01110 00001 00001 11110",
+  T: "11111 00100 00100 00100 00100 00100 00100",
+  U: "10001 10001 10001 10001 10001 10001 01110",
+  W: "10001 10001 10001 10101 10101 11011 10001",
+};
+
+// 一季的像素字：每个字母 5 格宽、字距 2 格，字高 7 格。
+// 翻页动画由 archive.js 的观察器驱动（.is-armed / .is-turning 见 archive.css）
+function PixelFolio({ word }) {
+  const letters = [...word.toUpperCase()].map((char) => PIXEL_GLYPHS[char]?.split(" "));
+  if (!letters.length || letters.some((rows) => !rows)) return null;
+  const cells = [];
+  letters.forEach((rows, letter) => {
+    rows.forEach((row, y) => {
+      [...row].forEach((cell, x) => {
+        if (cell === "1") cells.push([letter * 7 + x, y]);
+      });
+    });
+  });
   return (
-    <section id={sectionId} class={`archive-group ${marker}`} aria-labelledby={`${sectionId}-title`}>
+    <svg class="archive-folio" viewBox={`0 0 ${letters.length * 7 - 2} 7`} fill="currentColor" aria-hidden="true" focusable="false">
+      {cells.map(([x, y]) => (
+        <rect key={`${x}.${y}`} x={x} y={y} width="1" height="1" />
+      ))}
+    </svg>
+  );
+}
+
+// 一枚像素字符：和季节字共用一套点阵，单字一枚 <svg>，年份翻表拿它当格芯
+function PixelGlyph({ char }) {
+  const rows = PIXEL_GLYPHS[char]?.split(" ");
+  if (!rows) return null;
+  const cells = [];
+  rows.forEach((row, y) => {
+    [...row].forEach((cell, x) => {
+      if (cell === "1") cells.push([x, y]);
+    });
+  });
+  return (
+    <svg viewBox="0 0 5 7" fill="currentColor" aria-hidden="true" focusable="false">
+      {cells.map(([x, y]) => (
+        <rect key={`${x}.${y}`} x={x} y={y} width="1" height="1" />
+      ))}
+    </svg>
+  );
+}
+
+// 一季一段：像素字在上，条目在一条等距的清单里。标题贴左缘、日期贴右缘，
+// 全页因此有两条笔直的竖轴，167 行也读得下去
+function renderSeasonGroup({ posts, title, yearLabel, years, marker, sectionId, formatReadTime, url_for, date_xml, date }) {
+  return (
+    <section id={sectionId} class={`archive-group ${marker}`} data-years={years} aria-labelledby={`${sectionId}-title`}>
       <h2 id={`${sectionId}-title`} class="archive-group__header">
-        {/* 渐进模糊的另外两层伪元素挂在空 span 上（见 archive.css 的 .archive-label__blur） */}
-        <span class="archive-label__blur" aria-hidden="true"></span>
-        {/* 整行一条链接：可点、跳到本季；年份已经写在笔画里 */}
+        {/* 一季一枚像素字：浅色的一页，滚动到时浮现；它本身就是通往本季的链接 */}
         <a class="archive-group__link" href={`#${sectionId}`} aria-label={`${title} ${yearLabel}`}>
-          <span class="archive-label__name">{labelStroke || `${title} ${yearLabel}`}</span>
+          <PixelFolio word={title} />
         </a>
       </h2>
       <ol class="archive-list">
@@ -306,11 +369,23 @@ module.exports = class extends Component {
 
     const sitePosts = collectPosts(helper.is_i18n_enabled() ? filterByLanguage(site?.posts, langKey, config || {}) : site?.posts);
     const publicPostCount = sitePosts.filter((post) => !isEncrypted(post)).length;
-    // 花园清单按日期倒序，与归档列表同一顺序；条目带年份——花园没有季节分组给出年份语境
-    const gardenPosts = sitePosts.filter((post) => isEncrypted(post)).sort((a, b) => b.date.valueOf() - a.date.valueOf());
+    // 花园清单按日期倒序，与归档列表同一顺序；条目带年份——花园没有季节分组给出年份语境。
+    // 只有自己看：不随站点语言分家，永远列原始语言那一份（中英对照的译本不重复出现）
+    const gardenPosts = collectPosts(helper.is_i18n_enabled() ? filterByLanguage(site?.posts, getDefaultLanguageKey(config), config || {}) : site?.posts)
+      .filter((post) => isEncrypted(post))
+      .sort((a, b) => b.date.valueOf() - a.date.valueOf());
 
     const groups = groupPostsBySeason(visiblePosts);
     const topicTags = getTopicTags(site?.tags, page, config, helper);
+
+    // 年份切片：先按年归堆（倒序），切片切换时规模行跟着走
+    const yearCounts = new Map();
+    for (const post of visiblePosts) yearCounts.set(post.date.year(), (yearCounts.get(post.date.year()) || 0) + 1);
+    const archiveYears = [...yearCounts].map(([year, count]) => ({ year, count })).sort((a, b) => b.year - a.year);
+    // 步进器的初始位置：构建机器上的当年（或最近的一年）——脚本加载后按访客的年份重算
+    const yearList = archiveYears.map(({ year }) => year);
+    const buildYear = String(new Date().getFullYear());
+    const defaultYearIndex = Math.max(0, yearList.indexOf(yearList.includes(buildYear) ? buildYear : yearList[0]));
 
     // 页名永远是 Archive——水印是这一处的记号，不随页面变；标签页是谁由 caption 那一行说
     const writingsWord = totalVisiblePosts === 1 ? "writing" : "writings";
@@ -337,6 +412,8 @@ module.exports = class extends Component {
         posts: group.posts,
         title: getSeasonName(group),
         yearLabel: getSeasonYearLabel(group),
+        // 年份切片按它归属：冬季跨年（’25/26）在两年里都算
+        years: group.startYear === group.endYear ? String(group.startYear) : `${group.startYear} ${group.endYear}`,
         marker: group.season.toLowerCase(),
         sectionId: getSectionId(group),
         formatReadTime,
@@ -348,25 +425,47 @@ module.exports = class extends Component {
 
     return (
       <main class="archive-page" data-view="archive" data-columns="1">
-        {/* 页名是一块钉在视口顶端的巨型水印，正文从它上面滚过去；h1 就是它本身。
-            连点三次是秘密花园的入口（见 source/js/archive.js），所以它不能被选中 */}
-        <h1 id="archive-title" class="archive-watermark" data-garden-title="Secret Archive 🫥">
-          <span class="archive-watermark__word">{ARCHIVE_TITLE}</span>
-        </h1>
+        <div class="archive-hero">
+          {/* 页名是一块巨型水印，正文从它上面滚过去；h1 就是它本身。
+              连点三次是秘密花园的入口（见 source/js/archive.js），所以它不能被选中 */}
+          <h1 id="archive-title" class="archive-watermark" data-garden-title="Secret Archive 🫥">
+            <span class="archive-watermark__word">{ARCHIVE_TITLE}</span>
+          </h1>
+          {!isTagPage && archiveYears.length > 1 ? (
+            /* 年份：书口上的页码，像素字。点一下滚到上一年（到头绕回最新的一年），
+               数字像翻表一样逐位滚动，只有变动的位在动；?year= 由脚本写进地址栏 */
+            <button
+              type="button"
+              class="archive-year"
+              data-year-counts={archiveYears.map(({ year, count }) => `${year}:${count}`).join(" ")}
+              data-switch-label={helper.__("archive.year_switch")}
+              aria-label={`${yearList[defaultYearIndex]} ${helper.__("archive.year_switch")}`}
+            >
+              {String(yearList[defaultYearIndex])
+                .slice(-2)
+                .split("")
+                .map((digit, index) => (
+                  <span key={index} class="archive-year__digit" aria-hidden="true">
+                    <span class="archive-year__reel" style={`--digit:${digit}`}>
+                      {"0123456789".split("").map((value) => (
+                        <PixelGlyph key={value} char={value} />
+                      ))}
+                    </span>
+                  </span>
+                ))}
+            </button>
+          ) : null}
+        </div>
         <script dangerouslySetInnerHTML={{ __html: TITLE_FIT_SCRIPT }} />
 
         {/* caption 是一条控制行：左端报这一页的规模，右端放栏数切换与话题入口 */}
         <header class="archive-masthead">
           <div class="archive-masthead__caption">
             <p class="archive-masthead__stat">
-              {isTagPage ? (
-                <>
-                  <span class="archive-masthead__subject">{page.tag}</span>
-                  <span aria-hidden="true">·</span>
-                </>
-              ) : null}
-              <span>
-                <span class="archive-masthead__count">{totalVisiblePosts}</span> {writingsWord}
+              {isTagPage ? <span class="archive-masthead__subject">{page.tag}</span> : null}
+              <span class="archive-masthead__count">
+                <span data-archive-count>{totalVisiblePosts}</span>{" "}
+                <span data-archive-count-word>{writingsWord}</span>
               </span>
             </p>
             <span class="archive-masthead__leader" aria-hidden="true"></span>
