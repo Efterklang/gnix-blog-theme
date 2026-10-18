@@ -2,7 +2,6 @@ const { Component, isValidDate, parseISO, formatMonthDay } = require("../include
 const ArticleMedia = require("./common/article_media");
 const { StrokeLabel } = require("../include/util/hershey");
 const { filterByLanguage } = require("../include/util/i18n");
-const { Icon } = require("../include/util/lucide");
 const { isEncrypted } = require("../include/hexo/encrypt");
 
 // 「常用」带取几个：单语去重标签约 136 个，平铺是一堵墙，先把真正会被点的那些摆出来
@@ -130,6 +129,23 @@ function getPostDateParts(postDate, dateXml, date) {
 function getPostTags(post) {
   if (typeof post?.tags?.toArray === "function") return post.tags.toArray().map((tag) => tag.name).filter(Boolean);
   return [];
+}
+
+// 栏数图标：一个竖块是单栏、两个是双栏。用线条画而不是引一套 icon——
+// 它要和旁边那行 caption 的字重、粗细待在同一个尺度里
+function ColumnGlyph({ columns }) {
+  return (
+    <svg class="archive-columns__glyph" viewBox="0 0 11 13" width="11" height="13" aria-hidden="true" focusable="false">
+      {columns === 1 ? (
+        <rect x="1" y="1" width="9" height="11" rx="1.5" />
+      ) : (
+        <>
+          <rect x="1" y="1" width="3.6" height="11" rx="1.5" />
+          <rect x="6.4" y="1" width="3.6" height="11" rx="1.5" />
+        </>
+      )}
+    </svg>
+  );
 }
 
 // 一季一段：标签行在上，条目在一条等距的清单里。标题贴左缘、日期贴右缘，
@@ -283,8 +299,7 @@ module.exports = class extends Component {
     const groups = groupPostsBySeason(visiblePosts);
     const topicTags = getTopicTags(site?.tags, page, config, helper);
 
-    // 页名：归档页写 Archive，标签页写标签本身
-    const heroTitle = isTagPage ? page.tag : ARCHIVE_TITLE;
+    // 页名永远是 Archive——水印是这一处的记号，不随页面变；标签页是谁由 caption 那一行说
     const writingsWord = totalVisiblePosts === 1 ? "writing" : "writings";
     const topicsWord = topicTags.length === 1 ? "topic" : "topics";
     const gardenCountLabel = `${gardenPosts.length} ${helper._p("archive.writing", gardenPosts.length)}`;
@@ -319,30 +334,70 @@ module.exports = class extends Component {
     );
 
     return (
-      <main class="archive-page" data-view="archive">
-        {/* 刊头两行：页名独占一行，下面一行 caption 把这一页的规模摆到两端——
-            「167 writings」贴左缘、「137 topics」贴右缘，两条竖轴从刊头一路通到清单底部 */}
+      <main class="archive-page" data-view="archive" data-columns="1">
+        {/* 页名是一块钉在视口顶端的巨型水印，正文从它上面滚过去；h1 就是它本身。
+            连点五次是秘密花园的入口（见 source/js/archive.js），所以它不能被选中 */}
+        <h1 id="archive-title" class="archive-watermark">
+          <span class="archive-watermark__word">{ARCHIVE_TITLE}</span>
+        </h1>
+
+        {/* caption 是一条控制行：左端报这一页的规模，右端放栏数切换与话题入口 */}
         <header class="archive-masthead">
-          <h1 id="archive-masthead-title" class="archive-masthead__title">
-            {heroTitle}
-          </h1>
           <div class="archive-masthead__caption">
-            <span class="archive-masthead__stat">
-              <span class="archive-masthead__count">{totalVisiblePosts}</span> {writingsWord}
-            </span>
-            <button
-              type="button"
-              class="archive-masthead__topics"
-              popovertarget="archive-topic-picker"
-              aria-expanded="false"
-              aria-controls="archive-topic-picker"
-            >
+            <p class="archive-masthead__stat">
+              {isTagPage ? (
+                <>
+                  <span class="archive-masthead__subject">{page.tag}</span>
+                  <span aria-hidden="true">·</span>
+                </>
+              ) : null}
               <span>
-                <span class="archive-masthead__count">{topicTags.length}</span> {topicsWord}
+                <span class="archive-masthead__count">{totalVisiblePosts}</span> {writingsWord}
               </span>
-              <Icon name="chevron-down" size={13} />
-            </button>
+            </p>
+            <div class="archive-masthead__tools">
+              <div class="archive-columns">
+                <button
+                  type="button"
+                  class="archive-columns__option"
+                  data-archive-columns="1"
+                  aria-pressed="true"
+                  aria-label={helper.__("archive.one_column")}
+                  title={helper.__("archive.one_column")}
+                >
+                  <ColumnGlyph columns={1} />
+                </button>
+                <button
+                  type="button"
+                  class="archive-columns__option"
+                  data-archive-columns="2"
+                  aria-pressed="false"
+                  aria-label={helper.__("archive.two_columns")}
+                  title={helper.__("archive.two_columns")}
+                >
+                  <ColumnGlyph columns={2} />
+                </button>
+              </div>
+              <button
+                type="button"
+                class="archive-masthead__topics"
+                popovertarget="archive-topic-picker"
+                aria-expanded="false"
+                aria-controls="archive-topic-picker"
+              >
+                <span class="archive-masthead__hash" aria-hidden="true">
+                  #
+                </span>
+                <span>
+                  <span class="archive-masthead__count">{topicTags.length}</span> {topicsWord}
+                </span>
+              </button>
+            </div>
           </div>
+          {/* 窄屏上选两栏时的提醒：绝对定位，出现时不推动下面的清单 */}
+          <p class="archive-masthead__note" role="status" hidden>
+            {helper.__("archive.columns_narrow")}
+          </p>
         </header>
 
         {renderTopicPicker({
@@ -372,7 +427,7 @@ module.exports = class extends Component {
             })
           : null}
 
-        {articleList}
+        <div class="archive-groups">{articleList}</div>
       </main>
     );
   }

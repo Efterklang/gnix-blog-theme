@@ -3,6 +3,9 @@ import { runWhenActivated } from "./main.js";
 
 // 秘密花园的入口：在归档页的页名上连点五次（见 initArchiveGarden）
 const GARDEN_CLICKS = 5;
+// 栏数偏好存在本地；窄屏放不下两栏，那以下一律按单栏渲染
+const ARCHIVE_COLUMNS_KEY = "gnix-archive-columns";
+const COLUMNS_WIDE = "(min-width: 820px)";
 
 function initArchivePreview() {
   const page = document.querySelector(".archive-page");
@@ -262,6 +265,61 @@ function initArchiveLabelStuck() {
   window.addEventListener("resize", schedule, { passive: true });
 }
 
+// 栏数切换：pc 上单栏顺着时间读、双栏把索引摊开扫；选择记在本地。
+// 窄屏放不下两栏——按它只给一句提醒，布局不动（见 languages 的 archive.columns_narrow）
+function initArchiveColumns() {
+  const page = document.querySelector(".archive-page");
+  if (!page) return;
+
+  const options = [...page.querySelectorAll("[data-archive-columns]")];
+  const note = page.querySelector(".archive-masthead__note");
+  const wide = window.matchMedia(COLUMNS_WIDE);
+  let noteTimer = 0;
+  let preferred = "1";
+  try {
+    preferred = localStorage.getItem(ARCHIVE_COLUMNS_KEY) === "2" ? "2" : "1";
+  } catch {
+    // 隐私模式下读不到：这次会话按单栏走
+  }
+
+  function apply() {
+    const columns = wide.matches ? preferred : "1";
+    page.dataset.columns = columns;
+    for (const option of options) {
+      option.setAttribute("aria-pressed", option.dataset.archiveColumns === columns ? "true" : "false");
+    }
+  }
+
+  function warn() {
+    if (!note) return;
+    note.hidden = false;
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(() => {
+      note.hidden = true;
+    }, 4000);
+  }
+
+  for (const option of options) {
+    option.addEventListener("click", () => {
+      const columns = option.dataset.archiveColumns;
+      if (columns === "2" && !wide.matches) {
+        warn();
+        return;
+      }
+      preferred = columns;
+      try {
+        localStorage.setItem(ARCHIVE_COLUMNS_KEY, columns);
+      } catch {
+        // 写不进去也不影响这次切换，只是下次打开回到单栏
+      }
+      apply();
+    });
+  }
+
+  wide.addEventListener("change", apply);
+  apply();
+}
+
 // popover 不自动维护 aria-expanded（popovertarget 只负责开合），由这里跟随开合状态同步
 function initPopoverTriggers() {
   document.querySelectorAll("[popovertarget]").forEach((trigger) => {
@@ -283,7 +341,7 @@ function initArchiveGarden() {
   const panel = document.getElementById("archive-garden");
   if (!page || !panel) return;
 
-  const title = document.getElementById("archive-masthead-title");
+  const title = document.getElementById("archive-title");
   const blob = panel.querySelector(".encrypted-data")?.textContent.trim();
   const form = panel.querySelector(".archive-garden__gate");
   const input = form?.querySelector("input");
@@ -340,11 +398,15 @@ function initArchiveGarden() {
     panel.dataset.state = "unlocked";
   }
 
-  // 入口一：页名连点五次。两次点击间隔超过 900ms 就重新计数，
-  // 免得「偶尔点一下页名」被慢慢攒成一次进入
+  // 入口一：页名连点五次。水印钉在视口上、正文从它上面滚过去，所以按坐标判定而不是按元素：
+  // 正文压住它的地方点不到，点在它露出来的空白处一样算数。两次点击间隔超过 900ms 就重新计数，
+  // 免得「偶尔点一下页名」被慢慢攒成一次进入。落在链接与控件上的点击不算——那些有它们自己的事要做
   let clicks = 0;
   let clickTimer = 0;
-  title?.addEventListener("click", () => {
+  document.addEventListener("click", (event) => {
+    if (!title || event.target.closest?.("a, button, input, select, textarea, label, form")) return;
+    const rect = title.getBoundingClientRect();
+    if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) return;
     clearTimeout(clickTimer);
     clicks += 1;
     if (clicks < GARDEN_CLICKS) {
@@ -409,6 +471,7 @@ runWhenActivated(() => {
   initArchivePreview();
   initArchiveLabelReplay();
   initArchiveLabelStuck();
+  initArchiveColumns();
   initArchiveGarden();
   initPopoverTriggers();
 });

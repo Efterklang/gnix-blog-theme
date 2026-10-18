@@ -1,7 +1,16 @@
-/* 归档页跟随文章宽度偏好（--article-max-width 由 :root[data-article-width] 决定），
+/* 归档页的栏宽：单栏跟随文章宽度偏好（--article-max-width 由 :root[data-article-width] 决定），
+   双栏自己放宽一档——两列要装得下。水印也按这条栏宽找左缘。
    本文件仅在归档/标签页加载，不影响其他页面 */
+:root {
+  --archive-measure: calc(var(--article-max-width) + 3rem);
+}
+
+:root:has(.archive-page[data-columns="2"]) {
+  --archive-measure: calc(var(--article-max-width) * 1.45 + 3rem);
+}
+
 .main-content {
-  max-width: calc(var(--article-max-width) + 3rem);
+  max-width: var(--archive-measure);
 }
 
 /* 页面是一条自上而下的栅格：刊头、一季一段，段与段之间靠留白分开，没有任何分隔线。
@@ -22,7 +31,7 @@
   position: relative;
   display: grid;
   gap: 3.5rem;
-  padding: 2.5rem 1.5rem 0;
+  padding: 2rem 1.5rem 0;
 }
 
 @media (max-width: 1023px) {
@@ -35,11 +44,15 @@
   .archive-page {
     --archive-row-gap: 0.875rem;
     gap: 2.75rem;
-    padding: 1.75rem 1.25rem 0;
+    padding: 1.5rem 1.25rem 0;
   }
 
-  .archive-masthead {
-    gap: 1.25rem;
+  .archive-groups {
+    gap: 2.75rem;
+  }
+
+  .archive-watermark {
+    padding-inline: 2.75rem;
   }
 }
 
@@ -56,48 +69,58 @@
 
 /* #region Masthead */
 
-/* 刊头两行：页名独占一行，下面一行 caption 把这一页的规模摆到两端——
-   「167 writings」贴左缘、「137 topics」贴右缘。两条竖轴因此从刊头一路通到清单底部，
-   中间全是留白。h1 所在元素同时是幕帘的锚点 */
+/* 页名是一块钉在视口顶端的巨型水印：不参与布局、不拦点击，正文从它上面滚过去。
+   字往右溢出，被视口裁掉 */
+.archive-watermark {
+  position: fixed;
+  inset-block-start: var(--navbar-height);
+  inset-inline: 0;
+  z-index: 0;
+  overflow: hidden;
+  margin: 0;
+  /* 与正文共用一条左缘：按栏宽算出居中偏移，再让出两层 1.5rem 内边距
+     （.main-content 与 .archive-page 各一层）。这条 padding 里的 em 按根字号算，
+     所以字号只能落在下面那个 span 上，不能提到这里 */
+  padding-inline: max(1.5rem, calc((100% - var(--archive-measure)) / 2 + 3rem));
+  /* h1 默认字号比正文大一档，会把上面那条 padding 里的 em 放大——
+     这里压回 1rem，与 .main-content 同一条尺子 */
+  font-size: 1rem;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: opacity 340ms ease;
+}
+
+.archive-watermark__word {
+  display: block;
+  color: color-mix(in oklch, var(--sub-text-color) 12%, transparent);
+  font-family: var(--article-font-family);
+  font-size: clamp(4rem, 19vw, 15.5rem);
+  font-weight: 400;
+  line-height: 0.86;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
+  transition: color 340ms ease;
+}
+
+/* caption 是这一页的控制行：左端报规模，右端放栏数切换与话题入口。
+   它压在巨型水印上——水印只有一成墨色，两行字互不打扰 */
 .archive-masthead {
-  anchor-name: --archive-hero;
+  position: relative;
+  z-index: 1;
   display: grid;
-  gap: 1.75rem;
+  gap: 0.5rem;
   margin: 0;
   min-width: 0;
 }
 
-/* 页名沿用首页首屏的字号与字距：两页在同一位置呈现同一尺度的标题。
-   连点五次是秘密花园的入口（见 source/js/archive.js），所以它不能被选中——
-   五次点击落在同一行字上，浏览器会把它们读成三击选段 */
-.archive-masthead__title {
-  margin: 0;
-  max-width: 100%;
-  color: var(--title-text-color);
-  font-size: 3rem;
-  font-weight: 400;
-  font-family: var(--article-font-family);
-  line-height: 1;
-  letter-spacing: -0.03em;
-  overflow-wrap: anywhere;
-  user-select: none;
-  -webkit-user-select: none;
-  transition: color 340ms ease;
-
-  @media (min-width: 768px) {
-    font-size: 3.25rem;
-  }
-}
-
-/* 规模行沿用首页首屏那句 caption 的字号与颜色：13px、比次级文字再淡一档。
-   数字比词深一档——「167」正是读者第一眼想知道的量级 */
 .archive-masthead__caption {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.35rem 1.5rem;
-  margin: 0;
+  gap: 0.5rem 1.5rem;
+  min-width: 0;
   color: color-mix(in oklch, var(--sub-text-color) 75%, transparent);
   font-family: var(--article-font-family);
   font-size: 0.8125rem;
@@ -105,18 +128,69 @@
 }
 
 .archive-masthead__stat {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.6rem;
+  margin: 0;
   white-space: nowrap;
+}
+
+/* 标签页的页名落在这一行：水印永远是 Archive，这一页是谁由这里说 */
+.archive-masthead__subject {
+  color: var(--title-text-color);
 }
 
 .archive-masthead__count {
   color: var(--sub-text-color);
 }
 
-/* 话题入口：无边框无底色，靠颜色表达可点与状态 */
+.archive-masthead__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1.5rem;
+}
+
+/* 栏数切换：两个线条图标，选中的一档用正文墨色，另一档退到很淡 */
+.archive-columns {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.archive-columns__option {
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: color-mix(in oklch, var(--sub-text-color) 40%, transparent);
+  cursor: pointer;
+  transition: color 140ms var(--ease-out);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sub-text-color);
+  }
+
+  &[aria-pressed="true"] {
+    color: var(--title-text-color);
+  }
+}
+
+.archive-columns__glyph {
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+}
+
+/* 话题入口：一枚 # 领着的计数。箭头换成 # —— 标签本来就是这么写的，
+   而且它和这行 caption 的字重待在同一个尺度里 */
 .archive-masthead__topics {
   display: inline-flex;
-  align-items: center;
-  gap: 0.3em;
+  align-items: baseline;
+  gap: 0.4rem;
   padding: 0;
   border: none;
   background: transparent;
@@ -132,37 +206,53 @@
   &:focus-visible {
     color: var(--archive-accent);
   }
-
-  /* 只转箭头本身 */
-  & > svg {
-    transition: rotate 200ms var(--ease-out);
-  }
 }
 
-.archive-page:has(.archive-topic-picker:popover-open) .archive-masthead__topics {
+.archive-masthead__hash {
+  color: var(--sub-text-color);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  transition: color 140ms var(--ease-out);
+}
+
+.archive-page:has(.archive-topic-picker:popover-open) :is(.archive-masthead__topics, .archive-masthead__hash) {
   color: var(--archive-accent);
+}
 
-  & > svg {
-    rotate: 180deg;
+/* 窄屏上选两栏时的提醒：浮在 caption 下面，出现时不推动清单 */
+.archive-masthead__note {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-end: 0;
+  margin-block-start: 0.5rem;
+  max-width: 22rem;
+  color: color-mix(in oklch, var(--archive-accent) 65%, var(--sub-text-color));
+  font-family: var(--article-font-family);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  text-align: end;
+
+  &[hidden] {
+    display: none;
   }
 }
 
-/* 幕帘打开时静息态的正文退到纸面之后；花园是另一种视图，整块换掉，不叠 */
-.archive-page .archive-group {
+/* 幕帘打开时静息态的清单退到纸面之后，水印跟着淡下去；花园是另一种视图，整块换掉 */
+.archive-page .archive-groups {
   transition: opacity 340ms ease;
 }
 
-.archive-page:has(.archive-topic-picker:popover-open) .archive-group {
+.archive-page:has(.archive-topic-picker:popover-open) .archive-groups {
   opacity: 0;
   pointer-events: none;
 }
 
-.archive-page:has(.archive-topic-picker:popover-open) .archive-masthead__title {
-  color: var(--archive-accent);
+.archive-page:has(.archive-topic-picker:popover-open) .archive-watermark__word {
+  color: color-mix(in oklch, var(--archive-accent) 20%, transparent);
 }
 
-.archive-page[data-view="garden"] .archive-masthead__title {
-  color: var(--archive-garden-accent);
+.archive-page[data-view="garden"] .archive-watermark {
+  opacity: 0;
 }
 
 /* #endregion */
@@ -436,7 +526,7 @@
   display: flex;
 }
 
-.archive-page[data-view="garden"] :is(.archive-group, .archive-masthead__caption) {
+.archive-page[data-view="garden"] :is(.archive-groups, .archive-masthead) {
   display: none;
 }
 
@@ -552,6 +642,33 @@
 /* #endregion */
 
 /* #region Groups */
+
+/* 一季一段地码下来。双栏模式下这里改成两列——同一份清单换个读法：
+   单栏是顺着时间往下走，双栏是把整张索引摊开 */
+.archive-groups {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 3.5rem;
+  min-width: 0;
+}
+
+.archive-page[data-columns="2"] .archive-groups {
+  display: block;
+  columns: 2;
+  column-gap: 3rem;
+}
+
+.archive-page[data-columns="2"] .archive-group {
+  break-inside: avoid;
+  margin-block-end: 3rem;
+}
+
+/* 多栏容器里 sticky 不成立；两栏读的是「扫一遍索引」而不是「顺着时间走」，
+   季节标签在两栏模式下就地站住，不再吸附 */
+.archive-page[data-columns="2"] .archive-group__header {
+  position: static;
+}
 
 .archive-group {
   position: relative;
@@ -1003,7 +1120,7 @@ a.archive-title:is(:hover, :focus-visible) > .archive-title__date {
 
 /* #region Focus & motion */
 
-:is(.archive-masthead__topics, .archive-group__year, .archive-topic-list__item, .archive-garden__lock, a.archive-title):focus-visible {
+:is(.archive-masthead__topics, .archive-columns__option, .archive-group__year, .archive-topic-list__item, .archive-garden__lock, a.archive-title):focus-visible {
   outline: auto;
   outline-offset: 2px;
   transition: none;
