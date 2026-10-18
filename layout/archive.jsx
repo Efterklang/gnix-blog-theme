@@ -9,8 +9,8 @@ const { isEncrypted } = require("../include/hexo/encrypt");
 const COMMON_TOPIC_LIMIT = 12;
 // 中日韩字符按每分钟 350 字、其余按每分钟 200 词估算
 const CJK_RE = /[\u3000-\u303f\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff00-\uffef]/g;
-// 归档页的页名。手写笔画标签只认拉丁字母与数字，页名与规模都用英文，
-// 中文页面上这一行因此是「Archive / 162 writings」——拉丁刻度，中文内容
+// 归档页的页名与规模行都用英文：页名是这一页的坐标，规模行是一句量级注解，
+// 中文页面上它们就是那两处拉丁刻度，正文仍是中文
 const ARCHIVE_TITLE = "Archive";
 
 function collectPosts(collection) {
@@ -130,11 +130,6 @@ function getPostDateParts(postDate, dateXml, date) {
 function getPostTags(post) {
   if (typeof post?.tags?.toArray === "function") return post.tags.toArray().map((tag) => tag.name).filter(Boolean);
   return [];
-}
-
-// 规模与话题数用与季节标签同一支手写笔画（构建期转 SVG）；转换失败时调用侧回退为 mono 文字
-function getCountStroke(count, noun) {
-  return StrokeLabel({ text: `${count} ${noun}`, className: "archive-count__strokes" });
 }
 
 // 一季一段：标签行在上，条目在一条等距的清单里。标题贴左缘、日期贴右缘，
@@ -288,13 +283,10 @@ module.exports = class extends Component {
     const groups = groupPostsBySeason(visiblePosts);
     const topicTags = getTopicTags(site?.tags, page, config, helper);
 
-    // 页名：归档页写 Archive，标签页写标签本身——标签页另有一行 eyebrow 说明这是什么
+    // 页名：归档页写 Archive，标签页写标签本身
     const heroTitle = isTagPage ? page.tag : ARCHIVE_TITLE;
-    const eyebrowLabel = helper._p("common.tag", Infinity);
-    const writingsUnit = helper._p("archive.writing", totalVisiblePosts);
-    const topicsUnit = helper._p("archive.topic", topicTags.length);
-    const writingsStroke = getCountStroke(totalVisiblePosts, totalVisiblePosts === 1 ? "writing" : "writings");
-    const topicsStroke = getCountStroke(topicTags.length, topicTags.length === 1 ? "topic" : "topics");
+    const writingsWord = totalVisiblePosts === 1 ? "writing" : "writings";
+    const topicsWord = topicTags.length === 1 ? "topic" : "topics";
     const gardenCountLabel = `${gardenPosts.length} ${helper._p("archive.writing", gardenPosts.length)}`;
     const formatReadTime = (minutes) => helper.__("article.reading_time", minutes);
 
@@ -328,27 +320,28 @@ module.exports = class extends Component {
 
     return (
       <main class="archive-page" data-view="archive">
-        {/* 刊头一行：页名在左，规模与话题入口在右，共享一条基线。
-            两边都是手写笔画——刊头与下面的季节标签因此是同一只手写的 */}
+        {/* 刊头两行：页名独占一行，下面一行 caption 把这一页的规模摆到两端——
+            「167 writings」贴左缘、「137 topics」贴右缘，两条竖轴从刊头一路通到清单底部 */}
         <header class="archive-masthead">
-          {isTagPage ? <p class="archive-masthead__eyebrow archive-micro">{eyebrowLabel}</p> : null}
-          <div class="archive-masthead__row">
-            <h1 id="archive-masthead-title" class="archive-masthead__title">
-              {heroTitle}
-            </h1>
-            <div class="archive-masthead__actions">
-              <span class="archive-masthead__stat">{writingsStroke || `${totalVisiblePosts} ${writingsUnit}`}</span>
-              <button
-                type="button"
-                class="archive-masthead__topics"
-                popovertarget="archive-topic-picker"
-                aria-expanded="false"
-                aria-controls="archive-topic-picker"
-              >
-                <span class="archive-masthead__stat">{topicsStroke || `${topicTags.length} ${topicsUnit}`}</span>
-                <Icon name="chevron-down" size={15} />
-              </button>
-            </div>
+          <h1 id="archive-masthead-title" class="archive-masthead__title">
+            {heroTitle}
+          </h1>
+          <div class="archive-masthead__caption">
+            <span class="archive-masthead__stat">
+              <span class="archive-masthead__count">{totalVisiblePosts}</span> {writingsWord}
+            </span>
+            <button
+              type="button"
+              class="archive-masthead__topics"
+              popovertarget="archive-topic-picker"
+              aria-expanded="false"
+              aria-controls="archive-topic-picker"
+            >
+              <span>
+                <span class="archive-masthead__count">{topicTags.length}</span> {topicsWord}
+              </span>
+              <Icon name="chevron-down" size={13} />
+            </button>
           </div>
         </header>
 

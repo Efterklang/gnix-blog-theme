@@ -11,7 +11,7 @@
   /* 秘密花园自己的一支强调色：它是「另一个地方」，与归档的 lavender 分开 */
   --archive-garden-accent: var(--teal);
   /* 吸附标签下方渐进模糊的渐隐区高度（见 .archive-group__header 的模糊层） */
-  --archive-label-fade: 3.5rem;
+  --archive-label-fade: 3.25rem;
   /* 吸顶标签的落点：紧贴视口顶端。窄视口导航条移到底部，标签只需避开状态栏 */
   --archive-sticky-top: 0px;
   --archive-popup-open-delay: 140ms;
@@ -21,8 +21,8 @@
   --archive-row-gap: 1.25rem;
   position: relative;
   display: grid;
-  gap: 3.25rem;
-  padding: 1.5rem 1.5rem 0;
+  gap: 3.5rem;
+  padding: 2.5rem 1.5rem 0;
 }
 
 @media (max-width: 1023px) {
@@ -34,8 +34,12 @@
 @media (max-width: 640px) {
   .archive-page {
     --archive-row-gap: 0.875rem;
-    gap: 2.5rem;
-    padding-inline: 1.25rem;
+    gap: 2.75rem;
+    padding: 1.75rem 1.25rem 0;
+  }
+
+  .archive-masthead {
+    gap: 1.25rem;
   }
 }
 
@@ -52,95 +56,15 @@
 
 /* #region Masthead */
 
-/* 刊头一行：页名在左，规模与话题入口在右，共享一条基线。两边都是手写笔画——
-   刊头与下面的季节标签因此出自同一只手。h1 所在元素同时是幕帘的锚点 */
+/* 刊头两行：页名独占一行，下面一行 caption 把这一页的规模摆到两端——
+   「167 writings」贴左缘、「137 topics」贴右缘。两条竖轴因此从刊头一路通到清单底部，
+   中间全是留白。h1 所在元素同时是幕帘的锚点 */
 .archive-masthead {
   anchor-name: --archive-hero;
   display: grid;
-  gap: 0.5rem;
+  gap: 1.75rem;
   margin: 0;
   min-width: 0;
-}
-
-/* 标签页才有的一行小字：说明这一页是按什么筛出来的。归档页的页名已经说清楚了，
-   再写一遍就是同义反复 */
-.archive-masthead__eyebrow {
-  margin: 0;
-  color: var(--sub-text-color);
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: var(--font-weight-semibold);
-  line-height: 1.5;
-  text-transform: uppercase;
-}
-
-.archive-masthead__row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.35rem 2rem;
-  min-width: 0;
-}
-
-.archive-masthead__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.35rem 1.35rem;
-  min-width: 0;
-  color: var(--sub-text-color);
-}
-
-/* 规模与话题数：与季节标签同一支手写笔画（见 include/util/hershey.js）。
-   SVG 没有文字基线，flex 的 baseline 对齐只能拿它的下边缘当基线——
-   把下边距收掉笔画基线到 viewBox 下沿的那一段（0.369 × 1.72em），
-   手写的字就和页名坐在同一条线上 */
-.archive-count__strokes {
-  display: block;
-  height: 1.72em;
-  width: auto;
-  margin-block-end: -0.635em;
-  overflow: visible;
-}
-
-.archive-masthead__stat {
-  white-space: nowrap;
-}
-
-/* 话题入口：无边框无底色，靠颜色表达可点与状态 */
-.archive-masthead__topics {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.4rem;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--sub-text-color);
-  cursor: pointer;
-  font: inherit;
-  letter-spacing: inherit;
-  line-height: inherit;
-  white-space: nowrap;
-  transition: color 140ms var(--ease-out);
-
-  &:hover,
-  &:focus-visible {
-    color: var(--archive-accent);
-  }
-
-  /* 只转箭头本身：手写笔画的 svg 在 span 里，别跟着翻过来 */
-  & > svg {
-    transition: rotate 200ms var(--ease-out);
-  }
-}
-
-.archive-page:has(.archive-topic-picker:popover-open) .archive-masthead__topics {
-  color: var(--archive-accent);
-
-  & > svg {
-    rotate: 180deg;
-  }
 }
 
 /* 页名沿用首页首屏的字号与字距：两页在同一位置呈现同一尺度的标题。
@@ -158,12 +82,68 @@
   overflow-wrap: anywhere;
   user-select: none;
   -webkit-user-select: none;
-  transition:
-    opacity 340ms ease,
-    color 340ms ease;
+  transition: color 340ms ease;
 
   @media (min-width: 768px) {
     font-size: 3.25rem;
+  }
+}
+
+/* 规模行沿用首页首屏那句 caption 的字号与颜色：13px、比次级文字再淡一档。
+   数字比词深一档——「167」正是读者第一眼想知道的量级 */
+.archive-masthead__caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 1.5rem;
+  margin: 0;
+  color: color-mix(in oklch, var(--sub-text-color) 75%, transparent);
+  font-family: var(--article-font-family);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.archive-masthead__stat {
+  white-space: nowrap;
+}
+
+.archive-masthead__count {
+  color: var(--sub-text-color);
+}
+
+/* 话题入口：无边框无底色，靠颜色表达可点与状态 */
+.archive-masthead__topics {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  white-space: nowrap;
+  transition: color 140ms var(--ease-out);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--archive-accent);
+  }
+
+  /* 只转箭头本身 */
+  & > svg {
+    transition: rotate 200ms var(--ease-out);
+  }
+}
+
+.archive-page:has(.archive-topic-picker:popover-open) .archive-masthead__topics {
+  color: var(--archive-accent);
+
+  & > svg {
+    rotate: 180deg;
   }
 }
 
@@ -194,6 +174,8 @@
    visible so the next title remains easy to find. */
 @supports (anchor-name: --archive-anchor) and (anchor-scope: --archive-anchor) {
   @media (hover: hover) and (pointer: fine) and (min-width: 721px) {
+    /* 预览浮层自己不铺底：底下这层把整页糊掉再罩一层薄纸，
+       摘要因此是浮在失焦的纸面上，而不是压在一块色块上 */
     .archive-page::after {
       content: "";
       position: fixed;
@@ -202,6 +184,7 @@
       background: var(--mantle);
       background-image: var(--page-texture);
       background-attachment: fixed;
+      backdrop-filter: blur(10px);
       opacity: 0;
       pointer-events: none;
       transition: opacity var(--archive-popup-exit-duration) var(--ease-out);
@@ -209,7 +192,7 @@
 
     .archive-page[data-preview-state="open"]:not([data-view="garden"]):not(:has(.archive-topic-picker:popover-open))::after,
     .archive-page:not([data-preview-state]):not([data-view="garden"]):not(:has(.archive-topic-picker:popover-open)):has(.archive-item > .archive-title:hover + .archive-popup)::after {
-      opacity: 0.9;
+      opacity: 0.72;
       transition-duration: var(--archive-popup-enter-duration);
       transition-delay: var(--archive-popup-open-delay);
     }
@@ -453,7 +436,7 @@
   display: flex;
 }
 
-.archive-page[data-view="garden"] :is(.archive-group, .archive-masthead__actions) {
+.archive-page[data-view="garden"] :is(.archive-group, .archive-masthead__caption) {
   display: none;
 }
 
@@ -607,7 +590,7 @@
   padding-block: 0.45rem;
   color: color-mix(in oklch, var(--archive-accent) 70%, var(--sub-text-color));
   font-family: var(--font-handwritten);
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
@@ -864,11 +847,6 @@ a.archive-title:is(:hover, :focus-visible) > .archive-title__date {
      兜底折行 */
   overflow-wrap: anywhere;
 
-  /* 与幕后那层纸同一张纸、同一个 fixed 附着点：预览因此是「纸上一块干净的纸」，
-     而不是浮在暗下去的页面上的几行字——摘要压住底下的季节引线也看不出来 */
-  background: var(--mantle);
-  background-image: var(--page-texture);
-  background-attachment: fixed;
   padding: 0.85rem 1rem 0.9rem;
   font-size: var(--article-font-size);
   font-weight: var(--article-font-weight);

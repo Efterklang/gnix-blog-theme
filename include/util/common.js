@@ -59,8 +59,9 @@ module.exports = {
 
   isValidDate: (val) => val instanceof Date && !Number.isNaN(val.getTime()),
   parseISO: (str) => new Date(str),
-  // 列表日期统一为「缩写月 + 日」（Oct 1），日不补零
-  formatMonthDay: (d) => `${shortMonthFormatter.format(d)} ${d.getDate()}`,
+  // 列表日期统一为「缩写月 + 日」，日补零到两位（Oct 04）：
+  // 日期是一列数字，等宽等长才对得齐
+  formatMonthDay: (d) => `${shortMonthFormatter.format(d)} ${String(d.getDate()).padStart(2, "0")}`,
   dateFormatters: {
     longMonth: new Intl.DateTimeFormat("en", { month: "long" }),
   },
