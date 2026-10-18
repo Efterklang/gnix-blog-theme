@@ -83,7 +83,9 @@
   padding-block: 0.1em;
   color: var(--title-text-color);
   font-family: var(--article-font-family);
-  font-size: 36cqw;
+  /* 兜底：主题自带的几款字里最宽的是等宽（每 em 3.07），按它取一个不会溢出的值；
+     真正的字号由脚本按实际字宽算（见 layout/archive.jsx 里的内联脚本） */
+  font-size: 31cqw;
   font-weight: 400;
   line-height: 0.86;
   letter-spacing: -0.05em;
@@ -91,12 +93,14 @@
   transition: color 340ms ease;
 }
 
-/* caption 是这一页的控制行：左端报规模，右端放栏数切换与话题入口。
-   它压在巨型水印上——水印只有一成墨色，两行字互不打扰 */
+/* caption 是这一页的控制行：左端报规模，右端放栏数切换与话题入口，
+   中间由引线连着——和每一季的标签行同一个句式 */
 .archive-masthead {
+  anchor-name: --archive-hero;
   position: relative;
   display: grid;
-  gap: 2rem;
+  /* 页名与它下面那行 caption 是一对：贴紧一点，让它们读成一块刊头 */
+  gap: 0.75rem;
   margin: 0;
   min-width: 0;
 }
@@ -105,7 +109,6 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  justify-content: space-between;
   gap: 0.5rem 1.5rem;
   min-width: 0;
   color: color-mix(in oklch, var(--sub-text-color) 75%, transparent);
@@ -130,6 +133,17 @@
 
 .archive-masthead__count {
   color: var(--sub-text-color);
+}
+
+/* 与季节标签行同一条引线：刊头和每一季因此是同一句话的两处说法——
+   左端是名目，右端是刻度，中间由一条线连着 */
+.archive-masthead__leader {
+  flex: 1 1 auto;
+  align-self: center;
+  min-inline-size: 1.5rem;
+  block-size: 1px;
+  background: currentColor;
+  opacity: 0.28;
 }
 
 .archive-masthead__tools {

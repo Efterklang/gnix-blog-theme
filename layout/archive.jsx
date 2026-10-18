@@ -148,6 +148,30 @@ function ColumnGlyph({ columns }) {
   );
 }
 
+// 页名的字号必须在首帧之前算好：宽一点的字体（衬线、Helvetica Neue）下，先按 CSS 兜底渲染
+// 再纠正，会看见末尾的字母溢出去一下。这段内联脚本是它唯一的执行时机，量好之后
+// source/js/archive.js 只负责在栏宽与字体变化时重算（window.__gnixFitArchiveTitle）
+const TITLE_FIT_SCRIPT = `(function() {
+  function fit() {
+    var page = document.querySelector(".archive-page");
+    var word = page && page.querySelector(".archive-watermark__word");
+    var box = word && word.parentElement;
+    if (!word || !box) return;
+    var style = getComputedStyle(box);
+    var available = box.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+    if (available <= 0) return;
+    word.style.fontSize = "100px";
+    var range = document.createRange();
+    range.selectNodeContents(word);
+    // 末尾那个负字距把字面推到前进宽度之外：量到的宽度要减掉它，否则最后一个字母会被裁掉
+    var ink = (range.getBoundingClientRect().width - parseFloat(getComputedStyle(word).letterSpacing)) / 100;
+    // 两栏模式下栏宽接近翻倍，撑满会顶掉整屏——高度收在视口的 36% 以内
+    word.style.fontSize = ink > 0 ? Math.min((available * 0.997) / ink, window.innerHeight * 0.36) + "px" : "";
+  }
+  window.__gnixFitArchiveTitle = fit;
+  fit();
+})();`;
+
 // 一季一段：标签行在上，条目在一条等距的清单里。标题贴左缘、日期贴右缘，
 // 全页因此有两条笔直的竖轴，167 行也读得下去
 function renderSeasonGroup({ posts, title, yearLabel, marker, sectionId, formatReadTime, url_for, date_xml, date }) {
@@ -340,6 +364,7 @@ module.exports = class extends Component {
         <h1 id="archive-title" class="archive-watermark">
           <span class="archive-watermark__word">{ARCHIVE_TITLE}</span>
         </h1>
+        <script dangerouslySetInnerHTML={{ __html: TITLE_FIT_SCRIPT }} />
 
         {/* caption 是一条控制行：左端报这一页的规模，右端放栏数切换与话题入口 */}
         <header class="archive-masthead">
@@ -355,6 +380,7 @@ module.exports = class extends Component {
                 <span class="archive-masthead__count">{totalVisiblePosts}</span> {writingsWord}
               </span>
             </p>
+            <span class="archive-masthead__leader" aria-hidden="true"></span>
             <div class="archive-masthead__tools">
               <div class="archive-columns">
                 <button
