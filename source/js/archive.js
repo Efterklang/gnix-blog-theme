@@ -265,6 +265,34 @@ function initArchiveLabelStuck() {
   window.addEventListener("resize", schedule, { passive: true });
 }
 
+// 页名撑满栏宽：字号按实际字宽量出来，正好占满这一栏——换字体（正文字体是用户可选的）、
+// 换栏宽（阅读宽度偏好、单双栏切换、窗口尺寸）都对得上，所以交给 JS 量；
+// 量的时候先把字号设成 100px，得出「每 1px 字号对应多宽」，再反推该用多大
+function initArchiveTitleFit() {
+  const word = document.querySelector(".archive-watermark__word");
+  const box = word?.parentElement;
+  if (!word || !box) return;
+
+  function fit() {
+    const style = getComputedStyle(box);
+    const available = box.clientWidth - Number.parseFloat(style.paddingLeft) - Number.parseFloat(style.paddingRight);
+    if (available <= 0) return;
+    word.style.fontSize = "100px";
+    const range = document.createRange();
+    range.selectNodeContents(word);
+    const unit = range.getBoundingClientRect().width / 100;
+    // 两栏模式下栏宽接近翻倍，撑满会顶掉整屏——高度收在视口的 36% 以内
+    const size = Math.min(available / unit, window.innerHeight * 0.36);
+    word.style.fontSize = unit > 0 ? `${size}px` : "";
+  }
+
+  fit();
+  // 栏宽随阅读宽度偏好、窗口尺寸与栏数切换变化；字体换过之后字宽也会变
+  if ("ResizeObserver" in window) new ResizeObserver(fit).observe(box);
+  document.fonts?.ready.then(fit).catch(() => {});
+  document.addEventListener("gnix:article-font-settings-change", fit);
+}
+
 // 栏数切换：pc 上单栏顺着时间读、双栏把索引摊开扫；选择记在本地。
 // 窄屏放不下两栏——按它只给一句提醒，布局不动（见 languages 的 archive.columns_narrow）
 function initArchiveColumns() {
@@ -398,15 +426,11 @@ function initArchiveGarden() {
     panel.dataset.state = "unlocked";
   }
 
-  // 入口一：页名连点五次。水印钉在视口上、正文从它上面滚过去，所以按坐标判定而不是按元素：
-  // 正文压住它的地方点不到，点在它露出来的空白处一样算数。两次点击间隔超过 900ms 就重新计数，
-  // 免得「偶尔点一下页名」被慢慢攒成一次进入。落在链接与控件上的点击不算——那些有它们自己的事要做
+  // 入口一：页名连点五次。两次点击间隔超过 900ms 就重新计数，
+  // 免得「偶尔点一下页名」被慢慢攒成一次进入
   let clicks = 0;
   let clickTimer = 0;
-  document.addEventListener("click", (event) => {
-    if (!title || event.target.closest?.("a, button, input, select, textarea, label, form")) return;
-    const rect = title.getBoundingClientRect();
-    if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) return;
+  title?.addEventListener("click", () => {
     clearTimeout(clickTimer);
     clicks += 1;
     if (clicks < GARDEN_CLICKS) {
@@ -471,6 +495,7 @@ runWhenActivated(() => {
   initArchivePreview();
   initArchiveLabelReplay();
   initArchiveLabelStuck();
+  initArchiveTitleFit();
   initArchiveColumns();
   initArchiveGarden();
   initPopoverTriggers();

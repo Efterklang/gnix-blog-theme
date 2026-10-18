@@ -5,11 +5,11 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "10.18",
         cn: [
-          "归档页重排：页名做成钉在视口顶端的巨型水印，正文从它上面滚过去；下面一行 caption 报出篇数、话题数，并可就地切换单栏／双栏（窄屏选两栏只给一句提醒）与按话题筛选；条目两列（标题贴左缘、日期补零成 Oct 04 贴右缘），季节标签与年份由一条引线相连；加密文章从归档、首页、搜索索引、站点地图与 feed 中隐去",
+          "归档页重排：页名是一行撑满整栏的大字（字号按实际字宽量出来，换字体、换栏宽都对齐），下面一行 caption 报出篇数、话题数，并可就地切换单栏／双栏（窄屏选两栏只给一句提醒）与按话题筛选；条目两列（标题贴左缘、日期补零成 Oct 04 贴右缘），季节标签与年份由一条引线相连；加密文章从归档、首页、搜索索引、站点地图与 feed 中隐去",
           "秘密花园改为页面的第二种视图：连点页名五次（或敲 garden）后，公开清单整块换成加密清单，密码解锁后才渲染标题与链接",
         ],
         en: [
-          "Rework the archive page: the page name becomes a giant watermark pinned to the viewport with the content scrolling over it, and the caption line beneath reports the post and topic counts while switching between one and two columns (a narrow screen only gets a warning) and filtering by topic; entries run in two columns with titles at the left edge and zero-padded dates such as Oct 04 at the right, and every season label is tied to its year by a leader line; encrypted posts disappear from the archive, home, search index, sitemap and feed",
+          "Rework the archive page: the page name is a single line set to fill the column exactly (its size is measured from the text itself, so it holds up across typefaces and column widths), and the caption line beneath reports the post and topic counts while switching between one and two columns (a narrow screen only gets a warning) and filtering by topic; entries run in two columns with titles at the left edge and zero-padded dates such as Oct 04 at the right, and every season label is tied to its year by a leader line; encrypted posts disappear from the archive, home, search index, sitemap and feed",
           "Turn the Secret Garden into a second view of the page: five clicks on the page name (or typing garden) swap the public list for the encrypted one, whose titles and links only render once the password is entered",
         ],
         category: "uiux",
