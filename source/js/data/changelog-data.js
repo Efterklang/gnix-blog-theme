@@ -10,7 +10,7 @@ window.__CHANGELOG_DATA__ = [
           "文章页首屏改为左右对置：封面宽幅横裁在左、标题与摘要在右，标签移入 info 弹层；导航链接改为左上角竖排的编号列表",
           "推荐字体新增 Lekton，下载完成后自动把字体名复制到剪贴板",
           "归档改为年份切片：刊头右端一枚像素年份（只报两位），点一下数字像翻表一样滚到上一年、到头绕回最新的一年，默认当年、?year= 可分享，规模行移到 caption 左端",
-          "话题幕帘拉开留白并改用正文字体，栏数旁的计数改用等宽字体",
+          "话题幕帘改为全屏选择器：顶端一枚标签标题与关闭钮，清单按归档的栏宽铺开、留白更足，条目仍逐条上浮；caption 引线改虚线，季节像素字缩小一成，计数改用等宽字体",
         ],
         en: [
           "Rework the archive page: the page name shrinks to a third of the column (its size is measured from the text itself, so it holds up across typefaces and column widths), and the caption line beneath reports the post and topic counts while switching between one and two columns (a narrow screen only gets a warning) and filtering by topic; entries run in two columns with titles at the left edge and zero-padded dates such as Oct 04 at the right, and each season row carries a pale pixel word-mark at its right, half sunk into the list, that surfaces as you scroll to it; encrypted posts disappear from the archive, home, search index, sitemap and feed",
@@ -18,7 +18,7 @@ window.__CHANGELOG_DATA__ = [
           "Rebuild the article hero as a left–right pair — a wide-cropped cover beside the title and excerpt — with tags moved into the info popover; the nav links become a stacked numbered list at the top left",
           "Add Lekton to Recommended Fonts; the font name is copied to the clipboard once its download completes",
           "Slice the archive by year: the pixel year at the masthead's right (two digits) rolls to the previous year when clicked, wrapping at the oldest, defaults to this year and shares via ?year=, with the count moved to the caption's left",
-          "Give the topic curtain more air and set its entries in the article font; the count beside the columns control now uses the mono font",
+          "Turn the topic curtain into a full-screen selector with a tags title and close button above a list laid out to the archive's column width, and give its rows more air; the caption leader becomes dashed, the season pixel marks shrink by a tenth and the counts use the mono font",
         ],
         category: "uiux",
       },

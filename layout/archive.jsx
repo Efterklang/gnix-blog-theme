@@ -284,7 +284,7 @@ function renderTopicItem(tag, index) {
   );
 }
 
-function renderTopicPicker({ tags, allPosts, topicListLabel, commonLabel, restLabel }) {
+function renderTopicPicker({ tags, allPosts, topicListLabel, closeLabel, commonLabel, restLabel }) {
   // 第一带按篇数降序（26 篇的 Essay 和 1 篇的 Ruff 不该并排），第二带按字母序，
   // 两带共用一条连续下标：逐条上浮仍是一整条自上而下的瀑布
   const byCount = [...tags].sort((a, b) => b.count - a.count || String(a.name).localeCompare(String(b.name)));
@@ -296,6 +296,19 @@ function renderTopicPicker({ tags, allPosts, topicListLabel, commonLabel, restLa
   return (
     <div id="archive-topic-picker" class="archive-topic-picker" popover="auto">
       <div class="archive-topic-picker__body">
+        {/* 全屏接管：顶端一枚标题与关闭钮——幕帘盖住触发钮，关闭得有自己的落点 */}
+        <header class="archive-topic-picker__head">
+          <h2 class="archive-topic-picker__title archive-micro">{topicListLabel}</h2>
+          <button
+            type="button"
+            class="archive-topic-picker__close"
+            popovertarget="archive-topic-picker"
+            popovertargetaction="hide"
+            aria-label={closeLabel}
+          >
+            <Icon name="x" size={18} />
+          </button>
+        </header>
         <nav class="archive-topic-list" aria-label={topicListLabel}>
           <h3 class="archive-topic-list__band archive-micro">{commonLabel}</h3>
           {allPosts ? (
@@ -521,6 +534,7 @@ module.exports = class extends Component {
             current: !isTagPage,
           },
           topicListLabel: helper._p("common.tag", Infinity),
+          closeLabel: helper.__("article.close"),
           commonLabel: helper.__("archive.common_topics"),
           restLabel: helper.__("archive.all_topics"),
         })}
