@@ -5,12 +5,16 @@ window.__CHANGELOG_DATA__ = [
       {
         date: "10.18",
         cn: [
-          "归档页重排：页名是一行撑满整栏的大字（字号按实际字宽量出来，换字体、换栏宽都对齐），下面一行 caption 报出篇数、话题数，并可就地切换单栏／双栏（窄屏选两栏只给一句提醒）与按话题筛选；条目两列（标题贴左缘、日期补零成 Oct 04 贴右缘），季节标签与年份由一条引线相连；加密文章从归档、首页、搜索索引、站点地图与 feed 中隐去",
-          "秘密花园改为页面的第二种视图：连点页名五次（或敲 garden）后，公开清单整块换成加密清单，密码解锁后才渲染标题与链接",
+          "归档页重排：页名缩到栏宽的三分之一（字号按实际字宽量出，换字体、换栏宽都对齐），下面一行 caption 报出篇数、话题数，并可就地切换单栏／双栏（窄屏选两栏只给一句提醒）与按话题筛选；条目两列（标题贴左缘、日期补零成 Oct 04 贴右缘），季节与年份合成一条可点的手写标签；加密文章从归档、首页、搜索索引、站点地图与 feed 中隐去",
+          "秘密花园改为页面的第二种视图：在归档页或标签页连点页名三次（或敲 garden）后，公开清单整块换成加密清单，密码解锁后才渲染标题与链接",
+          "文章页首屏改为左右对置：封面宽幅横裁在左、标题与摘要在右，标签移入 info 弹层；导航链接改为左上角竖排的编号列表",
+          "推荐字体新增 Lekton，下载完成后自动把字体名复制到剪贴板",
         ],
         en: [
-          "Rework the archive page: the page name is a single line set to fill the column exactly (its size is measured from the text itself, so it holds up across typefaces and column widths), and the caption line beneath reports the post and topic counts while switching between one and two columns (a narrow screen only gets a warning) and filtering by topic; entries run in two columns with titles at the left edge and zero-padded dates such as Oct 04 at the right, and every season label is tied to its year by a leader line; encrypted posts disappear from the archive, home, search index, sitemap and feed",
-          "Turn the Secret Garden into a second view of the page: five clicks on the page name (or typing garden) swap the public list for the encrypted one, whose titles and links only render once the password is entered",
+          "Rework the archive page: the page name shrinks to a third of the column (its size is measured from the text itself, so it holds up across typefaces and column widths), and the caption line beneath reports the post and topic counts while switching between one and two columns (a narrow screen only gets a warning) and filtering by topic; entries run in two columns with titles at the left edge and zero-padded dates such as Oct 04 at the right, and every season and its year merge into one clickable handwritten label; encrypted posts disappear from the archive, home, search index, sitemap and feed",
+          "Turn the Secret Garden into a second view of the page: three clicks on the page name (on the archive or a tag page) or typing garden swap the public list for the encrypted one, whose titles and links only render once the password is entered",
+          "Rebuild the article hero as a left–right pair — a wide-cropped cover beside the title and excerpt — with tags moved into the info popover; the nav links become a stacked numbered list at the top left",
+          "Add Lekton to Recommended Fonts; the font name is copied to the clipboard once its download completes",
         ],
         category: "uiux",
       },

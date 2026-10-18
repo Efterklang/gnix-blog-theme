@@ -24,8 +24,6 @@ module.exports = class extends Component {
     const isPost = page.layout !== "page";
     /* 无图文章保留扉页，有图文章使用自适应图文布局。 */
     const fullHero = isPost;
-    // 日期固定英文全称格式（August 20, 2026），不随站点语言切换
-    const createdDate = isPost && page.date ? page.date.clone().locale("en").format("MMMM D, YYYY") : null;
     // 扉页期间导航条整体隐藏（手机端导航还在屏幕底部），底栏的 Back 是不滚动就能回到归档的入口
     const archiveUrl = helper.localized_url_for(config.archive_generator?.path || "archive", helper.language_key(page));
     const backLabel = translate(helper, "article.back_to_archive", "Back to archive");
@@ -41,53 +39,22 @@ module.exports = class extends Component {
               <div class="article-hero-main">
                 {fullHero && cover && <ArticleCover page={page} cover={cover} helper={helper} />}
                 <div class="article-hero-body">
-                  {createdDate && (
-                    <p class="article-dateline">
-                      <time datetime={page.date.toISOString()}>{createdDate}</time>
-                    </p>
-                  )}
                   {page.title !== "" ? <h1 class="article-title">{page.title}</h1> : null}
                   {page.excerpt && <div class="article-excerpt" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div>}
-                  {page.tags?.length ? (
-                    <div class="article-colophon">
-                      {page.tags.map((tag, i) => (
-                        <Fragment>
-                          {i > 0 && (
-                            <span class="meta-separator" aria-hidden="true">
-                              ·
-                            </span>
-                          )}
-                          <a class="article-tag" rel="tag" href={helper.localized_tag_url(tag, helper.language_key(page))}>
-                            {tag.name}
-                          </a>
-                        </Fragment>
-                      ))}
-                    </div>
-                  ) : null}
                 </div>
               </div>
               {/* 底栏：back / comments / info 成组靠右 */}
               <div class="article-hero-foot">
                 <div class="article-hero-actions">
                   {fullHero && (
-                    <Fragment>
-                      <a class="article-hero-back" href={archiveUrl} title={backLabel} aria-label={backLabel}>
-                        Back
-                      </a>
-                      <span class="meta-separator" aria-hidden="true">
-                        /
-                      </span>
-                    </Fragment>
+                    <a class="article-hero-back" href={archiveUrl} title={backLabel} aria-label={backLabel}>
+                      Back
+                    </a>
                   )}
                   {hasComment && (
-                    <Fragment>
-                      <button type="button" popovertarget="article-comment-popover" aria-label={commentsLabel} title={commentsLabel}>
-                        comments
-                      </button>
-                      <span class="meta-separator" aria-hidden="true">
-                        /
-                      </span>
-                    </Fragment>
+                    <button type="button" popovertarget="article-comment-popover" aria-label={commentsLabel} title={commentsLabel}>
+                      comments
+                    </button>
                   )}
                   <button type="button" popovertarget="article-info-popover" aria-label={articleInfoLabel} title={articleInfoLabel}>
                     info

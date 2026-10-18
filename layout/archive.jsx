@@ -1,6 +1,7 @@
 const { Component, isValidDate, parseISO, formatMonthDay } = require("../include/util/common");
 const ArticleMedia = require("./common/article_media");
 const { StrokeLabel } = require("../include/util/hershey");
+const { Icon } = require("../include/util/lucide");
 const { filterByLanguage } = require("../include/util/i18n");
 const { isEncrypted } = require("../include/hexo/encrypt");
 
@@ -45,12 +46,13 @@ function estimateReadMinutes(content) {
   return minutes > 0 ? Math.max(1, Math.ceil(minutes)) : 0;
 }
 
-// month 为 1-12 的自然月（moment#month() 是 0 基，调用侧需 +1）
+// month 为 1-12 的自然月（moment#month() 是 0 基，调用侧需 +1）。
+// 季节名用小写：手写笔画按字面书写，小写更像随手写下的注记
 function getSeason(month) {
-  if (month >= 3 && month <= 5) return "Spring";
-  if (month >= 6 && month <= 8) return "Summer";
-  if (month >= 9 && month <= 11) return "Autumn";
-  return "Winter";
+  if (month >= 3 && month <= 5) return "spring";
+  if (month >= 6 && month <= 8) return "summer";
+  if (month >= 9 && month <= 11) return "autumn";
+  return "winter";
 }
 
 // 冬季按气象季跨年：12 月与次年 1-2 月同属一段，startYear 记 12 月所在年；
@@ -165,8 +167,8 @@ const TITLE_FIT_SCRIPT = `(function() {
     range.selectNodeContents(word);
     // 末尾那个负字距把字面推到前进宽度之外：量到的宽度要减掉它，否则最后一个字母会被裁掉
     var ink = (range.getBoundingClientRect().width - parseFloat(getComputedStyle(word).letterSpacing)) / 100;
-    // 两栏模式下栏宽接近翻倍，撑满会顶掉整屏——高度收在视口的 36% 以内
-    word.style.fontSize = ink > 0 ? Math.min((available * 0.997) / ink, window.innerHeight * 0.36) + "px" : "";
+    // 页名只占栏宽的三分之一；两栏模式下栏宽接近翻倍，高度再收在视口的 36% 以内
+    word.style.fontSize = ink > 0 ? Math.min(available / 3 / ink, window.innerHeight * 0.36) + "px" : "";
   }
   window.__gnixFitArchiveTitle = fit;
   fit();
@@ -175,19 +177,16 @@ const TITLE_FIT_SCRIPT = `(function() {
 // 一季一段：标签行在上，条目在一条等距的清单里。标题贴左缘、日期贴右缘，
 // 全页因此有两条笔直的竖轴，167 行也读得下去
 function renderSeasonGroup({ posts, title, yearLabel, marker, sectionId, formatReadTime, url_for, date_xml, date }) {
-  // 季节标签在构建期转成单线笔画 SVG（无法转换时回退为文字）
-  const labelStroke = StrokeLabel({ text: title });
+  // 季节与年份一起转成单线笔画 SVG（无法转换时回退为文字）：一行手写里含着刻度
+  const labelStroke = StrokeLabel({ text: `${title} ${yearLabel}` });
   return (
     <section id={sectionId} class={`archive-group ${marker}`} aria-labelledby={`${sectionId}-title`}>
       <h2 id={`${sectionId}-title`} class="archive-group__header">
         {/* 渐进模糊的另外两层伪元素挂在空 span 上（见 archive.css 的 .archive-label__blur） */}
         <span class="archive-label__blur" aria-hidden="true"></span>
-        {/* 回退：单线笔画不可用时按文字渲染 */}
-        <span class="archive-label__name">{labelStroke || title}</span>
-        {/* 引线把季节与右端的年份连成一行；吸附时随标题一起钉在顶端 */}
-        <span class="archive-group__leader" aria-hidden="true"></span>
-        <a class="archive-group__year" href={`#${sectionId}`}>
-          {yearLabel}
+        {/* 整行一条链接：可点、跳到本季；年份已经写在笔画里 */}
+        <a class="archive-group__link" href={`#${sectionId}`} aria-label={`${title} ${yearLabel}`}>
+          <span class="archive-label__name">{labelStroke || `${title} ${yearLabel}`}</span>
         </a>
       </h2>
       <ol class="archive-list">
@@ -234,13 +233,7 @@ function renderTopicPicker({ tags, allPosts, topicListLabel, commonLabel, restLa
   return (
     <div id="archive-topic-picker" class="archive-topic-picker" popover="auto">
       <div class="archive-topic-picker__body">
-        <header class="archive-topic-picker__header">
-          <h2 id="archive-topic-picker-title" class="archive-micro">
-            {topicListLabel}
-          </h2>
-          <p class="archive-topic-picker__count">{tags.length}</p>
-        </header>
-        <nav class="archive-topic-list" aria-labelledby="archive-topic-picker-title">
+        <nav class="archive-topic-list" aria-label={topicListLabel}>
           <h3 class="archive-topic-list__band archive-micro">{commonLabel}</h3>
           {allPosts ? (
             <a class="archive-topic-list__item archive-topic-list__item--all" style="--i:0" href={allPosts.url} aria-current={allPosts.current ? "page" : null}>
@@ -257,20 +250,16 @@ function renderTopicPicker({ tags, allPosts, topicListLabel, commonLabel, restLa
   );
 }
 
-// 秘密花园：不是浮层，而是页面的第二种视图——页名连点五次后，公开清单换成这一块。
+// 秘密花园：不是浮层，而是页面的第二种视图——页名连点三次后，公开清单换成这一块。
 // 清单在构建期整体加密（见 include/hexo/encrypt.js 的 encrypt_payload），未解锁前页面源码里
 // 只有密文，标题与链接都不外泄；解锁与列表渲染见 source/js/archive.js
-function renderGarden({ title, hint, count, placeholder, unlockLabel, lockLabel, errorLabel, blob }) {
+function renderGarden({ title, count, placeholder, unlockLabel, lockLabel, errorLabel, blob }) {
   return (
-    <section id="archive-garden" class="archive-garden" data-state="locked" aria-labelledby="archive-garden-title">
+    <section id="archive-garden" class="archive-garden" data-state="locked" aria-label={title}>
       <header class="archive-garden__header">
-        <h2 id="archive-garden-title" class="archive-garden__title archive-micro">
-          {title}
-        </h2>
         <span class="archive-garden__count">{count}</span>
       </header>
-      <p class="archive-garden__hint">{hint}</p>
-      <form class="gate archive-garden__gate" autocomplete="off" aria-labelledby="archive-garden-title">
+      <form class="gate archive-garden__gate" autocomplete="off">
         <div class="gate__field">
           <span class="gate__mark" aria-hidden="true">
             ✳
@@ -330,9 +319,9 @@ module.exports = class extends Component {
     const formatReadTime = (minutes) => helper.__("article.reading_time", minutes);
 
     // 花园清单整体加密后随页面下发；没配 encrypt.password 时 helper 返回 null，入口随之消失。
-    // 花园只属于归档页——标签页的页名是标签本身，连点没有意义
+    // 页名水印（Archive）在归档页与标签页都立着，花园两边都能进
     const gardenBlob =
-      !isTagPage && gardenPosts.length
+      gardenPosts.length
         ? helper.encrypt_payload(
             JSON.stringify(
               gardenPosts.map((post) => {
@@ -360,8 +349,8 @@ module.exports = class extends Component {
     return (
       <main class="archive-page" data-view="archive" data-columns="1">
         {/* 页名是一块钉在视口顶端的巨型水印，正文从它上面滚过去；h1 就是它本身。
-            连点五次是秘密花园的入口（见 source/js/archive.js），所以它不能被选中 */}
-        <h1 id="archive-title" class="archive-watermark">
+            连点三次是秘密花园的入口（见 source/js/archive.js），所以它不能被选中 */}
+        <h1 id="archive-title" class="archive-watermark" data-garden-title="Secret Archive 🫥">
           <span class="archive-watermark__word">{ARCHIVE_TITLE}</span>
         </h1>
         <script dangerouslySetInnerHTML={{ __html: TITLE_FIT_SCRIPT }} />
@@ -410,13 +399,10 @@ module.exports = class extends Component {
                 popovertarget="archive-topic-picker"
                 aria-expanded="false"
                 aria-controls="archive-topic-picker"
+                aria-label={`${topicTags.length} ${topicsWord}`}
               >
-                <span class="archive-masthead__hash" aria-hidden="true">
-                  #
-                </span>
-                <span>
-                  <span class="archive-masthead__count">{topicTags.length}</span> {topicsWord}
-                </span>
+                <Icon name="tags" size={14} />
+                <span class="archive-masthead__count">{topicTags.length}</span>
               </button>
             </div>
           </div>
@@ -443,7 +429,6 @@ module.exports = class extends Component {
         {gardenBlob
           ? renderGarden({
               title: helper.__("encrypt.garden"),
-              hint: helper.__("encrypt.garden_hint"),
               count: gardenCountLabel,
               placeholder: helper.__("encrypt.placeholder"),
               unlockLabel: helper.__("encrypt.unlock"),

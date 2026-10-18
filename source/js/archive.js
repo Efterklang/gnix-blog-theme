@@ -1,8 +1,8 @@
 import { decryptJson, forgetPasswords, GARDEN_PASSWORD_KEY, readStoredPassword, storePassword } from "./crypto.js";
 import { runWhenActivated } from "./main.js";
 
-// 秘密花园的入口：在归档页的页名上连点五次（见 initArchiveGarden）
-const GARDEN_CLICKS = 5;
+// 秘密花园的入口：在归档页（含标签页）的页名上连点三次（见 initArchiveGarden）
+const GARDEN_CLICKS = 3;
 // 栏数偏好存在本地；窄屏放不下两栏，那以下一律按单栏渲染
 const ARCHIVE_COLUMNS_KEY = "gnix-archive-columns";
 const COLUMNS_WIDE = "(min-width: 820px)";
@@ -357,6 +357,9 @@ function initArchiveGarden() {
   if (!page || !panel) return;
 
   const title = document.getElementById("archive-title");
+  const titleWord = title?.querySelector(".archive-watermark__word");
+  // 公开视图的页名：进花园时换成 data-garden-title，回来时还原
+  const publicTitle = titleWord?.textContent || "";
   const blob = panel.querySelector(".encrypted-data")?.textContent.trim();
   const form = panel.querySelector(".archive-garden__gate");
   const input = form?.querySelector("input");
@@ -369,6 +372,11 @@ function initArchiveGarden() {
   function setView(view) {
     if (page.dataset.view === view) return;
     page.dataset.view = view;
+    // 花园里页名换成它的真名；文案长度变了，字号要按新文案重算（fit 挂在 window 上）
+    if (titleWord) {
+      titleWord.textContent = view === "garden" ? title.dataset.gardenTitle || publicTitle : publicTitle;
+      window.__gnixFitArchiveTitle?.();
+    }
     if (view !== "garden") return;
     // 幕帘可能正开着：进花园前先合上，否则它盖在花园上面
     document.getElementById("archive-topic-picker")?.hidePopover?.();
@@ -413,7 +421,7 @@ function initArchiveGarden() {
     panel.dataset.state = "unlocked";
   }
 
-  // 入口一：页名连点五次。两次点击间隔超过 900ms 就重新计数，
+  // 入口一：页名连点三次。两次点击间隔超过 900ms 就重新计数，
   // 免得「偶尔点一下页名」被慢慢攒成一次进入
   let clicks = 0;
   let clickTimer = 0;
@@ -430,7 +438,7 @@ function initArchiveGarden() {
     setView(page.dataset.view === "garden" ? "archive" : "garden");
   });
 
-  // 入口二：敲 garden（不分大小写）。连点五次是给鼠标的，这条是给键盘的
+  // 入口二：敲 garden（不分大小写）。连点三次是给鼠标的，这条是给键盘的
   const word = "garden";
   let typed = "";
   document.addEventListener("keydown", (event) => {

@@ -466,15 +466,33 @@
       output.textContent = customFontPresetMessages?.dataset[state || "idle"] || "";
     }
 
+    // 手动勾选触发的下载完成后，把字体名复制到剪贴板——下方的自定义字体栏可以直接粘贴；
+    // 页面加载时恢复已选字体同样会走到 ready，但那时不在集合里，不会触发
+    const pendingPresetCopy = new Set();
+
     window.addEventListener("gnix:font-preset-state", (event) => {
       const { id, state } = event.detail || {};
       if (!customFontPresets.some((preset) => preset.id === id)) return;
       updatePresetStatus(id, settings.customFonts.presets?.includes(id) ? state : "");
+      if (!pendingPresetCopy.has(id) || (state !== "ready" && state !== "uncached")) return;
+      pendingPresetCopy.delete(id);
+      const preset = customFontPresets.find((entry) => entry.id === id);
+      if (!preset || !navigator.clipboard) return;
+      navigator.clipboard
+        .writeText(preset.name)
+        .then(() => {
+          const output = root.querySelector(`[data-font-preset-state="${id}"]`);
+          const copied = customFontPresetMessages?.dataset.copied;
+          if (output && copied) output.textContent = copied.replace("%s", preset.name);
+        })
+        .catch(() => {});
     });
 
     customFontPresetInputs.forEach((input) => {
       input.addEventListener("change", () => {
         updatePresetStatus(input.dataset.fontPreset, input.checked ? "loading" : "");
+        if (input.checked) pendingPresetCopy.add(input.dataset.fontPreset);
+        else pendingPresetCopy.delete(input.dataset.fontPreset);
         commitCustomFonts();
       });
     });

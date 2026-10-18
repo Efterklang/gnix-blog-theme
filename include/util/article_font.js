@@ -26,6 +26,7 @@ const CUSTOM_FONT_IMPORT_LIMIT = 6;
 const CUSTOM_FONT_PRESETS = Object.freeze([
   { id: "elms-sans", type: "sans-serif", name: "Elms Sans", family: '"Elms Sans", system-ui, sans-serif', css: "https://fonts.googleapis.com/css2?family=Elms+Sans:ital,wght@0,100..900;1,100..900&display=swap" },
   { id: "geist-mono", type: "mono", name: "Geist Mono", family: '"Geist Mono", "SF Mono", Consolas, monospace', css: "https://fonts.googleapis.com/css2?family=Geist+Mono:ital,wght@0,100..900;1,100..900&display=swap" },
+  { id: "lekton", type: "mono", name: "Lekton", family: '"Lekton", ui-monospace, monospace', css: "https://fonts.googleapis.com/css2?family=Lekton:ital,wght@0,400;0,700;1,400;1,700&display=swap" },
   { id: "maple-mono-nf-cn", type: "mono", name: "Maple Mono NF CN", family: '"Maple Mono NF CN", ui-monospace, monospace', css: "https://fontsapi.zeoseven.com/442/main/result.css" },
   { id: "chill-kai", type: "serif", name: "ChillKai", family: '"ChillKai", serif', css: "https://fontsapi.zeoseven.com/5/main/result.css" },
   { id: "noto-serif-sc", type: "serif", name: "Noto Serif SC", family: '"Noto Serif SC", serif', css: "https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200..900&display=swap" },

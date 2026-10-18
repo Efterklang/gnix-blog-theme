@@ -1300,6 +1300,7 @@ html {
   color: var(--sub-text-color);
   align-items: center;
   display: flex;
+  gap: 0.4rem;
   padding: 0 0.5rem;
   position: relative;
   flex-grow: 0;
@@ -1314,6 +1315,14 @@ html {
     cursor: not-allowed;
     opacity: 0.45;
   }
+}
+
+/* 菜单项编号（1.、2.…）：坐标式小字，贴在链接名前 */
+.navbar-item__index {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
 }
 
 /* 常驻动作区（偏好、搜索）：桌面与移动端都固定在导航条右侧，
@@ -1505,6 +1514,109 @@ input[type="radio"] {
 small {
   font-size: 0.875em;
 }
+
+/* #region Gate（密码门禁）
+
+   文章页的加密提示与归档页「秘密花园」共用同一套语汇：没有边框、没有底色块，
+   「这里是输入框」交给光标、占位文字与右侧的提交词去说，聚焦时整行上强调色
+   （站内一贯用颜色而不是描边表达状态）。强调色取 --archive-accent，归档页外回退到 lavender */
+
+.gate {
+  --gate-accent: var(--archive-accent, var(--lavender));
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0;
+}
+
+.gate__message {
+  margin: 0;
+  color: var(--sub-text-color);
+  font-family: var(--article-font-family);
+  font-size: var(--article-font-size);
+  line-height: var(--type-body-leading);
+  text-align: center;
+}
+
+.gate__field {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  padding-block: 0.25rem;
+  color: var(--sub-text-color);
+  transition: color 160ms var(--ease-out);
+
+  &:focus-within {
+    color: var(--gate-accent);
+  }
+
+  /* 输入框自身不画描边，键盘聚焦的可见指示交给整行 */
+  &:has(input:focus-visible) {
+    outline: auto;
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
+.gate__mark {
+  flex: none;
+  color: var(--gate-accent);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1;
+}
+
+input.gate__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.35rem 0;
+  border: none;
+  background: transparent;
+  color: var(--title-text-color);
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  letter-spacing: 0.02em;
+  outline: none;
+
+  &::placeholder {
+    color: color-mix(in oklch, var(--sub-text-color) 75%, transparent);
+  }
+
+  /* 触屏上 16px 起 iOS 才不会为了可读性放大整页 */
+  @media (pointer: coarse), (max-width: 768px) {
+    font-size: 16px;
+  }
+}
+
+.gate__submit {
+  flex: none;
+  padding: 0.35rem 0;
+  border: none;
+  background: transparent;
+  color: var(--sub-text-color);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  transition: color 140ms var(--ease-out);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--gate-accent);
+  }
+}
+
+.gate__error {
+  margin: 0;
+  color: var(--red);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+/* #endregion */
 
 /* #region Command palette（搜索 + 命令）
 

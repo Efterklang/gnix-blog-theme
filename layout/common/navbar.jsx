@@ -12,10 +12,19 @@ class Navbar extends Component {
 
     const linkNodes = names.length ? (
       <div class="navbar-start">
-        {names.map((name) => {
+        {names.map((name, index) => {
           const item = menu[name];
           return (
-            <a class="navbar-item glass glass-button" href={item.url} data-glass-lens>
+            <a
+              class={`navbar-item glass glass-button${item.active ? " is-active" : ""}`}
+              href={item.url}
+              data-glass-lens
+              aria-current={item.active ? "page" : null}
+            >
+              {/* 坐标式编号：菜单项在导航里的位次 */}
+              <span class="navbar-item__index" aria-hidden="true">
+                {index + 1}.
+              </span>
               {name}
             </a>
           );
@@ -73,11 +82,16 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
   const { navbar } = config;
   const langKey = helper.language_key(page);
 
+  // 当前栏目：页路径去掉 index.html 后与菜单项比对。首页只在根路径点亮，
+  // 其余按前缀匹配；外链（travellings）不是路径，永远不会亮
+  const currentPath = `/${(page.path || "").replace(/index\.html$/, "")}`;
   const menu = {};
   if (navbar?.menu) {
     Object.keys(navbar.menu).forEach((name) => {
       const rawValue = navbar.menu[name];
-      menu[name] = { url: helper.localized_url_for(rawValue, langKey) };
+      const url = helper.localized_url_for(rawValue, langKey);
+      const active = rawValue === "/" ? currentPath === url : currentPath === url || currentPath.startsWith(url);
+      menu[name] = { url, active };
     });
   }
 

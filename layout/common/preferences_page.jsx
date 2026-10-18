@@ -371,6 +371,7 @@ module.exports = class extends Component {
                           data-loading={translate(helper, "preferences.font_preset_loading", "Downloading…")}
                           data-ready={translate(helper, "preferences.font_preset_ready", "Downloaded")}
                           data-uncached={translate(helper, "preferences.font_preset_uncached", "Loaded")}
+                          data-copied={translate(helper, "preferences.font_preset_copied", "Downloaded · copied “%s”")}
                           data-error={translate(helper, "preferences.font_preset_error", "Download failed. Uncheck and try again.")}
                         ></span>
                       </fieldset>

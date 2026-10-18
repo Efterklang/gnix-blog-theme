@@ -48,6 +48,23 @@ module.exports = class extends Component {
     if (page.updated) {
       items.push([helper.__("article.updated_time"), helper.date(page.updated, "YYYY-MM-DD HH:mm")]);
     }
+    if (page.tags?.length) {
+      items.push([
+        helper.__("article.tags"),
+        page.tags.map((tag, i) => (
+          <span key={tag.name}>
+            {i > 0 && (
+              <span class="meta-separator" aria-hidden="true">
+                ·
+              </span>
+            )}
+            <a rel="tag" href={helper.localized_tag_url(tag, helper.language_key(page))}>
+              {tag.name}
+            </a>
+          </span>
+        )),
+      ]);
+    }
     if (translationInfo) {
       items.push([helper.__("article.translation_info"), translationInfo]);
     }
