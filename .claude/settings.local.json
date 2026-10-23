@@ -20,5 +20,8 @@
       "Bash(rg -n \"preference-popup\" source/css/*.css)",
       "Bash(bunx biome *)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "chrome-devtools"
+  ]
 }
