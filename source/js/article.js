@@ -571,22 +571,13 @@ function handleMermaid() {
   loadStyleOnce("/css/optional/mermaid.css").catch(handleLazyAssetError);
 
   const runInit = () => {
-    const libUrl = "/js/host/mermaid/mermaid.min.js";
-
-    containers.forEach((container, index) => {
-      if (!container.id) {
-        container.id = `mermaid-${Date.now()}-${index}`;
-      }
-      if (window.initMermaidDiagram) {
-        window.initMermaidDiagram(container.id, libUrl, {});
-      }
-    });
+    containers.forEach((container) => window.initPeleDiagram(container));
   };
 
-  if (window.initMermaidDiagram) {
+  if (window.initPeleDiagram) {
     runInit();
   } else {
-    loadScriptOnce("/js/mdit/mermaid.js").then(runInit).catch(handleLazyAssetError);
+    loadScriptOnce("/js/mdit/pele.js").then(runInit).catch(handleLazyAssetError);
   }
 }
 

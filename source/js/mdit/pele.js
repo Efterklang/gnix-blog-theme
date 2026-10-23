@@ -1,12 +1,7 @@
-// Mermaid 图的浏览器端外壳：全屏预览 / 平移缩放 / 复制源码，以及回退图的 mermaid.js 渲染。
-// 大多数图已在构建期由 agentic-mermaid 内联为 SVG（include/hexo/mdit/mermaid.js），
-// 颜色走 CSS 变量随主题即时切换，这里只挂交互；只有 data-mermaid-renderer="mermaid-js"
-// 的回退图才加载 mermaid.min.js 并监听主题重渲染
+// Static Pele SVGs only: fullscreen preview, pan/zoom, and source copying.
+// No diagram rendering happens in the browser.
 (() => {
-  const instances = new Map();
-  const mermaidFontFamily = "Avenir, system-ui";
-  let mermaidPromise = null;
-  let renderSeq = 0;
+  const initialized = new WeakSet();
   let activePreview = null;
 
   const isZhLocale = () => (document.documentElement.lang || "").toLowerCase().startsWith("zh");
@@ -41,64 +36,6 @@
     button.title = label;
     button.innerHTML = previewIcon(path);
     return button;
-  };
-
-  const loadMermaid = (jsUrl) => {
-    if (mermaidPromise) return mermaidPromise;
-    if (window.mermaid) {
-      mermaidPromise = Promise.resolve(window.mermaid);
-      return mermaidPromise;
-    }
-    return (mermaidPromise = new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = jsUrl;
-      script.onload = () => resolve(window.mermaid);
-      script.onerror = reject;
-      document.head.appendChild(script);
-    }));
-  };
-
-  const sweepBodyLeftovers = () => {
-    document.body.querySelectorAll(':scope > div[id^="d"][id*="-svg-"]').forEach((el) => el.remove());
-  };
-
-  const renderDiagram = async (id, code, container, themeVariables) => {
-    const content = container.querySelector(".mermaid-content");
-    const mermaid = await mermaidPromise;
-    if (!content || !mermaid) return;
-
-    const instance = instances.get(id);
-    if (!instance) return;
-    const version = (instance.renderVersion = ++renderSeq);
-
-    const isNight = document.documentElement.classList.contains("night");
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: isNight ? "dark" : "default",
-      darkMode: isNight,
-      themeVariables: {
-        ...themeVariables,
-        fontFamily: mermaidFontFamily,
-      },
-      securityLevel: "strict",
-      fontFamily: mermaidFontFamily,
-      fontSize: 16,
-    });
-
-    // Render workspace must be inside our container, not document.body —
-    // otherwise an interrupted render leaks a tall <div> onto <body> that
-    // extends document height and tanks scroll repaint on later pages.
-    try {
-      const { svg } = await mermaid.render(`${id}-svg-${version}`, code, content);
-      if (instance.renderVersion !== version) return;
-      content.innerHTML = svg;
-    } catch (error) {
-      if (instance.renderVersion !== version) return;
-      console.error("Mermaid rendering error:", error);
-      content.innerHTML = `<p style="color: red;">Failed to render diagram: ${error.message}</p>`;
-    } finally {
-      sweepBodyLeftovers();
-    }
   };
 
   class PanZoomHandler {
@@ -171,7 +108,7 @@
       close.autofocus = true;
       header.append(title, close);
 
-      // 移动原节点，保留异步渲染与交互，并避免复制 SVG 的 defs/无障碍 ID。
+      // 移动原节点以保留交互，并避免复制 SVG 的 defs / 无障碍 ID。
       this.container.replaceWith(placeholder);
       dialog.append(header, this.container);
       placeholder.after(dialog);
@@ -227,11 +164,6 @@
     initEvents() {
       this.container.addEventListener("pointerdown", () => {
         this.wrapper?.classList.add("is-controls-visible");
-      });
-
-      document.addEventListener("pointerdown", (e) => {
-        if (this.container.contains(e.target)) return;
-        this.wrapper?.classList.remove("is-controls-visible");
       });
 
       // Toolbar & Grid Panel
@@ -319,56 +251,23 @@
     }
   }
 
-  const pruneInstances = () => {
-    for (const [id, { container }] of instances) {
-      if (!document.body.contains(container)) {
-        instances.delete(id);
+  // One document-level listener handles all diagrams instead of attaching one per diagram.
+  document.addEventListener("pointerdown", (event) => {
+    document.querySelectorAll(".mermaid-wrapper.is-controls-visible").forEach((wrapper) => {
+      const container = wrapper.closest(".mermaid-container");
+      if (container && !container.contains(event.target)) {
+        wrapper.classList.remove("is-controls-visible");
       }
-    }
-  };
+    });
+  });
 
-  window.initMermaidDiagram = (id, jsUrl, themeVariables) => {
-    const container = document.getElementById(id);
-    if (!container) return;
+  window.initPeleDiagram = (container) => {
+    if (!(container instanceof HTMLElement) || initialized.has(container)) return;
+    if (!container.querySelector(".mermaid-code") || !container.querySelector(".mermaid-content svg")) return;
 
-    pruneInstances();
-    if (instances.has(id)) return;
-
-    const codeEl = container.querySelector(".mermaid-code");
-    if (!codeEl) return;
-
+    initialized.add(container);
     new PanZoomHandler(container);
-
-    // 构建期已内联 SVG 的图只需交互外壳；登记实例是为了避免重复初始化
-    if (container.dataset.mermaidRenderer !== "mermaid-js") {
-      instances.set(id, { container, prerendered: true });
-      return;
-    }
-
-    instances.set(id, { container, code: codeEl.value, themeVariables });
-
-    loadMermaid(jsUrl).then(() => {
-      renderDiagram(id, codeEl.value, container, themeVariables);
-    });
   };
-
-  // Theme Observer
-  let lastIsNight = document.documentElement.classList.contains("night");
-  const observer = new MutationObserver(() => {
-    const isNight = document.documentElement.classList.contains("night");
-    if (isNight === lastIsNight) return;
-    lastIsNight = isNight;
-    pruneInstances();
-    instances.forEach(({ container, code, themeVariables, prerendered }, id) => {
-      if (prerendered) return;
-      renderDiagram(id, code, container, themeVariables);
-    });
-  });
-
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ["class"],
-  });
 
   window.addEventListener("pagehide", () => activePreview?.close());
 })();
