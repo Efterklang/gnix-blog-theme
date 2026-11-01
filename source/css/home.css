@@ -18,7 +18,8 @@
 }
 
 .home-page {
-  --home-accent: var(--lavender);
+  /* Swiss：没有强调色，悬停只是墨与灰的切换 */
+  --home-accent: var(--title-text-color);
   --home-enter-duration: 700ms;
   /* 首屏之上被吸顶导航条占去的高度；≤1023px 导航条移到底部，值为 0 */
   --home-navbar-space: calc(var(--navbar-height) + env(safe-area-inset-top));
@@ -65,24 +66,21 @@
   scroll-margin-bottom: var(--article-footer-offset, 0px);
 }
 
-/* 标题沿用归档 hero 的字号与字距，两页在同一位置呈现同一尺度的标题 */
+/* 站名是一行大写的巨字：常规字重、收紧的字距，靠尺寸立住 */
 .home-hero__title {
   margin: 0;
   color: var(--title-text-color);
   font-family: var(--article-font-family);
-  font-size: 3rem;
-  font-weight: 400;
-  line-height: 1;
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-weight: 500;
+  line-height: 0.95;
   letter-spacing: -0.03em;
+  text-transform: uppercase;
   overflow-wrap: anywhere;
-
-  @media (min-width: 768px) {
-    font-size: 3.25rem;
-  }
 }
 
 .home-hero__intro {
-  margin: 1.5rem 0 0;
+  margin: 2rem 0 0;
   max-width: 34rem;
   color: var(--sub-text-color);
   font-family: var(--article-font-family);
@@ -115,11 +113,11 @@
   white-space: nowrap;
 }
 
-/* 简介内链接沿用正文链接的虚线下划线，hover 转实线并上强调色 */
+/* 简介内链接：墨色细下划线，hover 退一档灰 */
 .home-intro__link {
   color: var(--title-text-color);
   text-decoration-line: underline;
-  text-decoration-style: dashed;
+  text-decoration-style: solid;
   text-decoration-color: currentColor;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
@@ -127,14 +125,13 @@
 
   &:hover,
   &:focus-visible {
-    color: var(--home-accent);
-    text-decoration-style: solid;
+    color: var(--sub-text-color);
   }
 }
 
 /* #region Links */
 
-/* 话题：标签在上、链接在下，单列排布 */
+/* 话题：标签在上、链接在下，行与行之间只有留白 */
 .home-links__list {
   display: grid;
   gap: 1.75rem;
@@ -152,10 +149,10 @@
 .home-recent__title {
   margin: 0;
   color: var(--sub-text-color);
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: 0.16em;
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
   line-height: 1.5;
   text-transform: uppercase;
 }
@@ -198,18 +195,13 @@
   }
 }
 
-/* 标签沿用归档标签列表的 # 前缀：静息态只带一点强调色，hover 时整体跟随 */
+/* 标签沿用归档标签列表的 # 前缀 */
 .home-list-link--tag::before {
   content: "#";
   margin-inline-end: 0.08em;
-  color: color-mix(in oklch, var(--home-accent) 70%, var(--sub-text-color));
+  color: var(--sub-text-color);
   font-family: var(--font-mono);
   font-size: 0.78em;
-  transition: color 140ms var(--ease-out);
-}
-
-.home-list-link--tag:is(:hover, :focus-visible, :active)::before {
-  color: var(--home-accent);
 }
 
 :is(.home-intro__link, .home-list-link, .home-recent__title-link):focus-visible {
@@ -222,11 +214,12 @@
 
 /* #region Recent */
 
-/* 近期写作：标题（兼全部文章入口）在上、列表在下，与话题同一单列节奏 */
+/* 近期写作：带序号的清单——标题在上，每条前一枚 01、02… 的序号，不画线 */
 .home-recent {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  counter-reset: home-recent;
 }
 
 .home-recent__body {
@@ -255,9 +248,25 @@
 
 .home-recent__list {
   width: 100%;
-  margin: 0;
+  margin: 0.5rem 0 0;
   padding: 0;
   list-style: none;
+}
+
+.home-recent__item {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  align-items: baseline;
+  counter-increment: home-recent;
+
+  &::before {
+    content: counter(home-recent, decimal-leading-zero);
+    color: var(--sub-text-color);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 /* 日期作为行内注脚跟在标题后：等宽小字、不折行，hover 时随链接微微上色 */
@@ -270,11 +279,6 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.025em;
   white-space: nowrap;
-  transition: color 140ms var(--ease-out);
-
-  .home-list-link:is(:hover, :focus-visible, :active) & {
-    color: color-mix(in oklch, var(--home-accent) 72%, var(--sub-text-color));
-  }
 }
 
 /* #endregion */

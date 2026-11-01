@@ -4,10 +4,10 @@
   padding: 3.5rem 1.25rem 0;
 }
 
+/* 三行规格表：左列等宽大写标签，右列数字，行间只有留白 */
 .status-sonnet {
   width: min(100%, 34rem);
   color: var(--sub-text-color);
-  font-family: var(--font-serif);
 }
 
 .status-line {
@@ -16,16 +16,18 @@
   align-items: baseline;
   gap: 1.25rem;
   margin: 0;
-  padding: 0.42rem 0;
-  border-bottom: 1px solid color-mix(in oklch, var(--surface0) 72%, transparent);
-  line-height: 1.9;
+  padding: 0.75rem 0;
+  line-height: 1.5;
 }
 
 .status-line__label {
   min-width: 0;
   color: var(--sub-text-color);
-  font-size: 1rem;
-  font-style: italic;
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
 }
 
 .status-line__value {

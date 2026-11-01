@@ -3,188 +3,7 @@ import { runWhenActivated } from "./main.js";
 
 // 秘密花园的入口：在归档页（含标签页）的页名上连点三次（见 initArchiveGarden）
 const GARDEN_CLICKS = 3;
-// 栏数偏好存在本地；窄屏放不下两栏，那以下一律按单栏渲染
-const ARCHIVE_COLUMNS_KEY = "gnix-archive-columns";
-const COLUMNS_WIDE = "(min-width: 820px)";
-
-function initArchivePreview() {
-  const page = document.querySelector(".archive-page");
-  if (!page || !CSS.supports("anchor-name: --archive-anchor") || !CSS.supports("anchor-scope: --archive-anchor")) return;
-
-  const media = window.matchMedia("(hover: hover) and (pointer: fine) and (min-width: 721px)");
-  // 预览在话题幕帘打开、或页面切到秘密花园视图时都要让位
-  const picker = page.querySelector(".archive-topic-picker");
-  const openDelay = Number.parseFloat(getComputedStyle(page).getPropertyValue("--archive-popup-open-delay")) || 140;
-  let activeItem = null;
-  let pendingItem = null;
-  let dismissedItem = null;
-  let pointer = null;
-  let input = "pointer";
-  let openTimer = 0;
-  let closeTimer = 0;
-  let scrollTimer = 0;
-  let lastClosedAt = -Infinity;
-
-  page.dataset.previewState = "idle";
-
-  function getItem(target) {
-    const surface = target?.closest?.(".archive-title");
-    const item = surface?.closest(".archive-item");
-    return item && page.contains(item) && item.querySelector(".archive-popup") ? item : null;
-  }
-
-  function getFocusedItem() {
-    const focus = document.activeElement;
-    if (!focus?.matches(":focus-visible")) return null;
-    const item = getItem(focus);
-    const rect = focus.getBoundingClientRect();
-    return item && rect.bottom > 0 && rect.top < window.innerHeight ? item : null;
-  }
-
-  function cancelOpen() {
-    clearTimeout(openTimer);
-    openTimer = 0;
-    pendingItem = null;
-  }
-
-  function close(state = "idle") {
-    cancelOpen();
-    clearTimeout(closeTimer);
-    closeTimer = 0;
-    if (activeItem) {
-      delete activeItem.dataset.previewActive;
-      activeItem = null;
-      lastClosedAt = performance.now();
-    }
-    page.dataset.previewState = state;
-    delete page.dataset.previewSwitching;
-  }
-
-  function available() {
-    return (
-      media.matches &&
-      !document.hidden &&
-      page.dataset.previewState !== "scrolling" &&
-      page.dataset.view !== "garden" &&
-      !picker?.matches(":popover-open")
-    );
-  }
-
-  function open(item, source) {
-    cancelOpen();
-    if (!available()) return;
-    const switching = activeItem !== null || performance.now() - lastClosedAt < 250;
-    if (activeItem) delete activeItem.dataset.previewActive;
-    page.toggleAttribute("data-preview-switching", switching);
-    page.dataset.previewInput = source;
-    page.dataset.previewState = "open";
-    item.dataset.previewActive = "";
-    activeItem = item;
-  }
-
-  function request(item, source, settled = false) {
-    input = source;
-    if (item !== dismissedItem) dismissedItem = null;
-    if (!available() || (item && item === dismissedItem)) return;
-
-    if (!item) {
-      cancelOpen();
-      if (!activeItem || closeTimer) return;
-      // Bridge small gaps between neighboring titles without restarting intent.
-      if (source === "keyboard") close();
-      else closeTimer = setTimeout(close, 80);
-      return;
-    }
-
-    clearTimeout(closeTimer);
-    closeTimer = 0;
-    if (item === activeItem) {
-      page.dataset.previewInput = source;
-      return;
-    }
-    if (item === pendingItem && source === "pointer" && !settled) return;
-    cancelOpen();
-    if (source === "keyboard" || settled || activeItem || performance.now() - lastClosedAt < 250) {
-      open(item, source);
-    } else {
-      pendingItem = item;
-      openTimer = setTimeout(() => open(item, source), openDelay);
-    }
-  }
-
-  function trackPointer(event) {
-    if (event.pointerType === "touch") return;
-    pointer = { x: event.clientX, y: event.clientY };
-    request(getItem(event.target), "pointer");
-  }
-
-  function reset() {
-    clearTimeout(scrollTimer);
-    scrollTimer = 0;
-    close();
-    lastClosedAt = -Infinity;
-    dismissedItem = null;
-    pointer = null;
-  }
-
-  document.addEventListener("pointermove", trackPointer, { passive: true });
-  document.addEventListener("pointerdown", trackPointer, { passive: true });
-  document.addEventListener(
-    "pointerout",
-    (event) => {
-      if (event.relatedTarget) return;
-      pointer = null;
-      request(null, "pointer");
-    },
-    { passive: true },
-  );
-
-  page.addEventListener("focusin", () => {
-    if (document.activeElement?.matches(":focus-visible")) request(getFocusedItem(), "keyboard");
-  });
-  page.addEventListener("focusout", () => {
-    queueMicrotask(() => {
-      if (input === "keyboard") request(getFocusedItem(), "keyboard");
-    });
-  });
-  document.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape" || (!activeItem && !pendingItem)) return;
-    dismissedItem = activeItem || pendingItem;
-    close();
-  });
-
-  // Listen to document scrolling, not capture-phase scrolls inside an excerpt.
-  // A quiet period also covers inertial scrolling in browsers without scrollend.
-  window.addEventListener(
-    "scroll",
-    () => {
-      if (page.dataset.previewState !== "scrolling") {
-        close("scrolling");
-        lastClosedAt = -Infinity;
-      }
-      clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(() => {
-        scrollTimer = 0;
-        page.dataset.previewState = "idle";
-        // The page moved beneath a stationary pointer: never reopen the old row.
-        const item = input === "keyboard" ? getFocusedItem() : pointer ? getItem(document.elementFromPoint(pointer.x, pointer.y)) : null;
-        request(item, input, true);
-      }, 160);
-    },
-    { passive: true },
-  );
-
-  picker?.addEventListener("beforetoggle", (event) => {
-    if (event.newState === "open") reset();
-  });
-  media.addEventListener("change", reset);
-  window.addEventListener("pagehide", reset);
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) reset();
-  });
-}
-
-// 季节牌：每一季的像素字是一枚印记——进入视口时从下方浮现，完全离场后复位，
+// 季节牌：每一季的标签进入视口时从下方浮现，完全离场后复位，
 // 来回滚动都会重放（.is-armed / .is-emerging 见 archive.css）
 function initArchiveFolio() {
   const page = document.querySelector(".archive-page");
@@ -215,14 +34,13 @@ function initArchiveFolio() {
   for (const folio of folios) observer.observe(folio);
 }
 
-// 年份切片：一枚可以按的年份——点一下滚到上一年（到头绕回最新的一年），数字像翻表一样
-// 逐位滚动，只有变动的位在动；?year= 由脚本写进地址栏，可分享、可后退
+// 年份切片：一枚可以按的年份——点一下滚到上一年（到头绕回最新的一年）；?year= 由脚本写进地址栏，可分享、可后退
 function initArchiveYears() {
   const page = document.querySelector(".archive-page");
   const button = page ? page.querySelector(".archive-year") : null;
   const groups = page ? [...page.querySelectorAll(".archive-group[data-years]")] : [];
   if (!button || !groups.length) return;
-  const reels = [...button.querySelectorAll(".archive-year__reel")];
+  const value = button.querySelector(".archive-year__value");
   const countEl = page.querySelector("[data-archive-count]");
   const wordEl = page.querySelector("[data-archive-count-word]");
   const groupsBox = page.querySelector(".archive-groups");
@@ -239,11 +57,12 @@ function initArchiveYears() {
   let active = null;
 
   function roll(year) {
-    // 页码只报两位数（26、25），世纪不进翻表
-    const digits = String(year).slice(-2).split("");
-    reels.forEach((reel, index) => {
-      if (digits[index] != null) reel.style.setProperty("--digit", digits[index]);
-    });
+    // 页码只报两位数（26、25）；换数字时淡一下
+    if (value) {
+      value.classList.add("is-rolling");
+      value.textContent = String(year).slice(-2);
+      requestAnimationFrame(() => value.classList.remove("is-rolling"));
+    }
     button.setAttribute("aria-label", `${year} ${button.dataset.switchLabel || ""}`.trim());
   }
 
@@ -258,6 +77,8 @@ function initArchiveYears() {
       roll(year);
       if (countEl) countEl.textContent = counts.get(year) ?? "";
       if (wordEl) wordEl.textContent = counts.get(year) === "1" ? "writing" : "writings";
+      // 检视面板跟着换到新切片的第一篇
+      page.dispatchEvent(new CustomEvent("gnix:archive-sliced"));
     };
     if (animate && groupsBox) {
       groupsBox.classList.add("is-slicing");
@@ -298,66 +119,11 @@ function initArchiveTitleFit() {
 
   fit();
   const box = document.querySelector(".archive-watermark");
-  // 栏宽随阅读宽度偏好、窗口尺寸与栏数切换变化
+  // 栏宽随阅读宽度偏好与窗口尺寸变化
   if (box && "ResizeObserver" in window) new ResizeObserver(fit).observe(box);
   // 字体换过之后字宽也会变；正文字体是用户可选的
   document.fonts?.ready.then(fit).catch(() => {});
   window.addEventListener("gnix:article-font-settings-change", fit);
-}
-
-// 栏数切换：pc 上单栏顺着时间读、双栏把索引摊开扫；选择记在本地。
-// 窄屏放不下两栏——按它只给一句提醒，布局不动（见 languages 的 archive.columns_narrow）
-function initArchiveColumns() {
-  const page = document.querySelector(".archive-page");
-  if (!page) return;
-
-  const options = [...page.querySelectorAll("[data-archive-columns]")];
-  const note = page.querySelector(".archive-masthead__note");
-  const wide = window.matchMedia(COLUMNS_WIDE);
-  let noteTimer = 0;
-  let preferred = "1";
-  try {
-    preferred = localStorage.getItem(ARCHIVE_COLUMNS_KEY) === "2" ? "2" : "1";
-  } catch {
-    // 隐私模式下读不到：这次会话按单栏走
-  }
-
-  function apply() {
-    const columns = wide.matches ? preferred : "1";
-    page.dataset.columns = columns;
-    for (const option of options) {
-      option.setAttribute("aria-pressed", option.dataset.archiveColumns === columns ? "true" : "false");
-    }
-  }
-
-  function warn() {
-    if (!note) return;
-    note.hidden = false;
-    clearTimeout(noteTimer);
-    noteTimer = setTimeout(() => {
-      note.hidden = true;
-    }, 4000);
-  }
-
-  for (const option of options) {
-    option.addEventListener("click", () => {
-      const columns = option.dataset.archiveColumns;
-      if (columns === "2" && !wide.matches) {
-        warn();
-        return;
-      }
-      preferred = columns;
-      try {
-        localStorage.setItem(ARCHIVE_COLUMNS_KEY, columns);
-      } catch {
-        // 写不进去也不影响这次切换，只是下次打开回到单栏
-      }
-      apply();
-    });
-  }
-
-  wide.addEventListener("change", apply);
-  apply();
 }
 
 // popover 不自动维护 aria-expanded（popovertarget 只负责开合），由这里跟随开合状态同步
@@ -450,7 +216,9 @@ function initArchiveGarden() {
   // 免得「偶尔点一下页名」被慢慢攒成一次进入
   let clicks = 0;
   let clickTimer = 0;
-  title?.addEventListener("click", () => {
+  title?.addEventListener("click", (event) => {
+    // 年份上标也在 h1 里：点它是翻年，不算入口的连点
+    if (event.target.closest?.(".archive-year")) return;
     clearTimeout(clickTimer);
     clicks += 1;
     if (clicks < GARDEN_CLICKS) {
@@ -511,12 +279,123 @@ function initArchiveGarden() {
   if (remembered) unlock(remembered).catch(() => storePassword(GARDEN_PASSWORD_KEY, null));
 }
 
+// 检视面板：清单左侧常驻的一块，显示悬停（或键盘聚焦）到的那一篇的封面、摘要与标签；
+// 指针离开不清空，停在最后看过的一篇上。初始与年份切片切换后显示切片里的第一篇。
+// 数据来自每条目里隐藏的 .archive-item__data（构建期渲染）与 data-cover
+function initArchiveInspector() {
+  const page = document.querySelector(".archive-page");
+  const panel = page?.querySelector(".archive-inspector");
+  if (!page || !panel) return;
+  const figure = panel.querySelector(".archive-inspector__cover");
+  const img = panel.querySelector(".archive-inspector__img");
+  const title = panel.querySelector(".archive-inspector__title");
+  const excerpt = panel.querySelector(".archive-inspector__excerpt");
+  const meta = panel.querySelector(".archive-inspector__meta");
+  const groups = page.querySelector(".archive-groups");
+  let current = null;
+
+  // 蓝点：只有一枚，钉在清单容器上，换条目时滑到新条目标题首行的中线
+  const dot = document.createElement("span");
+  dot.className = "archive-inspect-dot";
+  dot.setAttribute("aria-hidden", "true");
+  groups?.append(dot);
+
+  function placeDot() {
+    if (!groups || !current || !current.isConnected || current.closest(".is-sliced-out")) {
+      dot.classList.remove("is-placed");
+      return;
+    }
+    const title = current.querySelector(".archive-title");
+    if (!title) return;
+    const styles = getComputedStyle(title);
+    const lineHeight = parseFloat(styles.lineHeight) || parseFloat(styles.fontSize) * 1.45;
+    const y = title.getBoundingClientRect().top - groups.getBoundingClientRect().top + (parseFloat(styles.paddingTop) || 0) + lineHeight / 2 - 3;
+    dot.style.translate = `0 ${Math.round(y)}px`;
+    dot.classList.add("is-placed");
+  }
+
+  function show(item) {
+    if (!item || item === current) return;
+    current = item;
+    panel.hidden = false;
+    for (const other of page.querySelectorAll(".archive-item[data-inspected]")) delete other.dataset.inspected;
+    item.dataset.inspected = "";
+    placeDot();
+
+    const cover = item.dataset.cover;
+    if (cover && img) {
+      if (img.getAttribute("src") !== cover) {
+        figure.classList.add("is-loading");
+        img.onload = () => figure.classList.remove("is-loading");
+        img.onerror = () => {
+          figure.hidden = true;
+        };
+        img.src = cover;
+      }
+      figure.hidden = false;
+    } else {
+      figure.hidden = true;
+    }
+
+    title.textContent = item.querySelector(".archive-title__text")?.textContent || "";
+    const data = item.querySelector(".archive-item__data");
+    const body = data?.querySelector(".archive-item__excerpt");
+    excerpt.replaceChildren(...(body ? [body.cloneNode(true)] : []));
+
+    // 元信息：一张没有线的小表——Date / Reading / Tags
+    const rows = [];
+    const time = item.querySelector(".archive-title__date");
+    const stamp = time?.getAttribute("datetime");
+    const parsed = stamp ? new Date(stamp) : null;
+    if (parsed && !Number.isNaN(parsed.getTime())) {
+      rows.push(["Date", `${parsed.toLocaleDateString("en", { month: "short" })} ${String(parsed.getDate()).padStart(2, "0")}, ${parsed.getFullYear()}`]);
+    } else if (time?.textContent) rows.push(["Date", time.textContent]);
+    const read = data?.querySelector(".archive-item__read")?.textContent;
+    if (read) rows.push(["Reading", read]);
+    const tags = data ? [...data.querySelectorAll(".archive-item__tag")].map((node) => node.textContent) : [];
+    if (tags.length) rows.push(["Tags", tags.join(" · ")]);
+    meta.replaceChildren(
+      ...rows.flatMap(([label, text]) => {
+        const dt = document.createElement("dt");
+        dt.textContent = label;
+        const dd = document.createElement("dd");
+        dd.textContent = text;
+        return [dt, dd];
+      }),
+    );
+    meta.hidden = !rows.length;
+  }
+
+  function showDefault() {
+    const first = page.querySelector(".archive-group:not(.is-sliced-out) .archive-item");
+    if (first && (!current || current.closest(".is-sliced-out"))) show(first);
+  }
+
+  page.addEventListener("pointerover", (event) => {
+    if (event.pointerType === "touch") return;
+    const item = event.target.closest?.(".archive-item");
+    if (item && page.contains(item)) show(item);
+  });
+  page.addEventListener("focusin", (event) => {
+    const item = event.target.closest?.(".archive-item");
+    if (item) show(item);
+  });
+  page.addEventListener("gnix:archive-sliced", () => {
+    showDefault();
+    // 切片换了，行的位置也换了：下一帧再量
+    requestAnimationFrame(placeDot);
+  });
+  window.addEventListener("resize", placeDot, { passive: true });
+  window.addEventListener("gnix:article-font-settings-change", placeDot);
+  document.fonts?.ready.then(placeDot).catch(() => {});
+  showDefault();
+}
+
 runWhenActivated(() => {
-  initArchivePreview();
   initArchiveFolio();
   initArchiveYears();
   initArchiveTitleFit();
-  initArchiveColumns();
+  initArchiveInspector();
   initArchiveGarden();
   initPopoverTriggers();
 });

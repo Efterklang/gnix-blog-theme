@@ -350,7 +350,7 @@ class ThemeStackedElement extends HTMLElement {
         }
 
         .stacked-container[data-navigation-input="drag"] .theme-card {
-          transition: transform 420ms var(--glass-spring, var(--ease-out)), opacity 240ms var(--ease-out);
+          transition: transform 420ms var(--ease-out), opacity 240ms var(--ease-out);
         }
 
         .card-stack[data-dragging] .theme-card,

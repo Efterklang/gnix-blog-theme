@@ -3,6 +3,7 @@ const ArticleMedia = require("./common/article_media");
 const { Icon } = require("../include/util/lucide");
 const { filterByLanguage, getDefaultLanguageKey } = require("../include/util/i18n");
 const { isEncrypted } = require("../include/hexo/encrypt");
+const { withImageParams } = require("../include/util/image");
 
 // 「常用」带取几个：单语去重标签约 136 个，平铺是一堵墙，先把真正会被点的那些摆出来
 const COMMON_TOPIC_LIMIT = 12;
@@ -132,124 +133,41 @@ function getPostTags(post) {
   return [];
 }
 
-// 栏数图标：一个竖块是单栏、两个是双栏。用线条画而不是引一套 icon——
-// 它要和旁边那行 caption 的字重、粗细待在同一个尺度里
-function ColumnGlyph({ columns }) {
-  return (
-    <svg class="archive-columns__glyph" viewBox="0 0 11 13" width="11" height="13" aria-hidden="true" focusable="false">
-      {columns === 1 ? (
-        <rect x="1" y="1" width="9" height="11" rx="1.5" />
-      ) : (
-        <>
-          <rect x="1" y="1" width="3.6" height="11" rx="1.5" />
-          <rect x="6.4" y="1" width="3.6" height="11" rx="1.5" />
-        </>
-      )}
-    </svg>
-  );
-}
-
 // 页名的字号必须在首帧之前算好：宽一点的字体（衬线、Helvetica Neue）下，先按 CSS 兜底渲染
 // 再纠正，会看见末尾的字母溢出去一下。这段内联脚本是它唯一的执行时机，量好之后
 // source/js/archive.js 只负责在栏宽与字体变化时重算（window.__gnixFitArchiveTitle）
 const TITLE_FIT_SCRIPT = `(function() {
   function fit() {
     var page = document.querySelector(".archive-page");
-    var word = page && page.querySelector(".archive-watermark__word");
-    var box = word && word.parentElement;
-    if (!word || !box) return;
+    var title = page && page.querySelector(".archive-watermark");
+    var box = page && page.querySelector(".archive-hero");
+    if (!title || !box) return;
     var style = getComputedStyle(box);
-    var available = box.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+    var notes = page.querySelector(".archive-masthead");
+    var available = box.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - (notes ? notes.getBoundingClientRect().width + parseFloat(getComputedStyle(notes).marginLeft) : 0);
     if (available <= 0) return;
-    word.style.fontSize = "100px";
+    // 字号设在 h1 上，页名与年份上标按 em 一起缩放；量的是两者合起来的宽度
+    title.style.fontSize = "100px";
     var range = document.createRange();
-    range.selectNodeContents(word);
-    // 末尾那个负字距把字面推到前进宽度之外：量到的宽度要减掉它，否则最后一个字母会被裁掉
-    var ink = (range.getBoundingClientRect().width - parseFloat(getComputedStyle(word).letterSpacing)) / 100;
-    // 页名只占栏宽的三分之一；两栏模式下栏宽接近翻倍，高度再收在视口的 36% 以内
-    word.style.fontSize = ink > 0 ? Math.min(available / 3 / ink, window.innerHeight * 0.36) + "px" : "";
+    range.selectNodeContents(title);
+    var ink = range.getBoundingClientRect().width / 100;
+    // 窄屏占满整栏；桌面只占栏宽的三分之一。高度再收在视口的 36% 以内
+    var share = window.innerWidth < 1024 ? 1 : 1 / 3;
+    title.style.fontSize = ink > 0 ? Math.min(available * share / ink, window.innerHeight * 0.36) + "px" : "";
   }
   window.__gnixFitArchiveTitle = fit;
   fit();
 })();`;
 
-// 像素字：5×7 的方点阵，构建期就摊成 <rect>，前端零成本。
-// 字母给季节用，数字给年份的翻表用（缺字形时整枚不出，宁可空着也不出半句话）
-const PIXEL_GLYPHS = {
-  "0": "01110 10001 10011 10101 11001 10001 01110",
-  "1": "00100 01100 00100 00100 00100 00100 01110",
-  "2": "01110 10001 00001 00010 00100 01000 11111",
-  "3": "11111 00010 00100 00010 00001 10001 01110",
-  "4": "00010 00110 01010 10010 11111 00010 00010",
-  "5": "11111 10000 11110 00001 00001 10001 01110",
-  "6": "00110 01000 10000 11110 10001 10001 01110",
-  "7": "11111 00001 00010 00100 01000 01000 01000",
-  "8": "01110 10001 10001 01110 10001 10001 01110",
-  "9": "01110 10001 10001 01111 00001 00010 01100",
-  A: "01110 10001 10001 11111 10001 10001 10001",
-  E: "11111 10000 10000 11110 10000 10000 11111",
-  G: "01110 10001 10000 10111 10001 10001 01111",
-  I: "11111 00100 00100 00100 00100 00100 11111",
-  M: "10001 11011 10101 10101 10001 10001 10001",
-  N: "10001 11001 10101 10011 10001 10001 10001",
-  P: "11110 10001 10001 11110 10000 10000 10000",
-  R: "11110 10001 10001 11110 10100 10010 10001",
-  S: "01111 10000 10000 01110 00001 00001 11110",
-  T: "11111 00100 00100 00100 00100 00100 00100",
-  U: "10001 10001 10001 10001 10001 10001 01110",
-  W: "10001 10001 10001 10101 10101 11011 10001",
-};
-
-// 一季的像素字：每个字母 5 格宽、字距 2 格，字高 7 格。
-// 翻页动画由 archive.js 的观察器驱动（.is-armed / .is-turning 见 archive.css）
-function PixelFolio({ word }) {
-  const letters = [...word.toUpperCase()].map((char) => PIXEL_GLYPHS[char]?.split(" "));
-  if (!letters.length || letters.some((rows) => !rows)) return null;
-  const cells = [];
-  letters.forEach((rows, letter) => {
-    rows.forEach((row, y) => {
-      [...row].forEach((cell, x) => {
-        if (cell === "1") cells.push([letter * 7 + x, y]);
-      });
-    });
-  });
-  return (
-    <svg class="archive-folio" viewBox={`0 0 ${letters.length * 7 - 2} 7`} fill="currentColor" aria-hidden="true" focusable="false">
-      {cells.map(([x, y]) => (
-        <rect key={`${x}.${y}`} x={x} y={y} width="1" height="1" />
-      ))}
-    </svg>
-  );
-}
-
-// 一枚像素字符：和季节字共用一套点阵，单字一枚 <svg>，年份翻表拿它当格芯
-function PixelGlyph({ char }) {
-  const rows = PIXEL_GLYPHS[char]?.split(" ");
-  if (!rows) return null;
-  const cells = [];
-  rows.forEach((row, y) => {
-    [...row].forEach((cell, x) => {
-      if (cell === "1") cells.push([x, y]);
-    });
-  });
-  return (
-    <svg viewBox="0 0 5 7" fill="currentColor" aria-hidden="true" focusable="false">
-      {cells.map(([x, y]) => (
-        <rect key={`${x}.${y}`} x={x} y={y} width="1" height="1" />
-      ))}
-    </svg>
-  );
-}
-
-// 一季一段：像素字在上，条目在一条等距的清单里。标题贴左缘、日期贴右缘，
+// 一季一段：季节标签在上，条目在一条等距的清单里。标题贴左缘、日期贴右缘，
 // 全页因此有两条笔直的竖轴，167 行也读得下去
-function renderSeasonGroup({ posts, title, yearLabel, years, marker, sectionId, formatReadTime, url_for, date_xml, date }) {
+function renderSeasonGroup({ posts, title, yearLabel, years, marker, sectionId, formatReadTime, coverSrc, url_for, date_xml, date }) {
   return (
     <section id={sectionId} class={`archive-group ${marker}`} data-years={years} aria-labelledby={`${sectionId}-title`}>
       <h2 id={`${sectionId}-title`} class="archive-group__header">
-        {/* 一季一枚像素字：浅色的一页，滚动到时浮现；它本身就是通往本季的链接 */}
-        <a class="archive-group__link" href={`#${sectionId}`} aria-label={`${title} ${yearLabel}`}>
-          <PixelFolio word={title} />
+        {/* 一季一行等宽大写的小标签（AUTUMN ’26），滚动到时浮现；它本身就是通往本季的链接 */}
+        <a class="archive-group__link archive-folio" href={`#${sectionId}`} aria-label={`${title} ${yearLabel}`}>
+          {title}
         </a>
       </h2>
       <ol class="archive-list">
@@ -265,6 +183,7 @@ function renderSeasonGroup({ posts, title, yearLabel, years, marker, sectionId, 
               date={postDate.label}
               dateXml={postDate.xml}
               excerpt={excerpt}
+              cover={coverSrc(post.cover)}
               tags={getPostTags(post)}
               readTime={readMinutes ? formatReadTime(readMinutes) : null}
             />
@@ -404,7 +323,13 @@ module.exports = class extends Component {
     const writingsWord = totalVisiblePosts === 1 ? "writing" : "writings";
     const topicsWord = topicTags.length === 1 ? "topic" : "topics";
     const gardenCountLabel = `${gardenPosts.length} ${helper._p("archive.writing", gardenPosts.length)}`;
-    const formatReadTime = (minutes) => helper.__("article.reading_time", minutes);
+    const formatReadTime = (minutes) => `${minutes} min`;
+    // 检视面板里的封面：能缩图的域名取 900px 宽的一档，其余原图
+    const coverSrc = (cover) => {
+      if (!cover) return null;
+      const src = url_for(cover);
+      return helper.image_resize_supported(src) ? withImageParams(src, { w: 900 }) : src;
+    };
 
     // 花园清单整体加密后随页面下发；没配 encrypt.password 时 helper 返回 null，入口随之消失。
     // 页名水印（Archive）在归档页与标签页都立着，花园两边都能进
@@ -430,6 +355,7 @@ module.exports = class extends Component {
         marker: group.season.toLowerCase(),
         sectionId: getSectionId(group),
         formatReadTime,
+        coverSrc,
         url_for,
         date_xml,
         date,
@@ -437,92 +363,48 @@ module.exports = class extends Component {
     );
 
     return (
-      <main class="archive-page" data-view="archive" data-columns="1">
+      <main class="archive-page" data-view="archive">
         <div class="archive-hero">
           {/* 页名是一块巨型水印，正文从它上面滚过去；h1 就是它本身。
               连点三次是秘密花园的入口（见 source/js/archive.js），所以它不能被选中 */}
           <h1 id="archive-title" class="archive-watermark" data-garden-title="Secret Archive 🫥">
             <span class="archive-watermark__word">{ARCHIVE_TITLE}</span>
+            {!isTagPage && archiveYears.length > 1 ? (
+              /* 年份：紧跟在页名后的一枚小字上标（随页名一起缩放）。点一下滚到上一年（到头绕回最新的一年）；
+                 ?year= 由脚本写进地址栏。它在 h1 里，archive.js 的连点入口要把它排除 */
+              <button
+                type="button"
+                class="archive-year"
+                data-year-counts={archiveYears.map(({ year, count }) => `${year}:${count}`).join(" ")}
+                data-switch-label={helper.__("archive.year_switch")}
+                aria-label={`${yearList[defaultYearIndex]} ${helper.__("archive.year_switch")}`}
+              >
+                <span class="archive-year__value">{String(yearList[defaultYearIndex]).slice(-2)}</span>
+              </button>
+            ) : null}
           </h1>
-          {!isTagPage && archiveYears.length > 1 ? (
-            /* 年份：书口上的页码，像素字。点一下滚到上一年（到头绕回最新的一年），
-               数字像翻表一样逐位滚动，只有变动的位在动；?year= 由脚本写进地址栏 */
-            <button
-              type="button"
-              class="archive-year"
-              data-year-counts={archiveYears.map(({ year, count }) => `${year}:${count}`).join(" ")}
-              data-switch-label={helper.__("archive.year_switch")}
-              aria-label={`${yearList[defaultYearIndex]} ${helper.__("archive.year_switch")}`}
-            >
-              {String(yearList[defaultYearIndex])
-                .slice(-2)
-                .split("")
-                .map((digit, index) => (
-                  <span key={index} class="archive-year__digit" aria-hidden="true">
-                    <span class="archive-year__reel" style={`--digit:${digit}`}>
-                      {"0123456789".split("").map((value) => (
-                        <PixelGlyph key={value} char={value} />
-                      ))}
-                    </span>
-                  </span>
-                ))}
-            </button>
-          ) : null}
-        </div>
-        <script dangerouslySetInnerHTML={{ __html: TITLE_FIT_SCRIPT }} />
-
-        {/* caption 是一条控制行：左端报这一页的规模，右端放栏数切换与话题入口 */}
-        <header class="archive-masthead">
-          <div class="archive-masthead__caption">
+          {/* 刊头的注记：页名（与年份）右侧两行竖排的小字，像书脊——自上而下读，字母随行转向。
+              第一行这一页的规模（标签页先报标签名），第二行话题入口 */}
+          <div class="archive-masthead">
             <p class="archive-masthead__stat">
               {isTagPage ? <span class="archive-masthead__subject">{page.tag}</span> : null}
               <span class="archive-masthead__count">
-                <span data-archive-count>{totalVisiblePosts}</span>{" "}
-                <span data-archive-count-word>{writingsWord}</span>
+                <span data-archive-count>{totalVisiblePosts}</span> <span data-archive-count-word>{writingsWord}</span>
               </span>
             </p>
-            <span class="archive-masthead__leader" aria-hidden="true"></span>
-            <div class="archive-masthead__tools">
-              <div class="archive-columns">
-                <button
-                  type="button"
-                  class="archive-columns__option"
-                  data-archive-columns="1"
-                  aria-pressed="true"
-                  aria-label={helper.__("archive.one_column")}
-                  title={helper.__("archive.one_column")}
-                >
-                  <ColumnGlyph columns={1} />
-                </button>
-                <button
-                  type="button"
-                  class="archive-columns__option"
-                  data-archive-columns="2"
-                  aria-pressed="false"
-                  aria-label={helper.__("archive.two_columns")}
-                  title={helper.__("archive.two_columns")}
-                >
-                  <ColumnGlyph columns={2} />
-                </button>
-              </div>
-              <button
-                type="button"
-                class="archive-masthead__topics"
-                popovertarget="archive-topic-picker"
-                aria-expanded="false"
-                aria-controls="archive-topic-picker"
-                aria-label={`${topicTags.length} ${topicsWord}`}
-              >
-                <Icon name="tags" size={14} />
-                <span class="archive-masthead__count">{topicTags.length}</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              class="archive-masthead__topics"
+              popovertarget="archive-topic-picker"
+              aria-expanded="false"
+              aria-controls="archive-topic-picker"
+              aria-label={`${topicTags.length} ${topicsWord}`}
+            >
+              <span class="archive-masthead__count">{topicTags.length}</span> {topicsWord}
+            </button>
           </div>
-          {/* 窄屏上选两栏时的提醒：绝对定位，出现时不推动下面的清单 */}
-          <p class="archive-masthead__note" role="status" hidden>
-            {helper.__("archive.columns_narrow")}
-          </p>
-        </header>
+        </div>
+        <script dangerouslySetInnerHTML={{ __html: TITLE_FIT_SCRIPT }} />
 
         {renderTopicPicker({
           tags: topicTags,
@@ -551,7 +433,19 @@ module.exports = class extends Component {
             })
           : null}
 
-        <div class="archive-groups">{articleList}</div>
+        {/* 清单在右、检视面板在左：悬停到哪一条，面板就换成那一篇的封面、摘要与标签（见 archive.js）。
+            窄屏只有清单 */}
+        <div class="archive-body">
+          <aside class="archive-inspector" aria-live="polite" hidden>
+            <figure class="archive-inspector__cover" hidden>
+              <img class="archive-inspector__img" alt="" decoding="async" />
+            </figure>
+            <p class="archive-inspector__title"></p>
+            <div class="archive-inspector__excerpt"></div>
+            <dl class="archive-inspector__meta"></dl>
+          </aside>
+          <div class="archive-groups">{articleList}</div>
+        </div>
       </main>
     );
   }

@@ -272,7 +272,7 @@
     sync();
   }
 
-  // DOM thumb shares the site's glass material/lens; the native range owns all input.
+  // A DOM thumb mirrors the native range so the filled track can be styled; the native range owns all input.
   function syncSliderVisual(input) {
     const shell = input?.closest(".preference-slider");
     if (!shell) return;
@@ -550,96 +550,6 @@
     updateCustomFontUI();
   }
 
-  // 设置页的 Liquid glass 面板与快捷弹窗的玻璃开关共用；
-  // 读写与应用由 head 内联脚本（include/util/glass.js）提供的
-  // window.getGlassSettings / applyGlassSettings 完成，这里只管 UI
-  const GLASS_VALUE_FORMATS = {
-    blur: (value) => `${value}px`,
-    refraction: (value) => `${value.toFixed(2)}×`,
-    tint: (value) => `${Math.round(value * 100)}%`,
-  };
-
-  function initGlassPreferences(root) {
-    if (typeof window.applyGlassSettings !== "function") return;
-
-    const glassConfig = window.__GNIX_GLASS_CONFIG__ || {};
-    const toggles = root.querySelectorAll("[data-glass-toggle]");
-    const ranges = root.querySelectorAll("[data-glass-range]");
-    const values = root.querySelectorAll("[data-glass-range-value]");
-    const params = root.querySelectorAll("[data-glass-param]");
-    if (!toggles.length && !ranges.length) return;
-    const getSettings = () => window.getGlassSettings();
-    const commit = (patch) => window.applyGlassSettings({ ...getSettings(), ...patch }, true);
-
-    function sync(settings = getSettings()) {
-      toggles.forEach((toggle) => {
-        toggle.setAttribute("aria-checked", String(Boolean(settings[toggle.dataset.glassToggle])));
-      });
-      ranges.forEach((input) => {
-        // 拖动中的滑块不回写，免得 step 取整后跳动
-        if (document.activeElement !== input) input.value = String(settings[input.dataset.glassRange]);
-        syncSliderVisual(input);
-      });
-      values.forEach((output) => {
-        const key = output.dataset.glassRangeValue;
-        output.textContent = GLASS_VALUE_FORMATS[key]?.(settings[key]) ?? String(settings[key]);
-      });
-      // 关闭玻璃后其余参数不再生效，整组置灰但保留取值
-      params.forEach((row) => {
-        row.classList.toggle("is-disabled", !settings.enabled);
-        row.querySelectorAll("button, input").forEach((control) => {
-          control.disabled = !settings.enabled;
-        });
-      });
-    }
-
-    toggles.forEach((toggle) => {
-      toggle.addEventListener("click", () => {
-        const key = toggle.dataset.glassToggle;
-        commit({ [key]: !getSettings()[key] });
-      });
-    });
-
-    ranges.forEach((input) => {
-      input.addEventListener("input", () => {
-        commit({ [input.dataset.glassRange]: Number(input.value) });
-      });
-    });
-
-    const reset = () => window.applyGlassSettings({ ...glassConfig.defaultSettings }, true);
-    root.querySelectorAll("[data-glass-reset], [data-preference-reset-all]").forEach((button) => {
-      button.addEventListener("click", reset);
-    });
-
-    window.addEventListener("gnix:glass-settings-change", (event) => {
-      sync(event.detail || getSettings());
-    });
-
-    sync();
-  }
-
-  function initPageTexturePreferences(root) {
-    if (typeof window.applyPageTexture !== "function") return;
-    const buttons = root.querySelectorAll("[data-page-texture-option]");
-    const current = () => document.documentElement.dataset.pageTexture || "off";
-    const sync = () => {
-      const active = current();
-      buttons.forEach((button) => {
-        const isActive = button.dataset.pageTextureOption === active;
-        button.setAttribute("aria-pressed", String(isActive));
-        button.classList.toggle("is-active", isActive);
-      });
-    };
-    buttons.forEach((button) => {
-      button.addEventListener("click", () => window.applyPageTexture(button.dataset.pageTextureOption, true));
-    });
-    root.querySelectorAll("[data-preference-reset-all]").forEach((button) => {
-      button.addEventListener("click", () => window.applyPageTexture("off", true));
-    });
-    window.addEventListener("gnix:page-texture-change", sync);
-    sync();
-  }
-
   function initLiquidSwitchInteractions(root) {
     root.querySelectorAll(".preference-switch").forEach((button) => {
       const thumb = button.querySelector(".preference-switch__thumb");
@@ -729,8 +639,6 @@
     root.dataset.bound = "true";
     initThemePreferences(root);
     initArticleFontPreferences(root);
-    initGlassPreferences(root);
-    initPageTexturePreferences(root);
     initLiquidSwitchInteractions(root);
     initNavigationControls(root);
   }

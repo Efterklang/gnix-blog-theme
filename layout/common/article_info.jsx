@@ -1,118 +1,94 @@
-const { Component, Fragment } = require("../../include/util/common");
+const { Component, Fragment, formatMonthDay, getWordCount, isValidDate } = require("../../include/util/common");
 
-/**
- * Get the word count of text.
- */
-function getWordCount(content) {
-  if (typeof content === "undefined") {
-    return 0;
-  }
-  content = content.replace(/<\/?[a-z][^>]*>/gi, "");
-  content = content.trim();
-  return content ? (content.match(/[\u00ff-\uffff]|[a-zA-Z]+/g) || []).length : 0;
+// 规格表里默认露出的标签数，其余折进「+N」
+const VISIBLE_TAGS = 4;
+
+function formatDate(value, helper) {
+  const parsed = new Date(helper.date_xml(value));
+  return isValidDate(parsed) ? `${formatMonthDay(parsed)}, ${parsed.getFullYear()}` : helper.date(value, "MMM DD, YYYY");
 }
 
-function getTranslationInfo(page, helper) {
-  if (!page.i18n) return null;
-  const t = page.i18n.translation;
-  if (t === 1) return helper.__("article.translation_llm_reviewed");
-  if (t === 2) return helper.__("article.translation_llm_unreviewed");
-  return helper.__("article.translation_original");
-}
-
+// 文章信息：嵌在正文开头左侧的一张规格表（标签在上、取值在下），不再是弹层。
+// 标签一律英文——它们是站内的微型标签，不随页面语言切换
 module.exports = class extends Component {
   render() {
-    const { page, config, helper } = this.props;
+    const { page, config, helper, hasComment, commentsLabel } = this.props;
     const { article } = config;
-    const translationInfo = getTranslationInfo(page, helper);
-
     const markdownSourceUrl = page.markdown_path ? helper.url_for(page.markdown_path) : null;
-    const closeLabel = helper.__("article.close");
 
-    const wordCount = page.layout !== "page" ? getWordCount(page._content) : 0;
-    const readTime = Math.ceil(wordCount / 200); // 假设每分钟阅读200字
+    const wordCount = getWordCount(page._content);
+    const readTime = Math.ceil(wordCount / 200); // 假设每分钟阅读 200 字
 
     const items = [];
-    if (page.title) {
-      items.push([helper.__("article.article_title"), page.title]);
-    }
-    if (page.author || config.author) {
-      items.push([helper.__("article.author"), page.author || config.author]);
-    }
-    if (wordCount > 0) {
-      items.push([helper.__("article.reading_time_label"), helper.__("article.reading_time", readTime)]);
-    }
-    if (page.date) {
-      items.push([helper.__("article.created_time"), helper.date(page.date, "YYYY-MM-DD HH:mm")]);
-    }
-    if (page.updated) {
-      items.push([helper.__("article.updated_time"), helper.date(page.updated, "YYYY-MM-DD HH:mm")]);
-    }
+    if (page.date) items.push(["Published", formatDate(page.date, helper)]);
+    if (page.updated && String(page.updated) !== String(page.date)) items.push(["Updated", formatDate(page.updated, helper)]);
+    if (wordCount > 0) items.push(["Reading", `${readTime} min · ${wordCount} words`]);
+    if (page.author || config.author) items.push(["Author", page.author || config.author]);
     if (page.tags?.length) {
+      // 标签横排；超过 VISIBLE_TAGS 个先折起，点「+N」展开（article.js）
+      const tags = page.tags.map((tag) => (
+        <a key={tag.name} rel="tag" href={helper.localized_tag_url(tag, helper.language_key(page))}>
+          {tag.name}
+        </a>
+      ));
+      const hidden = tags.length - VISIBLE_TAGS;
       items.push([
-        helper.__("article.tags"),
-        page.tags.map((tag, i) => (
-          <span key={tag.name}>
-            {i > 0 && (
-              <span class="meta-separator" aria-hidden="true">
-                ·
+        "Tags",
+        <span class="article-info__list">
+          {tags.slice(0, VISIBLE_TAGS)}
+          {hidden > 0 && (
+            <Fragment>
+              <span class="article-info__more" hidden>
+                {tags.slice(VISIBLE_TAGS)}
               </span>
-            )}
-            <a rel="tag" href={helper.localized_tag_url(tag, helper.language_key(page))}>
-              {tag.name}
-            </a>
-          </span>
-        )),
+              <button type="button" class="article-info__expand" aria-expanded="false" aria-label={`Show ${hidden} more tags`}>
+                +{hidden}
+              </button>
+            </Fragment>
+          )}
+        </span>,
       ]);
     }
-    if (translationInfo) {
-      items.push([helper.__("article.translation_info"), translationInfo]);
+    if (page.location) items.push(["Location", page.location]);
+    if (article?.licenses && Object.keys(article.licenses).length > 0) {
+      items.push([
+        "License",
+        <span class="article-info__list">
+          {Object.keys(article.licenses).map((name) => (
+            <a key={name} href={article.licenses[name]} target="_blank" rel="noopener">
+              {name}
+            </a>
+          ))}
+        </span>,
+      ]);
     }
     if (markdownSourceUrl) {
       items.push([
-        helper.__("article.markdown_source"),
+        "Source",
         <a href={markdownSourceUrl} target="_blank" rel="noopener" type="text/markdown; charset=utf-8">
-          {decodeURI(markdownSourceUrl)}
+          Markdown
         </a>,
       ]);
     }
-    if (page.layout !== "page") {
-      items.push([helper.__("article.page_views"), <span id="busuanzi_page_pv">-</span>]);
-    }
-    if (article?.licenses && Object.keys(article.licenses).length > 0) {
+    items.push(["Views", <span id="busuanzi_page_pv">-</span>]);
+    if (hasComment) {
       items.push([
-        helper.__("article.license"),
-        Object.keys(article.licenses).map((name, i) => (
-          <span key={name}>
-            {i > 0 && <span>, </span>}
-            <a href={article.licenses[name]} target="_blank" rel="noopener">
-              {name}
-            </a>
-          </span>
-        )),
+        "Comments",
+        <button type="button" class="article-info__action" popovertarget="article-comment-popover" aria-label={commentsLabel}>
+          Open
+        </button>,
       ]);
-    }
-    if (page.location) {
-      items.push([helper.__("article.location"), page.location]);
     }
 
     return (
-      <div id="article-info-popover" popover="auto" role="dialog" class="article-popover article-info-popover" aria-label={helper.__("article.article_info")}>
-        <button class="article-popover-backdrop" type="button" popovertarget="article-info-popover" popovertargetaction="hide" tabindex="-1" aria-label={closeLabel}></button>
-        <button class="article-info-close" type="button" popovertarget="article-info-popover" popovertargetaction="hide" aria-label={closeLabel}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
-            <path d="m6 6 12 12M18 6 6 18" />
-          </svg>
-        </button>
-        <dl class="article-popover-body article-info-list">
-          {items.map(([label, value]) => (
-            <Fragment>
-              <dt>{label}</dt>
-              <dd>{value}</dd>
-            </Fragment>
-          ))}
-        </dl>
-      </div>
+      <dl class="article-info">
+        {items.map(([label, value]) => (
+          <div class="article-info__item">
+            <dt>{label}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
     );
   }
 };

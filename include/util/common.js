@@ -57,6 +57,13 @@ module.exports = {
     console.warn(`[gnix-theme] Failed to load widget: ${name}`);
   },
 
+  // 字数：去掉标签后，一个 CJK 字符或一个拉丁单词计一；文章信息弹层与扉页题注共用
+  getWordCount: (content) => {
+    if (typeof content !== "string") return 0;
+    const text = content.replace(/<\/?[a-z][^>]*>/gi, "").trim();
+    return text ? (text.match(/[\u00ff-\uffff]|[a-zA-Z]+/g) || []).length : 0;
+  },
+
   isValidDate: (val) => val instanceof Date && !Number.isNaN(val.getTime()),
   parseISO: (str) => new Date(str),
   // 列表日期统一为「缩写月 + 日」，日补零到两位（Oct 04）：

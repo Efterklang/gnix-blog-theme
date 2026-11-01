@@ -1,7 +1,21 @@
-## 设计偏好
+## 设计语言：Swiss / International Typographic Style
 
-**Core Principles**: Elegance through restraint, precision, and depth. This style emulates high-end fashion magazines (Vogue, Harper's Bazaar, Kinfolk) and luxury brand websites (Chanel, Hermès, Aesop). Success depends on **exquisite typography hierarchy**, **generous negative space**, **slow cinematic motion**, **intentional asymmetry**, and **layered depth through subtle shadows**. The design creates visual tension through grid-breaking layouts while maintaining perfect architectural balance.
+参考：Museum Department（Fonts In Use 的清单页与字体页）为主，LCLA Studio、Minus 为辅。整站是一张印刷品：纸、墨、一套网格、大片留白。
 
-**Vibe**: Sophisticated, Timeless, Expensive, Serene, Curated, Deliberate, Editorial, Tactile.
+**Core Principles**
 
-**The Secret**: Luxury isn't about adding decoration—it's about removing everything unnecessary and perfecting what remains. Every element must feel intentional and considered. Slow down all motion to cinematic speeds (1500-2000ms for images). Add more space than feels comfortable. Use asymmetry to create visual interest. Layer depth through subtle shadows (never harsh drops) and inner borders. The design should feel like expensive paper that you want to touch.
+1. **网格与留白**。一条版心边距 `--page-margin`（clamp 1.25–2.5rem）定义全站的左轴：站名、Back、工具栏、归档的大字与清单都落在这条线上；正文列居中（42em），归档版心 96rem。页面由对齐与留白分区，几乎不画线：导航、页尾、清单、刊头都不描边。线只出现在表格的行线（浅灰 `--rule`，表头下一条墨线）。浮在内容之上的面（弹层、菜单、卡片）是现代的卡片：小圆角（`--radius` 12px / `--radius-sm` 8px）、0.5px 的浅描边（`--edge-color`）、一点柔和的投影（`--shadow-soft`）；不模糊、不用底色块分区。
+2. **字**。两副字、各司其职（Müller-Brockmann 式的克制）：
+   - 无衬线一系（Helvetica Neue / Arial，退回系统字）承担一切文字与**标签**：标签是 `--font-label` 11px、字重 500、大写、0.08em 字距（`--label-size/--label-weight/--label-tracking`）——站名、Back / INFO / TOC、季节、TOP TOPICS、菜单项、弹层的节名、页尾，全部同一款。
+   - 等宽字只给**数据**：日期、计数、序号、代码、规格表的取值。
+   大字靠尺寸立住：常规字重、收紧的字距与行距。字号只用这几档：11（标签）、13（数据 / 侧栏）、正文（偏好可调，默认 15）、18（导语）、24（h2）、display（clamp）。
+3. **序号**。可以编号的东西都编号：导航栏目 01、02…，小节 01、02…，近期文章 01、02…。序号用等宽字、补零。
+4. **纸与墨**。默认是纯白纸与近黑墨（Mono Light / Mono Dark），灰只作辅助。强调色不用于文字与状态——链接是墨色加一条细下划线，悬停退一档灰，选中反白（墨底白字）。其他主题色板仍可选，但组件本身不依赖任何彩色。
+5. **留白**。比舒服的还多一点。文章页分两屏：首屏是封面（原比例、尽量放大）+ 居中的粗体标题 + 灰色摘要，正文从下一屏起。视口左上角一列工具：Back、INFO（规格表：PUBLISHED、READING、TAGS…）、TOC，后两者是可展开的面板，首屏 INFO 开、滚进正文后 INFO 收 TOC 开，高度与透明度做过渡。归档页：清单在左轴上（标题、季节、条目同一条左缘），检视面板在右（黄金分割 61.8 : 38.2）显示悬停条目的封面、摘要与一张无线的小表；条目静息灰、聚焦墨，左缘一枚沿清单滑动的蓝点。独立页面（友链等）没有首屏，标题紧凑排在顶上。顶栏只有站名与一排图标，栏目收在菜单卡片里；偏好弹窗只有主题 / 字体 / 字号三行。
+6. **材质**。只有一种：纸色底的卡片（`.surface`）。可点的面悬停换一档底色、按下反白（`.surface-button`）。液态玻璃（模糊、折射、按压弹簧）与背景纹理已整体移除，不再引入。
+7. **图标**。只用 lucide，线宽 1.75。能用文字就不用图标。
+8. **动效**。极少。入场只做淡入与小幅上浮，过渡 120–220ms，不弹、不缩放。
+
+**Vibe**: Precise, Printed, Quiet, Orderly, Timeless.
+
+**The Secret**: 一页好看，是因为所有东西都对齐到同一套线上。先画线，再放字；每多一个元素，先问它落在哪条线上。

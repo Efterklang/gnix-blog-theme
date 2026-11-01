@@ -6,24 +6,17 @@
    其余页面不加载本文件，保持 default.css 的固定列宽 */
 .main-content {
   max-width: calc(var(--article-max-width) + 3rem);
-  /* 独立页面封面图的默认高度。 */
-  --cover-height: 380px;
 }
 
 .article {
-  padding: 1.25em 1.25rem 0 1.25rem;
+  position: relative;
+  padding: 0.5rem 0 0;
   /* Ref: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-autospace */
   text-autospace: normal;
 }
 
-/* 文章首屏进场（参考 apple.com 首页）：同一种动作——淡入 + 自下方 14px 缓缓浮起，
-   只靠时间差自上而下依次呈现：标题（0）→ 摘要（200ms）；顶栏与底栏是固定的框架，不参与。
-   每步 900ms、曲线 --ease-out（easeOutQuint），前段快后段长的收尾让序列相互重叠、
-   连成一次呼吸而非三次跳动。标题排在最前，LCP 不受序列推后。填充只用
-   backwards（见 default.css slide-enter 注释）。摘要动画挂在容器上：front-matter 的
-   excerpt 是无 <p> 包裹的纯文本，不能依赖子元素选择器。.gnix-revealed 由 head 内联脚本
-   在 pagereveal（不支持时内联立即）添加，保证 prerender 激活时动画从首个可见帧才开始；
-   无 JS 时不加类，全部直接可见 */
+/* 入场：封面、标题、摘要依次淡入上浮（0 / 120 / 240ms）；正文各块由 scroll-reveal 逐块进场。
+   .gnix-revealed 由 head 内联脚本在 pagereveal 时添加；无 JS 时不加类，全部直接可见 */
 @keyframes hero-rise {
   from {
     opacity: 0;
@@ -31,17 +24,16 @@
   }
 }
 
-:root.gnix-revealed .article-hero {
-  --hero-step: 200ms;
+:root.gnix-revealed .article-opening__inner > :is(.cover-image, .article-title, .article-lead) {
+  animation: hero-rise 700ms var(--ease-out) backwards;
+}
 
-  .article-title,
-  .article-excerpt {
-    animation: hero-rise 900ms var(--ease-out) backwards;
-  }
+:root.gnix-revealed .article-opening__inner > .article-title {
+  animation-delay: 120ms;
+}
 
-  .article-excerpt {
-    animation-delay: var(--hero-step);
-  }
+:root.gnix-revealed .article-opening__inner > .article-lead {
+  animation-delay: 240ms;
 }
 
 /* One entrance per body block. Pending blocks have no displacement, so long
@@ -76,43 +68,9 @@
   }
 }
 
-/* 扉页与阅读区各自形成完整的吸附区域，滚动结束后必须落在区域内。
-   长正文大于视口，浏览器允许在区域内部自由滚动，不对每段文字吸附。 */
-:root:has(.article-intro) {
-  scroll-snap-type: y mandatory;
-}
-
-.article-intro,
-.article-reading {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-}
-
-.article-intro {
-  /* 将外层已有的顶部间距纳入首屏吸附区域，初始落点仍是页面 0，
-     不会一加载就把扉页往上推；正文不使用这个偏移。 */
-  --article-intro-offset: calc(var(--navbar-height) + env(safe-area-inset-top) + 4.25rem);
-  scroll-margin-top: var(--article-intro-offset);
-  min-height: calc(100svh - var(--article-intro-offset));
-  display: flex;
-  flex-direction: column;
-}
-
-.article-reading {
-  display: flow-root;
-  /* 短文章也要能将正文开头对齐顶部，不受页面剩余滚动距离限制。 */
-  min-height: 100dvh;
-}
-
-/* 页尾也有可到达的落点，避免 mandatory 把滚动拉回正文末尾。 */
-:root:has(.article-intro) .footer {
-  scroll-snap-align: end;
-  scroll-margin-bottom: var(--article-footer-offset, 0px);
-}
-
-/* 正文入口独立于目录锚点：跳过扉页后不预留导航条或首段外边距。 */
+/* 正文入口：目录锚点只留阅读间距 */
 #article-content {
-  scroll-margin-top: 0;
+  scroll-margin-top: 1rem;
 
   > :first-child {
     margin-block-start: 0;
@@ -120,8 +78,8 @@
 }
 
 .content a.wiki-link {
-  border-radius: 0.2em;
-  background: color-mix(in oklab, var(--lavender) 9%, transparent);
+  border-radius: 4px;
+  background: transparent;
   text-decoration-line: underline;
   text-decoration-style: dashed;
   text-decoration-color: currentColor;
@@ -131,13 +89,13 @@
   box-decoration-break: clone;
 
   &:hover {
-    background: color-mix(in oklab, var(--lavender) 17%, transparent);
+    background: var(--hover-fill);
     text-decoration-style: solid;
     text-decoration-thickness: 1px;
   }
 
   &:focus-visible {
-    outline: 2px solid var(--mauve);
+    outline: var(--focus-ring);
     outline-offset: 3px;
   }
 }
@@ -158,8 +116,7 @@
   padding: 0.85rem 1rem 0.9rem;
   border: 1px solid color-mix(in oklab, var(--sub-text-color) 20%, transparent);
   border-radius: 0;
-  background: var(--mantle);
-  background-image: var(--page-texture);
+  background: var(--base);
   color: var(--sub-text-color);
   font-family: var(--article-font-family);
   font-size: var(--article-font-size);
@@ -260,22 +217,15 @@
     align-items: center;
     gap: 0.75rem;
 
+    /* 小节序号（01、02…）排在标题前：等宽小字，不画线 */
     &::before {
-      content: "";
-      order: 1;
-      flex: 1;
-      border-top: 1px dashed var(--surface0);
-    }
-
-    &::after {
       content: counter(h2-counter, decimal-leading-zero);
-      order: 2;
       color: var(--sub-text-color);
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 0.7em;
+      font-family: var(--font-mono);
+      font-size: 0.6em;
       font-weight: 400;
-      font-variant-numeric: oldstyle-nums;
+      letter-spacing: 0.08em;
+      font-variant-numeric: tabular-nums;
       flex-shrink: 0;
     }
   }
@@ -403,8 +353,7 @@
   figcaption {
     margin-block: var(--prose-caption-gap) 0;
     color: var(--sub-text-color);
-    font-style: italic;
-    font-family: var(--font-serif);
+    font-style: normal;
   }
 
   button.physical-btn,
@@ -531,14 +480,14 @@
     line-height: 1.45;
   }
 
+  /* 行内代码：一枚无描边的浅色小片，靠底色与正文区分 */
   code {
     font-size: 0.85em;
     font-family: var(--font-mono);
-    padding: 0 0.25em;
-    margin: 0 0.2em;
-    background-color: var(--base);
+    padding: 0.1em 0.35em;
+    margin: 0 0.15em;
+    background-color: color-mix(in oklab, var(--title-text-color) 5%, transparent);
     color: var(--sub-text-color);
-    border: 1px solid var(--surface0);
     border-radius: 4px;
   }
 
@@ -557,11 +506,10 @@
     text-decoration: underline;
     text-underline-offset: 3.5px;
     text-decoration-thickness: 1px;
-    text-decoration-color: hsl(from var(--lavender) h s l / 0.8);
+    text-decoration-color: color-mix(in oklab, currentColor 55%, transparent);
     color: var(--title-text-color);
     &:hover {
-      text-decoration-color: var(--blue);
-      text-decoration-thickness: 2px;
+      text-decoration-color: currentColor;
     }
   }
 
@@ -571,7 +519,7 @@
     color: var(--sub-text-color);
     font-size: 0.875em;
     line-height: 1.55;
-    border-left: 2px solid var(--surface1);
+    border-left: 1px solid var(--rule);
 
     > :first-child {
       margin-top: 0;
@@ -650,6 +598,9 @@
   }
 }
 
+/* 表格：不画外框、底纹与悬停高亮，只留几条横向细线——表头下一条、行与行之间一条；
+   首末列贴齐正文的左右边缘，表格读起来像排好的文字，而不是页面上的一个盒子。
+   表头是等宽小写字母标签，与文章信息、归档的标签同一套 */
 .table-wrapper {
   box-sizing: border-box;
   max-width: 100%;
@@ -674,59 +625,19 @@
     max-width: 100%;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
-    border: 1px solid var(--surface0);
-    border-radius: var(--radius);
-    background: var(--base);
     scrollbar-width: thin;
     scrollbar-color: var(--overlay0) transparent;
 
     &:focus-visible {
-      outline-offset: -3px;
+      outline: var(--focus-ring);
+      outline-offset: 4px;
     }
   }
 
   table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
     font-size: 0.9375em;
     line-height: 1.6;
-    text-align: start;
-  }
-
-  td,
-  th {
-    padding: 0.875em 1.125em;
-    vertical-align: top;
-    white-space: normal;
-    overflow-wrap: anywhere;
-
-    code {
-      white-space: nowrap;
-    }
-  }
-
-  thead th {
-    background: color-mix(in oklab, var(--surface0) 40%, var(--base));
-    color: var(--title-text-color);
-    font-weight: var(--font-weight-semibold);
-  }
-
-  tbody tr:nth-child(even) {
-    background: color-mix(in oklab, var(--surface0) 14%, var(--base));
-  }
-
-  @media (hover: hover) {
-    tbody tr:hover {
-      background: color-mix(in oklab, var(--surface0) 28%, var(--base));
-    }
-  }
-
-  @media screen and (max-width: 768px) {
-    td,
-    th {
-      padding: 0.75em 0.875em;
-    }
   }
 }
 
@@ -734,7 +645,6 @@
    列表、引用和组件里的表格继续遵循各自容器。窄表保留正文宽度。 */
 @media screen and (min-width: 769px) {
   #article-content {
-    display: flow-root;
     overflow: visible;
   }
 
@@ -747,22 +657,49 @@
   }
 }
 
+/* 组件内与无 wrapper 的表格沿用同一套线条 */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  text-align: start;
+}
+
 td,
 th {
-  vertical-align: middle;
-  padding: 0.75em 1em;
+  padding: 0.7em 1em;
+  vertical-align: top;
+  white-space: normal;
+  overflow-wrap: anywhere;
+
   &:not([align]) {
     text-align: left;
+  }
+
+  &:first-child {
+    padding-inline-start: 0;
+  }
+
+  &:last-child {
+    padding-inline-end: 0;
+  }
+
+  code {
+    white-space: nowrap;
   }
 }
 
 thead th {
+  padding-block: 0.4em 0.7em;
+  color: var(--sub-text-color);
+  font-family: var(--font-mono);
+  font-size: 0.75em;
   font-weight: var(--font-weight-semibold);
-  border-bottom: 1px solid var(--surface0);
-  padding: 1em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--surface1);
 }
 
-tbody tr td {
+tbody td {
   border-bottom: 1px solid var(--surface0);
 }
 
@@ -774,10 +711,9 @@ blockquote {
   position: relative;
   padding: 0.25rem 0 0.25rem 1.75rem;
   margin: var(--flow-media, calc(16em / 14)) 0 0;
-  border-left: 2px solid var(--surface1);
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-synthesis: none;
+  border-left: 1px solid var(--rule-strong);
+  font-family: inherit;
+  font-style: normal;
   color: var(--sub-text-color);
 
   /* 引文内的段落靠竖线内侧对齐，不再叠加正文段距 */
@@ -937,14 +873,14 @@ img[data-zoomable="true"] {
 
   @media (hover: hover) {
     &:hover:not([aria-disabled="true"]) {
-      background: var(--glass-hover);
+      background: var(--hover-fill);
     }
   }
 }
 
 .image-zoom-close {
   margin-inline-start: 0.5rem;
-  background: var(--glass-hover);
+  background: var(--hover-fill);
 }
 
 .image-zoom-counter {
@@ -996,123 +932,131 @@ a strong {
 
 /* #endregion Content */
 
-/* #region Article Meta*/
+/* #region Article Meta */
 
-/* 扉页文字：Display 标题、Body 摘要、Caption 元信息，间距走 --spacing 栅格。 */
+/* 工具栏的三行——Back、INFO、TOC——同一款行：等宽大写小字、同样的行高、左边一枚记号
+   （Back 是箭头，INFO / TOC 是随开合转向的折角）。面板里的内容比它们低一级：标签更小更灰、取值墨色、整体缩进 */
+.article-back,
+.article-rail__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 1.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sub-text-color);
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 160ms ease;
+
+  svg {
+    flex-shrink: 0;
+    color: color-mix(in oklab, currentColor 70%, transparent);
+    transition: translate 220ms var(--ease-out);
+  }
+
+  &:hover,
+  &[aria-expanded="true"] {
+    color: var(--title-text-color);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Back：箭头在前，悬停向左挪一点；与下面两行同一节奏（行高 1.75rem、行距 0.5rem） */
+.article-back {
+  margin-bottom: 0.5rem;
+
+  &:hover svg {
+    translate: -2px 0;
+  }
+}
+
+/* 首屏：封面、标题、摘要靠左叠放，撑满顶栏之下的一屏；上下空余按黄金分割（上 38.2%、下 61.8%），
+   内容落在视觉重心略高于几何中心的位置；正文从下一屏开始 */
+.article-opening {
+  --opening-height: calc(100svh - var(--navbar-height) - env(safe-area-inset-top) - 3rem);
+  display: grid;
+  grid-template-rows: minmax(0, 382fr) auto minmax(0, 618fr);
+  justify-items: start;
+  min-height: var(--opening-height);
+  padding-block: 0 1rem;
+  text-align: start;
+}
+
+.article-opening__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(1rem, 2.5vh, 1.5rem);
+  grid-row: 2;
+  max-width: 100%;
+}
+
+/* 封面按原比例完整显示、尽量放大：宽到栏宽为止，高到首屏的七成为止，剩下的给标题与摘要 */
+.article-opening__inner > .cover-image {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  margin: 0 0 0.75rem;
+  border-radius: 0;
+
+  img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: calc(var(--opening-height) * 0.7);
+    object-fit: contain;
+  }
+}
+
+/* 独立页面（友链、更新日志…）：没有「首屏」的概念，标题与导语紧凑地排在顶上，正文紧随其后 */
+.article--page .article-opening {
+  display: block;
+  min-height: 0;
+  padding-block: clamp(1.5rem, 5vh, 3rem) 0;
+}
+
+.article--page .article-body {
+  padding-top: 2.5rem;
+}
+
+/* 没有封面：标题可以再大一些 */
+.article-opening:not(.article-opening--cover) .article-title {
+  font-size: calc(var(--type-display-size) * 1.1);
+}
+
 .article-title {
+  max-width: 20em;
+  margin: 0;
   color: var(--title-text-color);
   font-family: var(--article-font-family);
   font-size: var(--type-display-size);
   font-weight: var(--font-weight-bold);
-  line-height: var(--type-display-leading);
-  letter-spacing: normal;
-  /* 标题通常一到两行，balance 让各行长度相近，避免末行孤字 */
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   text-wrap: balance;
-  max-width: 20em;
 }
 
-.meta-separator {
+/* 摘要：标题下一段灰色的导语 */
+.article-lead {
+  max-width: 36em;
+  margin: 0;
   color: var(--sub-text-color);
-  margin-inline: 0.5em;
-}
-
-/* 扉页分两段：中部（文字与封面，在剩余高度里居中）、底栏（back / comments / info
-   成组靠右，其上一条细线只占页面宽度的 10%，右端对齐 info）。独立页面没有 Back，
-   中部文字居中。文字块内的间距逐级放大：标题→摘要 1.5rem。 */
-.article-hero {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1.5rem, 4vh, 2.5rem);
-  padding: calc(var(--spacing) * 6) 0 calc(var(--spacing) * 3);
-}
-
-/* 满高首屏由 article-intro 撑高，中部在剩余高度里居中、底栏贴下沿 */
-.article-hero-full {
-  flex: 1;
-  box-sizing: border-box;
-  padding: 0 0 1.5rem;
-}
-
-/* 底栏的小号等宽字 */
-.article-hero-foot {
-  display: flex;
-  align-items: center;
-  line-height: 1;
-  color: var(--sub-text-color);
-  position: relative;
-  justify-content: flex-end;
-}
-
-.article-hero-actions {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-
-  /* Back 是链接、comments / info 是按钮，同一排小字共用命中区与按压反馈。
-     负 margin 抵消 padding：视觉位置不变，命中区扩大到 44px 高 */
-  :is(a, button) {
-    display: inline-flex;
-    align-items: center;
-    padding: 1rem 0.5rem;
-    margin: -1rem -0.5rem;
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: inherit;
-    text-transform: capitalize;
-    transition:
-      color 220ms ease,
-      scale 120ms var(--ease-out);
-
-    &:hover {
-      color: var(--title-text-color);
-    }
-
-    &:active {
-      scale: 0.96;
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--lavender);
-      outline-offset: 2px;
-    }
-  }
-}
-
-/* 中部：窄屏封面在文字上方，整组在顶栏与底栏之间居中 */
-.article-hero-main {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1.75rem, 5vh, 3rem);
-  margin-block: auto;
-}
-
-/* 独立页面的文字块居中 */
-.article-hero-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-/* 文章扉页的文字块：左对齐的单一阅读列 */
-.article-hero-full .article-hero-body {
-  align-items: flex-start;
-  min-width: 0;
-  text-align: start;
-}
-
-/* 摘要：正文字体小一号，与标题留一档呼吸 */
-.article-hero .article-excerpt {
-  margin-top: 1.5rem;
-  max-width: 34em;
   font-family: var(--article-font-family);
-  font-synthesis: none;
-  font-size: 0.9375rem;
-  line-height: 1.85;
-  color: var(--sub-text-color);
+  font-size: calc(var(--article-font-size) * 1.125);
+  line-height: 1.7;
   text-wrap: pretty;
 
   > :first-child {
@@ -1124,75 +1068,211 @@ a strong {
   }
 }
 
-/* 窄屏封面：整幅横带 */
-.article-hero-main > .cover-image {
+.meta-separator {
+  color: var(--sub-text-color);
+  margin-inline: 0.5em;
+}
+
+/* 正文：从下一屏开始，顶上留一段空白 */
+.article-body {
+  min-width: 0;
+  padding-top: clamp(2rem, 8vh, 5rem);
+}
+
+/* 工具栏：Back 之下的一列可展开面板（INFO、TOC）。窄屏时它是在流里的一块：规格表排在摘要下方、
+   目录一节不显示（顶栏的目录钮开弹层）；桌面且空白够宽时钉在左侧（见 TOC 区） */
+.article-rail {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.article-rail__section {
+  display: grid;
+  gap: 0;
+}
+
+/* 节标题即开关：左边一枚加号（收起）或减号（展开），与 Back 的箭头同一位置 */
+.article-rail__toggle {
   width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 9;
-  max-height: min(36svh, 24rem);
-  border-radius: 0;
-}
 
-/* 桌面扉页分两种：有封面的走左右对置（见下一条）；无封面的放宽到 90vw，
-   中部是 12 栏网格——文字占左 7 栏、纵向居中 */
-@media screen and (min-width: 1024px) {
-  .article-intro > .article-hero-full {
-    --hero-gutter: clamp(2rem, 4vw, 4rem);
-    width: min(90vw, 96rem);
-    margin-inline: calc((100% - min(90vw, 96rem)) / 2);
-
-    .article-hero-main {
-      display: grid;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      column-gap: var(--hero-gutter);
-      align-items: center;
-    }
-
-    .article-hero-body {
-      grid-column: 1 / 8;
-      grid-row: 1;
-    }
+  .article-rail__mark--open {
+    display: none;
   }
 
-  /* 有封面的文章扉页：左右对置——封面在左、文字在右，整组在首屏里纵向居中，
-     底栏贴首屏下沿。首屏从视口顶边开始：负 margin 抵消导航条（sticky，占位 3.5rem）
-     与页面顶部留白（main-content 3rem + article 1.25em ≈ 4.25rem），高度正好一屏 */
-  .article-intro:has(.article-hero-main > .cover-image) {
-    --article-intro-offset: 0px;
-    margin-top: calc(-1 * (var(--navbar-height) + env(safe-area-inset-top) + 4.25rem));
-  }
-
-  .article-intro > .article-hero-full:has(.article-hero-main > .cover-image) {
-    padding: 0 0 2rem;
-
-    /* 封面占左 7 栏、文字占右 5 栏，各自纵向居中（舞台宽 min(90vw, 96rem) 来自上一条规则）；
-       主区在剩余高度里居中，底栏自然落在首屏下沿 */
-    .article-hero-main {
-      display: grid;
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      column-gap: clamp(2rem, 4vw, 4rem);
-      align-items: center;
-      margin-block: auto;
+  &[aria-expanded="true"] {
+    .article-rail__mark--closed {
+      display: none;
     }
 
-    /* 封面在 DOM 里先于文字，两者都钉在第 1 行，否则自动放置会把文字推到下一行 */
-    .article-hero-main > .cover-image {
-      grid-column: 1;
-      grid-row: 1;
-      aspect-ratio: 4 / 3;
-      max-height: min(58svh, 34rem);
-    }
-
-    .article-hero-body {
-      grid-column: 2;
-      grid-row: 1;
+    .article-rail__mark--open {
+      display: block;
     }
   }
 }
 
-em,
-.footnotes {
-  font-family: var(--font-serif);
+/* 面板开合：高度（grid 行 0fr → 1fr）用一条减速曲线展开，内容整体从上方 6px 滑落、同时淡入，
+   里面的条目再以 25ms 的间隔逐条跟上；收起时只做快速淡出与收高，不逐条 */
+.article-rail__panel {
+  --panel-ease: cubic-bezier(0.2, 0, 0, 1);
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 320ms var(--panel-ease);
+
+  > * {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* 面板内容比开关低一级：缩进到开关文字的起点（记号 14px + 间距 0.5rem）。
+     选择器多带一层 .article-rail__section，压过目录区里 .toc-rail .toc { padding: 0 } */
+  .article-rail__section & > * > :first-child {
+    padding: 0.35rem 0 0.5rem calc(14px + 0.5rem);
+    opacity: 0;
+    translate: 0 -6px;
+    transition:
+      opacity 160ms ease,
+      translate 160ms ease;
+  }
+
+  :is(.article-info__item, .toc-rail > .toc > .toc-item) {
+    opacity: 0;
+    translate: 0 4px;
+    transition:
+      opacity 140ms ease,
+      translate 140ms ease;
+  }
+}
+
+.article-rail__section[data-open] > .article-rail__panel {
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 380ms var(--panel-ease);
+
+  > * > :first-child {
+    opacity: 1;
+    translate: 0 0;
+    transition:
+      opacity 260ms ease 60ms,
+      translate 380ms var(--panel-ease) 60ms;
+  }
+
+  :is(.article-info__item, .toc-rail > .toc > .toc-item) {
+    opacity: 1;
+    translate: 0 0;
+    transition:
+      opacity 260ms ease,
+      translate 320ms var(--panel-ease);
+
+    &:nth-child(1) { transition-delay: 90ms; }
+    &:nth-child(2) { transition-delay: 115ms; }
+    &:nth-child(3) { transition-delay: 140ms; }
+    &:nth-child(4) { transition-delay: 165ms; }
+    &:nth-child(5) { transition-delay: 190ms; }
+    &:nth-child(6) { transition-delay: 215ms; }
+    &:nth-child(7) { transition-delay: 240ms; }
+    &:nth-child(8) { transition-delay: 265ms; }
+    &:nth-child(n + 9) { transition-delay: 290ms; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-rail__panel,
+  .article-rail__panel > * > :first-child,
+  .article-rail__panel :is(.article-info__item, .toc-rail > .toc > .toc-item),
+  .article-rail__section[data-open] > .article-rail__panel,
+  .article-rail__section[data-open] > .article-rail__panel > * > :first-child,
+  .article-rail__section[data-open] > .article-rail__panel :is(.article-info__item, .toc-rail > .toc > .toc-item) {
+    transition: none;
+  }
+}
+
+/* 规格表：标签在上（等宽、大写、墨色），取值在下（等宽、灰）；项与项之间只有留白 */
+.article-info {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.article-info__item {
+  display: grid;
+  gap: 0.05rem;
+}
+
+/* 标签：比开关小一号、灰色、常规字重——开关是节，标签是节里的条目 */
+.article-info dt {
+  color: color-mix(in oklab, var(--sub-text-color) 75%, transparent);
+  font-family: var(--font-label);
+  font-size: 0.625rem;
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+}
+
+/* 取值：墨色，正文级别的小字 */
+.article-info dd {
+  margin: 0;
+  color: var(--title-text-color);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--sub-text-color);
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+    }
+  }
+}
+
+/* 标签横排；折起的那些展开后接在后面 */
+.article-info__list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.6rem;
+}
+
+.article-info__more {
+  display: contents;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.article-info__expand {
+  padding: 0 0.3rem;
+  border: 0;
+  border-radius: 4px;
+  background: var(--hover-fill);
+  color: var(--sub-text-color);
+  font: inherit;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--title-text-color);
+  }
+}
+
+.article-info__action {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+
+  &:hover {
+    color: var(--sub-text-color);
+  }
+}
+
+em {
   font-style: italic;
   font-synthesis: none;
 }
@@ -1219,89 +1299,9 @@ em,
   overflow-y: auto;
 }
 
-/* INFO 直接排在全屏模糊背景上，不叠加玻璃卡片。 */
-.article-info-list {
-  box-sizing: border-box;
-  width: min(46rem, 100%);
-  max-width: 100%;
-  max-height: calc(100dvh - 8rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  margin: 0;
-  padding: 1rem clamp(0.5rem, 3vw, 2rem);
-  display: grid;
-  grid-template-columns: minmax(7rem, 0.8fr) minmax(0, 2fr);
-  gap: 1.25rem 2rem;
-  align-items: baseline;
-  font-size: 0.9375rem;
-  line-height: 1.7;
-  overscroll-behavior: contain;
-
-  dt {
-    color: var(--sub-text-color);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  dd {
-    margin: 0;
-    overflow-wrap: anywhere;
-
-    a {
-      color: var(--title-text-color);
-      text-decoration: underline;
-      text-decoration-color: var(--overlay0);
-      text-underline-offset: 0.2em;
-
-      &:hover {
-        text-decoration-color: currentColor;
-      }
-    }
-  }
-}
-
-.article-info-close {
-  position: absolute;
-  top: max(1rem, env(safe-area-inset-top));
-  right: max(1rem, env(safe-area-inset-right));
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--sub-text-color);
-  cursor: pointer;
-
-  svg {
-    width: 24px;
-    height: 24px;
-  }
-
-  &:hover {
-    color: var(--title-text-color);
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .article-info-list {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.25rem;
-
-    dd:not(:last-child) {
-      margin-bottom: 1rem;
-    }
-  }
-}
-
 .article-comment-popover-body {
   width: min(920px, 92vw);
   max-height: min(72vh, 760px);
-  --glass-surface: var(--glass-fill-strong);
-  --glass-radius: 24px;
-  --glass-elevation: var(--glass-shadow-lg);
 }
 
 .article-comment-panel#comments {
@@ -1322,7 +1322,6 @@ em,
   position: relative;
   display: block;
   overflow: hidden;
-  height: var(--cover-height);
 
   img {
     display: block;
@@ -1385,39 +1384,100 @@ em,
 
 /* #region TOC */
 
-/* 浮动玻璃圆钮（iOS 26 的浮动 accessory）：材质、描边高光与按压回弹来自 default.css 的
-   .glass / .glass-button；过渡列表沿用 .glass-button 的顺序（scale、底色），末尾补上首屏
-   显隐的 opacity，:active 覆写的时长按序循环套用 */
-.toc-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--sub-text-color);
-  position: fixed;
-  bottom: 3rem;
-  right: clamp(1rem, 3vw, 3rem);
-  width: 3rem;
-  height: 3rem;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  transition:
-    scale 420ms var(--glass-spring),
-    background-color 160ms ease,
-    opacity 0.3s ease;
+/* 桌面且正文左侧空白够宽（<html data-article-gutter="wide"，由 article.js 量出）：
+   Back 与工具栏钉在视口左上角，面板宽 11rem。空白不够时与窄屏同一套：随文排版，目录一节不显示 */
+.toc-container {
+  display: none;
+}
 
-  &:focus-visible {
-    outline: 2px solid var(--mauve);
-    outline-offset: 3px;
+@media screen and (min-width: 1024px) {
+  :root[data-article-gutter="wide"] {
+    .article-back,
+    .article-rail {
+      position: fixed;
+      left: var(--page-margin);
+      z-index: 20;
+      width: 11rem;
+    }
+
+    .article-back {
+      top: calc(var(--navbar-height) + env(safe-area-inset-top) + 1.75rem);
+      width: auto;
+      margin: 0;
+    }
+
+    .article-rail {
+      top: calc(var(--navbar-height) + env(safe-area-inset-top) + 4rem);
+      max-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 6rem);
+    }
+
+    .toc-container:not([style*="display:none"]) {
+      display: grid;
+    }
+
+    /* 目录列表可滚动，不显示滚动条，上下各淡出一行 */
+    .toc-rail {
+      max-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 18rem);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      padding-block: 0.25rem;
+      mask-image: linear-gradient(to bottom, transparent, #000 0.5rem, #000 calc(100% - 0.75rem), transparent);
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
   }
 }
 
-/* 满高首屏页在 JS 可用（gnix-revealed 由 head 内联脚本添加）时先隐藏 TOC 按钮，
-   滚过首屏后由 IntersectionObserver 给 .toc-container 加 .toc-visible 点亮；
-   无 JS 时不加 gnix-revealed，按钮始终可见 */
-:root.gnix-revealed:has(.article-hero-full) .toc-container:not(.toc-visible) .toc-button {
-  opacity: 0;
-  pointer-events: none;
+/* 侧栏列表：小号无衬线，三级及更深缩进一档；当前小节由 article.js 加 .is-current */
+.toc-rail {
+  .toc,
+  .toc-child {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toc-item {
+    margin: 0;
+  }
+
+  .toc-item:where(.toc-level-3, .toc-level-4, .toc-level-5, .toc-level-6) {
+    padding-left: 0.75rem;
+  }
+
+  .toc-link {
+    display: block;
+    padding: 0.25rem 0;
+    color: color-mix(in oklab, var(--sub-text-color) 78%, transparent);
+    font-family: var(--font-sans-serif);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    transition: color 160ms ease;
+
+    &:hover {
+      color: var(--title-text-color);
+    }
+
+    &:focus-visible {
+      border-radius: 2px;
+      outline: var(--focus-ring);
+      outline-offset: 2px;
+    }
+  }
+
+  :where(.toc-level-1, .toc-level-2) > .toc-link {
+    color: var(--sub-text-color);
+  }
+
+  .toc-link.is-current {
+    color: var(--title-text-color);
+    font-weight: var(--font-weight-semibold);
+  }
 }
 
 :popover-open.toc-body {
@@ -1428,14 +1488,12 @@ em,
   font-weight: var(--font-weight-semibold);
 }
 
-/* 目录不再落在卡片上：文字直接浮在全局的模糊幕布（:popover-open::before）之上 */
+/* 弹层里的目录不落在卡片上：文字直接浮在全局的纸色幕布（:popover-open::before）之上，
+   字号按层级拉开 */
 .toc-panel {
   padding: 1.5rem 1.75rem;
-}
 
-#toc {
   .toc {
-    /* 面板左右各有 1.75rem 内边距，列表宽度相应让出，窄屏不至于顶出视口 */
     max-height: clamp(20rem, 68dvh, 76dvh);
     width: clamp(15rem, calc(92vw - 3.5rem), 40rem);
     overflow-y: auto;
@@ -1476,8 +1534,14 @@ em,
       font-size: clamp(0.8rem, 0.76rem + 0.16vw, 0.875rem);
     }
     &:hover {
-      color: var(--mauve);
+      color: var(--title-text-color);
     }
+  }
+
+  .toc-link.is-current .toc-text {
+    color: var(--title-text-color);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
   }
 }
 

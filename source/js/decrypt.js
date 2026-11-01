@@ -29,6 +29,12 @@ function buildToc() {
     insert.innerHTML = "";
     insert.appendChild(ol);
   }
+  // 桌面侧栏与弹层各持一份同样的列表
+  const railBody = tocContainer.querySelector(".toc-rail");
+  if (railBody) {
+    railBody.innerHTML = "";
+    railBody.appendChild(ol.cloneNode(true));
+  }
   tocContainer.style.display = "";
 }
 

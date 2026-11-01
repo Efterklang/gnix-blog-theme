@@ -1,6 +1,24 @@
+/* 代码块：一块平的底色面，不描边。顶栏只有语言与标题两枚小字；两样都没有时顶栏不占高度，
+   换行 / 复制按钮静息隐去、悬停或键盘聚焦时在右上角浮现（触屏常显） */
+.code-lang,
 .code-title {
-  font-size: 0.75em;
-  font-style: italic;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1;
+  color: color-mix(in oklab, var(--sub-text-color) 72%, transparent);
+}
+
+.code-lang {
+  flex-shrink: 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.code-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 code span {
@@ -63,83 +81,105 @@ span.tab {
 
 figure.shiki {
   /* 纵向间距由 article.css 的媒体块档位（--flow-media）统一给出 */
-  border-radius: 8px;
-  border: 0.5px solid var(--surface0);
-  overflow: auto;
+  position: relative;
+  overflow: hidden;
+  border: 0.5px solid var(--edge-color);
+  border-radius: var(--radius-sm);
   background: var(--mantle);
   color: var(--sub-text-color);
-  svg {
-    width: 1em;
-    color: transparent;
-    cursor: pointer;
-    transition:
-      color 0.15s ease,
-      transform 0.15s var(--ease-out);
-  }
-
-  &:hover {
-    svg {
-      color: var(--title-text-color);
-      &:hover {
-        color: var(--blue);
-        transform: scale(1.1);
-      }
-    }
-  }
 }
 
 .shiki-tools {
-  display: flex;
-  min-height: 1.5em;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  padding: 0.3em 1em;
-  user-select: none;
-  overflow: hidden;
   position: relative;
-  > .left {
-    gap: 5px;
-    display: flex;
-    align-items: center;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 1rem 0;
+  user-select: none;
 
-  > .center {
+  > .left {
     display: flex;
     align-items: center;
-    justify-content: center;
-    flex-grow: 1;
-    overflow: hidden;
+    gap: 0.75rem;
     min-width: 0;
   }
 
   > .right {
-    gap: 10px;
+    position: relative;
     display: flex;
     align-items: center;
+    gap: 0.6rem;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 160ms ease;
+  }
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+    color: var(--sub-text-color);
+    cursor: pointer;
+    transition: color 160ms ease;
+
+    &:hover {
+      color: var(--title-text-color);
+    }
   }
 }
 
-/* 从复制按钮一侧滑出（起点偏向按钮 6px），退场纯淡出后再隐藏；
-   旧实现只过渡 visibility（离散属性，等于硬弹） */
+/* 没有语言与标题：顶栏退出文档流，按钮浮在代码的右上角，底下垫一层同色的半透明小片保证可读 */
+.shiki-tools:not(:has(.code-lang, .code-title)) {
+  position: absolute;
+  inset: 0 0 auto 0;
+  justify-content: flex-end;
+  padding: 0.5rem 0.75rem;
+  pointer-events: none;
+
+  > .right {
+    padding: 0.3rem 0.45rem;
+    border-radius: 6px;
+    background: color-mix(in oklab, var(--mantle) 88%, transparent);
+    pointer-events: auto;
+  }
+}
+
+figure.shiki:is(:hover, :focus-within) .shiki-tools > .right {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .shiki-tools > .right {
+    opacity: 1;
+  }
+}
+
+/* 「已复制」从复制按钮左侧滑出（起点偏向按钮 6px），退场纯淡出后再隐藏 */
 .shiki-tools > .right > .copy-notice {
   position: absolute;
+  top: 50%;
+  right: calc(100% + 0.25rem);
+  translate: 6px -50%;
   white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   visibility: hidden;
-  z-index: 1000;
-  padding: 0 5px 0 0;
   opacity: 0;
-  transform: translate(calc(-110% + 6px));
   transition:
     opacity 200ms ease,
-    transform 200ms var(--ease-out),
+    translate 200ms var(--ease-out),
     visibility 0s linear 200ms;
+
   &.show {
     visibility: visible;
     opacity: 1;
-    transform: translate(-110%);
+    translate: 0 -50%;
     transition:
       opacity 160ms ease,
-      transform 160ms var(--ease-out),
+      translate 160ms var(--ease-out),
       visibility 0s;
   }
 }
@@ -148,39 +188,15 @@ figure.shiki {
   display: inline-flex;
   align-items: center;
   cursor: pointer;
+
   &:has(input:checked) > svg {
-    color: var(--blue);
+    color: var(--title-text-color);
   }
 }
 
 figure.shiki:has(.toggle-wrap input:checked) > pre.shiki > code {
   white-space: pre-wrap;
   word-break: break-all;
-}
-
-.traffic-lights {
-  display: flex;
-  align-items: center;
-  margin-left: -0.5em;
-}
-
-.traffic-light {
-  width: 0.8em;
-  height: 0.8em;
-  border-radius: 50%;
-  margin-left: 0.5em;
-  position: relative;
-  &.red {
-    background-color: var(--red);
-  }
-
-  &.yellow {
-    background-color: var(--yellow);
-  }
-
-  &.green {
-    background-color: var(--green);
-  }
 }
 
 @keyframes code-expand-pulse {
@@ -202,19 +218,25 @@ figure.shiki:has(.toggle-wrap input:checked) > pre.shiki > code {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1em;
   cursor: pointer;
+
   > .collapse-icon {
     display: none;
   }
+
   &.expand-done > .expand-icon {
     display: none;
   }
+
   &.expand-done > .collapse-icon {
     display: block;
   }
+
   > svg {
+    width: 1.1rem;
+    height: 1.1rem;
     padding: 6px 0;
+    color: var(--sub-text-color);
     /* 静息透明度取脉冲的基准值，hover 起脉无跳变；
        常驻无限脉冲降为 hover 才动，不做长文里的注意力钩子 */
     opacity: 0.6;
@@ -227,11 +249,10 @@ figure.shiki:has(.toggle-wrap input:checked) > pre.shiki > code {
 
 pre.shiki {
   background: var(--mantle);
-  padding: 0.6em;
+  padding: 0.75em 1em 0.9em;
+
   > code {
     text-align: left;
-    counter-reset: step;
-    counter-increment: step 0;
     padding: 0 !important;
     background: none !important;
     border: none !important;
@@ -268,24 +289,24 @@ figure.shiki[data-collapsible="true"].expanded > .code-expand-btn {
   transform: translateY(0);
 }
 
+/* 不显示行号；只有 diff 行在行首带 + / - 记号 */
 span.line {
   display: block;
   width: fit-content;
   min-width: 100%;
-  &:before {
-    content: counter(step);
-    counter-increment: step;
-    width: 1.2rem;
-    margin-right: 1.2rem;
-    display: inline-block;
-    text-align: right;
-    color: var(--sub-text-color);
-  }
 }
 
 span.line.diff {
+  &:before {
+    display: inline-block;
+    width: 1.2rem;
+    margin-right: 0.4rem;
+    text-align: center;
+  }
+
   &.remove {
     background-color: hsl(from var(--red) h s l / 0.2);
+
     &:before {
       content: "-";
       color: var(--red);
@@ -294,6 +315,7 @@ span.line.diff {
 
   &.add {
     background-color: hsl(from var(--green) h s l / 0.2);
+
     &:before {
       content: "+";
       color: var(--green);
@@ -303,6 +325,7 @@ span.line.diff {
 
 span.line.highlighted {
   background-color: hsl(from var(--blue) h s l / 0.2);
+
   &.error {
     background-color: hsl(from var(--red) h s l / 0.2);
   }
@@ -314,7 +337,7 @@ span.line.highlighted {
 
 span.highlighted-word {
   background-color: hsl(from var(--yellow) h s l / 0.3);
-  border-radius: 4px;
+  border-radius: 0;
   margin: -1px -2px;
   padding: 1px 2px;
 }

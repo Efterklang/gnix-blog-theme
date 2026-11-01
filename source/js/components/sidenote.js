@@ -33,7 +33,7 @@ const STYLES = `
     margin-bottom: 0;
   }
 
-  /* 正文 .content 外还包着一层（扉页重构后的 .article-reading），所以这里一律用后代选择器；
+  /* 正文 .content 外还包着一层（.article-main），所以这里一律用后代选择器；
      只有真正含 side-note 的正文才放开 overflow，不影响其他文章的横向滚动容器 */
   @media screen and (min-width: 1280px) {
     article.article .content:has(> side-note) {

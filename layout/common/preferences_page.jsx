@@ -1,9 +1,7 @@
 const { Component } = require("../../include/util/common");
 const { Icon } = require("../../include/util/lucide");
 const { CUSTOM_FONT_PRESETS } = require("../../include/util/article_font");
-const { PAGE_TEXTURES } = require("../../include/util/page_texture");
 const { DEFAULT_PREFERENCES, THEME_OPTIONS } = require("../../include/util/theme");
-const { DEFAULT_SETTINGS: GLASS_DEFAULTS, RANGES: GLASS_RANGES } = require("../../include/util/glass");
 
 const LOREM_IPSUM =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
@@ -53,66 +51,6 @@ const ARTICLE_SPACING_OPTIONS = [
   ["normal", "preferences.spacing_normal", "Normal"],
   ["relaxed", "preferences.spacing_relaxed", "Relaxed"],
 ];
-
-// [名称 key, 名称回退]；材质顺序取自 page_texture.js，与 default.css 的变量一一对应
-const TEXTURE_NAMES = {
-  off: ["preferences.texture_off", "None"],
-  paper: ["preferences.texture_paper", "Paper"],
-  kraft: ["preferences.texture_kraft", "Kraft"],
-  linen: ["preferences.texture_linen", "Linen"],
-  cotton: ["preferences.texture_cotton", "Cotton"],
-  halftone: ["preferences.texture_halftone", "Halftone"],
-  film: ["preferences.texture_film", "Film"],
-};
-
-const PAGE_TEXTURE_OPTIONS = ["off", ...PAGE_TEXTURES];
-
-// [设置键, 标题 key, 标题回退, 说明 key, 说明回退]；数值显示格式由 preferences.js 统一处理
-const GLASS_RANGE_OPTIONS = [
-  ["blur", "preferences.glass_blur", "Blur", "preferences.glass_blur_description", "Frost what shows through the glass"],
-  ["refraction", "preferences.glass_refraction", "Refraction", "preferences.glass_refraction_description", "Edge lensing strength; Chromium browsers only (Chrome, Edge, Android)"],
-  ["tint", "preferences.glass_tint", "Surface Opacity", "preferences.glass_tint_description", "How much of the theme color tints the glass"],
-];
-
-function renderGlassSwitch(key, label) {
-  return (
-    <button type="button" class="preference-switch" role="switch" aria-checked={String(GLASS_DEFAULTS[key])} aria-label={label} data-glass-toggle={key}>
-      <span class="preference-switch__thumb glass" data-glass-lens aria-hidden="true"></span>
-    </button>
-  );
-}
-
-function renderGlassRange(helper, [key, labelKey, labelFallback, descriptionKey, descriptionFallback], idPrefix) {
-  const range = GLASS_RANGES[key];
-  const id = `${idPrefix}-glass-${key}-slider`;
-  const label = translate(helper, labelKey, labelFallback);
-
-  return (
-    <div class="preference-row" data-glass-param>
-      <div class="preference-row__label">
-        <label for={id}>{label}</label>
-        <small>{translate(helper, descriptionKey, descriptionFallback)}</small>
-      </div>
-      <div class="glass-range-control">
-        <span class="preference-slider">
-          <input
-            id={id}
-            class="preference-range-slider"
-            type="range"
-            min={String(range.min)}
-            max={String(range.max)}
-            step={String(range.step)}
-            value={String(GLASS_DEFAULTS[key])}
-            aria-label={label}
-            data-glass-range={key}
-          />
-          <span class="preference-slider__thumb glass" data-glass-lens aria-hidden="true"></span>
-        </span>
-        <output class="glass-range-value" for={id} data-glass-range-value={key}></output>
-      </div>
-    </div>
-  );
-}
 
 function renderThemeSchemeControl(helper, kind, themes, idPrefix) {
   const isLight = kind === "light";
@@ -173,9 +111,6 @@ module.exports = class extends Component {
     const themeTitleId = `${idPrefix}-theme-title`;
     const fontTitleId = `${idPrefix}-font-title`;
     const widthSliderId = `${idPrefix}-article-width-slider`;
-    const glassTitleId = `${idPrefix}-glass-title`;
-    const glassEnabledLabel = translate(helper, "preferences.glass_enabled", "Liquid Glass");
-    const glassPressLabel = translate(helper, "preferences.glass_press", "Press Feedback");
 
     return (
       <div class="preference-page" data-preferences-page data-preference-surface="page">
@@ -220,24 +155,6 @@ module.exports = class extends Component {
                 {renderThemeSchemeControl(helper, "light", lightThemes, idPrefix)}
                 {renderThemeSchemeControl(helper, "dark", darkThemes, idPrefix)}
               </div>
-            </div>
-            <div class="preference-row preference-row--stacked">
-              <div class="preference-row__label">
-                <span>{translate(helper, "preferences.page_texture", "Background Texture")}</span>
-                <small>{translate(helper, "preferences.page_texture_description", "Choose the paper or film grain of the page background")}</small>
-              </div>
-              <fieldset class="preference-choice-group preference-texture-group">
-                <legend class="preference-sr-only">{translate(helper, "preferences.page_texture", "Background Texture")}</legend>
-                {PAGE_TEXTURE_OPTIONS.map((value) => {
-                  const [key, fallback] = TEXTURE_NAMES[value] || [`preferences.texture_${value}`, value];
-                  return (
-                    <button type="button" class="preference-texture-button" data-page-texture-option={value} aria-pressed="false">
-                      <span class={`preference-texture-swatch preference-texture-swatch--${value}`} aria-hidden="true"></span>
-                      <span class="preference-texture-name">{translate(helper, key, fallback)}</span>
-                    </button>
-                  );
-                })}
-              </fieldset>
             </div>
           </section>
 
@@ -297,7 +214,7 @@ module.exports = class extends Component {
                       aria-label={translate(helper, "preferences.content_width", "Article Width")}
                       data-width-labels={JSON.stringify(Object.fromEntries(ARTICLE_WIDTH_OPTIONS.map(([value, key, fallback]) => [value, translate(helper, key, fallback)])))}
                     />
-                    <span class="preference-slider__thumb glass" data-glass-lens aria-hidden="true"></span>
+                    <span class="preference-slider__thumb" aria-hidden="true"></span>
                   </span>
                   <span class="font-range-label">{translate(helper, "preferences.width_wide", "Wide")}</span>
                 </div>
@@ -437,41 +354,6 @@ module.exports = class extends Component {
             </div>
           </section>
 
-          <section id="preferences-glass" class="preference-panel" aria-labelledby={glassTitleId} data-glass-preferences>
-            <header class="preference-panel__header">
-              <h2 id={glassTitleId}>{translate(helper, "preferences.glass_title", "Liquid Glass")}</h2>
-              <button type="button" class="font-custom-reset" data-glass-reset>
-                {translate(helper, "preferences.glass_reset", "Reset Glass")}
-              </button>
-            </header>
-
-            <div class="preference-row preference-row--preview">
-              <div class="glass-preview" aria-hidden="true">
-                <p class="glass-preview__backdrop">{LOREM_IPSUM}</p>
-                <span class="glass-preview__pill glass glass-button" data-glass-lens>
-                  {translate(helper, "preferences.glass_preview", "Glass")}
-                </span>
-              </div>
-            </div>
-
-            <div class="preference-row preference-row--switch">
-              <div class="preference-row__label">
-                <span>{glassEnabledLabel}</span>
-                <small>{translate(helper, "preferences.glass_enabled_description", "Translucent buttons and panels; turn off for solid surfaces")}</small>
-              </div>
-              {renderGlassSwitch("enabled", glassEnabledLabel)}
-            </div>
-
-            <div class="preference-row preference-row--switch" data-glass-param>
-              <div class="preference-row__label">
-                <span>{glassPressLabel}</span>
-                <small>{translate(helper, "preferences.glass_press_description", "Springy swell and highlight that follows your finger")}</small>
-              </div>
-              {renderGlassSwitch("press", glassPressLabel)}
-            </div>
-
-            {GLASS_RANGE_OPTIONS.map((option) => renderGlassRange(helper, option, idPrefix))}
-          </section>
         </div>
       </div>
     );

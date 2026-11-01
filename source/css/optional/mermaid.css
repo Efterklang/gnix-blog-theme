@@ -8,7 +8,7 @@
   --pele-surface: color-mix(in srgb, var(--mantle) 92%, var(--sub-text-color));
   --pele-surface-alt: color-mix(in srgb, var(--mantle) 84%, var(--sub-text-color));
   --pele-border: color-mix(in srgb, var(--sub-text-color) 55%, var(--mantle));
-  --pele-accent: var(--lavender);
+  --pele-accent: var(--title-text-color);
   --pele-critical: var(--red, #e45756);
   --pele-error: var(--red, #e45756);
   --pele-font: var(--font-sans-serif);
@@ -96,40 +96,30 @@
   width: 32px;
   height: 32px;
 }
-/* 小号玻璃方钮：材质取 default.css 的 --glass-* token；不挂 .glass 类（按钮由脚本生成），
-   描边高光走 inset box-shadow。离图边 8px，圆角 10px */
+/* 小号方钮：纸色底、一条墨线描边，悬停换底色一档、按下反白。离图边 8px */
 .btn {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  border: none;
-  border-radius: 10px;
-  background: var(--glass-fill);
-  box-shadow:
-    0 0 0 0.5px var(--glass-edge),
-    inset 0 1px 0 var(--glass-rim-lo),
-    inset 0 0 0 1px var(--glass-rim-mid),
-    var(--glass-shadow);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
+  border: 0.5px solid var(--edge-color);
+  border-radius: var(--radius-sm);
+  background: var(--base);
   cursor: pointer;
   transition:
     opacity 0.2s ease,
-    scale 420ms var(--glass-spring),
-    color 0.2s ease,
-    background-color 0.2s ease;
+    color 0.12s ease,
+    background-color 0.12s ease;
   color: var(--title-text-color);
   padding: 0;
 }
 .btn:hover {
-  background-color: color-mix(in oklab, var(--glass-fill), var(--title-text-color) 6%);
+  background-color: var(--hover-fill);
 }
 .btn:active {
-  scale: 0.96;
-  background-color: color-mix(in oklab, var(--glass-fill), oklch(1 0 0) var(--glass-press-mix));
-  transition-duration: 0.2s, 140ms, 0.2s, 90ms;
+  background-color: var(--title-text-color);
+  color: var(--base);
 }
 .btn svg {
   fill: currentColor;

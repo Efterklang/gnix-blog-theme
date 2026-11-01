@@ -187,7 +187,7 @@ module.exports = class extends Component {
     return (
       <>
         <div class="command-palette" id="command-palette" popover="auto" role="dialog" aria-label={title}>
-          <div class="command-palette-container" data-glass-lens="live">
+          <div class="command-palette-container">
             <div class="command-palette-input-container">
               <span class="command-palette-input-icon" aria-hidden="true">
                 <Icon name="search" size={18} />

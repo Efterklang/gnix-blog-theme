@@ -1,77 +1,54 @@
 const { Component, cacheComponent } = require("../../include/util/common");
 const { Icon } = require("../../include/util/lucide");
 
-// 桌面与移动的导航形态差异大，拆成两个 nav、由媒体查询整只切换（见 responsive.css）：
-// 桌面：链接行在左、动作胶囊在右；移动：底部拇指工具条（burger + 目录 / 偏好 / 搜索）。
-// 两边的动作按钮共用同一批弹层：popovertarget 指向的 id 都在弹层上，按钮可以有多份；
-// 偏好按钮的 id 只保留在桌面一份，避免重复 id
+// 一条顶栏，所有尺寸同一份标记：站名在左、右侧一排图标钮（目录 · 偏好 · 搜索 · 菜单）。
+// 栏目清单收进菜单钮的小卡片里；目录钮只在窄屏出现（桌面的目录在文章左侧的工具栏，见 toc.jsx）。
+// 顶栏不吸顶、不画线，随页面滚走
 class Navbar extends Component {
   render() {
-    const { menu, preferencesTitle, searchTitle, menuTitle, tocTitle, isSearchEnabled } = this.props;
+    const { menu, brand, brandUrl, preferencesTitle, searchTitle, menuTitle, isSearchEnabled } = this.props;
     const names = Object.keys(menu);
 
-    const linkNodes = names.length ? (
-      <div class="navbar-start">
-        {names.map((name, index) => {
-          const item = menu[name];
-          return (
-            <a
-              class={`navbar-item glass glass-button${item.active ? " is-active" : ""}`}
-              href={item.url}
-              data-glass-lens
-              aria-current={item.active ? "page" : null}
-            >
-              {/* 坐标式编号：菜单项在导航里的位次 */}
-              <span class="navbar-item__index" aria-hidden="true">
-                {index + 1}.
-              </span>
-              {name}
-            </a>
-          );
-        })}
-      </div>
-    ) : null;
-
-    const actionNodes = (withPreferenceId) => (
-      <div class="navbar-actions glass" data-glass-lens>
-        <button type="button" class="navbar-item navbar-toc glass-button" popovertarget="toc-body" title={tocTitle} aria-label={tocTitle}>
-          <Icon name="list-tree" size={20} />
-        </button>
-        <button
-          type="button"
-          id={withPreferenceId ? "preferences-link" : undefined}
-          class="navbar-item glass glass-button"
-          title={preferencesTitle}
-          aria-label={preferencesTitle}
-          popovertarget="preference-popup"
-          data-glass-lens
-        >
-          <Icon name="type" size={20} />
-        </button>
-        {isSearchEnabled ? (
-          <button type="button" class="navbar-item search glass glass-button" popovertarget="command-palette" title={searchTitle} aria-label={searchTitle} data-glass-lens>
-            <Icon name="search" size={20} />
-          </button>
-        ) : null}
-      </div>
-    );
-
     return (
-      <>
-        <nav class="navbar navbar-desktop">
-          <div class="navbar-menu">{linkNodes}</div>
-          {actionNodes(true)}
-        </nav>
-        <nav class="navbar navbar-mobile">
-          <button type="button" class="navbar-burger glass glass-button" popovertarget="navbar-menu" aria-label={menuTitle} data-glass-lens>
-            <Icon name="layout-grid" size={20} />
+      <nav class="navbar">
+        <a class="navbar-brand" href={brandUrl}>
+          {brand}
+        </a>
+        <div class="navbar-actions">
+          <button type="button" class="navbar-item navbar-toc" popovertarget="toc-body" title="TOC" aria-label="TOC">
+            <Icon name="table-of-contents" size={18} />
           </button>
-          <div class="navbar-menu" id="navbar-menu" popover="auto">
-            {linkNodes}
+          <button type="button" id="preferences-link" class="navbar-item" title={preferencesTitle} aria-label={preferencesTitle} popovertarget="preference-popup">
+            <Icon name="type" size={18} />
+          </button>
+          {isSearchEnabled ? (
+            <button type="button" class="navbar-item search" popovertarget="command-palette" title={searchTitle} aria-label={searchTitle}>
+              <Icon name="search" size={18} />
+            </button>
+          ) : null}
+          {names.length ? (
+            <button type="button" class="navbar-item navbar-burger" popovertarget="navbar-menu" title={menuTitle} aria-label={menuTitle}>
+              <Icon name="menu" size={18} />
+            </button>
+          ) : null}
+        </div>
+        {names.length ? (
+          <div class="navbar-menu surface" id="navbar-menu" popover="auto">
+            {names.map((name, index) => {
+              const item = menu[name];
+              return (
+                <a class={`navbar-menu__item${item.active ? " is-active" : ""}`} href={item.url} aria-current={item.active ? "page" : null}>
+                  {/* 坐标式编号（01、02…）：菜单项在导航里的位次 */}
+                  <span class="navbar-menu__index" aria-hidden="true">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  {name}
+                </a>
+              );
+            })}
           </div>
-          {actionNodes(false)}
-        </nav>
-      </>
+        ) : null}
+      </nav>
     );
   }
 }
@@ -97,10 +74,12 @@ module.exports = cacheComponent(Navbar, "common.navbar", (props) => {
 
   return {
     menu,
+    // 站名字标：首页标题
+    brand: config.home?.title || "",
+    brandUrl: helper.localized_url_for("/", langKey),
     preferencesTitle: __("preferences.title"),
     searchTitle: __("palette.title"),
     menuTitle: __("navbar.menu"),
-    tocTitle: __("article.toc"),
     isSearchEnabled: !!config.search,
   };
 });

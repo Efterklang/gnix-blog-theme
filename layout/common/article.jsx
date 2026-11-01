@@ -1,84 +1,81 @@
 const { Component, Fragment } = require("../../include/util/common");
+const { Icon } = require("../../include/util/lucide");
 const Comment = require("./comment");
 const ArticleCover = require("./article_cover");
 const ArticleInfo = require("./article_info");
+const Toc = require("./toc");
 
 function translate(helper, key, fallback) {
   const value = helper.__(key);
   return value === key ? fallback : value;
 }
 
+// 文章页分两页：首屏（封面按原比例尽量放大、标题、摘要，占满一屏）与下一屏起的正文。
+// 左上角一列工具：Back、INFO（规格表）、TOC（目录），后两者是可展开的面板，默认都收起、点开合（面板高度做过渡）。
+// 窄屏没有工具栏：Back 排在最上，规格表排在摘要下方，目录由顶栏的目录钮打开弹层
 module.exports = class extends Component {
   render() {
     const { config, helper, page } = this.props;
-
     const { url_for } = helper;
 
     const cover = page.cover ? url_for(page.cover) : null;
     const hasComment = config.comment && typeof config.comment.type === "string";
-    const translatedCommentsLabel = helper.__("article.comments");
-    const commentsLabel = translatedCommentsLabel === "article.comments" ? "Comments" : translatedCommentsLabel;
-    const articleInfoLabel = helper.__("article.article_info");
+    const commentsLabel = translate(helper, "article.comments", "Comments");
     const closeLabel = helper.__("article.close");
-
     const isPost = page.layout !== "page";
-    /* 无图文章保留扉页，有图文章使用自适应图文布局。 */
-    const fullHero = isPost;
-    // 扉页期间导航条整体隐藏（手机端导航还在屏幕底部），底栏的 Back 是不滚动就能回到归档的入口
     const archiveUrl = helper.localized_url_for(config.archive_generator?.path || "archive", helper.language_key(page));
     const backLabel = translate(helper, "article.back_to_archive", "Back to archive");
 
     return (
       <Fragment>
-        {/* Cover image */}
-        {cover && !isPost ? <ArticleCover page={page} cover={cover} helper={helper} /> : null}
-        <article class={`article${"direction" in page ? ` ${page.direction}` : ""}`}>
-          <div class={fullHero ? "article-intro" : null}>
-            <header class={`article-hero${fullHero ? " article-hero-full" : ""}`}>
-              {/* 中部：文字与封面——窄屏封面在上，桌面由网格放到右页 */}
-              <div class="article-hero-main">
-                {fullHero && cover && <ArticleCover page={page} cover={cover} helper={helper} />}
-                <div class="article-hero-body">
-                  {page.title !== "" ? <h1 class="article-title">{page.title}</h1> : null}
-                  {page.excerpt && <div class="article-excerpt" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div>}
-                </div>
-              </div>
-              {/* 底栏：back / comments / info 成组靠右 */}
-              <div class="article-hero-foot">
-                <div class="article-hero-actions">
-                  {fullHero && (
-                    <a class="article-hero-back" href={archiveUrl} title={backLabel} aria-label={backLabel}>
-                      Back
-                    </a>
-                  )}
-                  {hasComment && (
-                    <button type="button" popovertarget="article-comment-popover" aria-label={commentsLabel} title={commentsLabel}>
-                      comments
-                    </button>
-                  )}
-                  <button type="button" popovertarget="article-info-popover" aria-label={articleInfoLabel} title={articleInfoLabel}>
-                    info
-                  </button>
-                </div>
-              </div>
-            </header>
-          </div>
+        <article class={`article${isPost ? " article--post" : " article--page"}${"direction" in page ? ` ${page.direction}` : ""}`}>
+          {isPost && (
+            <a class="article-back" href={archiveUrl} title={backLabel} aria-label={backLabel}>
+              <Icon name="arrow-left" size={14} />
+              Back
+            </a>
+          )}
 
-          <div class={fullHero ? "article-reading" : null}>
-            <div id="article-content" class="content" tabindex={fullHero ? "-1" : null} dangerouslySetInnerHTML={{ __html: page.content }}></div>
+          <header class={`article-opening${cover ? " article-opening--cover" : ""}`}>
+            {/* 首屏的空余按黄金分割分给上下（38.2 : 61.8），内容落在视觉重心上 */}
+            <div class="article-opening__inner">
+              {cover && <ArticleCover page={page} cover={cover} helper={helper} />}
+              {page.title !== "" ? <h1 class="article-title">{page.title}</h1> : null}
+              {page.excerpt && <div class="article-lead" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div>}
+            </div>
+          </header>
+
+          {isPost && (
+            <aside class="article-rail" aria-label="Article tools">
+              <section class="article-rail__section" data-rail="info">
+                <button class="article-rail__toggle" type="button" aria-expanded="false" aria-controls="article-info">
+                  <Icon name="plus" size={14} class="article-rail__mark article-rail__mark--closed" />
+                  <Icon name="minus" size={14} class="article-rail__mark article-rail__mark--open" />
+                  Info
+                </button>
+                <div class="article-rail__panel">
+                  <div id="article-info">
+                    <ArticleInfo page={page} config={config} helper={helper} hasComment={hasComment} commentsLabel={commentsLabel} />
+                  </div>
+                </div>
+              </section>
+              <Toc config={config} page={page} helper={helper} />
+            </aside>
+          )}
+
+          <div class="article-body">
+            <div id="article-content" class="content" dangerouslySetInnerHTML={{ __html: page.content }}></div>
           </div>
         </article>
 
         {hasComment && (
           <div id="article-comment-popover" popover="auto" class="article-popover article-comment-popover">
             <button class="article-popover-backdrop" type="button" popovertarget="article-comment-popover" popovertargetaction="hide" tabindex="-1" aria-label={closeLabel}></button>
-            <div class="article-popover-body article-comment-popover-body glass glass-scroll">
+            <div class="article-popover-body article-comment-popover-body surface">
               <Comment config={config} page={page} helper={helper} />
             </div>
           </div>
         )}
-
-        <ArticleInfo page={page} config={config} helper={helper} />
       </Fragment>
     );
   }

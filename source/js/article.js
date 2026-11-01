@@ -14,7 +14,7 @@ function initArticleReveal() {
   // Decryption replaces body blocks while retaining this root. Settle the old
   // controller first so previously read content never hides or replays.
   // <video-player> stays out of the fade: while an ancestor's opacity is below 1
-  // it becomes a Backdrop Root and the player's glass buttons lose their blur.
+  // it becomes a Backdrop Root and the player's translucent controls lose their blur.
   cleanupArticleReveal = initScrollReveal(content, content.querySelectorAll(":scope > :not(script, style, template, link, video-player, [hidden])"));
 }
 
@@ -277,7 +277,7 @@ function openImageZoom(img) {
   const stage = document.createElement("div");
   stage.className = "image-zoom-stage";
   const toolbar = document.createElement("div");
-  toolbar.className = "image-zoom-toolbar glass";
+  toolbar.className = "image-zoom-toolbar surface";
   toolbar.setAttribute("role", "group");
   toolbar.setAttribute("aria-label", getLocalizedUiText("imagePreview"));
   const previous = imageZoomButton(getLocalizedUiText("previousImage"), "m15 18-6-6 6-6", () => stepImageZoom(-1));
@@ -622,23 +622,135 @@ function initTocPopover() {
   });
 }
 
-function initHeroTocReveal() {
-  const hero = document.querySelector(".article-hero-full");
-  const root = document.documentElement;
-  const tocContainer = document.getElementById("toc");
-  if (!hero || root.dataset.heroBound === "true") return;
+// #region Left rail (Back · INFO · TOC)
+// 文章页左上角一列工具：Back、INFO、TOC。后两节是可展开的面板（section[data-open]，高度与透明度做过渡），
+// 默认都收起，点开合。
+// 工具栏要钉在正文左侧的空白里：空白 ≥ 14rem 才放得下（<html data-article-gutter="wide"|"none"）；
+// 放不下时 Back 随文排在顶上、规格表排在摘要下、点 TOC 改为打开弹层
+const RAIL_MEDIA = "(min-width: 1024px)";
+const RAIL_WIDE_REM = 14;
 
-  root.dataset.heroBound = "true";
-  // 首屏期间 TOC 按钮与 logo 之外导航控件的初始隐藏由 CSS（:root.gnix-revealed:has(.article-hero-full)）
-  // 承担，这里只负责滚过首屏后点亮（<html>.gnix-past-hero，TOC 另有 .toc-visible）、回到首屏时再隐藏；
-  // rootMargin 收缩视口顶部 20%，跳到正文后残留在导航栏下的首屏尾部不视为可见
-  new IntersectionObserver(
-    ([entry]) => {
-      root.classList.toggle("gnix-past-hero", !entry.isIntersecting);
-      tocContainer?.classList.toggle("toc-visible", !entry.isIntersecting);
-    },
-    { rootMargin: "-20% 0px 0px 0px" },
-  ).observe(hero);
+function setRailOpen(section, open) {
+  if (!section) return;
+  section.toggleAttribute("data-open", open);
+  section.querySelector(".article-rail__toggle")?.setAttribute("aria-expanded", String(open));
+}
+
+function initArticleRail() {
+  const root = document.documentElement;
+  const article = document.querySelector(".article");
+  if (!article || root.dataset.railBound === "true") return;
+  root.dataset.railBound = "true";
+
+  const rail = article.querySelector(".article-rail");
+  const sections = Object.fromEntries([...(rail?.querySelectorAll(".article-rail__section[data-rail]") || [])].map((node) => [node.dataset.rail, node]));
+  const tocPopover = document.getElementById("toc-body");
+
+  // 空白宽度：窗口与栏宽偏好变化时重量
+  let frame = null;
+  const measure = () => {
+    frame = null;
+    const main = document.querySelector(".main-content");
+    const rem = parseFloat(getComputedStyle(root).fontSize) || 16;
+    const gutter = main && window.matchMedia(RAIL_MEDIA).matches ? (root.clientWidth - main.getBoundingClientRect().width) / 2 : 0;
+    root.dataset.articleGutter = gutter >= RAIL_WIDE_REM * rem ? "wide" : "none";
+  };
+  const scheduleMeasure = () => {
+    if (frame == null) frame = requestAnimationFrame(measure);
+  };
+  measure();
+  window.addEventListener("resize", scheduleMeasure, { passive: true });
+  new MutationObserver(scheduleMeasure).observe(root, { attributes: true, attributeFilter: ["data-article-width"] });
+
+  // 手动开合；放不下工具栏时 TOC 改开弹层
+  for (const [name, section] of Object.entries(sections)) {
+    section.querySelector(".article-rail__toggle")?.addEventListener("click", () => {
+      if (name === "toc" && root.dataset.articleGutter !== "wide") {
+        tocPopover?.togglePopover?.();
+        return;
+      }
+      setRailOpen(section, !section.hasAttribute("data-open"));
+    });
+  }
+}
+
+// 当前小节：以视口上四分之一处为准线，最后一个越过准线的标题所在的小节为当前；
+// 侧栏与弹层里对应的链接都加 .is-current，侧栏另把当前项滚进可见范围（只滚侧栏自己）
+let tocSpyObserver = null;
+
+function initTocSpy() {
+  tocSpyObserver?.disconnect();
+  tocSpyObserver = null;
+  const container = document.getElementById("toc");
+  const content = document.getElementById("article-content");
+  if (!container || !content) return;
+
+  const links = new Map();
+  for (const link of container.querySelectorAll('.toc-link[href^="#"]')) {
+    const raw = link.getAttribute("href").slice(1);
+    let id = raw;
+    try {
+      id = decodeURIComponent(raw);
+    } catch (_error) {
+      // 保留原样
+    }
+    if (!links.has(id)) links.set(id, []);
+    links.get(id).push(link);
+  }
+  const headings = Array.from(content.querySelectorAll(":is(h1, h2, h3, h4, h5, h6)[id]")).filter((heading) => links.has(heading.id));
+  if (!headings.length) return;
+
+  let currentId = null;
+  const setCurrent = (id) => {
+    if (id === currentId) return;
+    for (const link of links.get(currentId) || []) {
+      link.classList.remove("is-current");
+      link.removeAttribute("aria-current");
+    }
+    currentId = id;
+    const active = links.get(id) || [];
+    for (const link of active) {
+      link.classList.add("is-current");
+      link.setAttribute("aria-current", "location");
+    }
+    const railLink = active.find((link) => link.closest(".toc-rail"));
+    const body = railLink?.closest(".toc-rail");
+    if (!body) return;
+    const bounds = body.getBoundingClientRect();
+    const rect = railLink.getBoundingClientRect();
+    const pad = 24;
+    if (rect.top < bounds.top + pad) body.scrollTop += rect.top - bounds.top - pad;
+    else if (rect.bottom > bounds.bottom - pad) body.scrollTop += rect.bottom - bounds.bottom + pad;
+  };
+
+  const update = () => {
+    const line = window.innerHeight * 0.25;
+    let current = null;
+    for (const heading of headings) {
+      if (heading.getBoundingClientRect().top > line) break;
+      current = heading;
+    }
+    setCurrent(current ? current.id : null);
+  };
+
+  // 标题进出视口上四分之一这条带子时重算；带内没有标题的长段落不需要更新
+  tocSpyObserver = new IntersectionObserver(update, { rootMargin: "0px 0px -75% 0px" });
+  for (const heading of headings) tocSpyObserver.observe(heading);
+  update();
+}
+// #endregion
+
+// 规格表里折起的标签：点「+N」展开
+function initInfoTags() {
+  document.querySelectorAll(".article-info__expand:not([data-bound])").forEach((button) => {
+    button.dataset.bound = "";
+    button.addEventListener("click", () => {
+      const more = button.previousElementSibling;
+      if (more?.classList.contains("article-info__more")) more.hidden = false;
+      button.setAttribute("aria-expanded", "true");
+      button.hidden = true;
+    });
+  });
 }
 
 function initPage() {
@@ -647,7 +759,9 @@ function initPage() {
   addHighlightTool();
   document.querySelectorAll(".content img").forEach(markImageZoomable);
   initTocPopover();
-  initHeroTocReveal();
+  initInfoTags();
+  initArticleRail();
+  initTocSpy();
   initArticleCommentPopover();
 }
 

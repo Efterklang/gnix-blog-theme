@@ -1,35 +1,9 @@
 :root {
-  /* 背景纹理：每种材质一个变量，body 与偏好设置的色板共用；
-     各 SVG 都用中灰噪声而非纯黑，深色主题下同样可见 */
-  --page-texture: none;
-  --page-texture-paper: url("../img/page-grain.svg");
-  --page-texture-kraft: url("../img/page-kraft.svg");
-  --page-texture-linen: url("../img/page-linen.svg");
-  --page-texture-cotton: url("../img/page-cotton.svg");
-  --page-texture-halftone: url("../img/page-halftone.svg");
-  --page-texture-film: url("../img/page-film.svg");
-  &:where([data-page-texture="paper"]) {
-    --page-texture: var(--page-texture-paper);
-  }
-  &:where([data-page-texture="kraft"]) {
-    --page-texture: var(--page-texture-kraft);
-  }
-  &:where([data-page-texture="linen"]) {
-    --page-texture: var(--page-texture-linen);
-  }
-  &:where([data-page-texture="cotton"]) {
-    --page-texture: var(--page-texture-cotton);
-  }
-  &:where([data-page-texture="halftone"]) {
-    --page-texture: var(--page-texture-halftone);
-  }
-  &:where([data-page-texture="film"]) {
-    --page-texture: var(--page-texture-film);
-  }
   /* font */
   --font-symbols: "Symbols Nerd Font Mono";
   --font-serif: var(--font-symbols), serif;
-  --font-sans-serif: system-ui, var(--font-symbols), sans-serif;
+  /* Swiss 的无衬线：Helvetica 一系（mac 的 Helvetica Neue、Windows 的 Arial），退回系统字 */
+  --font-sans-serif: "Helvetica Neue", Helvetica, Arial, system-ui, var(--font-symbols), sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", var(--font-symbols), monospace;
   --font-handwritten: "Bradley Hand", XingKai SC, var(--font-symbols), cursive;
   --article-font-size: 0.9375rem;
@@ -62,9 +36,25 @@
   --prose-caption-gap: calc(12em / 14);
   --prose-list-gap: calc(8em / 14);
   --prose-divider-gap: calc(32em / 14);
-  /* misc */
+  /* misc：面（弹层、菜单、卡片）用小圆角、0.5px 的浅描边与一点柔和的投影；
+     --rule 是表格的行线，--rule-strong 只用在表头下 */
   --radius: 12px;
+  --radius-sm: 8px;
+  --rule: color-mix(in oklab, var(--title-text-color) 10%, transparent);
+  --rule-strong: var(--title-text-color);
+  --edge-color: color-mix(in oklab, var(--title-text-color) 14%, transparent);
+  --shadow-soft: 0 12px 32px -16px rgb(0 0 0 / 0.22);
+  --hover-fill: color-mix(in oklab, var(--title-text-color) 6%, transparent);
+  --focus-ring: 1px solid var(--title-text-color);
   --navbar-height: 3.5rem;
+  /* 版心：所有页面共用一条左缘——站名、Back、工具栏、归档的大字都落在这条线上 */
+  --page-margin: clamp(1.25rem, 2.5vw, 2.5rem);
+  /* 标签：全站的小标签只用一副无衬线（同正文字族）、大写、11px、中等字重、0.08em 字距；
+     等宽字只留给数据——日期、计数、代码、规格表的取值 */
+  --font-label: var(--font-sans-serif);
+  --label-size: 0.6875rem;
+  --label-tracking: 0.08em;
+  --label-weight: 500;
   /* motion：入场/位移的全站缓动基准（easeOutQuint，与归档页动效一致）；
      纯色彩 hover 过渡仍用内置 ease */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -352,9 +342,6 @@
 
 body {
   background: var(--mantle);
-  /* 全站纸质纹理：纸浆明暗、细纤维与表面凹凸，仅绘制在背景层。 */
-  background-image: var(--page-texture);
-  background-attachment: fixed;
   color: var(--sub-text-color);
   min-height: 100%;
   line-height: 1.7;
@@ -371,12 +358,15 @@ body {
   color: var(--title-text-color);
 }
 
+/* 链接是墨色加一条细下划线；悬停退一档灰。强调色不再用于文字 */
 a {
-  color: var(--lavender);
-  text-decoration: none;
+  color: var(--title-text-color);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
 
   &:hover {
-    color: var(--blue);
+    color: var(--sub-text-color);
   }
 }
 
@@ -389,199 +379,43 @@ hr {
   display: block;
   margin: 1.5rem 0;
   background: transparent;
-  border-top: 2px dotted var(--surface0);
+  border-top: 1px solid var(--rule-strong);
 }
 
 /* #endregion Color */
 
-/* #region Liquid glass
+/* #region Surface
 
-   按钮、胶囊与弹层共用 .glass，移植 Kyant AndroidLiquidGlass 的玻璃（对照
-   martin65536/liquid-glass-webgl 的 WebGL 版），按原作 drawBackdrop 的绘制顺序逐层落到 DOM 上：
-   1. effects：轻微压暗 → blur → lens，依次写在 backdrop-filter 链里。lens 是边缘
-      一圈把背景「卷」进来的折射，由 glass-lens.js 按元素尺寸生成位移贴图、经 --glass-lens 接在
-      链尾，只有 Chromium 桌面端渲染，其余浏览器止于模糊
-   2. onDrawSurface：主题 base 调出的表面色，即元素自身的 background-color。材质不放伪元素：
-      祖先或自身之外的 opacity < 1 会成为 Backdrop Root，淡入淡出期间子层的 backdrop-filter
-      什么都采不到、结束时才「啪」地出现；挂在自身上，自己的淡入只是整体乘透明度
-   3. highlight：::after 画 0.5dp 的发丝环，Plus 混合（plus-lighter）。按钮是 Default 光——
-      强度 = |法线 · 45° 光向|，左上与右下最亮、另两角熄灭（圆形上逐点精确，胶囊上按圆心近似）；
-      面板是 Plain 光，均匀一圈
-   4. shadow：Shadow.Default，24dp 模糊、下移 4dp、10% 黑
-   5. InteractiveHighlight（.glass-button 与 [data-glass-press]，glass-press.js 驱动）：按下以
-      欠阻尼弹簧胀大 4px，铺一层 8% 的白并在指尖处亮起一团径向光，拖动时带阻尼地跟手、顺势
-      拉伸，松手弹回
-   .glass-panel 使用更宽的折射带并加 depthEffect。深色主题的表面更通透，描边更暗；
-   深浅主题都保持背景原始饱和度，仅将亮度降到 95%，让前景文字更清晰。
-   降级：减少透明度偏好 / 不支持 backdrop-filter / 设置页关闭玻璃（html[data-glass="off"]）时退回实色面。
-   设置页的参数经 include/util/glass.js 写到 <html> 行内：--glass-blur 覆盖默认模糊，
-   --glass-tint 缩放表面色的不透明度，--glass-lens-strength 由 glass-lens.js 读取。
-   饱和度与亮度固定由样式表控制，不再作为用户设置 */
-
-/* 不做模糊（--glass-blur: 0）：透过玻璃看到清晰的背景，只在边缘被折弯。
-   折射适中：按钮 10px 折射带、最外沿偏移 15px；面板 16px / 24px 并开 depthEffect */
-:where([data-theme]) {
-  --glass-fill: color-mix(in oklab, var(--base) min(100%, 46% * var(--glass-tint, 1)), transparent);
-  --glass-fill-strong: color-mix(in oklab, var(--base) min(100%, 76% * var(--glass-tint, 1)), transparent);
-  --glass-hover: color-mix(in oklab, var(--title-text-color) 7%, transparent);
-  --glass-blur: 0px;
-  --glass-saturate: 1;
-  --glass-brightness: 0.95;
-  --glass-refraction: 10px;
-  --glass-refraction-amount: 15px;
-  --glass-depth: 0;
-  /* 折射强度倍率（glass-lens.js 读取），默认拉满；设置页改动时写到 <html> 行内覆盖 */
-  --glass-lens-strength: 2;
-  --glass-rim-hi: oklch(1 0 0 / 0.9);
-  --glass-rim-mid: oklch(1 0 0 / 0.26);
-  --glass-rim-lo: oklch(1 0 0 / 0.55);
-  --glass-edge: oklch(0 0 0 / 0.07);
-  --glass-press-mix: 24%;
-  --glass-shadow: 0 1px 2px oklch(0 0 0 / 0.06), 0 6px 20px -6px oklch(0 0 0 / 0.16);
-  --glass-shadow-lg: 0 2px 6px oklch(0 0 0 / 0.05), 0 22px 56px -18px oklch(0 0 0 / 0.28);
-  /* 欠阻尼弹簧（约 4% 过冲）：玻璃松手复位时轻轻一荡 */
-  --glass-spring: linear(0, 0.06 4%, 0.23 9%, 0.47 15%, 0.72 22%, 0.9 30%, 1.01 39%, 1.042 48%, 1.036 58%, 1.018 68%, 1.005 80%, 1);
-}
-
-/* 深色主题：底色更通透、描边收暗，阴影加重才压得住深底 */
-:where([data-theme="rose_pine"], [data-theme="mocha"], [data-theme="tokyo_night"], [data-theme="nord_night"], [data-theme="mono_dark"]) {
-  --glass-fill: color-mix(in oklab, var(--base) min(100%, 42% * var(--glass-tint, 1)), transparent);
-  --glass-fill-strong: color-mix(in oklab, var(--base) min(100%, 72% * var(--glass-tint, 1)), transparent);
-  --glass-hover: color-mix(in oklab, var(--title-text-color) 10%, transparent);
-  --glass-rim-hi: oklch(1 0 0 / 0.36);
-  --glass-rim-mid: oklch(1 0 0 / 0.08);
-  --glass-rim-lo: oklch(1 0 0 / 0.18);
-  --glass-edge: oklch(1 0 0 / 0.07);
-  --glass-press-mix: 12%;
-  --glass-shadow: 0 1px 2px oklch(0 0 0 / 0.35), 0 8px 24px -6px oklch(0 0 0 / 0.5);
-  --glass-shadow-lg: 0 2px 8px oklch(0 0 0 / 0.3), 0 26px 64px -18px oklch(0 0 0 / 0.7);
-}
-
-.glass {
+   面：纸色底、小圆角、0.5px 的浅描边、一点柔和的投影；不模糊。原先的液态玻璃（模糊、折射、按压弹簧）
+   已整体移除。.surface 给面板，.surface-button 给可点的面：悬停只换底色一档，按下反白 */
+.surface {
   position: relative;
-  border-radius: var(--glass-radius, 999px);
-  background-color: var(--glass-surface, var(--glass-fill));
+  border-radius: var(--radius);
+  background-color: var(--base);
   box-shadow:
-    0 0 0 0.5px var(--glass-edge),
-    var(--glass-elevation, var(--glass-shadow));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
-  /* 压暗 → blur → lens：折射接在链尾，文字本身不参与滤镜 */
-  backdrop-filter: saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) blur(var(--glass-blur)) var(--glass-lens,);
-
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    padding: var(--glass-rim-width, 1px);
-    border-radius: inherit;
-    background: linear-gradient(var(--glass-rim-angle, 135deg), var(--glass-rim-hi), var(--glass-rim-mid) 28% 72%, var(--glass-rim-lo)) border-box;
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask:
-      linear-gradient(#000 0 0) content-box exclude,
-      linear-gradient(#000 0 0);
-    pointer-events: none;
-  }
+    0 0 0 0.5px var(--edge-color),
+    var(--shadow-soft);
 }
 
-/* 大面板：原作对话框的参数——更宽的折射带 + depthEffect（中间微鼓的透镜） */
-.glass-panel,
-.glass.glass-scroll {
-  --glass-refraction: 16px;
-  --glass-refraction-amount: 24px;
-  --glass-depth: 1;
-}
-
-/* 自身可滚动的面板：绝对定位的 ::after 会跟着内容滚走，描边高光改画在不随滚动的
-   inset box-shadow 上（顶边迎光一线 + 整圈极淡的 rim） */
-.glass.glass-scroll {
-  box-shadow:
-    0 0 0 0.5px var(--glass-edge),
-    inset 0 1px 0 var(--glass-rim-lo),
-    inset 0 0 0 1px var(--glass-rim-mid),
-    var(--glass-elevation, var(--glass-shadow));
-
-  &::after {
-    content: none;
-  }
-}
-
-.glass-button {
+.surface-button {
   cursor: pointer;
   transition:
-    scale 420ms var(--glass-spring),
-    background-color 160ms ease;
+    background-color 120ms ease,
+    color 120ms ease;
 
   @media (hover: hover) {
     &:hover {
-      background-color: color-mix(in oklab, var(--glass-surface, var(--glass-fill)), var(--title-text-color) 6%);
+      background-color: var(--hover-fill);
     }
   }
 
-  /* 无 JS 时的按压反馈；glass-press.js 接管后改由下方弹簧驱动 */
-  &:active:not([data-glass-pressed]) {
-    scale: 0.96;
-    background-color: color-mix(in oklab, var(--glass-surface, var(--glass-fill)), oklch(1 0 0) var(--glass-press-mix));
-    transition-duration: 140ms, 90ms;
-    transition-timing-function: var(--ease-out), ease;
+  &:active {
+    background-color: var(--title-text-color);
+    color: var(--base);
   }
 }
 
-/* InteractiveHighlight：glass-press.js 逐帧写入变量，弹簧已含过冲，不再叠 CSS 过渡；
-   ::before 是 Plus 混合的按压层（8% 白 + 指尖径向光） */
-:is(.glass-button, [data-glass-press])[data-glass-pressed] {
-  translate: var(--glass-press-translate, 0 0);
-  scale: var(--glass-press-scale, 1);
-  transition: background-color 160ms ease;
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: var(--glass-press-layer, none);
-    mix-blend-mode: plus-lighter;
-    pointer-events: none;
-  }
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  /* 在 token 层退回实色：所有取用玻璃底色的地方（弹层、提示、面板）一并变为不透明 */
-  :where([data-theme]) {
-    --glass-fill: var(--mantle);
-    --glass-fill-strong: var(--mantle);
-  }
-
-  .glass {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  :where([data-theme]) {
-    --glass-fill: color-mix(in oklab, var(--mantle) 94%, transparent);
-    --glass-fill-strong: var(--mantle);
-  }
-}
-
-/* 设置页关闭玻璃：与减少透明度同一套退路，另去掉发丝高光，只留描边与投影 */
-:root[data-glass="off"] {
-  --glass-fill: var(--mantle);
-  --glass-fill-strong: var(--mantle);
-  --glass-rim-hi: transparent;
-  --glass-rim-mid: transparent;
-  --glass-rim-lo: transparent;
-
-  .glass {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-}
-
-/* #endregion Liquid glass */
+/* #endregion Surface */
 
 /* #region Font */
 
@@ -1258,13 +1092,13 @@ html {
 }
 
 /* 触屏点按不画系统的高亮底色（iOS / Android 默认一块半透明色块，像文本被选中），按钮自己的
-   按压反馈（玻璃弹簧、:active 缩放）已足够；按钮文字也不因长按被选中、弹出系统菜单。
+   按压反馈（:active 反白）已足够；按钮文字也不因长按被选中、弹出系统菜单。
    键盘聚焦仍由各控件的 :focus-visible 描边负责 */
 html {
   -webkit-tap-highlight-color: transparent;
 }
 
-:where(button, [role="button"], [role="switch"], .glass-button, summary, select) {
+:where(button, [role="button"], [role="switch"], .surface-button, summary, select) {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
@@ -1272,162 +1106,170 @@ html {
 
 /* #region Navbar */
 
-/* 导航条不铺渐变与渐进模糊：条本身透明，只有玻璃按钮 / 胶囊浮在内容之上。
-   窄屏移到屏幕底部成为拇指工具条（见 responsive.css） */
+/* 顶栏（所有尺寸同一份）：站名在左、文章标题居中、右侧一排图标钮。不吸顶、不画线，随页面滚走 */
 .navbar {
+  position: relative;
+  box-sizing: border-box;
   min-height: var(--navbar-height);
   display: flex;
-  position: sticky;
-  top: 0;
-  padding-top: env(safe-area-inset-top);
+  align-items: center;
+  gap: 1rem;
+  padding: env(safe-area-inset-top) var(--page-margin) 0;
   z-index: 100;
   user-select: none;
-  pointer-events: none;
-
-  > * {
-    pointer-events: auto;
-  }
+  /* 不吸顶，底色就是页面的底色 */
+  background: transparent;
 }
 
-/* 按钮复位压到零特定性：导航条里的玻璃按钮（移动端 burger）要保住 .glass 的底色 */
 :where(.navbar) button {
   background: none;
   border: none;
   cursor: pointer;
 }
 
-.navbar-item {
-  color: var(--sub-text-color);
-  align-items: center;
+/* 站名：等宽大写的小字标 */
+.navbar-brand {
+  flex: 0 0 auto;
+  color: var(--title-text-color);
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    color: var(--sub-text-color);
+  }
+}
+
+.navbar-actions {
   display: flex;
-  gap: 0.4rem;
-  padding: 0 0.5rem;
-  position: relative;
-  flex-grow: 0;
-  flex-shrink: 0;
-  letter-spacing: 0.05em;
-  transition: color 220ms ease;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.navbar-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--sub-text-color);
   font: inherit;
   background: transparent;
-  border: none;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
+
+  &:hover {
+    color: var(--title-text-color);
+    background-color: var(--hover-fill);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: -2px;
+  }
 
   &:disabled {
     cursor: not-allowed;
     opacity: 0.45;
   }
-}
 
-/* 菜单项编号（1.、2.…）：坐标式小字，贴在链接名前 */
-.navbar-item__index {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.04em;
-}
-
-/* 常驻动作区（偏好、搜索）：桌面与移动端都固定在导航条右侧，
-   不随移动端 burger 菜单折叠 */
-.navbar-actions {
-  display: flex;
-  align-items: stretch;
-  margin-left: auto;
-}
-
-:is(.navbar-end, .navbar-actions) {
   svg {
-    width: 1.1em;
-    opacity: 0.78;
-    transition:
-      opacity 220ms ease,
-      transform 220ms ease;
-  }
-
-  .navbar-item {
-    padding: 0 0.6rem;
-    transition: color 220ms ease;
-  }
-
-  .navbar-item:hover {
-    color: var(--title-text-color);
-  }
-
-  .navbar-item:hover svg {
-    opacity: 1;
-    transform: translateY(-1px);
-  }
-
-  .navbar-item:disabled:hover {
-    color: var(--sub-text-color);
-  }
-
-  .navbar-item:disabled:hover svg {
-    opacity: 0.78;
-    transform: none;
+    width: 18px;
+    height: 18px;
   }
 }
 
-/* 操作共用一个玻璃胶囊，内部按钮只提供轻量反馈。 */
+/* 目录钮只在窄屏出现（桌面的目录在文章左侧的工具栏），且只在有目录的页面 */
 .navbar-toc {
   display: none;
 }
 
-.navbar-actions.glass {
-  align-items: center;
-  align-self: center;
-  gap: 2px;
-  margin-right: 0.75rem;
-  padding: 3px;
-
-  > .navbar-item {
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    border-radius: 50%;
-    background-color: transparent;
-    box-shadow: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    transition:
-      color 220ms ease,
-      background-color 160ms ease,
-      scale 420ms var(--glass-spring);
-
-    &::after {
-      content: none;
-    }
-
-    &:hover {
-      background-color: var(--glass-hover);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--mauve);
-      outline-offset: -2px;
-    }
-  }
-}
-
-/* 文章首屏隐藏全部导航控件（返回归档的入口由扉页底栏的 Back 承担）；与 TOC 共用 gnix-past-hero 状态，
-   进入正文后淡入。不改变布局，visibility 同步移除隐藏控件的键盘焦点；无 JS 时保持可用。 */
-:where(:root.gnix-revealed:has(.article-hero-full) .navbar) > :is(.navbar-burger, .navbar-actions) {
-  transition:
-    scale 420ms var(--glass-spring),
-    background-color 160ms ease,
-    opacity var(--navbar-reveal-duration, 200ms) var(--ease-out),
-    visibility var(--navbar-reveal-duration, 200ms);
-}
-
-:root.gnix-revealed:has(.article-hero-full):not(.gnix-past-hero) .navbar > * {
+/* 菜单：一张从右上角落下的小卡片，每个栏目一行、前面一枚序号；当前栏目加底色。
+   关闭态由 [popover] 的 UA 样式隐藏；打开态需中和全局 :popover-open 的铺满与遮罩 */
+.navbar-menu {
+  position: fixed;
+  inset: calc(var(--navbar-height) + env(safe-area-inset-top) + 0.25rem) var(--page-margin) auto auto;
+  width: 13rem;
+  height: auto;
+  margin: 0;
+  padding: 0.4rem;
+  border: 0;
+  color: inherit;
+  translate: 0 -4px;
   opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+  transition:
+    translate 160ms var(--ease-out),
+    opacity 140ms ease,
+    display 160ms allow-discrete,
+    overlay 160ms allow-discrete;
+
+  &::before {
+    content: none;
+  }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .navbar {
-    --navbar-reveal-duration: 120ms;
+.navbar-menu:popover-open {
+  display: grid;
+  inset: calc(var(--navbar-height) + env(safe-area-inset-top) + 0.25rem) var(--page-margin) auto auto;
+  width: 13rem;
+  height: auto;
+  translate: 0 0;
+  opacity: 1;
+}
+
+@starting-style {
+  .navbar-menu:popover-open {
+    translate: 0 -4px;
+    opacity: 0;
   }
+}
+
+.navbar-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-sm);
+  color: var(--title-text-color);
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background-color 120ms ease;
+
+  &:hover {
+    background-color: var(--hover-fill);
+  }
+
+  &.is-active {
+    background-color: var(--title-text-color);
+    color: var(--base);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: -2px;
+  }
+}
+
+.navbar-menu__index {
+  color: inherit;
+  opacity: 0.6;
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
 }
 
 /* #endregion Navbar */
@@ -1446,49 +1288,57 @@ html {
 
 /* #region Footer */
 
+/* 页尾是页面的最后一行：一行等宽大写小字分左右排开，靠上方的留白与正文分开 */
 .footer {
   user-select: none;
   position: relative;
-  padding: 4rem 1.5rem 3rem;
-  text-align: center;
+  margin-top: 5rem;
+  padding: 1.25rem var(--page-margin) calc(2rem + env(safe-area-inset-bottom));
   color: var(--sub-text-color);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  text-align: start;
 }
 
 .footer-brand {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
 }
 
 .footer-credit,
 .footer-credit > a {
-  font-size: 0.75rem;
+  font-size: inherit;
   margin: 0;
   color: inherit;
 }
 
+.footer a {
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--title-text-color);
+  }
+}
+
 .footer-author {
-  font-family: var(--font-handwritten);
+  color: var(--title-text-color);
 }
 
 .footer-meta {
-  font-size: 0.65rem;
+  font-size: inherit;
   font-weight: 400;
   margin: 0;
   line-height: 1.8;
-  letter-spacing: 0.02em;
 }
 
 .footer-icp {
   color: inherit;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.footer-icp:hover {
-  color: var(--lavender);
 }
 
 /* #endregion Footer */
@@ -1522,7 +1372,7 @@ small {
    （站内一贯用颜色而不是描边表达状态）。强调色取 --archive-accent，归档页外回退到 lavender */
 
 .gate {
-  --gate-accent: var(--archive-accent, var(--lavender));
+  --gate-accent: var(--archive-accent, var(--title-text-color));
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -1654,77 +1504,20 @@ input.command-palette-input {
   line-height: 1.25em;
 }
 
-/* 面板是一块 Spotlight 式的液态玻璃：材质画在 ::before（独立于内容，结果列表重绘时模糊可被
-   合成器缓存复用），::after 画 1px 渐变高光描边；面板本身只留 0.5px 外缘与大阴影，不描实边。
-   折射按大面板参数（同 .glass-panel），glass-lens.js 写到容器上的 --glass-lens 由 ::before 继承；
-   结果条数变化会改高度，容器标 data-glass-lens="live"，下一帧就按新尺寸重烘贴图 */
+/* 面板是一张纸：纸色底、一条墨线描边，不投影不模糊 */
 .command-palette-container {
   font-size: 14px;
-  --glass-refraction: 16px;
-  --glass-refraction-amount: 24px;
-  --glass-depth: 1;
   color: var(--sub-text-color);
   position: fixed;
   z-index: 101;
   display: flex;
   overflow: hidden;
-  isolation: isolate;
-  border-radius: 22px;
+  border: 0.5px solid var(--edge-color);
+  border-radius: var(--radius);
   width: min(640px, 92vw);
   top: 10vh;
-  box-shadow:
-    0 0 0 0.5px var(--glass-edge),
-    var(--glass-shadow-lg);
-
-  &::before,
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-  }
-
-  &::before {
-    z-index: -1;
-    background-color: var(--glass-fill-strong);
-    /* 模糊直接跟随设置页的 --glass-blur */
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
-    backdrop-filter: saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) blur(var(--glass-blur)) var(--glass-lens,);
-  }
-
-  &::after {
-    z-index: 1;
-    padding: 1px;
-    background: linear-gradient(135deg, var(--glass-rim-hi), var(--glass-rim-mid) 28% 72%, var(--glass-rim-lo)) border-box;
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask:
-      linear-gradient(#000 0 0) content-box exclude,
-      linear-gradient(#000 0 0);
-  }
-}
-
-/* 面板自己就是玻璃，身后不再铺全屏模糊：只压一层淡淡的暗色，页面透过面板被折射、模糊 */
-.command-palette:popover-open::before {
-  background: hsl(from var(--mantle) h s l / 0.22);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  .command-palette-container::before {
-    background-color: var(--mantle);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-}
-
-:root[data-glass="off"] .command-palette-container::before {
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  background: var(--base);
+  box-shadow: var(--shadow-soft);
 }
 
 .command-palette-input-container {
@@ -1760,9 +1553,9 @@ input.command-palette-input {
   align-items: center;
   gap: 0.3em;
   padding: 0.25em 0.7em 0.25em 0.5em;
-  border: 1px solid var(--surface1);
+  border: 0.5px solid var(--edge-color);
   border-radius: 999px;
-  background-color: hsl(from var(--surface0) h s l / 0.5);
+  background-color: transparent;
   color: var(--sub-text-color);
   font: inherit;
   font-size: 0.78rem;
@@ -1772,11 +1565,10 @@ input.command-palette-input {
 
   &:hover {
     color: var(--title-text-color);
-    border-color: var(--mauve);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--mauve);
+    outline: var(--focus-ring);
     outline-offset: -2px;
   }
 }
@@ -1791,18 +1583,20 @@ input.command-palette-input {
 
 /* 输入框与结果之间的分隔线仅在有结果时出现 */
 .command-palette-body:not(:empty) {
-  border-top: 1px solid var(--surface0);
+  border-top: 1px solid var(--rule);
 }
 
 .command-palette-section {
   &:not(:last-child) {
-    border-bottom: 1px solid var(--surface0);
+    border-bottom: 1px solid var(--rule);
   }
 
   & > header {
     padding: 0.75em 1.25em 0.35em;
-    font-size: 0.68rem;
-    letter-spacing: 0.18em;
+    font-family: var(--font-label);
+    font-size: var(--label-size);
+    font-weight: var(--label-weight);
+    letter-spacing: var(--label-tracking);
     text-transform: uppercase;
     color: var(--sub-text-color);
   }
@@ -1826,24 +1620,9 @@ input.command-palette-input {
   text-decoration: none;
   cursor: pointer;
 
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 20%;
-    width: 3px;
-    height: 60%;
-    background-color: var(--mauve);
-    border-radius: 0 2px 2px 0;
-    opacity: 0;
-  }
-
+  /* 选中行：只换一档底色 */
   &.active {
-    background-color: color-mix(in oklab, var(--title-text-color) 9%, transparent);
-  }
-
-  &.active::before {
-    opacity: 1;
+    background-color: var(--hover-fill);
   }
 
   &.active > .command-palette-item-icon {
@@ -1851,7 +1630,7 @@ input.command-palette-input {
   }
 
   &:focus-visible {
-    outline: 2px solid var(--mauve);
+    outline: var(--focus-ring);
     outline-offset: -2px;
   }
 }
@@ -1944,13 +1723,16 @@ input.command-palette-input {
 
 .command-palette-mark {
   background: transparent;
-  color: var(--blue);
+  color: var(--title-text-color);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 .command-palette-item-hint {
   flex: 0 0 auto;
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  letter-spacing: 0.04em;
   color: var(--sub-text-color);
   white-space: nowrap;
 }
@@ -1962,7 +1744,7 @@ input.command-palette-input {
 }
 
 .command-palette-item-check {
-  color: var(--mauve);
+  color: var(--title-text-color);
 }
 
 .command-palette-item-chevron {
@@ -1983,7 +1765,7 @@ input.command-palette-input {
   & > .command-palette-item {
     width: auto;
     padding: 0.25em 0.85em;
-    border: 1px solid color-mix(in oklab, var(--title-text-color) 15%, transparent);
+    border: 0.5px solid var(--edge-color);
     border-radius: 999px;
     background-color: transparent;
 
@@ -2001,8 +1783,8 @@ input.command-palette-input {
 
     &:hover,
     &.active {
-      background-color: color-mix(in oklab, var(--title-text-color) 9%, transparent);
-      border-color: var(--mauve);
+      background-color: var(--hover-fill);
+      border-color: var(--rule-strong);
     }
   }
 }
@@ -2022,7 +1804,7 @@ input.command-palette-input {
   width: 100%;
   box-sizing: border-box;
   padding: 0.55em 1.25em;
-  border-top: 1px solid var(--surface0);
+  border-top: 1px solid var(--rule);
   font-size: 0.68rem;
   color: var(--sub-text-color);
   white-space: nowrap;
@@ -2044,19 +1826,19 @@ input.command-palette-input {
   min-width: 1.7em;
   height: 1.7em;
   padding: 0 0.35em;
+  border: 0.5px solid var(--edge-color);
   border-radius: 4px;
-  background-color: hsl(from var(--surface0) h s l / 0.7);
+  background-color: transparent;
   color: var(--sub-text-color);
   font: inherit;
+  font-family: var(--font-mono);
   line-height: 1;
 }
 
 /* #endregion Command palette */
 
-/* 全局 popover 遮罩（搜索框 / TOC / 文章信息与评论弹层共用）：底色 + blur 放在
-   独立的 fixed 伪层。UA 样式给 [popover] 铺了不透明的 background-color: Canvas，
-   而 z-index: -1 的伪层画在宿主自身背景之上，backdrop-filter 模糊到的只是这块
-   实色而非页面——宿主必须透明，页面才会透过遮罩被模糊 */
+/* 全局 popover 遮罩（搜索框 / TOC / 文章信息与评论弹层共用）：一层近乎不透明的纸色，不模糊，
+   放在独立的 fixed 伪层；宿主自身透明（UA 样式给 [popover] 铺了不透明的 Canvas 底色） */
 :popover-open {
   position: fixed;
   width: 100%;
@@ -2071,34 +1853,30 @@ input.command-palette-input {
     position: fixed;
     inset: 0;
     z-index: -1;
-    background: hsl(from var(--mantle) h s l / 0.7);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+    background: color-mix(in oklab, var(--base) 94%, transparent);
   }
 
   &.command-palette {
-    font-family: var(--font-mono);
+    font-family: var(--font-sans-serif);
     line-height: 0;
     display: flex;
   }
 }
 
 /* #region Preference quick popup
-   一块完整的玻璃面板：标题与全局操作、阅读调节、带标签的选项。 */
+   一张从顶栏右侧落下的小卡片：三行（主题 / 字体 / 字号），每行左标签右控件，底下一条去设置页的链接 */
 .preference-popup {
-  --quick-popup-padding: 14px;
-  --quick-max-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 2rem);
   --quick-motion-duration: 160ms;
-  --quick-closed-offset: 0 -6px;
+  --quick-closed-offset: 0 -4px;
   position: fixed;
   inset: auto;
-  top: calc(var(--navbar-height) + env(safe-area-inset-top) + 0.6rem);
-  right: 0.9rem;
+  top: calc(var(--navbar-height) + env(safe-area-inset-top) + 0.25rem);
+  right: var(--page-margin);
   z-index: 1000;
   box-sizing: border-box;
-  width: min(22rem, calc(100vw - 1.8rem));
+  width: min(17rem, calc(100vw - 2.5rem));
   height: auto;
-  max-height: var(--quick-max-height);
+  max-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 2rem);
   margin: 0;
   padding: 0;
   overflow: visible;
@@ -2106,189 +1884,79 @@ input.command-palette-input {
   background: transparent;
   box-shadow: none;
   color: var(--sub-text-color);
-  scrollbar-width: none;
-  transform-origin: top right;
   translate: var(--quick-closed-offset);
-  scale: 0.98;
+  opacity: 0;
   pointer-events: none;
   transition:
     translate var(--quick-motion-duration) var(--ease-out),
-    scale var(--quick-motion-duration) var(--ease-out),
+    opacity 140ms ease,
     display var(--quick-motion-duration) allow-discrete,
     overlay var(--quick-motion-duration) allow-discrete;
 
-  &::before { content: none; }
+  &::before {
+    content: none;
+  }
 }
 
 .preference-popup:popover-open {
-  --quick-motion-duration: 180ms;
   translate: 0 0;
-  scale: 1;
+  opacity: 1;
   pointer-events: auto;
 }
 
 @starting-style {
   .preference-popup:popover-open {
     translate: var(--quick-closed-offset);
-    scale: 0.98;
+    opacity: 0;
   }
 }
 
-.preference-popup::backdrop { background: transparent; }
-.preference-popup::-webkit-scrollbar { display: none; }
+.preference-popup::backdrop {
+  background: transparent;
+}
 
-/* 滚动容器：四周留出卡片投影的空间，否则滚动容器会把卡片的边切掉 */
 .preference-quick {
-  --quick-gap: 0.5rem;
   box-sizing: border-box;
-  max-height: var(--quick-max-height);
-  overflow: auto;
-  scrollbar-width: none;
-  padding: var(--quick-popup-padding);
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.5rem 0.6rem;
   font-family: var(--font-sans-serif);
 }
 
-/* 标题只留给读屏：每张卡自己带标签 */
-.preference-quick__title {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-/* 控制中心式网格：四列。宽条占两列，字体是两行两列的大方块，
-   圆形按钮各占一列，语言通栏收尾 */
-.preference-quick__grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--quick-gap);
-}
-
-/* 卡片：真玻璃——每张都挂 data-glass-lens，边缘折射由 glass-lens.js 烘贴图，
-   与导航、目录、命令面板是同一套材质 */
-.preference-quick__tile {
-  --glass-radius: 18px;
-  --glass-surface: var(--glass-fill-strong);
-  --glass-elevation: var(--glass-shadow);
-  min-width: 0;
-  min-height: 3.25rem;
-  color: var(--sub-text-color);
-}
-
-.preference-quick__tile--wide { grid-column: span 2; }
-.preference-quick__tile--square { grid-column: span 2; grid-row: span 2; }
-.preference-quick__tile--full { grid-column: 1 / -1; }
-
-/* 圆形按钮：玻璃开关与设置 */
-.preference-quick__circle {
-  --glass-radius: 999px;
-  --glass-surface: var(--glass-fill-strong);
-  --glass-elevation: var(--glass-shadow);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  justify-self: center;
-  width: min(100%, 3.25rem);
-  aspect-ratio: 1;
-  padding: 0;
-  border: 0;
-  color: var(--sub-text-color);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.preference-quick__toggle[aria-checked="true"] {
-  color: var(--blue);
-}
-
-/* 卡内格子：模式与字体共用。选中是一块实心强调色，像控制中心里点亮的磁贴 */
-.preference-quick__modes,
-.preference-quick__fonts {
-  display: grid;
-  gap: 3px;
-  padding: 3px;
-}
-
-.preference-quick__modes {
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-}
-
-.preference-quick__fonts {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-}
-
-.preference-quick__option {
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 0.2rem;
-  min-width: 0;
-  padding: 0.3rem 0.1rem;
-  border: 0;
-  border-radius: 15px;
-  color: inherit;
-  background: transparent;
-  font: var(--font-weight-semibold) 0.65625rem / 1.15 var(--font-sans-serif);
-  text-align: center;
-  white-space: nowrap;
-  cursor: pointer;
-
-  /* 选中：一块更实的浅色磁贴，只掺一点强调色。像控制中心那样把颜色留给图标，
-     整块铺满强调色太抢眼 */
-  &.is-active {
-    color: var(--title-text-color);
-    background: color-mix(in oklab, var(--base) 82%, var(--lavender) 18%);
-  }
-}
-
-/* 语言两格里文字就是内容，比图标格大一号；未翻译的语言格不可点 */
-.preference-quick__option--text {
-  padding-inline: 0.4rem;
-  font-size: 0.75rem;
-}
-
-.preference-quick__option:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-/* 「Aa」按各自的字体族渲染，切换前就能看到字形 */
-.preference-quick__font-preview {
-  font-family: var(--quick-font-preview-family, var(--font-sans-serif));
-  font-size: 1.25rem;
-  line-height: 1;
-}
-
-.preference-quick__option[data-font="serif"] { --quick-font-preview-family: var(--font-serif); }
-.preference-quick__option[data-font="mono"] { --quick-font-preview-family: var(--font-mono); }
-.preference-quick__option[data-font="handwriting"] { --quick-font-preview-family: var(--font-handwritten); }
-
-/* 调节器：标签在左，减号加号成一小段分段控件 */
-.preference-quick__stepper {
+.preference-quick__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.35rem 0.35rem 0.35rem 0.8rem;
+  gap: 1rem;
+  min-height: 2.5rem;
 }
 
-.preference-quick__step-label {
-  min-width: 0;
-  color: var(--title-text-color);
-  font: var(--font-weight-semibold) 0.8125rem / 1.2 var(--font-sans-serif);
+.preference-quick__label,
+.preference-quick__link {
+  color: var(--sub-text-color);
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
 }
 
-.preference-quick__step-controls {
+.preference-quick__group {
   display: flex;
-  flex: 0 0 auto;
-  gap: 0.1rem;
+  gap: 2px;
 }
 
-.preference-quick__step-btn {
+/* 语言两格里文字就是内容；未翻译的语言格不可点 */
+.preference-quick__option--text {
+  width: auto;
+  min-width: 2rem;
+  padding-inline: 0.5rem;
+  font-size: 0.75rem;
+  text-transform: none;
+}
+
+/* 控件：一排等大的方钮；选中反白 */
+.preference-quick__option {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2296,132 +1964,77 @@ input.command-palette-input {
   height: 2rem;
   padding: 0;
   border: 0;
-  border-radius: 10px;
-  color: var(--title-text-color);
+  border-radius: 6px;
+  color: var(--sub-text-color);
   background: transparent;
+  font: var(--font-weight-semibold) 0.8125rem / 1 var(--font-sans-serif);
   cursor: pointer;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
+
+  &:hover:not(:disabled) {
+    color: var(--title-text-color);
+    background-color: var(--hover-fill);
+  }
+
+  &.is-active,
+  &[aria-pressed="true"] {
+    color: var(--base);
+    background-color: var(--title-text-color);
+  }
 
   &:disabled {
     opacity: 0.3;
     cursor: default;
   }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: -2px;
+  }
 }
 
-/* 下拉：一行放标签与取值，取值右对齐、撑满卡片高度 */
-.preference-quick__field {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+/* 「Aa」按各自的字体族渲染，切换前就能看到字形 */
+.preference-quick__font-preview {
+  font-family: var(--quick-font-preview-family, var(--font-sans-serif));
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.preference-quick__option[data-font="serif"] { --quick-font-preview-family: var(--font-serif); }
+.preference-quick__option[data-font="mono"] { --quick-font-preview-family: var(--font-mono); }
+.preference-quick__option[data-font="handwriting"] { --quick-font-preview-family: var(--font-handwritten); }
+
+/* 去设置页：最后一行，整行可点 */
+.preference-quick__link {
+  display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0 0.7rem 0 0.8rem;
-}
+  gap: 0.35rem;
+  min-height: 2.25rem;
+  margin: 0.25rem -0.35rem 0;
+  padding: 0 0.35rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
 
-.preference-quick__field-label {
-  color: var(--sub-text-color);
-  font-size: 0.75rem;
-  line-height: 1.2;
-  pointer-events: none;
-}
-
-.preference-quick__select {
-  display: block;
-  align-self: stretch;
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  padding: 0 1.1rem 0 0;
-  appearance: none;
-  -webkit-appearance: none;
-  border: 0;
-  border-radius: 0;
-  color: var(--title-text-color);
-  background-color: transparent;
-  font: var(--font-weight-semibold) 0.8125rem / 1.2 var(--font-sans-serif);
-  text-align: right;
-  text-overflow: ellipsis;
-  cursor: pointer;
-}
-
-.preference-quick__chevron {
-  position: absolute;
-  top: 50%;
-  right: 0.6rem;
-  translate: 0 -50%;
-  color: var(--sub-text-color);
-  pointer-events: none;
-}
-
-.preference-quick :is(button, select, a):focus-visible {
-  outline: 2px solid var(--mauve);
-  outline-offset: -2px;
-}
-
-@media (hover: hover) {
-  .preference-quick__option:hover:not(.is-active) {
-    background-color: var(--glass-hover);
-  }
-
-  .preference-quick__step-btn:hover:not(:disabled) {
-    background-color: var(--glass-hover);
+  &:hover {
     color: var(--title-text-color);
-  }
-}
-
-@media (max-width: 768px) {
-  .preference-popup {
-    --quick-popup-padding: 12px;
-    --quick-max-height: calc(100dvh - 6rem - env(safe-area-inset-bottom));
-    top: auto;
-    right: 8px;
-    bottom: calc(8px + env(safe-area-inset-bottom));
-    left: 8px;
-    width: auto;
-    /* 平板宽度下别把动作栏拉满，居中收成和桌面一样的宽度 */
-    max-width: 24rem;
-    margin-inline: auto;
+    background-color: var(--hover-fill);
   }
 
-  /* 栏宽隐藏后行距会上移，语言改从新一行起排，两枚圆钮才能和它同一行 */
-  .preference-quick__tile--language {
-    grid-column: 1 / span 2;
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: -2px;
   }
-
-  /* 手机端方块压成一行、四种字体并排，否则它占两行、下面会空出半行 */
-  .preference-quick__tile--square {
-    grid-row: auto;
-  }
-
-  .preference-quick__fonts {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-template-rows: 1fr;
-  }
-
-  /* 手机端正文已是满栏，栏宽调节没有意义 */
-  .preference-quick__stepper[data-quick-hide-mobile] {
-    display: none;
-  }
-}
-
-@media (max-width: 1023px) {
-  .preference-popup {
-    --quick-closed-offset: 0 12px;
-    transform-origin: bottom right;
-  }
-
-  .preference-popup:popover-open { --quick-motion-duration: 220ms; }
-}
-
-@media (max-width: 360px) {
-  .preference-quick__grid { gap: 0.4rem; }
-  .preference-quick__step-label { font-size: 0.75rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .preference-popup,
   .preference-popup:popover-open {
     translate: none;
-    scale: 1;
     transition: none;
   }
 }

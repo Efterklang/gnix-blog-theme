@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "11.01",
+        cn: [
+          "全站改为 Swiss 风格：移除液态玻璃与背景纹理，顶栏精简为站名 · 文章标题 · 一排图标（栏目收进菜单卡片，手机不再有底部工具条），弹层改为小圆角、0.5px 浅描边的卡片；文章页改为封面 → 居中粗体标题 → 左栏规格表（取代 info 弹层）+ 右栏导语与正文，Back 与「TOC」常驻左上角、点 TOC 展开目录；归档页左侧新增检视面板，悬停到哪一条就显示那一篇的封面、摘要与标签（单双栏切换随之取消）；偏好弹窗只留主题 / 字体 / 字号三行，文章首屏是封面（原比例）+ 标题 + 摘要、正文从下一屏起，左上角 Back · INFO · TOC 一列可展开面板（首屏 INFO 开、进入正文后换成 TOC 开，高度过渡），归档去掉像素字、清单在左面板在右按黄金分割、条目静息灰聚焦墨；全站一条版心边距对齐站名、Back 与归档大字，小标签统一为无衬线、等宽只留给数据；表格只留横线，代码块去掉行号与窗口圆点",
+        ],
+        en: [
+          "Move the whole site to a Swiss style: liquid glass and page textures are gone, the top bar is reduced to site name · article title · a row of icons (sections live in a menu card, the phone bottom bar is gone), popovers become cards with small radii and a 0.5px light border; the article page runs cover → centred bold title → a spec-sheet column (replacing the info popover) beside the lead and body, with Back and a resident “TOC” toggle at the top left; the archive gains an inspector panel on the left that shows the hovered post's cover, excerpt and tags (the column toggle is dropped); the preferences popup is reduced to theme / type / size rows, the article opens with cover (natural ratio) + title + summary on one screen and the body on the next, the top-left rail stacks Back · INFO · TOC as animated collapsible panels (INFO open on the opening screen, TOC open once reading), the archive drops its pixel type, puts the list on the left and the inspector on the right at the golden ratio, and greys list titles until focused; one page margin aligns the site name, Back and the archive title, labels move to the grotesk with mono reserved for data; tables keep only horizontal rules and code blocks lose line numbers and window dots",
+        ],
+        category: "uiux",
+      },
+      {
         date: "10.18",
         cn: [
           "使用 pele 绘制图表",

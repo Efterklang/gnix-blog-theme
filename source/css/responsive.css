@@ -2,26 +2,22 @@
 
 @media screen and (max-width: 768px) {
   table {
-    font-size: 14px;
+    font-size: 0.875rem;
   }
 
   th,
   td {
-    padding: 8px 12px;
+    padding: 0.6em 0.75em;
   }
 
+  /* 手机：所有页面左右各 1.25rem，页面自己不再叠加内边距 */
   .main-content {
-    padding: 0;
-    --cover-height: 25vh;
+    padding: 0.75rem 1.25rem 2rem;
   }
 
-  .article {
-    padding: 1rem 0.875rem 0;
-  }
-
-  /* 首屏吸附区域从页面顶部开始，含安全区与 article 的上内边距。 */
-  .article-intro {
-    --article-intro-offset: calc(env(safe-area-inset-top) + 1rem);
+  .archive-page,
+  .home-page {
+    padding-inline: 0;
   }
 
   .article-comment-popover,
@@ -53,328 +49,68 @@
 }
 
 @media screen and (max-width: 1023px) {
-  /* This is used for mobile and tablet devices */
-  /* #region Navbar */
-
-  /* 拇指区（iOS 26 Safari 式底部工具条）：导航条常驻屏幕底部，左 burger、右「目录 · 偏好 · 搜索」，
-     文章页的 TOC 圆钮放在右侧按钮组最左——所有入口都在单手拇指可及的一条线上。
-     左侧为站点导航，右侧三项共用一个玻璃胶囊 */
+  /* 窄屏顶栏：站名与图标；有目录的文章页多一枚目录钮 */
   .navbar {
-    position: fixed;
-    top: auto;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    align-items: center;
-    min-height: 0;
-    padding: 0 0 calc(10px + env(safe-area-inset-bottom));
-  }
-
-  /* 工具条浮在内容之上，页尾留出它的高度，最后一行不被压住 */
-  body {
-    padding-bottom: calc(62px + env(safe-area-inset-bottom));
-    --article-footer-offset: calc(62px + env(safe-area-inset-bottom));
-  }
-
-  .main-content {
-    padding-top: env(safe-area-inset-top);
-  }
-
-  /* 右侧目录、偏好、搜索共用一层玻璃；保留至少 44px 的触控区域。 */
-  .navbar-actions.glass {
-    gap: 0;
-    padding: 2px;
-
-    > .navbar-item {
-      width: 44px;
-      height: 44px;
-    }
+    padding-inline: 1rem;
   }
 
   body:has(.toc-container:not([style*="display:none"])) .navbar-toc {
     display: inline-flex;
   }
 
-  /* burger 菜单与偏好弹窗同一套做法（macOS 26 控制中心）：弹窗本身透明、无遮罩，
-     从 burger 上方升起；每个菜单项是一枚玻璃胶囊，外链图标是一排玻璃圆。
-     页面不锁滚动，点空白处由 popover="auto" 轻触关闭。
-     关闭态由 [popover] 的 UA 样式隐藏；打开态需中和全局 :popover-open 的铺满与遮罩 */
-  .navbar-menu {
-    position: fixed;
-    inset: auto auto calc(62px + env(safe-area-inset-bottom)) 0;
-    width: min(16rem, calc(100vw - 1.5rem));
-    height: auto;
-    max-height: calc(100dvh - 62px - env(safe-area-inset-bottom) - 2rem);
-    margin: 0;
-    border: none;
-    padding: 12px;
-    color: inherit;
-    background: transparent;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: none;
-
-    /* 容器只做位移（opacity 会让它成为 Backdrop Root），各块玻璃自己淡入 */
-    translate: 0 8px;
-    transition:
-      translate 150ms var(--ease-out),
-      display 150ms allow-discrete,
-      overlay 150ms allow-discrete;
-  }
-
+  .navbar-menu,
   .navbar-menu:popover-open {
-    display: grid;
-    gap: 0.6rem;
-    inset: auto auto calc(62px + env(safe-area-inset-bottom)) 0;
-    width: min(16rem, calc(100vw - 1.5rem));
-    height: auto;
-    translate: 0 0;
-    transition: translate 220ms var(--ease-out);
-
-    &::before {
-      content: none;
-    }
+    right: 1rem;
   }
-
-  @starting-style {
-    .navbar-menu:popover-open {
-      translate: 0 8px;
-    }
-  }
-
-  .navbar-menu .navbar-item.glass {
-    opacity: 0;
-    transition:
-      opacity 120ms ease,
-      scale 420ms var(--glass-spring),
-      background-color 160ms ease;
-  }
-
-  .navbar-menu:popover-open .navbar-item.glass {
-    opacity: 1;
-    transition-duration: 180ms, 420ms, 160ms;
-    transition-delay: calc(var(--tile-index, 0) * 20ms), 0ms, 0ms;
-  }
-
-  @starting-style {
-    .navbar-menu:popover-open .navbar-item.glass {
-      opacity: 0;
-    }
-  }
-
-  .navbar-start {
-    display: grid;
-    gap: 0.6rem;
-
-    > .navbar-item {
-      --glass-radius: 999px;
-      height: 3rem;
-      padding: 0 1.25rem;
-      color: var(--title-text-color);
-      font: 600 0.95rem / 1 var(--font-sans-serif);
-      letter-spacing: 0.02em;
-
-      /* 当前栏目：胶囊底色压深一档，和 hover 同一层反馈 */
-      &.is-active {
-        background-color: var(--glass-hover);
-      }
-
-      &:nth-child(2) {
-        --tile-index: 1;
-      }
-
-      &:nth-child(3) {
-        --tile-index: 2;
-      }
-
-      &:nth-child(4) {
-        --tile-index: 3;
-      }
-
-      &:nth-child(5) {
-        --tile-index: 4;
-      }
-
-      &:nth-child(n + 6) {
-        --tile-index: 5;
-      }
-    }
-  }
-
-  .navbar-end {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-
-    > .navbar-item {
-      --glass-radius: 50%;
-      --tile-index: 6;
-      justify-content: center;
-      width: 42px;
-      height: 42px;
-      padding: 0;
-      color: var(--sub-text-color);
-
-      svg {
-        width: 18px;
-      }
-    }
-  }
-
-  /* 四宫格表示站点导航，与文章目录的列表图标区分。burger 常驻左侧；偏好/搜索常驻右侧动作区 */
-  .navbar-burger {
-    align-self: center;
-    width: 48px;
-    height: 48px;
-    margin-left: 0.75rem;
-    padding: 0;
-    border-radius: 50%;
-    color: var(--sub-text-color);
-    display: grid;
-    place-items: center;
-
-    > svg {
-      width: 21px;
-      height: 21px;
-    }
-  }
-
-  .navbar:has(.navbar-menu:popover-open) .navbar-burger {
-    color: var(--title-text-color);
-    background-color: var(--glass-hover);
-  }
-
-  /* #endregion Navbar */
 
   .command-palette-container {
     top: 15px;
     width: 90%;
   }
 
-  /* 手机和平板的目录入口已并入右侧胶囊。 */
-  .toc-button {
+}
+
+/* 工具栏没钉在左侧时（窄屏，或桌面上正文左侧空白不够）：规格表排成两列放在摘要下方、INFO 开关不显示，
+   目录由顶栏的目录钮打开弹层 */
+:root:not([data-article-gutter="wide"]) {
+  .article-rail {
+    margin: 0 0 2.5rem;
+  }
+
+  .article-rail__section[data-rail="info"] > .article-rail__toggle {
     display: none;
   }
 
-  /* 偏好弹窗从底部工具条上方升起，不压住工具条 */
-  .preference-popup {
-    top: auto;
-    bottom: calc(62px + env(safe-area-inset-bottom));
-    transform-origin: bottom right;
-  }
-}
+  .article-rail__section[data-rail="info"] > .article-rail__panel {
+    grid-template-rows: 1fr;
 
-@media screen and (min-width: 769px) and (max-width: 1023px) {
-  /* 平板导航在底部，main-content 顶部已只剩 safe area；只再扣 article 的 1.25em，
-     不重复扣桌面的 3rem，否则正文会提前露出。 */
-  .article-intro {
-    --article-intro-offset: calc(env(safe-area-inset-top) + 1.25em);
-  }
-}
-
-@media screen and (min-width: 1024px) {
-  :root.gnix-revealed:has(.article-hero-full) .navbar-menu {
-    transition:
-      opacity var(--navbar-reveal-duration, 200ms) var(--ease-out),
-      visibility var(--navbar-reveal-duration, 200ms);
-  }
-
-  .navbar-burger {
-    display: none;
-  }
-
-  /* 菜单挂在导航条左上角、脱离文档流：竖排的一列索引，压得很浅，
-     悬停与当前栏目才提亮；不占导航条高度，也不推挤页面 */
-  .navbar-start {
-    position: absolute;
-    top: calc(env(safe-area-inset-top) + 0.75rem);
-    left: 0.9rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.45rem;
-    pointer-events: none;
-  }
-
-  .navbar-start .navbar-item {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.06em;
-    text-transform: lowercase;
-    padding: 0.15rem 0.5rem;
-    margin: 0 -0.5rem;
-    color: color-mix(in oklab, var(--sub-text-color) 72%, transparent);
-
-    &:hover {
-      color: var(--sub-text-color);
+    > * > :first-child {
+      padding: 0;
+      opacity: 1;
+      translate: 0 0;
     }
 
-    /* 当前栏目：压深一档 */
-    &.is-active {
-      color: var(--title-text-color);
+    .article-info__item {
+      opacity: 1;
+      translate: 0 0;
     }
   }
 
-  /* 菜单项在标记上是玻璃（窄屏弹窗用），宽屏内嵌在导航条里只要纯文字：关掉材质、高光与按压形变 */
-  .navbar-menu .navbar-item.glass {
-    border-radius: 0;
-    background-color: transparent;
-    box-shadow: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    translate: none;
-    scale: none;
-
-    &::before,
-    &::after {
-      content: none;
-    }
-
-    &:hover {
-      background-color: transparent;
-    }
+  .article-info {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 1.5rem;
   }
 
-  .navbar-menu,
-  .navbar-start,
-  .navbar-end {
-    align-items: stretch;
-    display: flex;
-    padding: 0;
-    flex-shrink: 0;
-    /* 中部可点穿：菜单容器撑满导航条中段却不接收指针，下方内容可直接点击；
-       指针只交给菜单项本身 */
-    pointer-events: none;
-  }
-
-  .navbar-menu .navbar-item {
-    pointer-events: auto;
-  }
-
-  .navbar-menu {
-    /* 中和 [popover] 的 UA 默认样式，桌面端菜单嵌入导航条 */
-    position: static;
-    width: auto;
-    height: auto;
-    margin: 0;
-    border: none;
-    color: inherit;
-    flex-grow: 1;
-    overflow-x: auto;
-    background-color: transparent;
-  }
-
-  .navbar-end {
-    justify-content: flex-end;
-    margin-left: auto;
+  body:has(.toc-container:not([style*="display:none"])) .navbar-toc {
+    display: inline-flex;
   }
 }
 
 @media screen and (min-width: 1280px) {
-  /* Side note: float aside into the right margin so it doesn't squeeze .content */
+  /* Side note: float aside into the right margin so it doesn't squeeze .content
+     （.content 不建立 BFC——规格表浮在它左侧，它得绕排；浮动由外层 .article-body 收住） */
   .content {
     overflow: visible;
-    display: flow-root;
   }
 
   .content > aside {
@@ -388,18 +124,4 @@
   }
 
   /* <side-note> uses its component stylesheet for measured placement. */
-}
-
-/* 导航按形态拆成两个 nav（见 layout/common/navbar.jsx）：
-   桌面只留 .navbar-desktop，移动只留 .navbar-mobile */
-@media screen and (min-width: 1024px) {
-  .navbar-mobile {
-    display: none;
-  }
-}
-
-@media screen and (max-width: 1023px) {
-  .navbar-desktop {
-    display: none;
-  }
 }

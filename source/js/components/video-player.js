@@ -228,14 +228,14 @@ const STYLES = `
     --vp-radius: 14px;
     --vp-ratio: 16 / 9;
     --vp-ease: cubic-bezier(0.23, 1, 0.32, 1);
-    --vp-spring: var(--glass-spring, cubic-bezier(0.23, 1, 0.32, 1));
+    --vp-spring: cubic-bezier(0.23, 1, 0.32, 1);
     --vp-accent: #0a84ff;
-    --vp-glass: rgb(0 0 0 / 0.2);
-    --vp-glass-strong: rgb(24 24 28 / 0.56);
+    --vp-scrim: rgb(0 0 0 / 0.2);
+    --vp-scrim-strong: rgb(24 24 28 / 0.56);
     --vp-rim: inset 0 1px 0 rgb(255 255 255 / 0.42), inset 0 0 0 1px rgb(255 255 255 / 0.14);
     --vp-rim-soft: inset 0 1px 0 rgb(255 255 255 / 0.2), inset 0 0 0 1px rgb(255 255 255 / 0.1);
-    --vp-blur: blur(8px) saturate(var(--glass-saturate, 1)) brightness(var(--glass-brightness, 0.95));
-    --vp-blur-strong: blur(24px) saturate(var(--glass-saturate, 1)) brightness(var(--glass-brightness, 0.95));
+    --vp-blur: blur(8px);
+    --vp-blur-strong: blur(24px);
   }
 
   :host([hidden]) {
@@ -341,12 +341,12 @@ const STYLES = `
     border: none;
     border-radius: 50%;
     color: #fff;
-    background: var(--vp-glass);
+    background: var(--vp-scrim);
     box-shadow:
       var(--vp-rim),
       0 10px 28px -10px rgb(0 0 0 / 0.55);
     -webkit-backdrop-filter: var(--vp-blur);
-    backdrop-filter: var(--glass-lens,) var(--vp-blur);
+    backdrop-filter: var(--vp-blur);
     cursor: pointer;
     pointer-events: auto;
     opacity: 1;
@@ -503,12 +503,12 @@ const STYLES = `
     margin-left: auto;
     padding: 0 12px 0 10px;
     border-radius: 999px;
-    background: var(--vp-glass);
+    background: var(--vp-scrim);
     box-shadow:
       var(--vp-rim),
       0 6px 18px -8px rgb(0 0 0 / 0.5);
     -webkit-backdrop-filter: var(--vp-blur);
-    backdrop-filter: var(--glass-lens,) var(--vp-blur);
+    backdrop-filter: var(--vp-blur);
     color: rgb(255 255 255 / 0.94);
     font-size: 12.5px;
     font-weight: 500;
@@ -777,7 +777,7 @@ const STYLES = `
     translate: -50% 0;
     padding: 3px 8px;
     border-radius: 8px;
-    background: var(--vp-glass-strong);
+    background: var(--vp-scrim-strong);
     box-shadow: var(--vp-rim-soft);
     -webkit-backdrop-filter: var(--vp-blur-strong);
     backdrop-filter: var(--vp-blur-strong);
@@ -806,7 +806,7 @@ const STYLES = `
   .tip {
     color: #fff;
     color-scheme: dark;
-    background: var(--vp-glass-strong);
+    background: var(--vp-scrim-strong);
     box-shadow:
       var(--vp-rim-soft),
       0 18px 40px -12px rgb(0 0 0 / 0.6);
@@ -1004,7 +1004,7 @@ const STYLES = `
     z-index: 3;
     padding: 3px 8px;
     border-radius: 8px;
-    background: var(--vp-glass-strong);
+    background: var(--vp-scrim-strong);
     box-shadow: var(--vp-rim-soft);
     -webkit-backdrop-filter: var(--vp-blur-strong);
     backdrop-filter: var(--vp-blur-strong);
@@ -1068,12 +1068,6 @@ const STYLES = `
 // #endregion
 
 // #region element
-
-/** 把玻璃按钮交给 glass-lens.js 补边缘折射（是否支持由它判断；模块未就绪时先排队，由它加载后统一补挂） */
-function registerGlassLens(elements) {
-  globalThis.__gnixGlassLensQueue ||= [];
-  for (const element of elements) globalThis.__gnixGlassLensQueue.push(element);
-}
 
 const clamp01 = (value) => Math.min(1, Math.max(0, value));
 
@@ -1256,7 +1250,6 @@ class VideoPlayer extends HTMLElement {
       this._activateEmbed(player, platform);
     });
 
-    registerGlassLens(player.querySelectorAll(".orb, .pill"));
   }
 
   /** 换上官方播放器；iframe 就绪后门面浮层淡出并移除，之后播放器上方不留任何自定义元素 */
@@ -2196,7 +2189,6 @@ class VideoPlayer extends HTMLElement {
 
     const resizeObserver = new ResizeObserver(() => measureLens());
     resizeObserver.observe(player);
-    registerGlassLens($$(".orb, .pill"));
 
     renderState();
     renderVolume();

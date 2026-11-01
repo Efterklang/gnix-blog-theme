@@ -17,18 +17,12 @@ const COOKIE_CONSENT_STYLE = `
   gap: 0.875rem 1rem;
   width: min(32rem, calc(100vw - 2rem));
   padding: 1rem;
-  /* 玻璃卡片：内边距 16px + 按钮圆角 10px → 卡片圆角 26px（同心）；描边高光走 inset 阴影 */
-  border: none;
-  border-radius: 26px;
-  background: var(--glass-fill-strong, var(--mantle));
+  /* 卡片：纸色底、小圆角、0.5px 浅描边、柔和投影 */
+  border: 0.5px solid var(--edge-color, rgb(0 0 0 / 0.14));
+  border-radius: var(--radius, 12px);
+  background: var(--base);
+  box-shadow: var(--shadow-soft, 0 12px 32px -16px rgb(0 0 0 / 0.22));
   color: var(--sub-text-color);
-  box-shadow:
-    0 0 0 0.5px var(--glass-edge, transparent),
-    inset 0 1px 0 var(--glass-rim-lo, transparent),
-    inset 0 0 0 1px var(--glass-rim-mid, transparent),
-    var(--glass-shadow-lg, 0 20px 60px -32px rgba(0, 0, 0, 0.58));
-  -webkit-backdrop-filter: blur(20px) saturate(var(--glass-saturate, 1)) brightness(var(--glass-brightness, 0.95));
-  backdrop-filter: blur(20px) saturate(var(--glass-saturate, 1)) brightness(var(--glass-brightness, 0.95));
   font-family: var(--font-sans-serif);
   line-height: 1.55;
   opacity: 0;
@@ -63,8 +57,8 @@ const COOKIE_CONSENT_STYLE = `
 }
 
 .gnix-cookie-consent__link {
-  color: var(--lavender);
-  text-decoration: none;
+  color: var(--title-text-color);
+  text-decoration: underline;
   white-space: nowrap;
 }
 
@@ -83,10 +77,9 @@ const COOKIE_CONSENT_STYLE = `
 .gnix-cookie-consent__button {
   min-height: 2.25rem;
   padding: 0.55rem 0.9rem;
-  border: none;
-  border-radius: 10px;
-  background: var(--glass-hover, hsl(from var(--surface0) h s l / 0.24));
-  box-shadow: inset 0 0 0 0.5px var(--glass-edge, var(--surface0));
+  border: 0.5px solid var(--edge-color, rgb(0 0 0 / 0.14));
+  border-radius: var(--radius-sm, 8px);
+  background: transparent;
   color: var(--title-text-color);
   cursor: pointer;
   font: 600 0.78rem/1 var(--font-sans-serif);
@@ -97,7 +90,8 @@ const COOKIE_CONSENT_STYLE = `
 }
 
 .gnix-cookie-consent__button:hover {
-  background: color-mix(in oklab, var(--title-text-color) 13%, transparent);
+  background: var(--title-text-color);
+  color: var(--base);
 }
 
 .gnix-cookie-consent__button:active {
@@ -105,12 +99,13 @@ const COOKIE_CONSENT_STYLE = `
 }
 
 .gnix-cookie-consent__button:focus-visible {
-  outline: 2px solid var(--lavender);
+  outline: 1px solid var(--title-text-color);
   outline-offset: 2px;
 }
 
 .gnix-cookie-consent__button--primary {
-  background: var(--lavender);
+  background: var(--title-text-color);
+  color: var(--base);
   box-shadow: none;
   color: var(--base);
 }
