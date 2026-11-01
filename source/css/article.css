@@ -209,31 +209,18 @@
   }
 
   h2 {
-    font-size: var(--type-title-size);
-    line-height: var(--type-title-leading);
+    font-size: calc(var(--article-font-size) * 1.75);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.015em;
+    line-height: 1.2;
     margin: var(--prose-heading-gap) 0 0;
-    counter-increment: h2-counter;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-
-    /* 小节序号（01、02…）排在标题前：等宽小字，不画线 */
-    &::before {
-      content: counter(h2-counter, decimal-leading-zero);
-      color: var(--sub-text-color);
-      font-family: var(--font-mono);
-      font-size: 0.6em;
-      font-weight: 400;
-      letter-spacing: 0.08em;
-      font-variant-numeric: tabular-nums;
-      flex-shrink: 0;
-    }
   }
 
   h3 {
-    font-size: var(--type-subtitle-size);
+    font-size: calc(var(--article-font-size) * 1.25);
+    letter-spacing: -0.005em;
     margin: var(--prose-subheading-gap) 0 0;
-    line-height: var(--type-subtitle-leading);
+    line-height: 1.3;
 
     > a.header-anchor:hover::after {
       content: "###";
@@ -535,8 +522,10 @@
   font-size: 0.9em;
 }
 
+/* 脚注前的分隔线：正文里的 hr 是墨线，这一条退成表格的行线（浅灰），上面留足、下面留少 */
 .footnotes-sep {
   margin: calc(var(--spacing) * 12) 0 calc(var(--spacing) * 6);
+  border-top-color: var(--rule);
 }
 
 /* Keep the rendered content beside its reference for reading order. The native
@@ -1000,6 +989,8 @@ a strong {
   gap: clamp(1rem, 2.5vh, 1.5rem);
   grid-row: 2;
   max-width: 100%;
+  /* 比黄金分割的位置再抬高一行（约 1.5rem），只移画面不动布局 */
+  translate: 0 -1.5rem;
 }
 
 /* 封面按原比例完整显示、尽量放大：宽到栏宽为止，高到首屏的七成为止，剩下的给标题与摘要 */
@@ -1172,6 +1163,16 @@ a strong {
     &:nth-child(8) { transition-delay: 265ms; }
     &:nth-child(n + 9) { transition-delay: 290ms; }
   }
+}
+
+/* 首帧之前（<html> 还没有 data-rail-ready，见 source/js/article-gutter.js）：面板的开合与条目入场都不做过渡。
+   否则工具栏在“空白宽度未定”时按窄屏规则渲染成展开态，属性落下后会播一段折叠动画 */
+:root:not([data-rail-ready]) :is(
+  .article-rail__panel,
+  .article-rail__section[data-open] > .article-rail__panel > * > :first-child,
+  .article-rail__section[data-open] > .article-rail__panel :is(.article-info__item, .toc-rail > .toc > .toc-item)
+) {
+  transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1385,8 +1386,10 @@ em {
 /* #region TOC */
 
 /* 桌面且正文左侧空白够宽（<html data-article-gutter="wide"，由 article.js 量出）：
-   Back 与工具栏钉在视口左上角，面板宽 11rem。空白不够时与窄屏同一套：随文排版，目录一节不显示 */
-.toc-container {
+   Back 与工具栏钉在视口左上角，面板宽 11rem。空白不够时与窄屏同一套：随文排版，
+   目录一节只留弹层 toc-body（节本身不能 display:none，否则弹层也打不开；顶栏的目录钮开它） */
+.toc-container > .article-rail__toggle,
+.toc-container > .article-rail__panel {
   display: none;
 }
 
@@ -1411,7 +1414,11 @@ em {
       max-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 6rem);
     }
 
-    .toc-container:not([style*="display:none"]) {
+    .toc-container > .article-rail__toggle {
+      display: flex;
+    }
+
+    .toc-container > .article-rail__panel {
       display: grid;
     }
 
@@ -1512,6 +1519,10 @@ em {
     list-style: none;
   }
 
+  .toc-link {
+    text-decoration: none;
+  }
+
   .toc-text {
     display: inline;
     color: var(--sub-text-color);
@@ -1540,8 +1551,6 @@ em {
 
   .toc-link.is-current .toc-text {
     color: var(--title-text-color);
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
   }
 }
 

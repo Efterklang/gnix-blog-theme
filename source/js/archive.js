@@ -41,6 +41,7 @@ function initArchiveYears() {
   const groups = page ? [...page.querySelectorAll(".archive-group[data-years]")] : [];
   if (!button || !groups.length) return;
   const value = button.querySelector(".archive-year__value");
+  const yearButtons = [...page.querySelectorAll("[data-archive-year]")];
   const countEl = page.querySelector("[data-archive-count]");
   const wordEl = page.querySelector("[data-archive-count-word]");
   const groupsBox = page.querySelector(".archive-groups");
@@ -64,6 +65,7 @@ function initArchiveYears() {
       requestAnimationFrame(() => value.classList.remove("is-rolling"));
     }
     button.setAttribute("aria-label", `${year} ${button.dataset.switchLabel || ""}`.trim());
+    for (const item of yearButtons) item.setAttribute("aria-current", item.dataset.archiveYear === String(year) ? "true" : "false");
   }
 
   function slice(year, { animate = false, push = false } = {}) {
@@ -100,6 +102,11 @@ function initArchiveYears() {
     const index = years.indexOf(active);
     slice(years[(index + 1) % years.length], { animate: true, push: true });
   });
+  for (const item of yearButtons) {
+    item.addEventListener("click", () => {
+      if (years.includes(item.dataset.archiveYear)) slice(item.dataset.archiveYear, { animate: true, push: true });
+    });
+  }
 
   window.addEventListener("popstate", () => {
     const year = new URLSearchParams(window.location.search).get("year");
@@ -279,8 +286,9 @@ function initArchiveGarden() {
   if (remembered) unlock(remembered).catch(() => storePassword(GARDEN_PASSWORD_KEY, null));
 }
 
-// 检视面板：清单左侧常驻的一块，显示悬停（或键盘聚焦）到的那一篇的封面、摘要与标签；
-// 指针离开不清空，停在最后看过的一篇上。初始与年份切片切换后显示切片里的第一篇。
+// 检视面板：清单右侧常驻的一块，显示悬停（或键盘聚焦）到的那一篇的封面、摘要与标签；
+// 指针离开不清空，停在最后看过的一篇上。载入时不自动挑第一篇（首篇被高亮会像是当前页），
+// 面板先显示占位框（data-empty）；年份切片把当前这一篇切走时也回到占位态。
 // 数据来自每条目里隐藏的 .archive-item__data（构建期渲染）与 data-cover
 function initArchiveInspector() {
   const page = document.querySelector(".archive-page");
@@ -298,10 +306,11 @@ function initArchiveInspector() {
   const dot = document.createElement("span");
   dot.className = "archive-inspect-dot";
   dot.setAttribute("aria-hidden", "true");
+  dot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
   groups?.append(dot);
 
   function placeDot() {
-    if (!groups || !current || !current.isConnected || current.closest(".is-sliced-out")) {
+    if (!groups || !current?.isConnected || current.closest(".is-sliced-out")) {
       dot.classList.remove("is-placed");
       return;
     }
@@ -309,7 +318,7 @@ function initArchiveInspector() {
     if (!title) return;
     const styles = getComputedStyle(title);
     const lineHeight = parseFloat(styles.lineHeight) || parseFloat(styles.fontSize) * 1.45;
-    const y = title.getBoundingClientRect().top - groups.getBoundingClientRect().top + (parseFloat(styles.paddingTop) || 0) + lineHeight / 2 - 3;
+    const y = title.getBoundingClientRect().top - groups.getBoundingClientRect().top + (parseFloat(styles.paddingTop) || 0) + lineHeight / 2 - 7;
     dot.style.translate = `0 ${Math.round(y)}px`;
     dot.classList.add("is-placed");
   }
@@ -317,7 +326,7 @@ function initArchiveInspector() {
   function show(item) {
     if (!item || item === current) return;
     current = item;
-    panel.hidden = false;
+    delete panel.dataset.empty;
     for (const other of page.querySelectorAll(".archive-item[data-inspected]")) delete other.dataset.inspected;
     item.dataset.inspected = "";
     placeDot();
@@ -366,9 +375,12 @@ function initArchiveInspector() {
     meta.hidden = !rows.length;
   }
 
-  function showDefault() {
-    const first = page.querySelector(".archive-group:not(.is-sliced-out) .archive-item");
-    if (first && (!current || current.closest(".is-sliced-out"))) show(first);
+  // 回到占位态：没有被检视的条目，面板只剩占位框，箭头收起
+  function reset() {
+    current = null;
+    panel.dataset.empty = "";
+    for (const other of page.querySelectorAll(".archive-item[data-inspected]")) delete other.dataset.inspected;
+    placeDot();
   }
 
   page.addEventListener("pointerover", (event) => {
@@ -381,14 +393,13 @@ function initArchiveInspector() {
     if (item) show(item);
   });
   page.addEventListener("gnix:archive-sliced", () => {
-    showDefault();
+    if (current?.closest(".is-sliced-out")) reset();
     // 切片换了，行的位置也换了：下一帧再量
     requestAnimationFrame(placeDot);
   });
   window.addEventListener("resize", placeDot, { passive: true });
   window.addEventListener("gnix:article-font-settings-change", placeDot);
   document.fonts?.ready.then(placeDot).catch(() => {});
-  showDefault();
 }
 
 runWhenActivated(() => {

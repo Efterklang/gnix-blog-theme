@@ -3,6 +3,16 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "11.02",
+        cn: [
+          "重做偏好相关的几张面：顶栏的菜单与偏好卡片放大留白，控件统一为 0.5px 描边的分段条，状态不再用底色区分（静息灰、悬停墨、选中墨字加短下划线）；设置页去掉主题示意图、章节加编号、栏宽滑块改圆头，手机上不再双层留白、也不显示栏宽一行；文章页载入时 INFO 面板不再先展开再折叠，脚注前的分隔线改浅；首页暂不链出双链图",
+        ],
+        en: [
+          "Rework the preference surfaces: the menu and preferences cards gain breathing room and share one 0.5px-edged segmented control whose states are told apart by ink, not fills (grey at rest, ink on hover, ink plus a short underline when selected); the settings page drops the theme illustrations, numbers its sections and rounds the width slider, and on phones stops double-padding and hides the width row; the article INFO panel no longer expands and then collapses on load, the footnote rule is lightened, and the home page stops linking to the graph for now",
+        ],
+        category: "uiux",
+      },
+      {
         date: "11.01",
         cn: [
           "全站改为 Swiss 风格：移除液态玻璃与背景纹理，顶栏精简为站名 · 文章标题 · 一排图标（栏目收进菜单卡片，手机不再有底部工具条），弹层改为小圆角、0.5px 浅描边的卡片；文章页改为封面 → 居中粗体标题 → 左栏规格表（取代 info 弹层）+ 右栏导语与正文，Back 与「TOC」常驻左上角、点 TOC 展开目录；归档页左侧新增检视面板，悬停到哪一条就显示那一篇的封面、摘要与标签（单双栏切换随之取消）；偏好弹窗只留主题 / 字体 / 字号三行，文章首屏是封面（原比例）+ 标题 + 摘要、正文从下一屏起，左上角 Back · INFO · TOC 一列可展开面板（首屏 INFO 开、进入正文后换成 TOC 开，高度过渡），归档去掉像素字、清单在左面板在右按黄金分割、条目静息灰聚焦墨；全站一条版心边距对齐站名、Back 与归档大字，小标签统一为无衬线、等宽只留给数据；表格只留横线，代码块去掉行号与窗口圆点",

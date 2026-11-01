@@ -1,28 +1,15 @@
 const { Component } = require("../../include/util/common");
 const { Icon } = require("../../include/util/lucide");
 const { getLanguageOptions } = require("../../include/util/i18n");
+const { THEME_MODE_OPTIONS, FONT_TYPE_OPTIONS } = require("../../include/util/preference_options");
 
 function translate(helper, key, fallback) {
   const value = helper.__(key);
   return value === key ? fallback : value;
 }
 
-// [值, 名称回退, 图标]；模式用设备 / 太阳 / 月亮区分，一次点击即切换
-const THEME_MODE_OPTIONS = [
-  ["system", "System", "monitor"],
-  ["light", "Light", "sun"],
-  ["dark", "Dark", "moon"],
-];
-
-const FONT_TYPE_OPTIONS = [
-  ["sans-serif", "preferences.typeface_sans_serif", "Sans Serif"],
-  ["serif", "preferences.typeface_serif", "Serif"],
-  ["mono", "preferences.typeface_mono", "Monospace"],
-  ["handwriting", "preferences.typeface_handwriting", "Handwriting"],
-];
-
-// 快捷弹窗只留最常动的设置（主题模式、字体、字号、语言）与一条去设置页的链接；
-// 栏宽、间距、配色在设置页。preferences.js 按 data-* 钩子找控件，缺哪个都不报错
+// 快捷弹窗只留最常动的设置（主题模式、字体、字号、语言）与一条去设置页的链接；栏宽、间距、配色在设置页。
+// 每行一条分段条（.segmented，样式在 default.css，与设置页共用）；preferences.js 按 data-* 钩子找控件，缺哪个都不报错
 module.exports = class extends Component {
   render() {
     const { config, helper, page } = this.props;
@@ -31,14 +18,18 @@ module.exports = class extends Component {
     const settingsUrl = helper.localized_url_for("/preferences/", langKey);
     const languageOptions = getLanguageOptions(page, config, helper);
     const unavailableLabel = translate(helper, "preferences.language_unavailable", "Not translated");
+    const stepLabels = {
+      "-1": translate(helper, "preferences.decrease_font_size", "Decrease font size"),
+      "1": translate(helper, "preferences.increase_font_size", "Increase font size"),
+    };
 
     const rows = [
       [
         "Theme",
-        THEME_MODE_OPTIONS.map(([value, fallback, icon]) => {
-          const label = translate(helper, `preferences.theme_mode_${value}`, fallback);
+        THEME_MODE_OPTIONS.map(({ value, key, fallback, icon }) => {
+          const label = translate(helper, key, fallback);
           return (
-            <button type="button" class="preference-quick__option" data-theme-mode={value} aria-pressed="false" title={label} aria-label={label}>
+            <button type="button" class="segmented__cell" data-theme-mode={value} aria-pressed="false" title={label} aria-label={label}>
               <Icon name={icon} size={16} />
             </button>
           );
@@ -46,11 +37,11 @@ module.exports = class extends Component {
       ],
       [
         "Type",
-        FONT_TYPE_OPTIONS.map(([value, key, fallback]) => {
+        FONT_TYPE_OPTIONS.map(({ value, key, fallback }) => {
           const label = translate(helper, key, fallback);
           return (
-            <button type="button" class="preference-quick__option font-type-btn" data-font={value} aria-pressed="false" title={label} aria-label={label}>
-              <span class="preference-quick__font-preview">Aa</span>
+            <button type="button" class="segmented__cell font-type-btn" data-font={value} aria-pressed="false" title={label} aria-label={label}>
+              <span class="font-type-preview">Aa</span>
             </button>
           );
         }),
@@ -58,13 +49,13 @@ module.exports = class extends Component {
       [
         "Size",
         [
-          <button type="button" class="preference-quick__option" data-article-step="size" data-step-dir="-1" title={translate(helper, "preferences.decrease_font_size", "Decrease font size")} aria-label={translate(helper, "preferences.decrease_font_size", "Decrease font size")}>
-            <Icon name="minus" size={16} />
-          </button>,
-          <button type="button" class="preference-quick__option" data-article-step="size" data-step-dir="1" title={translate(helper, "preferences.increase_font_size", "Increase font size")} aria-label={translate(helper, "preferences.increase_font_size", "Increase font size")}>
-            <Icon name="plus" size={16} />
-          </button>,
-        ],
+          ["-1", "minus"],
+          ["1", "plus"],
+        ].map(([dir, icon]) => (
+          <button type="button" class="segmented__cell" data-article-step="size" data-step-dir={dir} title={stepLabels[dir]} aria-label={stepLabels[dir]}>
+            <Icon name={icon} size={16} />
+          </button>
+        )),
       ],
     ];
     if (languageOptions) {
@@ -73,7 +64,7 @@ module.exports = class extends Component {
         languageOptions.map((item) => (
           <button
             type="button"
-            class={`preference-quick__option preference-quick__option--text${item.current ? " is-active" : ""}`}
+            class={`segmented__cell segmented__cell--text${item.current ? " is-active" : ""}`}
             data-language-option={item.current || !item.url ? "" : item.url}
             aria-pressed={String(Boolean(item.current))}
             disabled={!item.current && !item.available}
@@ -93,7 +84,7 @@ module.exports = class extends Component {
           {rows.map(([label, controls]) => (
             <div class="preference-quick__row">
               <span class="preference-quick__label">{label}</span>
-              <div class="preference-quick__group">{controls}</div>
+              <div class="segmented">{controls}</div>
             </div>
           ))}
           <a class="preference-quick__link" href={settingsUrl}>

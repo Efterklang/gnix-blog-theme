@@ -1,0 +1,120 @@
+/* 双链图页：标题行 + 一整块画布。节点是大写的标题与等宽灰字的话题，连线是细灰线 */
+.main-content:has(> .graph-page) {
+  max-width: min(100%, 96rem);
+  padding-inline: var(--page-margin);
+}
+
+.graph-page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.graph-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.graph-title {
+  margin: 0;
+  color: var(--title-text-color);
+  font-family: var(--article-font-family);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.graph-caption {
+  margin: 0;
+  color: var(--sub-text-color);
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+}
+
+.graph-caption__count {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.graph-canvas {
+  min-height: 60vh;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.graph-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  cursor: grab;
+  user-select: none;
+
+  &.is-dragging {
+    cursor: grabbing;
+  }
+}
+
+/* 连线：细灰线；悬停时连到焦点的线变墨色、其余更淡 */
+.graph-edges line {
+  stroke: color-mix(in oklab, var(--title-text-color) 22%, transparent);
+  stroke-width: 1;
+  transition: stroke 160ms ease;
+}
+
+/* 节点：灰色圆点，名字在下方的小字；悬停或点亮时圆点与名字转墨色 */
+.graph-node {
+  cursor: pointer;
+}
+
+.graph-node circle {
+  fill: color-mix(in oklab, var(--sub-text-color) 75%, transparent);
+  stroke: var(--base);
+  stroke-width: 1.5;
+  transition:
+    fill 160ms ease,
+    opacity 160ms ease;
+}
+
+.graph-node__label {
+  fill: var(--sub-text-color);
+  font-family: var(--font-sans-serif);
+  font-size: 10px;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--base);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  opacity: 0.7;
+  pointer-events: none;
+  transition:
+    fill 160ms ease,
+    opacity 160ms ease;
+}
+
+.graph-node:hover circle,
+.graph-node.is-lit circle {
+  fill: var(--title-text-color);
+}
+
+.graph-node:hover .graph-node__label,
+.graph-node.is-lit .graph-node__label {
+  fill: var(--title-text-color);
+  opacity: 1;
+}
+
+.graph-svg.is-focused .graph-node:not(.is-lit) {
+  opacity: 0.22;
+}
+
+.graph-svg.is-focused .graph-edges line:not(.is-lit) {
+  stroke: color-mix(in oklab, var(--title-text-color) 8%, transparent);
+}
+
+.graph-svg.is-focused .graph-edges line.is-lit {
+  stroke: var(--title-text-color);
+}

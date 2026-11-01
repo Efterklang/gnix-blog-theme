@@ -1,3 +1,5 @@
+const fs = require("node:fs");
+const path = require("node:path");
 const { Component } = require("../include/util/common");
 const Head = require("./common/head");
 const Navbar = require("./common/navbar");
@@ -7,11 +9,16 @@ const CommandPalette = require("./common/command_palette");
 const PreferencesPopup = require("./common/preferences_popup");
 const { DEFAULT_SETTINGS: ARTICLE_FONT_DEFAULT_SETTINGS } = require("../include/util/article_font");
 
+// 文章页首帧之前量出正文左侧的空白、写进 <html data-article-gutter>（见 source/js/article-gutter.js）。
+// 必须是这里的一个真正的 <script>：正文标记经 innerHTML 注入 .main-content，写在里面的脚本不会执行
+const ARTICLE_GUTTER_SCRIPT = fs.readFileSync(path.join(__dirname, "../source/js/article-gutter.js"), "utf8");
+
 module.exports = class extends Component {
   render() {
     const { site, config, page, helper, body } = this.props;
 
     const language = helper.language_locale ? helper.language_locale(page) : page.lang || page.language || config.language || "en";
+    const isArticle = ["post", "page"].includes(page.layout);
 
     return (
       <html
@@ -26,6 +33,7 @@ module.exports = class extends Component {
         <body>
           <Navbar site={site} config={config} helper={helper} page={page} />
           <div class="main-content" dangerouslySetInnerHTML={{ __html: body }}></div>
+          {isArticle ? <script dangerouslySetInnerHTML={{ __html: ARTICLE_GUTTER_SCRIPT }}></script> : null}
           <Footer site={site} config={config} helper={helper} page={page} />
           <PreferencesPopup site={site} config={config} helper={helper} page={page} />
           <Scripts site={site} config={config} helper={helper} page={page} />

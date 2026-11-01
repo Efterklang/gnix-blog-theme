@@ -140,7 +140,7 @@ const TITLE_FIT_SCRIPT = `(function() {
   function fit() {
     var page = document.querySelector(".archive-page");
     var title = page && page.querySelector(".archive-watermark");
-    var box = page && page.querySelector(".archive-hero");
+    var box = page && (page.querySelector(".archive-hero__title") || page.querySelector(".archive-hero"));
     if (!title || !box) return;
     var style = getComputedStyle(box);
     var notes = page.querySelector(".archive-masthead");
@@ -151,11 +151,22 @@ const TITLE_FIT_SCRIPT = `(function() {
     var range = document.createRange();
     range.selectNodeContents(title);
     var ink = range.getBoundingClientRect().width / 100;
-    // 窄屏占满整栏；桌面只占栏宽的三分之一。高度再收在视口的 36% 以内
-    var share = window.innerWidth < 1024 ? 1 : 1 / 3;
+    // 窄屏占满整栏；桌面上标题块占十二栏网格的八栏，页名再占其中五栏（含四条栏距）。高度再收在视口的 36% 以内
+    var gutter = parseFloat(getComputedStyle(page).getPropertyValue("--grid-gutter")) || 24;
+    var share = window.innerWidth < 1024 ? 1 : (5 * (available - 7 * gutter) / 8 + 4 * gutter) / available;
     title.style.fontSize = ink > 0 ? Math.min(available * share / ink, window.innerHeight * 0.36) + "px" : "";
+    // 竖排注记的字号按页名的高度定：最长的一行（大写、0.08em 字距，约 0.8em 一个字）不超过页名
+    if (notes) {
+      var lines = notes.querySelectorAll(".archive-masthead > *");
+      var longest = 0;
+      for (var i = 0; i < lines.length; i++) longest = Math.max(longest, lines[i].textContent.replace(/\\s+/g, " ").trim().length);
+      var titleHeight = title.getBoundingClientRect().height;
+      notes.style.fontSize = Math.max(8, Math.min(11, titleHeight / Math.max(longest, 1) / 0.8)) + "px";
+    }
   }
   window.__gnixFitArchiveTitle = fit;
+  fit();
+  // 注记的字号定下来后宽度会变，再跑一遍让页名占满剩下的宽度
   fit();
 })();`;
 
@@ -365,44 +376,58 @@ module.exports = class extends Component {
     return (
       <main class="archive-page" data-view="archive">
         <div class="archive-hero">
-          {/* 页名是一块巨型水印，正文从它上面滚过去；h1 就是它本身。
-              连点三次是秘密花园的入口（见 source/js/archive.js），所以它不能被选中 */}
-          <h1 id="archive-title" class="archive-watermark" data-garden-title="Secret Archive 🫥">
-            <span class="archive-watermark__word">{ARCHIVE_TITLE}</span>
-            {!isTagPage && archiveYears.length > 1 ? (
-              /* 年份：紧跟在页名后的一枚小字上标（随页名一起缩放）。点一下滚到上一年（到头绕回最新的一年）；
-                 ?year= 由脚本写进地址栏。它在 h1 里，archive.js 的连点入口要把它排除 */
+          <div class="archive-hero__title">
+            {/* 页名是一块巨型水印，正文从它上面滚过去；h1 就是它本身。
+                连点三次是秘密花园的入口（见 source/js/archive.js），所以它不能被选中 */}
+            <h1 id="archive-title" class="archive-watermark" data-garden-title="Secret Archive 🫥">
+              <span class="archive-watermark__word">{ARCHIVE_TITLE}</span>
+              {!isTagPage && archiveYears.length > 1 ? (
+                /* 年份：紧跟在页名后的一枚小字上标（随页名一起缩放）。点一下滚到上一年（到头绕回最新的一年）；
+                   ?year= 由脚本写进地址栏。它在 h1 里，archive.js 的连点入口要把它排除 */
+                <button
+                  type="button"
+                  class="archive-year"
+                  data-year-counts={archiveYears.map(({ year, count }) => `${year}:${count}`).join(" ")}
+                  data-switch-label={helper.__("archive.year_switch")}
+                  aria-label={`${yearList[defaultYearIndex]} ${helper.__("archive.year_switch")}`}
+                >
+                  <span class="archive-year__value">{String(yearList[defaultYearIndex]).slice(-2)}</span>
+                </button>
+              ) : null}
+            </h1>
+            {/* 刊头的注记：页名（与年份）右侧两行竖排的小字，像书脊——自上而下读，字母随行转向。
+                第一行这一页的规模（标签页先报标签名），第二行话题入口 */}
+            <div class="archive-masthead">
+              <p class="archive-masthead__stat">
+                {isTagPage ? <span class="archive-masthead__subject">{page.tag}</span> : null}
+                <span class="archive-masthead__count">
+                  <span data-archive-count>{totalVisiblePosts}</span> <span data-archive-count-word>{writingsWord}</span>
+                </span>
+              </p>
               <button
                 type="button"
-                class="archive-year"
-                data-year-counts={archiveYears.map(({ year, count }) => `${year}:${count}`).join(" ")}
-                data-switch-label={helper.__("archive.year_switch")}
-                aria-label={`${yearList[defaultYearIndex]} ${helper.__("archive.year_switch")}`}
+                class="archive-masthead__topics"
+                popovertarget="archive-topic-picker"
+                aria-expanded="false"
+                aria-controls="archive-topic-picker"
+                aria-label={`${topicTags.length} ${topicsWord}`}
               >
-                <span class="archive-year__value">{String(yearList[defaultYearIndex]).slice(-2)}</span>
+                <span class="archive-masthead__count">{topicTags.length}</span> {topicsWord}
               </button>
-            ) : null}
-          </h1>
-          {/* 刊头的注记：页名（与年份）右侧两行竖排的小字，像书脊——自上而下读，字母随行转向。
-              第一行这一页的规模（标签页先报标签名），第二行话题入口 */}
-          <div class="archive-masthead">
-            <p class="archive-masthead__stat">
-              {isTagPage ? <span class="archive-masthead__subject">{page.tag}</span> : null}
-              <span class="archive-masthead__count">
-                <span data-archive-count>{totalVisiblePosts}</span> <span data-archive-count-word>{writingsWord}</span>
-              </span>
-            </p>
-            <button
-              type="button"
-              class="archive-masthead__topics"
-              popovertarget="archive-topic-picker"
-              aria-expanded="false"
-              aria-controls="archive-topic-picker"
-              aria-label={`${topicTags.length} ${topicsWord}`}
-            >
-              <span class="archive-masthead__count">{topicTags.length}</span> {topicsWord}
-            </button>
+            </div>
           </div>
+          {!isTagPage && archiveYears.length > 1 ? (
+            /* 年份行：落在检视面板那几栏上，与页名同一底线；点一年切到那一年（见 archive.js） */
+            <ul class="archive-years" aria-label={helper.__("archive.year_switch")}>
+              {archiveYears.map(({ year, count }) => (
+                <li key={year}>
+                  <button type="button" class="archive-years__year" data-archive-year={String(year)} aria-current={year === yearList[defaultYearIndex] ? "true" : "false"} title={`${count} ${count === 1 ? "writing" : "writings"}`}>
+                    {year}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
         <script dangerouslySetInnerHTML={{ __html: TITLE_FIT_SCRIPT }} />
 
@@ -433,10 +458,11 @@ module.exports = class extends Component {
             })
           : null}
 
-        {/* 清单在右、检视面板在左：悬停到哪一条，面板就换成那一篇的封面、摘要与标签（见 archive.js）。
-            窄屏只有清单 */}
+        {/* 清单在左、检视面板在右：悬停到哪一条，面板就换成那一篇的封面、摘要与标签（见 archive.js）。
+            载入时不自动挑第一篇，面板先是一个占位框（data-empty）；窄屏只有清单 */}
         <div class="archive-body">
-          <aside class="archive-inspector" aria-live="polite" hidden>
+          <aside class="archive-inspector" aria-live="polite" data-empty>
+            <p class="archive-inspector__placeholder">Point at a writing to preview it</p>
             <figure class="archive-inspector__cover" hidden>
               <img class="archive-inspector__img" alt="" decoding="async" />
             </figure>

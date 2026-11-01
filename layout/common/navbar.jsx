@@ -42,7 +42,7 @@ class Navbar extends Component {
                   <span class="navbar-menu__index" aria-hidden="true">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  {name}
+                  <span class="navbar-menu__name">{name}</span>
                 </a>
               );
             })}

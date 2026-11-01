@@ -51,6 +51,8 @@ module.exports = class extends Component {
         {/* 首页专属：把页尾高度写进 CSS 变量，第二屏据此让位，页尾不再另占一屏 */}
         {page.home === true ? <script type="module" src={url_for("/js/home.js")}></script> : null}
         {helper.is_archive() || helper.is_tag() ? <script type="module" src={url_for("/js/archive.js")}></script> : null}
+        {/* 双链图页：取 graph.json、排布局、画 SVG */}
+        {page.graph === true ? <script type="module" src={url_for("/js/graph.js")}></script> : null}
         {/* 文章页专属交互（脚注/图片缩放/代码块/TOC/评论/满高首屏），从 main.js 导入共享基础设施 */}
         {["post", "page"].includes(page.layout) ? <script type="module" src={url_for("/js/article.js")}></script> : null}
         {page.preferences === true ? (

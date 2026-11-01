@@ -101,5 +101,8 @@ module.exports = (hexo) => {
 
   require("./preferences")(hexo);
 
+  // 文章双链图：graph.json 与 /graph/
+  require("./graph")(hexo);
+
   require("./page")(hexo);
 };

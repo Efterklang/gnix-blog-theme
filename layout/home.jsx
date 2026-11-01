@@ -158,7 +158,7 @@ module.exports = class extends Component {
       .map((row, index) => {
         if (!row || typeof row !== "object") return null;
 
-        const links = Array.isArray(row.links) ? row.links.filter((link) => link && link.href) : [];
+        const links = Array.isArray(row.links) ? row.links.filter((link) => link?.href) : [];
         const tagLimit = getTagLimit(row.tags);
         const tags = tagLimit ? getTopTags(site?.tags, tagLimit, { page, config, helper }) : [];
         if (!links.length && !tags.length) return null;

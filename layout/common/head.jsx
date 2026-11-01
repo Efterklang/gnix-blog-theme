@@ -246,6 +246,7 @@ module.exports = class extends Component {
     const isStatusPage = page.status === true;
     const isPreferencesPage = page.preferences === true;
     const isHomePage = page.home === true;
+    const isGraphPage = page.graph === true;
 
     const language = getPageLocale(page, config) || page.lang || page.language || config.language;
     const canonicalUrl = toAbsoluteUrl(page.canonical_url || page.canonical || page.i18n?.canonical || headCanonicalUrl, helper, config);
@@ -356,6 +357,7 @@ module.exports = class extends Component {
         {isStatusPage && <link rel="stylesheet" href={url_for("/css/status.css")} />}
         {isPreferencesPage && <link rel="stylesheet" href={url_for("/css/preferences.css")} />}
         {isHomePage && <link rel="stylesheet" href={url_for("/css/home.css")} />}
+        {isGraphPage && <link rel="stylesheet" href={url_for("/css/graph.css")} />}
         <link rel="stylesheet" href={url_for("/css/responsive.css")} />
         {/* 字体服务的 preconnect 不再对所有人写死，改由启用了字体预设的读者按需建立（article-font-utils.js） */}
         {isArticleLike && <link rel="preload" as="style" href={url_for("/css/shiki/shiki.css")} onload="this.onload=null;this.rel='stylesheet'" />}

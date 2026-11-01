@@ -21,7 +21,7 @@ module.exports = class extends Component {
     return (
       <li class="archive-item" data-cover={cover || null}>
         <a class="archive-title" href={url}>
-          {/* 两列：标题占满剩余宽度、贴左缘，日期贴右缘。长标题折行时日期留在首行 */}
+          {/* 两列：标题贴左缘占前六栏，日期落在第七栏；话题与时长只在检视面板里 */}
           <span class="archive-title__text">{title}</span>
           <time class="archive-title__date" dateTime={dateXml || null}>
             {formattedDate}

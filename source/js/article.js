@@ -625,10 +625,9 @@ function initTocPopover() {
 // #region Left rail (Back · INFO · TOC)
 // 文章页左上角一列工具：Back、INFO、TOC。后两节是可展开的面板（section[data-open]，高度与透明度做过渡），
 // 默认都收起，点开合。
-// 工具栏要钉在正文左侧的空白里：空白 ≥ 14rem 才放得下（<html data-article-gutter="wide"|"none"）；
+// 工具栏要钉在正文左侧的空白里：空白 ≥ 14rem 才放得下（<html data-article-gutter="wide"|"none"），
+// 量法在 article-gutter.js——由 layout.jsx 内联在首帧之前执行，并挂到 window.gnixMeasureArticleGutter；
 // 放不下时 Back 随文排在顶上、规格表排在摘要下、点 TOC 改为打开弹层
-const RAIL_MEDIA = "(min-width: 1024px)";
-const RAIL_WIDE_REM = 14;
 
 function setRailOpen(section, open) {
   if (!section) return;
@@ -646,19 +645,17 @@ function initArticleRail() {
   const sections = Object.fromEntries([...(rail?.querySelectorAll(".article-rail__section[data-rail]") || [])].map((node) => [node.dataset.rail, node]));
   const tocPopover = document.getElementById("toc-body");
 
-  // 空白宽度：窗口与栏宽偏好变化时重量
+  // 空白宽度：首帧前内联脚本已量过一次并写进 <html>，这里只在窗口与栏宽偏好变化时重量——
+  // 初始化时不再改属性，面板就不会从窄屏的展开态过渡到收起态
   let frame = null;
   const measure = () => {
     frame = null;
-    const main = document.querySelector(".main-content");
-    const rem = parseFloat(getComputedStyle(root).fontSize) || 16;
-    const gutter = main && window.matchMedia(RAIL_MEDIA).matches ? (root.clientWidth - main.getBoundingClientRect().width) / 2 : 0;
-    root.dataset.articleGutter = gutter >= RAIL_WIDE_REM * rem ? "wide" : "none";
+    window.gnixMeasureArticleGutter?.();
   };
   const scheduleMeasure = () => {
     if (frame == null) frame = requestAnimationFrame(measure);
   };
-  measure();
+  if (!root.dataset.articleGutter) measure();
   window.addEventListener("resize", scheduleMeasure, { passive: true });
   new MutationObserver(scheduleMeasure).observe(root, { attributes: true, attributeFilter: ["data-article-width"] });
 
