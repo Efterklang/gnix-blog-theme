@@ -17,6 +17,11 @@
  * The carousel never grows taller than 80% of the viewport height; instead
  * of cropping, its width is capped (preserving the aspect ratio) so tall
  * images shrink and center. Override via the `--carousel-max-height` CSS var.
+ *
+ * Layout (Swiss): a square-cornered image; under it a strip of thin segments,
+ * one per slide (the current one fills over the autoplay interval), then one
+ * caption line — the image's alt text on the left, prev · 01 / 05 · next on
+ * the right. Clicking the left / right half of the image steps back / forward.
  */
 
 // Shared stylesheet — parsed once, reused across all carousel instances
@@ -37,6 +42,8 @@ function getUiText(key, value) {
     imageCarousel: zh ? "图片轮播" : "Image carousel",
     slide: zh ? `第 ${value} 张` : `Slide ${value}`,
     slideNavigation: zh ? "幻灯片导航" : "Slide navigation",
+    previous: zh ? "上一张" : "Previous slide",
+    next: zh ? "下一张" : "Next slide",
   };
   return messages[key] || key;
 }
@@ -51,6 +58,11 @@ function escapeAttribute(value) {
   return escapeHtml(value).replace(/"/g, "&quot;");
 }
 
+const ARROW_LEFT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>';
+const ARROW_RIGHT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
+
+const pad2 = (n) => String(n).padStart(2, "0");
+
 const STYLES = `
   :host {
     display: block;
@@ -58,21 +70,20 @@ const STYLES = `
   }
 
   .carousel {
+    max-width: var(--carousel-max-width, none);
+    margin-inline: auto;
     outline: none;
   }
 
-  .carousel:focus-visible {
-    outline: 2px solid var(--blue, #89b4fa);
-    outline-offset: 2px;
+  .carousel:focus-visible .stage {
+    outline: var(--focus-ring, 1px solid currentColor);
+    outline-offset: 3px;
   }
 
   .stage {
     position: relative;
-    max-width: var(--carousel-max-width, none);
-    margin-inline: auto;
-    border-radius: var(--radius, 12px);
     overflow: hidden;
-    background: var(--mantle, #181825);
+    background: var(--hover-fill, rgb(127 127 127 / 0.08));
     contain: content;
   }
 
@@ -85,8 +96,9 @@ const STYLES = `
   .slide {
     position: absolute;
     inset: 0;
+    margin: 0;
     opacity: 0;
-    transition: opacity 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     pointer-events: none;
   }
 
@@ -99,66 +111,185 @@ const STYLES = `
     transition: none;
   }
 
-  .slide figure {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-  }
-
   .slide img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
   }
 
-  .slide figcaption {
+  /* 图片左右两半是隐形的翻页区：左半上一张、右半下一张 */
+  .zone {
     position: absolute;
+    top: 0;
     bottom: 0;
+    z-index: 1;
+    width: 50%;
+    padding: 0;
+    border: 0;
+    background: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .zone--prev {
+    left: 0;
+    cursor: w-resize;
+  }
+
+  .zone--next {
+    right: 0;
+    cursor: e-resize;
+  }
+
+  /* 进度条：每张一段细线；当前段墨色，自动播放时在一个间隔里从左填满 */
+  .segments {
+    display: flex;
+    gap: 4px;
+    margin-top: 0.75rem;
+  }
+
+  .segment {
+    position: relative;
+    flex: 1 1 0;
+    height: 14px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .segment::before,
+  .segment::after {
+    content: "";
+    position: absolute;
     left: 0;
     right: 0;
-    padding: 2rem 1.25rem 0.875rem;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
-    color: #fff;
-    font-size: 0.875rem;
-    font-style: italic;
-    font-family: var(--font-serif, serif);
-    text-align: center;
-    pointer-events: none;
+    top: 50%;
+    height: 1px;
   }
 
-  .dots {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    padding: 0.5rem 0 0;
+  .segment::before {
+    background: color-mix(in oklab, var(--sub-text-color, gray) 30%, transparent);
+    transition: background-color 160ms ease;
   }
 
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    border: none;
-    background: var(--overlay0, rgba(127, 127, 127, 0.45));
-    cursor: pointer;
-    padding: 0;
-    transition: background 0.2s ease-out, transform 0.2s ease-out;
+  .segment:hover::before {
+    background: var(--sub-text-color, gray);
   }
 
-  .dot:hover {
-    background: var(--overlay1);
+  .segment::after {
+    background: var(--title-text-color, currentColor);
+    transform: scaleX(0);
+    transform-origin: left center;
   }
 
-  .dot:focus-visible {
-    outline: 2px solid var(--blue, #89b4fa);
+  .segment.active::after {
+    transform: scaleX(1);
+  }
+
+  .carousel[data-playing] .segment.active::after {
+    animation: fill var(--carousel-interval, 3000ms) linear both;
+  }
+
+  @keyframes fill {
+    from {
+      transform: scaleX(0);
+    }
+  }
+
+  .segment:focus-visible {
+    outline: var(--focus-ring, 1px solid currentColor);
     outline-offset: 2px;
   }
 
-  .dot.active {
-    background: var(--title-text-color);
-    transform: scale(1.25);
+  /* 说明行：左边图注（图片的 alt），右边 上一张 · 01 / 05 · 下一张 */
+  .meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    color: var(--sub-text-color, gray);
+    font-family: var(--font-sans-serif, sans-serif);
+    font-size: 0.8125rem;
+    line-height: 1.5;
   }
 
+  .meta:only-child,
+  .stage + .meta {
+    margin-top: 0.75rem;
+  }
+
+  .caption {
+    min-width: 0;
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  .controls {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: auto;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+
+  .counter {
+    min-width: 4.5ch;
+    color: var(--title-text-color, currentColor);
+    text-align: center;
+  }
+
+  .counter span {
+    color: var(--sub-text-color, gray);
+  }
+
+  .step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--sub-text-color, gray);
+    cursor: pointer;
+    transition: color 120ms ease;
+  }
+
+  .step:hover {
+    color: var(--title-text-color, currentColor);
+  }
+
+  .step:focus-visible {
+    outline: var(--focus-ring, 1px solid currentColor);
+    outline-offset: -2px;
+  }
+
+  .step svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide {
+      transition: none;
+    }
+
+    .carousel[data-playing] .segment.active::after {
+      animation: none;
+    }
+  }
 `;
 
 class ImageCarousel extends HTMLElement {
@@ -300,40 +431,59 @@ class ImageCarousel extends HTMLElement {
 
     const multiSlide = this._images.length > 1;
 
+    const total = this._images.length;
+
     const slidesHTML = this._images
       .map((img, i) => {
         const label = img.alt || getUiText("slide", i + 1);
         return `
-      <div class="slide${i === 0 ? " active" : ""}" role="tabpanel" aria-label="${escapeAttribute(label)}">
-        <figure>
-          <img src="${escapeAttribute(img.src)}"${img.srcset ? ` srcset="${escapeAttribute(img.srcset)}"` : ""} alt="${escapeAttribute(img.alt)}" loading="${i === 0 ? "eager" : "lazy"}">
-          ${img.alt ? `<figcaption>${escapeHtml(img.alt)}</figcaption>` : ""}
-        </figure>
-      </div>
+      <figure class="slide${i === 0 ? " active" : ""}" role="tabpanel" aria-label="${escapeAttribute(label)}">
+        <img src="${escapeAttribute(img.src)}"${img.srcset ? ` srcset="${escapeAttribute(img.srcset)}"` : ""} alt="${escapeAttribute(img.alt)}" loading="${i === 0 ? "eager" : "lazy"}" decoding="async">
+      </figure>
     `;
       })
       .join("");
 
-    const dotsHTML = multiSlide
-      ? `<div class="dots" role="tablist" aria-label="${getUiText("slideNavigation")}">
+    const zonesHTML = multiSlide
+      ? `<button class="zone zone--prev" type="button" tabindex="-1" aria-hidden="true" data-step="prev"></button>
+         <button class="zone zone--next" type="button" tabindex="-1" aria-hidden="true" data-step="next"></button>`
+      : "";
+
+    const segmentsHTML = multiSlide
+      ? `<div class="segments" role="tablist" aria-label="${getUiText("slideNavigation")}">
           ${this._images
-            .map((_img, i) => `<button class="dot${i === 0 ? " active" : ""}" data-index="${i}" role="tab" aria-label="${getUiText("slide", i + 1)}" aria-selected="${i === 0}"></button>`)
+            .map((_img, i) => `<button class="segment${i === 0 ? " active" : ""}" type="button" data-index="${i}" role="tab" aria-label="${getUiText("slide", i + 1)}" aria-selected="${i === 0}"></button>`)
             .join("")}
         </div>`
       : "";
 
+    const controlsHTML = multiSlide
+      ? `<div class="controls">
+          <button class="step" type="button" data-step="prev" aria-label="${getUiText("previous")}">${ARROW_LEFT}</button>
+          <span class="counter" aria-live="polite"><b class="counter-current" style="font-weight:inherit">01</b><span> / ${pad2(total)}</span></span>
+          <button class="step" type="button" data-step="next" aria-label="${getUiText("next")}">${ARROW_RIGHT}</button>
+        </div>`
+      : "";
+
+    const firstAlt = this._images[0].alt;
+    const metaHTML = firstAlt || multiSlide ? `<div class="meta"><p class="caption">${escapeHtml(firstAlt)}</p>${controlsHTML}</div>` : "";
+
     this.shadowRoot.innerHTML = `
-      <div class="carousel" role="region" aria-label="${getUiText("imageCarousel")}" tabindex="0">
+      <div class="carousel" role="region" aria-roledescription="carousel" aria-label="${getUiText("imageCarousel")}" tabindex="0">
         <div class="stage">
           <div class="slides">${slidesHTML}</div>
+          ${zonesHTML}
         </div>
-        ${dotsHTML}
+        ${segmentsHTML}
+        ${metaHTML}
       </div>
       <slot style="display:none"></slot>
     `;
 
     this._slides = Array.from(this.shadowRoot.querySelectorAll(".slide"));
-    this._dots = Array.from(this.shadowRoot.querySelectorAll(".dot"));
+    this._dots = Array.from(this.shadowRoot.querySelectorAll(".segment"));
+    this._caption = this.shadowRoot.querySelector(".caption");
+    this._counter = this.shadowRoot.querySelector(".counter-current");
   }
 
   // ─── navigation ────────────────────────────────────────────────────
@@ -354,6 +504,8 @@ class ImageCarousel extends HTMLElement {
     this._currentIndex = index;
     this._toggleSlide(prev, false);
     this._toggleSlide(index, true);
+    if (this._caption) this._caption.textContent = this._images[index].alt || "";
+    if (this._counter) this._counter.textContent = pad2(index + 1);
   }
 
   _toggleSlide(i, active) {
@@ -399,6 +551,7 @@ class ImageCarousel extends HTMLElement {
     this._stopAutoplay();
     if (!this._canAutoplay()) return;
     const interval = parseInt(this.getAttribute("interval") || "", 10) || DEFAULT_INTERVAL;
+    this._setPlaying(true, interval);
     this._timer = setInterval(() => {
       if (this._canAutoplay()) this._next();
     }, interval);
@@ -409,6 +562,21 @@ class ImageCarousel extends HTMLElement {
       clearInterval(this._timer);
       this._timer = null;
     }
+    this._setPlaying(false);
+  }
+
+  /** 进度条：播放时当前段在一个间隔里填满；重新计时时让填充动画从头开始 */
+  _setPlaying(playing, interval) {
+    const carousel = this.shadowRoot?.querySelector(".carousel");
+    if (!carousel) return;
+    if (!playing) {
+      delete carousel.dataset.playing;
+      return;
+    }
+    carousel.style.setProperty("--carousel-interval", `${interval}ms`);
+    delete carousel.dataset.playing;
+    void carousel.offsetWidth;
+    carousel.dataset.playing = "";
   }
 
   // ─── listeners ─────────────────────────────────────────────────────
@@ -417,11 +585,18 @@ class ImageCarousel extends HTMLElement {
     const root = this.shadowRoot;
     const carousel = root.querySelector(".carousel");
 
-    root.querySelector(".dots")?.addEventListener("click", (e) => {
-      const dot = e.target.closest(".dot");
-      if (!dot) return;
-      this._goTo(parseInt(dot.dataset.index, 10), e.detail === 0 ? "keyboard" : "pointer");
+    root.querySelector(".segments")?.addEventListener("click", (e) => {
+      const segment = e.target.closest(".segment");
+      if (!segment) return;
+      this._goTo(parseInt(segment.dataset.index, 10), e.detail === 0 ? "keyboard" : "pointer");
       this._syncAutoplay(true);
+    });
+
+    // 上一张 / 下一张：说明行里的两枚箭头，与图片左右两半的翻页区
+    carousel.addEventListener("click", (e) => {
+      const step = e.target.closest("[data-step]");
+      if (!step) return;
+      this._userNav(step.dataset.step, e.detail === 0 ? "keyboard" : "pointer");
     });
 
     carousel.addEventListener("pointerenter", (event) => {

@@ -1,8 +1,13 @@
-/* 归档页的栏宽：窄屏跟随文章宽度偏好（--article-max-width 由 :root[data-article-width] 决定）；
-   桌面放宽到 82rem——左边检视面板、右边清单要并排。水印也按这条栏宽找左缘。
-   本文件仅在归档/标签页加载，不影响其他页面 */
+/* 归档页纯正 Swiss Editorial 设计
+   - 彻底修复 masthead 双列竖排问题
+   - 恢复列表下微弱细线、悬停层次与文章相比季节的向内缩进
+   - 将 Inspector 的纵向贯穿线移至列轨道容器，直达视口底部
+*/
+
 :root {
   --archive-measure: calc(var(--article-max-width) + 3rem);
+  --archive-hairline: color-mix(in oklab, var(--sub-text-color) 18%, transparent);
+  --archive-border-subtle: color-mix(in oklab, var(--sub-text-color) 12%, transparent);
 }
 
 @media (min-width: 1024px) {
@@ -10,36 +15,26 @@
     --archive-measure: min(100%, 96rem);
   }
 
-  /* 归档的版心与顶栏共用同一条左缘：站名、Archive 的大字、清单落在同一根轴上 */
   .main-content:has(> .archive-page) {
     padding-inline: var(--page-margin);
   }
-
 }
 
 .main-content {
   max-width: var(--archive-measure);
 }
 
-/* 页面是一条自上而下的栅格：刊头、检视面板与清单，靠留白分开，没有任何分隔线。
-   条目内部另有自己的两列栅格（标题 | 日期），见 a.archive-title */
 .archive-page {
-  /* 十二栏网格（Müller-Brockmann）：栏距 1.5rem；清单占 1–7 栏、第 8 栏留白、检视面板占 9–12 栏。
-     条目一行再按前七栏分：标题 4 栏、话题 1 栏、阅读时长 1 栏、日期 1 栏——全页的竖轴全部对到网格线上。
-     纵向节奏按 8px：行高 40px、段间 56px */
-  --grid-gutter: 1.5rem;
-  /* Swiss：没有强调色，悬停与当前项只是墨与灰的切换；秘密花园同样 */
+  --grid-gutter: 2.5rem;
   --archive-accent: var(--title-text-color);
   --archive-garden-accent: var(--title-text-color);
-  /* 吸顶标签的落点：紧贴视口顶端。窄视口导航条移到底部，标签只需避开状态栏 */
   --archive-sticky-top: 0px;
-  /* 条目两列之间的间距：标题与日期之间留出的最小空隙 */
-  --archive-row-gap: 1.25rem;
+  --archive-list-indent: clamp(1.25rem, 1.8vw, 1.5rem);
   position: relative;
-  display: grid;
-  gap: 3.5rem;
-  /* 左右内边距由 .main-content 的版心边距提供 */
+  display: flex;
+  flex-direction: column;
   padding: 1.25rem 0 0;
+  min-height: 100svh;
 }
 
 @media (max-width: 1023px) {
@@ -48,19 +43,6 @@
   }
 }
 
-@media (max-width: 640px) {
-  .archive-page {
-    --archive-row-gap: 0.875rem;
-    gap: 2.75rem;
-    padding: 1.5rem 0 0;
-  }
-
-  .archive-groups {
-    gap: 2.75rem;
-  }
-}
-
-/* 归档页里其余的小标签（话题幕帘的带名、花园的锁）走全站同一套标签 */
 .archive-micro {
   font-family: var(--font-label);
   font-size: var(--label-size);
@@ -69,12 +51,15 @@
   text-transform: uppercase;
 }
 
-/* #region Masthead */
+/* ==========================================================================
+   1. 刊头区域 (Masthead / Hero)
+   ========================================================================== */
 
-/* 刊头行也在十二栏网格上：页名（年份紧跟其后）与竖排注记占左边，年份行落在第 9–12 栏、与页名同一底线；
-   字号由脚本按栏宽算 */
 .archive-hero {
   display: block;
+  /* 页面上部第一条横向主分割线 */
+  border-bottom: .5px solid var(--archive-hairline);
+  padding-bottom: clamp(1.5rem, 3svh, 2.25rem);
 }
 
 @media (min-width: 1024px) {
@@ -86,74 +71,33 @@
   }
 }
 
-/* 页名与竖排注记：注记与页名同高，字号由脚本按页名的高度算，不会比页名高 */
 .archive-hero__title {
   display: flex;
-  align-items: stretch;
+  align-items: flex-start;
   grid-column: 1 / span 8;
   min-width: 0;
 }
 
-/* 年份行：一排等宽数字，当前年墨色、其余灰；点一年就切到那一年的清单 */
-.archive-years {
-  display: none;
-  grid-column: 9 / span 4;
-  flex-wrap: wrap;
-  gap: 0.25rem 1rem;
-  margin: 0;
-  padding: 0 0 0.3em;
-  list-style: none;
-}
-
-@media (min-width: 1024px) {
-  .archive-years {
-    display: flex;
-  }
-}
-
-.archive-years__year {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--sub-text-color);
-  font-family: var(--font-mono);
-  font-size: 0.8125rem;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.04em;
-  line-height: 1.5rem;
-  cursor: pointer;
-  transition: color 160ms ease;
-
-  &:hover,
-  &[aria-current="true"] {
-    color: var(--title-text-color);
-  }
-
-  &:focus-visible {
-    outline: var(--focus-ring);
-    outline-offset: 2px;
-  }
-}
-
-/* 页名是一行撑满栏宽的巨型标题：字随栏宽缩放，正好占满整栏，不多也不少。
-   字号由 source/js/archive.js 按实际字宽算出来（换字体、换栏宽都对得上），
-   下面那份 cqw 只是没有脚本时的兜底 */
 .archive-watermark {
-  /* 不做尺寸包含（container-type 会把固有宽度算成 0，字就不见了）；宽度就是字的宽度。
-     字号设在这里，页名与年份上标按 em 一起缩放；兜底值给没有脚本的情况，真正的字号由
-     layout/archive.jsx 里的内联脚本按实际字宽算 */
   display: flex;
   align-items: baseline;
   gap: 0.08em;
   flex: 0 1 auto;
   min-width: 0;
   margin: 0;
-  /* line-height 小于 1，行盒比字身高——上下留一点内边距给 ascender 与 descender */
-  padding-block: 0.1em;
-  font-size: clamp(2.5rem, 9vw, 8rem);
+  padding-block: 0;
+  font-size: clamp(3rem, 9vw, 8rem);
   line-height: 0.86;
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* 基线探针：大字末尾一枚零宽零高的行内块，它的顶边就是基线（供刊头注记对齐用） */
+.archive-watermark__baseline {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: baseline;
 }
 
 .archive-watermark__word {
@@ -161,68 +105,74 @@
   color: var(--title-text-color);
   font-family: var(--article-font-family);
   font-size: 1em;
-  font-weight: 500;
+  font-weight: 900;
+  text-transform: capitalize;
   line-height: inherit;
   letter-spacing: -0.04em;
   white-space: nowrap;
-  transition: color 340ms ease;
 }
 
-/* caption 是这一页的控制行：左端报规模，右端放栏数切换与话题入口，
-   中间由引线连着——和每一季的标签行同一个句式 */
-.archive-masthead {
-  position: relative;
-  display: grid;
-  /* 页名与它下面那行 caption 是一对：贴紧一点，让它们读成一块刊头 */
-  gap: 0.75rem;
-  margin: 0;
-  min-width: 0;
-}
-
-/* 注记：页名右侧两行竖排的小字（无衬线、大写、宽字距），自上而下读、字母随行转向，像书脊；
-   第一行规模、第二行话题入口。与页名同高，贴着它的上沿起笔 */
+/* 核心修复：竖排彻底拆分为两根独立的立柱，绝不换行相碰 */
 .archive-masthead {
   display: flex;
-  /* 竖排里 column 才是「并排两行」（块轴从左到右） */
-  flex-direction: column;
+  flex-direction: row; /* 水平并列两根竖排柱子 */
+  gap: 0.75rem;
   flex: none;
-  align-items: flex-start;
-  align-self: stretch;
-  gap: 0.6rem;
-  margin: 0 0 0 clamp(0.75rem, 2vw, 1.5rem);
-  padding-top: 0.15rem;
-  max-height: 100%;
-  overflow: hidden;
-  writing-mode: vertical-lr;
-  text-orientation: mixed;
-  color: var(--sub-text-color);
-  font-family: var(--font-label);
-  font-size: var(--label-size);
-  font-weight: var(--label-weight);
-  letter-spacing: var(--label-tracking);
+  /* 顶边与高度由 layout/archive.jsx 的内联脚本锁到大写 A 的顶线与字高（字号、margin-top 写在行内） */
+  align-self: flex-start;
+  margin-left: clamp(1rem, 2.5vw, 2rem);
+  color: color-mix(in oklab, var(--sub-text-color) 70%, transparent);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   line-height: 1;
+}
+
+.archive-masthead__col {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
   white-space: nowrap;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
 }
 
 .archive-masthead__stat {
-  display: flex;
-  gap: 0.5em;
-  margin: 0;
+  display: block;
 }
 
-/* 标签页的页名落在这一行：水印永远是 Archive，这一页是谁由这里说 */
-.archive-masthead__subject {
-  color: var(--title-text-color);
+/* 窄屏：竖排两柱挤在大字右边会显得零碎——注记换到标题下方，横排成一行，与大字同一条左缘 */
+@media (max-width: 1023px) {
+  .archive-hero__title {
+    flex-wrap: wrap;
+    row-gap: 1.25rem;
+  }
+
+  .archive-watermark {
+    flex-basis: 100%;
+  }
+
+  .archive-masthead {
+    flex-basis: 100%;
+    gap: 1.5rem;
+    height: auto;
+    margin-left: 0;
+    padding-top: 0;
+    font-size: 0.6875rem;
+    line-height: 1.4;
+  }
+
+  .archive-masthead__col {
+    writing-mode: horizontal-tb;
+  }
 }
 
 .archive-masthead__count {
   font-variant-numeric: tabular-nums;
 }
 
-/* 话题入口：同一款字，悬停变墨色 */
 .archive-masthead__topics {
-  padding: 0;
   border: none;
   background: transparent;
   color: inherit;
@@ -232,7 +182,8 @@
   line-height: inherit;
   text-transform: inherit;
   white-space: nowrap;
-  transition: color 140ms var(--ease-out);
+  padding: 0;
+  transition: color 140ms ease;
 
   &:hover,
   &:focus-visible {
@@ -240,30 +191,30 @@
   }
 }
 
-/* 年份：页名后的两位数小字（0.38em，随页名缩放、坐在同一基线上），点一下滚到上一年；换数字时淡一下 */
 .archive-year {
   display: inline-flex;
   flex: none;
   padding: 0;
   border: none;
   background: none;
-  color: var(--sub-text-color);
+  color: color-mix(in oklab, var(--title-text-color) 40%, transparent);
   font-family: var(--article-font-family);
-  font-size: 0.38em;
-  font-weight: 400;
+  font-size: 0.42em;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   line-height: 1;
   cursor: pointer;
-  transition: color 220ms var(--ease-out);
+  transition: color 200ms ease;
 
-  &:is(:hover, :focus-visible) {
+  &:hover {
     color: var(--title-text-color);
   }
 }
 
 .archive-year__value {
   display: block;
+  view-transition-name: archive-year;
   transition: opacity 240ms ease;
 
   &.is-rolling {
@@ -272,84 +223,71 @@
   }
 }
 
-/* 切片外的季节整段收起（用类而非 hidden：页面上有别的规则给 section 定过显示方式） */
-.archive-group.is-sliced-out {
-  display: none;
-}
+/* ==========================================================================
+   2. 主体布局 (Archive Body) 与 纵贯天地的通栏竖线
+   ========================================================================== */
 
-/* 切片切换：旧的一层淡出、新的一层浮现（像素字各自再浮现一次）；
-   淡出比浮现快一档，换内容的那一帧落在暗处 */
-.archive-page .archive-groups.is-slicing {
-  opacity: 0;
-  pointer-events: none;
-  transition-duration: 180ms;
-}
-
-/* 年份切片切换时整块清单淡出、浮现（.is-slicing 见下） */
-.archive-page .archive-groups {
-  transition: opacity 340ms ease;
-}
-
-/* #endregion */
-
-/* #region Inspector */
-
-/* 桌面：检视面板在左、清单在右。面板吸顶跟随滚动，显示悬停到的那一篇：
-   封面（小圆角）、标题、摘要与标签；窄屏没有悬停，面板不出现 */
 .archive-body {
   display: grid;
-  gap: 3rem;
+  grid-template-columns: 1fr;
+  flex: 1 1 auto;
   min-width: 0;
-}
-
-.archive-inspector {
-  display: none;
 }
 
 @media (min-width: 1024px) {
   .archive-body {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--grid-gutter);
-    align-items: start;
+    /* 黄金比例：清单 : 检视 = 1.618 : 1（约 61.8% / 38.2%） */
+    grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr);
+    column-gap: 0; /* 列宽由内部 padding 掌控，实现分割线紧贴 */
   }
 
-  /* 两者都钉在第一行：面板在 DOM 里先于清单，自动放置不会回头填第一行的前七栏 */
   .archive-groups {
-    grid-column: 1 / span 7;
-    grid-row: 1;
+    grid-column: 1;
+    padding-top: clamp(2rem, 4svh, 3rem);
+    padding-right: var(--grid-gutter);
+    padding-bottom: 5rem;
+  }
+
+  /* 纵向分割线：落在列容器上，贯通到底部，无论 Inspector 有无内容 */
+  .archive-inspector-col {
+    grid-column: 2;
+    border-left: 1px solid var(--archive-hairline);
+    min-width: 0;
+    padding-left: var(--grid-gutter);
+    padding-top: clamp(3rem, 6svh, 4.5rem);
+    padding-bottom: 5rem;
   }
 
   .archive-inspector {
-    grid-column: 9 / span 4;
-    grid-row: 1;
-    display: grid;
-    gap: 1rem;
     position: sticky;
-    top: calc(var(--navbar-height) + env(safe-area-inset-top) + 1.5rem);
-    align-content: start;
+    top: calc(var(--navbar-height, 0px) + env(safe-area-inset-top) + 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
     min-width: 0;
-  }
-
-  .archive-page[data-view="garden"] .archive-inspector {
-    display: none;
   }
 }
 
-/* 占位态（data-empty，还没悬停到任何一条）：一个与封面同比例的 0.5px 空框，框里一行提示；
-   有了被检视的条目就换成它的封面、标题与摘要 */
+@media (max-width: 1023px) {
+  .archive-groups {
+    padding-top: 2rem;
+  }
+  .archive-inspector-col {
+    display: none !important;
+  }
+}
+
+/* Inspector 占位态：无外边框，极简居中提示 */
 .archive-inspector__placeholder {
   display: grid;
   place-items: center;
-  aspect-ratio: 3 / 2;
+  min-height: 280px;
   margin: 0;
-  padding: 1rem;
-  box-shadow: inset 0 0 0 0.5px var(--edge-color);
-  color: var(--sub-text-color);
-  font-family: var(--font-label);
-  font-size: var(--label-size);
-  font-weight: var(--label-weight);
-  letter-spacing: var(--label-tracking);
-  line-height: 1.6;
+  padding: 2rem;
+  color: color-mix(in oklab, var(--sub-text-color) 45%, transparent);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
   text-align: center;
   text-transform: uppercase;
 }
@@ -360,11 +298,10 @@
 }
 
 .archive-inspector__cover {
-  margin: 0 0 0.5rem;
+  margin: 0;
   overflow: hidden;
-  border-radius: 0;
   background: var(--hover-fill);
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 16 / 10;
 
   &[hidden] {
     display: none;
@@ -376,6 +313,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: grayscale(100%) contrast(115%);
   transition: opacity 220ms ease;
 
   .archive-inspector__cover.is-loading & {
@@ -387,24 +325,24 @@
   margin: 0;
   color: var(--title-text-color);
   font-family: var(--article-font-family);
-  font-size: calc(var(--article-font-size) * 1.5);
-  font-weight: var(--font-weight-semibold);
-  line-height: 1.2;
-  letter-spacing: -0.01em;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
   text-wrap: balance;
 }
 
-/* 摘要限 6 行，不让一篇长摘要把面板撑出视口 */
+/* 无摘要时不占位、不产生上下间距 */
 .archive-inspector__excerpt {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 6;
+  -webkit-line-clamp: 5;
   overflow: hidden;
   margin: 0;
-  color: var(--sub-text-color);
+  color: color-mix(in oklab, var(--sub-text-color) 85%, transparent);
   font-family: var(--article-font-family);
-  font-size: var(--article-font-size);
-  line-height: var(--type-body-leading);
+  font-size: 0.875rem;
+  line-height: 1.6;
   overflow-wrap: anywhere;
 
   &:empty {
@@ -413,7 +351,6 @@
 
   & :where(p, ul, ol) {
     margin: 0 0 0.35em;
-
     &:last-child {
       margin-bottom: 0;
     }
@@ -424,14 +361,15 @@
   }
 }
 
-/* 元信息：一张没有线的小表——左列等宽大写标签，右列等宽灰字 */
 .archive-inspector__meta {
   display: grid;
-  grid-template-columns: 5rem minmax(0, 1fr);
-  gap: 0.45rem 1rem;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 0.5rem 1rem;
   align-items: baseline;
-  margin: 0.25rem 0 0;
-  font-family: var(--font-mono);
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--archive-hairline);
+  font-family: var(--font-mono, monospace);
   font-size: 0.75rem;
   line-height: 1.5;
 
@@ -440,43 +378,146 @@
   }
 
   dt {
-    color: var(--title-text-color);
-    font-family: var(--font-label);
-    font-size: var(--label-size);
-    font-weight: var(--label-weight);
-    letter-spacing: var(--label-tracking);
+    color: color-mix(in oklab, var(--sub-text-color) 65%, transparent);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
   dd {
     margin: 0;
-    color: var(--sub-text-color);
+    color: var(--title-text-color);
     overflow-wrap: anywhere;
   }
 }
 
-/* 清单上被检视的那一条：墨色；左边一枚箭头指着它——箭头只有一枚，换条目时沿着清单滑过去
-   （位置由 archive.js 量出写进 translate） */
+/* ==========================================================================
+   3. 季节与文章列表 (缩进、微下划线与对齐)
+   ========================================================================== */
+
+.archive-groups {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.5rem, 5svh, 4rem);
+  min-width: 0;
+}
+
+.archive-group {
+  position: relative;
+  min-width: 0;
+  scroll-margin-block-start: var(--archive-sticky-top);
+}
+
+/* 季节小标：大写等宽 */
+.archive-group__header {
+  display: flex;
+  margin: 0 0 0.75rem 0;
+}
+
+.archive-folio {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  color: color-mix(in oklab, var(--sub-text-color) 65%, transparent);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color 150ms ease;
+
+  &:hover {
+    color: var(--title-text-color);
+  }
+}
+
+.archive-folio__sep {
+  opacity: 0.35;
+  font-weight: 400;
+}
+
+.archive-folio__count {
+  font-size: 0.6875rem;
+  opacity: 0.65;
+}
+
+/* 核心修复：列表相比季节 Label 向内缩进 1.25rem，层次立刻分明 */
+.archive-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  padding-left: var(--archive-list-indent);
+  list-style: none;
+}
+
+.archive-item {
+  position: relative;
+  min-width: 0;
+}
+
+/* 核心修复：每个条目底部带有细腻如丝的下边框（Hairline），复现 HTML 中的精致感 */
+a.archive-title {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1.5rem;
+  align-items: baseline;
+  max-inline-size: 100%;
+  font-size: var(--article-font-size);
+  font-weight: var(--article-font-weight);
+  font-family: var(--article-font-family);
+  line-height: 1.5;
+  color: var(--sub-text-color);
+  padding-block: 0.75rem;
+  border-bottom: .5px solid var(--archive-border-subtle);
+  overflow-wrap: anywhere;
+  text-decoration: none;
+  transition: color 140ms ease, border-color 140ms ease;
+
+  @media (min-width: 1024px) {
+    font-size: calc(var(--article-font-size) * 1.05);
+  }
+}
+
+.archive-title__text {
+  min-width: 0;
+}
+
+.archive-title__date {
+  justify-self: end;
+  color: color-mix(in oklab, var(--sub-text-color) 60%, transparent);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  transition: color 140ms ease;
+}
+
+a.archive-title:is(:hover, :focus-visible) > .archive-title__date,
+.archive-item[data-inspected] > .archive-title > .archive-title__date {
+  color: var(--title-text-color);
+}
+
 .archive-item[data-inspected] > .archive-title {
   color: var(--title-text-color);
 }
 
-.archive-groups {
-  position: relative;
-}
-
+/* 指示小箭头/圆点 */
 .archive-inspect-dot {
   position: absolute;
   top: 0;
-  left: -1.4rem;
+  /* 左缘与季节小标对齐（清单容器的左缘），箭头落在列表缩进里 */
+  left: 0;
   width: 14px;
   height: 14px;
   color: var(--title-text-color);
   opacity: 0;
   pointer-events: none;
-  transition:
-    translate 420ms cubic-bezier(0.2, 0, 0, 1),
-    opacity 200ms ease;
+  transition: translate 350ms cubic-bezier(0.16, 1, 0.3, 1), opacity 180ms ease;
 
   svg {
     display: block;
@@ -489,52 +530,28 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .archive-inspect-dot {
-    transition: opacity 200ms ease;
-  }
-}
+/* ==========================================================================
+   4. 话题筛选与花园逻辑保持原样生效
+   ========================================================================== */
 
-/* 窄屏没有检视面板，也就没有点 */
-@media (max-width: 1023px) {
-  .archive-inspect-dot {
-    display: none;
-  }
-}
-
-/* #endregion */
-
-/* #region Topic curtain */
-
-/* 全屏选择器：幕帘把整个视口接管成一张纸（与页面同底色、同纹理、同固定附着），
-   清单落在与归档相同的一条栏宽里，标题与关闭钮钉在顶端 */
 .archive-topic-picker {
   position: fixed;
   inset: 0;
   box-sizing: border-box;
   width: 100%;
   height: 100dvh;
-  max-width: none;
-  max-height: none;
   margin: 0;
   padding: 0;
   overflow: hidden;
   border: none;
   background: var(--mantle);
-  background-attachment: fixed;
   color: inherit;
-
-  /* 进出场：整面纸淡入淡出，条目各自上浮（错峰见下） */
   opacity: 0;
-  transition:
-    opacity 200ms ease,
-    display 260ms allow-discrete,
-    overlay 260ms allow-discrete;
+  transition: opacity 200ms ease, display 260ms allow-discrete, overlay 260ms allow-discrete;
 }
 
 .archive-topic-picker:popover-open {
   opacity: 1;
-  transition: opacity 220ms ease;
 }
 
 @starting-style {
@@ -543,11 +560,6 @@
   }
 }
 
-.archive-topic-picker::backdrop {
-  background: transparent;
-}
-
-/* 内容按归档的栏宽收拢：标题、条目与清单标题共用同一条左边界 */
 .archive-topic-picker__body {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -556,64 +568,37 @@
   height: 100%;
   max-width: var(--archive-measure);
   margin-inline: auto;
-  padding: 1rem var(--page-margin) 0;
-}
-
-@media (max-width: 640px) {
-  .archive-topic-picker__body {
-    padding-inline: 1.25rem;
-  }
+  padding: 1.5rem var(--page-margin) 0;
 }
 
 .archive-topic-picker__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
 }
 
 .archive-topic-picker__title {
   margin: 0;
   color: var(--title-text-color);
-  font-family: var(--font-label);
-  font-size: var(--label-size);
-  font-weight: var(--label-weight);
-  letter-spacing: var(--label-tracking);
-  line-height: 1.5rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-/* 关闭钮：44px 的落点，图标与栏缘光学对齐（负外边距吃掉按钮的内衬） */
 .archive-topic-picker__close {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  margin-inline-end: -0.8rem;
-  padding: 0;
+  width: 36px;
+  height: 36px;
   border: 0;
   background: none;
   color: var(--sub-text-color);
   cursor: pointer;
-  transition: color 160ms var(--ease-out);
+  transition: color 140ms ease;
 
-  &:is(:hover, :focus-visible) {
+  &:hover {
     color: var(--title-text-color);
-  }
-}
-
-/* Tags rise into place one after another, cascading through the whole list
-   (uncapped: a capped delay made late rows pop in together). The two bands
-   share one running index, so the cascade stays a single top-down sweep. */
-.archive-topic-picker:popover-open .archive-topic-list__item {
-  animation: archive-topic-item-in 300ms var(--ease-out) backwards;
-  animation-delay: calc(40ms + var(--i, 0) * 5ms);
-}
-
-@keyframes archive-topic-item-in {
-  from {
-    opacity: 0;
-    translate: 0 -0.45rem;
   }
 }
 
@@ -622,124 +607,77 @@
   grid-template-columns: repeat(auto-fill, minmax(min(11rem, 100%), 1fr));
   align-content: start;
   column-gap: var(--grid-gutter);
-  row-gap: 0;
+  row-gap: 0.25rem;
   min-height: 0;
   max-height: 100%;
   overflow-y: auto;
-  overscroll-behavior: contain;
-  /* 全屏幕帘给得起留白：栏更宽、行更松，136 个标签也不至于挤成一堵墙；
-     底部再让出 iOS home indicator 的安全区，末行可滚出手势条 */
-  padding: 0.25rem 0 calc(1.75rem + env(safe-area-inset-bottom));
+  padding: 0.5rem 0 calc(2rem + env(safe-area-inset-bottom));
 }
 
-/* 分带标题：约 136 个标签平铺是一堵墙，先给按篇数排出的「常用」，其余按字母序。
-   标题跨满整行，文本与条目、与刊头同一条左边界 */
 .archive-topic-list__band {
   grid-column: 1 / -1;
   margin: 0;
   padding: 2rem 0 0.5rem;
-  color: var(--sub-text-color);
-  font-family: var(--font-label);
-  font-size: var(--label-size);
-  font-weight: var(--label-weight);
-  letter-spacing: var(--label-tracking);
-  line-height: 1.5rem;
+  color: color-mix(in oklab, var(--sub-text-color) 60%, transparent);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 
   &:first-child {
-    padding-block-start: 0;
+    padding-top: 0;
   }
 }
 
-/* 一个话题一行：名目在左（灰，悬停或当前变墨色）、篇数在右（等宽小字）；行高 32px */
 .archive-topic-list__item {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.75rem;
+  display: flex;
+  justify-content: space-between;
   align-items: baseline;
-  min-width: 0;
-  padding: 0.25rem 0;
+  padding: 0.35rem 0;
   color: var(--sub-text-color);
   font-family: var(--article-font-family);
   font-size: var(--article-font-size);
-  font-synthesis: none;
-  line-height: 1.5rem;
   text-decoration: none;
   transition: color 120ms ease;
 
   &:hover,
-  &:focus-visible,
   &[aria-current="page"] {
     color: var(--title-text-color);
   }
-
-  &[aria-current="page"] .archive-topic-list__name {
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
-  }
-}
-
-.archive-topic-list__name {
-  min-width: 0;
-  overflow-wrap: anywhere;
 }
 
 .archive-topic-list__count {
-  color: color-mix(in oklab, var(--sub-text-color) 70%, transparent);
-  font-family: var(--font-mono);
+  color: color-mix(in oklab, var(--sub-text-color) 50%, transparent);
+  font-family: var(--font-mono, monospace);
   font-size: 0.75rem;
-  font-style: normal;
   font-variant-numeric: tabular-nums;
 }
 
-/* #endregion */
-
-/* #region Secret garden */
-
-/* 花园不是浮层，而是页面的第二种视图：页名连点三次后，公开清单整块换成它。
-   默认不占位，切换只改 .archive-page 上的 data-view（见 source/js/archive.js） */
 .archive-garden {
   display: none;
   flex-direction: column;
-  gap: 0.7rem;
-  margin: 0;
-}
-
-/* 门禁只有一行的长度，不必跟着清单铺满整个栏宽 */
-.archive-garden__gate {
-  max-width: 22rem;
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
 .archive-page[data-view="garden"] .archive-garden {
   display: flex;
 }
 
-.archive-page[data-view="garden"] :is(.archive-groups, .archive-masthead) {
+.archive-page[data-view="garden"] :is(.archive-body, .archive-masthead, .archive-year) {
   display: none;
 }
 
-/* 花园里页名换成它的真名，年份切片不跟着去（花园的清单不按年分） */
-.archive-page[data-view="garden"] .archive-year {
-  display: none;
-}
-
-.archive-garden__header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.35rem 1rem;
+.archive-garden__gate {
+  max-width: 22rem;
 }
 
 .archive-garden__count {
-  margin: 0;
-  color: var(--sub-text-color);
-  font-family: var(--font-mono);
+  font-family: var(--font-mono, monospace);
   font-size: 0.75rem;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.35;
+  color: var(--sub-text-color);
 }
 
-/* 门禁与清单互斥：一个 data-state 同时管住两边，JS 只改这一个属性 */
 .archive-garden :is(.archive-garden__list, .archive-garden__lock, .gate__error) {
   display: none;
 }
@@ -756,40 +694,6 @@
   display: none;
 }
 
-.archive-garden__items {
-  display: grid;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* 解锁时逐条上浮，节奏与幕帘一致 */
-.archive-garden__item {
-  min-width: 0;
-  animation: archive-garden-item-in 300ms var(--ease-out) backwards;
-  animation-delay: calc(var(--i, 0) * 30ms);
-}
-
-@keyframes archive-garden-item-in {
-  from {
-    opacity: 0;
-    translate: 0 -0.35rem;
-  }
-}
-
-/* 花园里的行沿用归档条目的两列排法，强调色换成花园的那一支 */
-.archive-garden a.archive-title {
-  &:hover,
-  &:focus-visible,
-  &:active {
-    color: var(--archive-garden-accent);
-  }
-
-  &:is(:hover, :focus-visible) > .archive-title__date {
-    color: color-mix(in oklch, var(--archive-garden-accent) 72%, var(--sub-text-color));
-  }
-}
-
 .archive-garden__lock {
   align-self: start;
   padding: 0.25rem 0;
@@ -797,202 +701,31 @@
   background: transparent;
   color: var(--sub-text-color);
   cursor: pointer;
-  font-family: var(--font-mono);
+  font-family: var(--font-mono, monospace);
   font-size: 0.6875rem;
-  line-height: 1.6;
   text-transform: uppercase;
-  transition: color 140ms var(--ease-out);
+  transition: color 140ms ease;
 
-  &:hover,
-  &:focus-visible {
-    color: var(--archive-garden-accent);
+  &:hover {
+    color: var(--title-text-color);
   }
 }
 
-/* #endregion */
+/* 年份切片：archive.js 给不属于当前年份的季节组加 .is-sliced-out；切换时整列淡出再淡入 */
+.archive-group.is-sliced-out {
+  display: none;
+}
 
-/* #region Groups */
-
-/* 一季一段地码下来，顺着时间往下走 */
 .archive-groups {
-  display: grid;
-  gap: 3.5rem;
-  min-width: 0;
-}
+  transition: opacity 220ms ease;
 
-.archive-group {
-  position: relative;
-  min-width: 0;
-  /* 年份的落点：让标签正好落在它的吸顶位——与手动滚到那里同一状态，
-     模糊层随之点亮（全局 :where([id]) 的 1rem 阅读间距在这里不够用） */
-  scroll-margin-block-start: var(--archive-sticky-top);
-
-  &.spring {
-    --archive-accent: var(--peach);
-  }
-  &.summer {
-    --archive-accent: var(--green);
-  }
-  &.autumn {
-    --archive-accent: var(--red);
-  }
-  &.winter {
-    --archive-accent: var(--blue);
-  }
-}
-
-/* 季节行：一行墨色的小标题（Autumn），比条目大一号、重一档，与灰色的条目拉开层级；
-   高 32px、下留 8px；它本身就是通往本季的链接 */
-.archive-group__header {
-  display: flex;
-  margin: 0 0 0.5rem;
-  line-height: 2rem;
-}
-
-/* 标签滚动到时从下方浮现（.is-armed / .is-emerging 由 archive.js 的观察器维护） */
-.archive-folio {
-  display: block;
-  color: var(--title-text-color);
-  font-family: var(--article-font-family);
-  font-size: calc(var(--article-font-size) * 1.25);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: -0.01em;
-  text-transform: capitalize;
-  text-decoration: none;
-  transition: color 220ms var(--ease-out);
-
-  &:is(:hover, :focus-visible) {
-    color: var(--sub-text-color);
-  }
-}
-
-.archive-folio.is-armed {
-  opacity: 0;
-  translate: 0 0.6rem;
-}
-
-.archive-folio.is-emerging {
-  animation: archive-folio-rise 760ms var(--ease-out) both;
-}
-
-@keyframes archive-folio-rise {
-  from {
+  &.is-slicing {
     opacity: 0;
-    translate: 0 0.6rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .archive-folio.is-armed {
-    opacity: 1;
-    translate: none;
-  }
-}
-
-/* #endregion */
-
-/* #region Entries */
-
-/* 一季的清单：条目之间没有分隔线，只有等距的行距。
-   行的两列在 a.archive-title 上——列表本身只是把行码齐 */
-.archive-list {
-  display: grid;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.archive-item {
-  position: relative;
-  min-width: 0;
-}
-
-/* 一行两列：标题贴左缘占满剩余宽度，日期贴右缘。列宽由内容决定，
-   所以短标题的行里日期不会跟着标题飘——它始终落在同一条竖轴上 */
-a.archive-title {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: var(--archive-row-gap);
-  align-items: baseline;
-  max-inline-size: 100%;
-  /* 条目与正文同一字号；桌面再放大一档 */
-  font-size: var(--article-font-size);
-  font-weight: var(--article-font-weight);
-  font-family: var(--article-font-family);
-  line-height: 1.4;
-  /* 静息灰、聚焦墨：被检视的那一条从清单里站出来 */
-  color: var(--sub-text-color);
-  padding-block: 0.5rem;
-  overflow-wrap: anywhere;
-  text-decoration: none;
-  transition: color 140ms var(--ease-out);
-
-  /* 桌面：标题占前六栏、日期落在第七栏，栏距与页面网格同一个值 */
-  @media (min-width: 1024px) {
-    grid-template-columns: minmax(0, 6fr) minmax(0, 1fr);
-    column-gap: var(--grid-gutter);
-    font-size: calc(var(--article-font-size) * 1.0625);
-    line-height: 1.5;
-  }
-
-  /* 触屏行距：默认约 37px、相邻条目零间距，167 行的列表里误触代价高；
-     粗指针下把行距撑到约 44px */
-  @media (pointer: coarse) {
-    padding-block: 0.625rem;
-  }
-
-  &:hover,
-  &:focus-visible {
-    color: var(--archive-accent);
-  }
-
-  /* 按下当帧上色（transition: none）：触屏没有 hover，
-     这是点按到跳转之间唯一的即时确认 */
-  &:active {
-    color: var(--archive-accent);
+  .archive-groups {
     transition: none;
   }
 }
-
-.archive-title__text {
-  min-width: 0;
-}
-
-/* 日期作为右列的注脚：等宽小字、不折行，与标题首行共享基线 */
-.archive-title__date {
-  justify-self: end;
-  color: var(--sub-text-color);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.025em;
-  white-space: nowrap;
-  transition: color 140ms var(--ease-out);
-}
-
-a.archive-title:is(:hover, :focus-visible) > .archive-title__date,
-.archive-item[data-inspected] > .archive-title > .archive-title__date {
-  color: var(--title-text-color);
-}
-
-/* #endregion */
-
-
-
-/* #region Focus & motion */
-
-:is(.archive-masthead__topics, .archive-group__link, .archive-topic-list__item, .archive-topic-picker__close, .archive-garden__lock, .archive-year, a.archive-title):focus-visible {
-  outline: auto;
-  outline-offset: 2px;
-  transition: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .archive-topic-picker:popover-open .archive-topic-list__item,
-  .archive-garden__item {
-    animation: none;
-  }
-}
-
-/* #endregion */

@@ -3,6 +3,12 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "11.08",
+        cn: ["文章首屏按有无封面分为 6:6 与 8:4 两种版式，桌面端目录常驻左侧。", "去掉菜单钮，点站名打开整屏的栏目页。"],
+        en: ["The article opening now has 6:6 and 8:4 layouts for posts with and without a cover, and the desktop TOC stays docked on the left.", "The menu button is gone; clicking the site name opens a full-screen page of links."],
+        category: "uiux",
+      },
+      {
         date: "11.02",
         cn: [
           "重做偏好相关的几张面：顶栏的菜单与偏好卡片放大留白，控件统一为 0.5px 描边的分段条，状态不再用底色区分（静息灰、悬停墨、选中墨字加短下划线）；设置页去掉主题示意图、章节加编号、栏宽滑块改圆头，手机上不再双层留白、也不显示栏宽一行；文章页载入时 INFO 面板不再先展开再折叠，脚注前的分隔线改浅；首页暂不链出双链图",

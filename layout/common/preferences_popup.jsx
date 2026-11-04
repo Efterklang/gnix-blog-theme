@@ -79,8 +79,8 @@ module.exports = class extends Component {
     }
 
     return (
-      <div id="preference-popup" class="preference-popup" popover="auto" role="dialog" aria-label={title}>
-        <div class="preference-quick surface" data-preferences-page data-preference-surface="quick">
+      <div id="preference-popup" class="preference-popup popup-card" popover="auto" role="dialog" aria-label={title}>
+        <div class="preference-quick" data-preferences-page data-preference-surface="quick">
           {rows.map(([label, controls]) => (
             <div class="preference-quick__row">
               <span class="preference-quick__label">{label}</span>

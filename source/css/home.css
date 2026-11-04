@@ -1,332 +1,342 @@
-/* 首页跟随文章宽度偏好（与归档页一致），本文件仅在首页加载 */
-.main-content {
-  max-width: calc(var(--article-max-width) + 3rem);
+/* 首页：Editorial / Swiss 风格三段式纯粹排印布局。
+   具备对角线张力平衡（Diagonal Balance），由两条细腻 Hairline 划分。 */
+
+:root {
+  --home-measure: min(100%, 96rem);
+  --home-gutter: 2rem;
+  --home-hairline: color-mix(in oklab, var(--sub-text-color) 18%, transparent);
 }
 
-/* 首页的纵向留白交给每一屏自己（见 .home-page > section）：主内容只保留左右内边距，
-   首屏起点因此正好落在吸顶导航条的下沿，与 .home-hero 的吸附偏移一致 */
 .main-content:has(> .home-page) {
+  max-width: var(--home-measure);
   padding-block: 0;
-}
-
-/* 首页按整屏的「页」呈现：首屏是 hero，话题与近期写作同占其后的整屏，滚动逐页吸附 */
-:root:has(.home-page) {
-  scroll-snap-type: y mandatory;
-  /* 页尾高度：由 home.js 量取后写回；未启用时用偏小的估计值兜底。
-     宁可略小也不能偏大——偏大会让第二屏的吸附落点落到可滚动范围之外 */
-  --home-footer-space: 8rem;
+  padding-inline: var(--page-margin);
 }
 
 .home-page {
-  /* Swiss：没有强调色，悬停只是墨与灰的切换 */
-  --home-accent: var(--title-text-color);
   --home-enter-duration: 700ms;
-  /* 首屏之上被吸顶导航条占去的高度；≤1023px 导航条移到底部，值为 0 */
-  --home-navbar-space: calc(var(--navbar-height) + env(safe-area-inset-top));
-  /* 每屏内容与屏幕上下边缘之间的最小边界 */
-  --home-edge-gap: 3rem;
-  /* 页面内容距视口顶端的距离：取视口高度的一档，视觉重心比几何中心更靠上；
-     各屏共用同一档，翻页时内容停在同一条水平线上。桌面视口高、留白足，取更大的一档 */
-  --home-content-top: calc(var(--home-navbar-space) + max(var(--home-edge-gap), 26svh));
-  padding-inline: 1.5rem;
+  display: block;
+  min-height: 100svh;
 }
 
-/* 每一屏都是一页：内容自页首那一档起向下排，滚动必须落在页首 */
-.home-page > section {
+.home-hero {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  width: min(100%, 38rem);
+  justify-content: space-between;
   min-height: 100svh;
-  padding-top: var(--home-content-top);
-  padding-bottom: var(--home-edge-gap);
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
+  padding-block:
+    calc(var(--page-margin) + env(safe-area-inset-top)) calc(var(--page-margin) + env(safe-area-inset-bottom));
 }
 
-/* 首屏自导航条下沿开始：扣掉导航条已占的那一档，与后续屏内容同一水平线。
-   吸附偏移取导航条高度，初始落点仍是页面 0，不会一加载就往上跳 */
-.home-page > .home-hero {
-  scroll-margin-top: var(--home-navbar-space);
-  min-height: calc(100svh - var(--home-navbar-space));
-  padding-top: calc(var(--home-content-top) - var(--home-navbar-space));
+/* ==========================================================================
+   1. 顶部区域 (Top): 左上角巨字 + 右上角数据规格表
+   ========================================================================== */
+
+.home-hero__top {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 2.5rem;
+  padding-bottom: clamp(2rem, 4svh, 3.5rem);
 }
 
-/* 第二屏：话题与近期写作同屏，两块之间只以留白分隔。
-   高度扣掉页尾，页尾因此直接落在这一屏的底部，不必再占一屏 */
-.home-page > .home-index {
-  gap: 2.5rem;
-  min-height: calc(100svh - var(--home-footer-space));
+@media (min-width: 1024px) {
+  .home-hero__top {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--home-gutter);
+    align-items: start;
+  }
+
+  .home-hero__brand {
+    grid-column: 1 / span 8;
+  }
+
+  .home-hero__spec {
+    grid-column: 9 / span 4;
+    justify-self: end;
+    max-width: 17rem;
+  }
 }
 
-/* 页尾的落点通常与第二屏重合（第二屏已按页尾高度让位）；保留它作为兜底：
-   第二屏的内容长过一屏时，页尾仍有一个可到达的落点，mandatory 不会把它困在折叠线外 */
-:root:has(.home-page) .footer {
-  scroll-snap-align: end;
-  scroll-margin-bottom: var(--article-footer-offset, 0px);
-}
-
-/* 站名是一行大写的巨字：常规字重、收紧的字距，靠尺寸立住 */
 .home-hero__title {
-  margin: 0;
+  margin: -0.1em 0 0 -0.04em;
   color: var(--title-text-color);
   font-family: var(--article-font-family);
-  font-size: clamp(3rem, 8vw, 5.5rem);
-  font-weight: 500;
-  line-height: 0.95;
-  letter-spacing: -0.03em;
+  font-size: clamp(3.25rem, 8.5vw, 7.5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
   text-transform: uppercase;
-  overflow-wrap: anywhere;
+}
+
+.home-hero__ipa {
+  display: block;
+  margin-top: 0.85rem;
+  color: color-mix(in oklab, var(--sub-text-color) 85%, transparent);
+  font-family: 'Times New Roman', Times, serif;
+  font-size: clamp(1rem, 1.4vw, 1.35rem);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.home-hero__lead {
+  margin-top: clamp(1.75rem, 3.5svh, 2.75rem);
+  max-width: 34rem;
+  font-family: var(--article-font-family);
+  font-size: 0.9375rem;
+  line-height: 1.6;
 }
 
 .home-hero__intro {
-  margin: 2rem 0 0;
-  max-width: 34rem;
-  color: var(--sub-text-color);
-  font-family: var(--article-font-family);
-  font-size: var(--article-font-size);
-  font-weight: var(--article-font-weight);
-  line-height: var(--type-body-leading);
-  overflow-wrap: anywhere;
-}
-
-/* 简介为两段：第二段与第一段之间留一个段间距 */
-.home-hero__intro + .home-hero__intro {
-  margin-top: 0.75em;
-}
-
-/* 滚动提示是首屏的收尾句，比简介再降一级：更小、更淡 */
-.home-hero__caption {
-  margin: 1.25rem 0 0;
-  max-width: 34rem;
-  color: color-mix(in oklch, var(--sub-text-color) 75%, transparent);
-  font-family: var(--article-font-family);
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
-}
-
-/* 名字后的音标：衬线斜体与正文区分开，且不在中间折行 */
-.home-hero__ipa {
-  font-family: serif;
-  font-style: italic;
-  white-space: nowrap;
-}
-
-/* 简介内链接：墨色细下划线，hover 退一档灰 */
-.home-intro__link {
+  margin: 0;
   color: var(--title-text-color);
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-color: currentColor;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-  transition: color 140ms var(--ease-out);
-
-  &:hover,
-  &:focus-visible {
-    color: var(--sub-text-color);
-  }
 }
 
-/* #region Links */
+.home-hero__intro--muted {
+  margin-top: 0.25rem;
+  color: color-mix(in oklab, var(--sub-text-color) 70%, transparent);
+}
 
-/* 话题：标签在上、链接在下，行与行之间只有留白 */
-.home-links__list {
-  display: grid;
-  gap: 1.75rem;
+/* 规格表：增加细腻的底部分隔线，使其与标题更紧凑整齐 */
+.home-hero__spec {
   margin: 0;
   padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.home-links__row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.25rem;
+.home-hero__spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  line-height: 1.65rem;
+  padding-block: 0.25rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--home-hairline) 60%, transparent);
 }
 
-.home-links__label,
-.home-recent__title {
-  margin: 0;
-  color: var(--sub-text-color);
-  font-family: var(--font-label);
-  font-size: var(--label-size);
-  font-weight: var(--label-weight);
-  letter-spacing: var(--label-tracking);
-  line-height: 1.5;
+.home-hero__spec-row:last-child {
+  border-bottom: none;
+}
+
+.home-hero__spec-label {
+  color: color-mix(in oklab, var(--sub-text-color) 65%, transparent);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.home-links__value {
-  display: flex;
-  flex-wrap: wrap;
-  /* 纵向只靠链接自身的内边距撑开，与近期列表同一节奏 */
-  gap: 0 1rem;
-  align-items: baseline;
+.home-hero__spec-value {
   margin: 0;
-  min-width: 0;
-}
-
-/* 列表里的链接（标签、近期条目、链接行）共用一套，以近期条目为准：
-   15px 级字号，上下 7px 内边距撑出行距；块级 + fit-content 让点击区只包住文字 */
-.home-list-link {
-  display: block;
-  width: fit-content;
-  max-width: 100%;
-  padding-block: 0.4375rem;
   color: var(--title-text-color);
-  font-family: var(--article-font-family);
-  font-size: calc(var(--article-font-size) * 0.9375);
-  font-weight: var(--article-font-weight);
-  line-height: 1.4;
-  text-decoration: none;
-  overflow-wrap: anywhere;
-  transition: color 140ms var(--ease-out);
-
-  &:hover,
-  &:focus-visible {
-    color: var(--home-accent);
-  }
-
-  /* 按下当帧上色（transition: none）：触屏没有 hover，这是点按到跳转之间唯一的即时确认 */
-  &:active {
-    color: var(--home-accent);
-    transition: none;
-  }
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
-/* 标签沿用归档标签列表的 # 前缀 */
-.home-list-link--tag::before {
-  content: "#";
-  margin-inline-end: 0.08em;
-  color: var(--sub-text-color);
-  font-family: var(--font-mono);
-  font-size: 0.78em;
-}
+.home-intro__link {
+  color: var(--title-text-color);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in oklab, var(--title-text-color) 40%, transparent);
+  transition: text-decoration-color 150ms ease;
 
-:is(.home-intro__link, .home-list-link, .home-recent__title-link):focus-visible {
-  outline: auto;
-  outline-offset: 3px;
-  transition: none;
-}
-
-/* #endregion */
-
-/* #region Recent */
-
-/* 近期写作：带序号的清单——标题在上，每条前一枚 01、02… 的序号，不画线 */
-.home-recent {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  counter-reset: home-recent;
-}
-
-.home-recent__body {
-  min-width: 0;
-}
-
-/* Recent 标签本身即全部文章入口：hover / 按下时标签与箭头一起上强调色 */
-.home-recent__title-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3em;
-  color: inherit;
-  text-decoration: none;
-  transition: color 140ms var(--ease-out);
-
-  &:hover,
-  &:focus-visible {
-    color: var(--home-accent);
-  }
-
-  &:active {
-    color: var(--home-accent);
-    transition: none;
+  &:hover {
+    text-decoration-color: var(--title-text-color);
   }
 }
 
-.home-recent__list {
+/* ==========================================================================
+   2. 中腰带区域 (Mid): 两条 Hairline 之间的专属导航带
+   ========================================================================== */
+
+.home-hero__mid {
+  position: relative;
   width: 100%;
-  margin: 0.5rem 0 0;
+  margin-block: auto;
+  padding-block: clamp(1.25rem, 2.5svh, 1.75rem);
+  border-top: 1px solid var(--home-hairline);
+  border-bottom: 1px solid var(--home-hairline);
+}
+
+.home-hero__mid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.home-hero__mid-label,
+.home-hero__mid-count {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--sub-text-color) 45%, transparent);
+}
+
+.home-hero__links {
+  margin: 0;
   padding: 0;
   list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem 1.5rem;
 }
 
-.home-recent__item {
-  display: grid;
-  grid-template-columns: 2.5rem minmax(0, 1fr);
-  align-items: baseline;
-  counter-increment: home-recent;
-
-  &::before {
-    content: counter(home-recent, decimal-leading-zero);
-    color: var(--sub-text-color);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.08em;
-    font-variant-numeric: tabular-nums;
+@media (min-width: 768px) {
+  .home-hero__links {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem;
   }
 }
 
-/* 日期作为行内注脚跟在标题后：等宽小字、不折行，hover 时随链接微微上色 */
-.home-recent__date {
-  margin-inline-start: 0.5rem;
-  color: var(--sub-text-color);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.025em;
+.home-hero__link {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  color: var(--title-text-color);
+  text-decoration: none;
+  transition: transform 160ms ease, color 160ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    color: var(--title-text-color);
+  }
+}
+
+.home-hero__link-index {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.625rem;
+  color: color-mix(in oklab, var(--sub-text-color) 55%, transparent);
+}
+
+.home-hero__link-text {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
-/* #endregion */
+.home-hero__external {
+  font-size: 0.75rem;
+  color: color-mix(in oklab, var(--sub-text-color) 55%, transparent);
+}
 
-/* 与归档页同一套入场：标题领先，简介与各行按 --i 以 60ms 间隔跟进；
-   .gnix-revealed 由 head 内联脚本在首帧前加上。
-   淡入意味着作为 LCP 元素的简介段落要等首帧之后才计入绘制（移动端模拟约多 2 s），
-   这是有意保留的视觉取舍 */
-:root.gnix-revealed .home-page :is(.home-hero__title, .home-hero__intro, .home-hero__caption, .home-links__row, .home-recent__title, .home-recent__item) {
-  animation: home-enter var(--home-enter-duration) var(--ease-out) backwards;
+/* ==========================================================================
+   3. 底部区域 (Bottom): 左下角坐标 + 右下角 Collections（对角闭环）
+   ========================================================================== */
+
+.home-hero__bottom {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--home-gutter);
+  align-items: end;
+}
+
+/* 核心重构：Collections 独占右侧 7 栏并彻底右对齐，与左上角标题呼应 */
+.home-hero__caption {
+  grid-column: 6 / span 7;
+  justify-self: end;
+  align-items: flex-end;
+}
+
+.home-archive__label {
+  color: color-mix(in oklab, var(--sub-text-color) 65%, transparent);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color 140ms ease;
+
+  &:hover {
+    color: var(--title-text-color);
+  }
+}
+
+.home-archive__years {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 clamp(1.5rem, 4vw, 3rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  justify-content: flex-start;
+}
+
+.home-archive__year {
+  position: relative;
+  display: inline-block;
+  color: color-mix(in oklab, var(--title-text-color) 35%, transparent);
+  font-family: var(--article-font-family);
+  font-size: clamp(3rem, 6.5vw, 5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-decoration: none;
+  transition: color 800ms ease, transform 200ms ease;
+
+  &[data-current="true"], &:hover {
+    color: var(--title-text-color);
+  }
+}
+
+.home-archive__years:has(.home-archive__year:hover) .home-archive__year:not(:hover) {
+  color: color-mix(in oklab, var(--sub-text-color) 25%, transparent) !important;
+}
+
+.home-archive__year-count {
+  position: absolute;
+  top: 10%;
+  left: 100%;
+  margin-left: 0.25rem;
+  color: var(--sub-text-color);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.home-archive__year:hover > .home-archive__year-count {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (max-width: 640px) {
+  .home-archive__year-count {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   入场动画
+   ========================================================================== */
+
+:root.gnix-revealed .home-page :is(.home-hero__brand, .home-hero__spec, .home-hero__mid, .home-hero__bottom-marker, .home-hero__caption) {
+  animation: home-enter var(--home-enter-duration) cubic-bezier(0.16, 1, 0.3, 1) backwards;
   animation-delay: calc(min(var(--i, 0), 12) * 60ms);
 }
 
 @keyframes home-enter {
   from {
     opacity: 0;
-    translate: 0 14px;
-  }
-}
-
-@keyframes home-fade {
-  from {
-    opacity: 0;
-  }
-}
-
-@media (max-width: 1023px) {
-  .home-page {
-    /* 导航条常驻屏幕底部，首屏之上没有它占位；内容上沿补回状态栏安全区 */
-    --home-navbar-space: 0px;
-    --home-content-top: calc(env(safe-area-inset-top) + clamp(var(--home-edge-gap), 20svh, 12rem));
-  }
-
-  /* 底部工具条浮在内容之上：第二屏连同页尾再让出它的高度 */
-  .home-page > .home-index {
-    min-height: calc(100svh - var(--home-footer-space) - var(--article-footer-offset, 0px));
-  }
-}
-
-@media (max-width: 480px) {
-  .home-hero__title {
-    font-size: 2.5rem;
+    transform: translateY(12px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root.gnix-revealed .home-page :is(.home-hero__title, .home-hero__intro, .home-hero__caption, .home-links__row, .home-recent__title, .home-recent__item) {
-    animation: home-fade 160ms var(--ease-out) backwards;
-    animation-delay: 0ms;
+
+  .home-archive__year,
+  .home-hero__link {
+    transform: none !important;
   }
 }

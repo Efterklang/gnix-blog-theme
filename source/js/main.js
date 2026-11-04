@@ -195,40 +195,29 @@ function handleKeyDown(e) {
 
 // #endregion
 
-// #region Navbar
-// 顶栏吸顶但不常驻：往下滚过一屏的零头就让位，往上滚一点就回来；接近页首时一定在
-function initNavbarReveal() {
-  const root = document.documentElement;
-  let last = window.scrollY;
-  let frame = null;
-  const update = () => {
-    frame = null;
-    const y = window.scrollY;
-    const delta = y - last;
-    if (y < 80) root.dataset.navbar = "shown";
-    else if (delta > 6) root.dataset.navbar = "hidden";
-    else if (delta < -6) root.dataset.navbar = "shown";
-    last = y;
-  };
-  window.addEventListener(
-    "scroll",
-    () => {
-      if (frame == null) frame = requestAnimationFrame(update);
-    },
-    { passive: true },
-  );
-}
-// #endregion
 
 // #region boot
 // main.js 以 <script type="module"> 加载，具备 defer 语义：执行到这里时 DOM 必已解析完毕，
 // 无需 DOMContentLoaded 门控；prerender 页面经 runWhenActivated 推迟到激活后初始化
+// 栏目页（点站名弹出的整屏 #navbar-menu）：popovertarget 不维护 aria-expanded，这里跟随开合同步；
+// 打开时焦点落在当前栏目（没有就第一项），关上后回到站名钮
+function initNavbarMenu() {
+  const menu = document.getElementById("navbar-menu");
+  const trigger = document.querySelector('.navbar-brand[popovertarget="navbar-menu"]');
+  if (!menu || !trigger) return;
+  menu.addEventListener("toggle", (event) => {
+    const open = event.newState === "open";
+    trigger.setAttribute("aria-expanded", String(open));
+    if (open) (menu.querySelector(".navbar-menu__item.is-active") || menu.querySelector(".navbar-menu__item"))?.focus({ preventScroll: true });
+  });
+}
+
 runWhenActivated(() => {
-  initNavbarReveal();
   document.addEventListener("keydown", handleKeyDown, {
     capture: true, // 捕获阶段监听，优先于浏览器默认处理
     passive: false, // 允许调用 preventDefault
   });
+  initNavbarMenu();
 });
 
 // #endregion

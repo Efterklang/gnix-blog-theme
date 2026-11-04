@@ -497,26 +497,23 @@
   border: 0;
   border-radius: var(--preference-radius-sm);
   box-shadow: 0 0 0 0.5px var(--preference-border);
-  color: var(--sub-text-color);
+  color: color-mix(in oklab, var(--sub-text-color) 55%, transparent);
   background: transparent;
   cursor: pointer;
-  transition:
-    color 120ms ease,
-    box-shadow 120ms ease;
+  transition: color 160ms ease;
 
+  /* 状态只靠字色：静息浅灰、悬停灰、选中墨色 */
   .font-type-preview {
-    color: var(--title-text-color);
+    color: inherit;
     font-size: 1.5rem;
   }
 
   &:hover {
-    color: var(--title-text-color);
-    box-shadow: 0 0 0 0.5px var(--preference-border-hover);
+    color: var(--sub-text-color);
   }
 
   &.is-active {
     color: var(--title-text-color);
-    box-shadow: 0 0 0 1px var(--title-text-color);
   }
 }
 
@@ -597,6 +594,8 @@
   }
 
   strong {
+    color: color-mix(in oklab, var(--sub-text-color) 75%, transparent);
+    transition: color 160ms ease;
     font-size: var(--preference-font-ui);
     font-weight: var(--font-weight-semibold);
     line-height: 1.45;
@@ -609,8 +608,8 @@
     }
   }
 
-  &:has(input:checked) {
-    box-shadow: 0 0 0 1px var(--title-text-color);
+  &:has(input:checked) strong {
+    color: var(--title-text-color);
   }
 
   &:has(input:focus-visible) {

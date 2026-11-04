@@ -49,66 +49,30 @@
 }
 
 @media screen and (max-width: 1023px) {
-  /* 窄屏顶栏：站名与图标；有目录的文章页多一枚目录钮 */
+  /* 窄屏顶栏：站名（文章页带语境钮）与图标 */
   .navbar {
     padding-inline: 1rem;
   }
 
-  body:has(.toc-container:not([style*="display:none"])) .navbar-toc {
-    display: inline-flex;
+  /* 卡片贴着各自触发钮那一侧：窄屏顶栏的左右内边距是 1rem */
+  .preference-popup {
+    --popup-inset: var(--popup-top) 1rem auto auto;
   }
 
-  .navbar-menu,
+  /* 栏目页的顶行与窄屏顶栏同一副左右内边距 */
   .navbar-menu:popover-open {
-    right: 1rem;
+    padding-inline: 1rem;
   }
 
   .command-palette-container {
     top: 15px;
     width: 90%;
   }
-
-}
-
-/* 工具栏没钉在左侧时（窄屏，或桌面上正文左侧空白不够）：规格表排成两列放在摘要下方、INFO 开关不显示，
-   目录由顶栏的目录钮打开弹层 */
-:root:not([data-article-gutter="wide"]) {
-  .article-rail {
-    margin: 0 0 2.5rem;
-  }
-
-  .article-rail__section[data-rail="info"] > .article-rail__toggle {
-    display: none;
-  }
-
-  .article-rail__section[data-rail="info"] > .article-rail__panel {
-    grid-template-rows: 1fr;
-
-    > * > :first-child {
-      padding: 0;
-      opacity: 1;
-      translate: 0 0;
-    }
-
-    .article-info__item {
-      opacity: 1;
-      translate: 0 0;
-    }
-  }
-
-  .article-info {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.25rem 1.5rem;
-  }
-
-  body:has(.toc-container:not([style*="display:none"])) .navbar-toc {
-    display: inline-flex;
-  }
 }
 
 @media screen and (min-width: 1280px) {
   /* Side note: float aside into the right margin so it doesn't squeeze .content
-     （.content 不建立 BFC——规格表浮在它左侧，它得绕排；浮动由外层 .article-body 收住） */
+     （.content 不建立 BFC，浮动伸出它的右缘、落进文章网格的 margin 栏） */
   .content {
     overflow: visible;
   }
@@ -116,9 +80,9 @@
   .content > aside {
     float: right;
     clear: right;
-    width: 11rem;
-    /* margin-right: -(width + gap) so the aside box pulls itself past .content's right edge */
-    margin: 0 -12.5rem 1rem 1.5rem;
+    /* 落在文章网格右手的 margin 栏里：margin-right 取 -(栏宽 + 栏距)，把自己拉出 .content 的右缘 */
+    width: var(--margin-width, 11rem);
+    margin: 0 calc(-1 * (var(--margin-width, 11rem) + var(--margin-gap, 1.5rem))) 1rem var(--margin-gap, 1.5rem);
     padding: 0 0 0 0.875rem;
     font-size: 0.8em;
   }

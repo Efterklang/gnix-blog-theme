@@ -48,8 +48,6 @@ module.exports = class extends Component {
       <Fragment>
         <Plugins site={site} config={config} page={page} helper={helper} head={false} />
         <script type="module" src={url_for("/js/main.js")}></script>
-        {/* 首页专属：把页尾高度写进 CSS 变量，第二屏据此让位，页尾不再另占一屏 */}
-        {page.home === true ? <script type="module" src={url_for("/js/home.js")}></script> : null}
         {helper.is_archive() || helper.is_tag() ? <script type="module" src={url_for("/js/archive.js")}></script> : null}
         {/* 双链图页：取 graph.json、排布局、画 SVG */}
         {page.graph === true ? <script type="module" src={url_for("/js/graph.js")}></script> : null}

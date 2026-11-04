@@ -45,8 +45,9 @@ const STYLES = `
       float: right;
       clear: right;
       box-sizing: border-box;
-      width: 11rem;
-      margin: 0 -12.5rem 1rem 1.5rem;
+      /* 落在文章网格右手的 margin 栏里（article.css 的 --margin-width / --margin-gap） */
+      width: var(--margin-width, 11rem);
+      margin: 0 calc(-1 * (var(--margin-width, 11rem) + var(--margin-gap, 1.5rem))) 1rem var(--margin-gap, 1.5rem);
       padding: 0 0 0 0.875rem;
       font-size: 0.8em;
     }
@@ -60,7 +61,7 @@ const STYLES = `
       clear: none;
       position: absolute;
       top: var(--side-note-top, 0);
-      right: -12.5rem;
+      right: calc(-1 * (var(--margin-width, 11rem) + var(--margin-gap, 1.5rem)));
       margin: 0;
     }
   }

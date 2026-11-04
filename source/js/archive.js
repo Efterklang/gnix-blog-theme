@@ -3,37 +3,6 @@ import { runWhenActivated } from "./main.js";
 
 // 秘密花园的入口：在归档页（含标签页）的页名上连点三次（见 initArchiveGarden）
 const GARDEN_CLICKS = 3;
-// 季节牌：每一季的标签进入视口时从下方浮现，完全离场后复位，
-// 来回滚动都会重放（.is-armed / .is-emerging 见 archive.css）
-function initArchiveFolio() {
-  const page = document.querySelector(".archive-page");
-  const folios = page ? [...page.querySelectorAll(".archive-folio")] : [];
-  if (!folios.length || !("IntersectionObserver" in window)) return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        const folio = entry.target;
-        if (entry.isIntersecting) {
-          folio.classList.remove("is-armed", "is-emerging");
-          void folio.getBoundingClientRect(); // 重排一次，让动画从头重放
-          folio.classList.add("is-emerging");
-          continue;
-        }
-        // 完全离场（沉到下缘之下或升到上缘之上）才复位，免得复位那一帧被看见
-        const rect = entry.boundingClientRect;
-        if (rect.top >= window.innerHeight || rect.bottom <= 0) {
-          folio.classList.remove("is-emerging");
-          folio.classList.add("is-armed");
-        }
-      }
-    },
-    { rootMargin: "0px 0px -10% 0px" },
-  );
-  for (const folio of folios) observer.observe(folio);
-}
-
 // 年份切片：一枚可以按的年份——点一下滚到上一年（到头绕回最新的一年）；?year= 由脚本写进地址栏，可分享、可后退
 function initArchiveYears() {
   const page = document.querySelector(".archive-page");
@@ -41,7 +10,6 @@ function initArchiveYears() {
   const groups = page ? [...page.querySelectorAll(".archive-group[data-years]")] : [];
   if (!button || !groups.length) return;
   const value = button.querySelector(".archive-year__value");
-  const yearButtons = [...page.querySelectorAll("[data-archive-year]")];
   const countEl = page.querySelector("[data-archive-count]");
   const wordEl = page.querySelector("[data-archive-count-word]");
   const groupsBox = page.querySelector(".archive-groups");
@@ -58,14 +26,13 @@ function initArchiveYears() {
   let active = null;
 
   function roll(year) {
-    // 页码只报两位数（26、25）；换数字时淡一下
+    // 页码只报两位数，前面一个省略撇（’26、’25）；换数字时淡一下
     if (value) {
       value.classList.add("is-rolling");
-      value.textContent = String(year).slice(-2);
+      value.textContent = `’${String(year).slice(-2)}`;
       requestAnimationFrame(() => value.classList.remove("is-rolling"));
     }
     button.setAttribute("aria-label", `${year} ${button.dataset.switchLabel || ""}`.trim());
-    for (const item of yearButtons) item.setAttribute("aria-current", item.dataset.archiveYear === String(year) ? "true" : "false");
   }
 
   function slice(year, { animate = false, push = false } = {}) {
@@ -102,11 +69,6 @@ function initArchiveYears() {
     const index = years.indexOf(active);
     slice(years[(index + 1) % years.length], { animate: true, push: true });
   });
-  for (const item of yearButtons) {
-    item.addEventListener("click", () => {
-      if (years.includes(item.dataset.archiveYear)) slice(item.dataset.archiveYear, { animate: true, push: true });
-    });
-  }
 
   window.addEventListener("popstate", () => {
     const year = new URLSearchParams(window.location.search).get("year");
@@ -403,7 +365,6 @@ function initArchiveInspector() {
 }
 
 runWhenActivated(() => {
-  initArchiveFolio();
   initArchiveYears();
   initArchiveTitleFit();
   initArchiveInspector();

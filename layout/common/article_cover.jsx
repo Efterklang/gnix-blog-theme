@@ -9,8 +9,8 @@ module.exports = class extends Component {
     const canResize = helper.image_resize_supported(cover);
     const imageSrcset = metadata ? generateSrcset(cover, metadata.width, [400, 600, 800, 1200, 1600, 2000]) : undefined;
     const placeholder = metadata?.dataURL || (canResize ? withImageParams(cover, { w: 32, q: 30 }) : null);
-    // 封面按原比例尽量放大：最宽到栏宽（随阅读宽度偏好，最宽 64em），高度另由 CSS 限在首屏内
-    const sizes = "min(calc(100vw - 3rem), 64em)";
+    // 封面在首屏 ≥1024 时占 12 栏里的右 6 栏（版心最宽 96rem），窄屏宽到版心
+    const sizes = "(min-width: 1024px) min(50vw, 48rem), calc(100vw - 2.5rem)";
 
     return (
       <div class="cover-image">

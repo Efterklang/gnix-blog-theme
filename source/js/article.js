@@ -556,7 +556,7 @@ function handleArticleKeyDown(e) {
   if (["INPUT", "TEXTAREA"].includes(tag) || e.target.isContentEditable) return;
 
   e.preventDefault();
-  document.getElementById("toc-body")?.togglePopover();
+  toggleArticlePanel();
 }
 
 // #endregion
@@ -610,66 +610,98 @@ function initArticleCommentPopover() {
   });
 }
 
-function initTocPopover() {
-  const tocBody = document.getElementById("toc-body");
-  if (!tocBody || tocBody.dataset.bound === "true") return;
+// #region Article panel (navbar context · Contents)
+// 目录 #article-panel：<1280 是顶栏语境钮（.navbar-context）弹出的卡片，开合交给原生 popover；
+// ≥1280 由 CSS 常驻在左栏，语境钮与 Ctrl+T 改为收起 / 展开它（记在 localStorage）。语境钮显示读到的小节（见 initTocSpy）
+const tocDocked = () => window.matchMedia("(min-width: 1280px)").matches;
 
-  tocBody.dataset.bound = "true";
-  tocBody.addEventListener("click", (event) => {
-    if (event.target === tocBody || event.target.closest(".toc-link")) {
-      tocBody.hidePopover();
-    }
+// 把当前小节滚进列表的可见范围（只滚目录自己）
+function revealCurrentTocLink(panel) {
+  const link = panel.querySelector(".toc-link.is-current");
+  const scroller = link?.closest(".article-panel__page");
+  if (!link || !scroller) return;
+  const bounds = scroller.getBoundingClientRect();
+  const rect = link.getBoundingClientRect();
+  if (rect.top < bounds.top || rect.bottom > bounds.bottom) {
+    scroller.scrollTop += rect.top - bounds.top - (bounds.height - rect.height) / 2;
+  }
+}
+
+const TOC_COLLAPSED_KEY = "gnix:toc-collapsed";
+
+function setDockedCollapsed(panel, collapsed) {
+  panel.toggleAttribute("data-collapsed", collapsed);
+  document.querySelector(".navbar-context")?.setAttribute("aria-expanded", String(!collapsed));
+  try {
+    if (collapsed) localStorage.setItem(TOC_COLLAPSED_KEY, "1");
+    else localStorage.removeItem(TOC_COLLAPSED_KEY);
+  } catch (_) {}
+  if (!collapsed) requestAnimationFrame(() => revealCurrentTocLink(panel));
+}
+
+function toggleDockedToc(panel) {
+  setDockedCollapsed(panel, !panel.hasAttribute("data-collapsed"));
+}
+
+function toggleArticlePanel() {
+  const panel = document.getElementById("article-panel");
+  if (!panel) return;
+  if (tocDocked()) {
+    toggleDockedToc(panel);
+    return;
+  }
+  if (panel.matches(":popover-open")) panel.hidePopover();
+  else panel.showPopover();
+}
+
+function initArticlePanel() {
+  const panel = document.getElementById("article-panel");
+  if (!panel || panel.dataset.bound === "true") return;
+  panel.dataset.bound = "true";
+  const trigger = document.querySelector(".navbar-context");
+
+  // 常驻时取消语境钮的 popovertarget 默认行为，改为收起 / 展开（被取消的 click 不触发激活行为）
+  trigger?.addEventListener("click", (event) => {
+    if (!tocDocked()) return;
+    event.preventDefault();
+    toggleDockedToc(panel);
+  });
+
+  let collapsed = false;
+  try {
+    collapsed = localStorage.getItem(TOC_COLLAPSED_KEY) === "1";
+  } catch (_) {}
+  panel.toggleAttribute("data-collapsed", collapsed);
+  if (tocDocked()) trigger?.setAttribute("aria-expanded", String(!collapsed));
+
+  panel.addEventListener("toggle", (event) => {
+    const open = event.newState === "open";
+    trigger?.setAttribute("aria-expanded", String(open));
+    if (open) requestAnimationFrame(() => revealCurrentTocLink(panel));
+  });
+
+  // 点目录项：跳转照常，弹出的卡片收起
+  panel.addEventListener("click", (event) => {
+    if (event.target.closest(".toc-link") && panel.matches(":popover-open")) panel.hidePopover();
+  });
+
+  // 视口变宽进入常驻态时，收起还开着的卡片
+  window.matchMedia("(min-width: 1280px)").addEventListener("change", (event) => {
+    if (event.matches && panel.matches(":popover-open")) panel.hidePopover();
   });
 }
 
-// #region Left rail (Back · INFO · TOC)
-// 文章页左上角一列工具：Back、INFO、TOC。后两节是可展开的面板（section[data-open]，高度与透明度做过渡），
-// 默认都收起，点开合。
-// 工具栏要钉在正文左侧的空白里：空白 ≥ 14rem 才放得下（<html data-article-gutter="wide"|"none"），
-// 量法在 article-gutter.js——由 layout.jsx 内联在首帧之前执行，并挂到 window.gnixMeasureArticleGutter；
-// 放不下时 Back 随文排在顶上、规格表排在摘要下、点 TOC 改为打开弹层
-
-function setRailOpen(section, open) {
-  if (!section) return;
-  section.toggleAttribute("data-open", open);
-  section.querySelector(".article-rail__toggle")?.setAttribute("aria-expanded", String(open));
-}
-
-function initArticleRail() {
-  const root = document.documentElement;
-  const article = document.querySelector(".article");
-  if (!article || root.dataset.railBound === "true") return;
-  root.dataset.railBound = "true";
-
-  const rail = article.querySelector(".article-rail");
-  const sections = Object.fromEntries([...(rail?.querySelectorAll(".article-rail__section[data-rail]") || [])].map((node) => [node.dataset.rail, node]));
-  const tocPopover = document.getElementById("toc-body");
-
-  // 空白宽度：首帧前内联脚本已量过一次并写进 <html>，这里只在窗口与栏宽偏好变化时重量——
-  // 初始化时不再改属性，面板就不会从窄屏的展开态过渡到收起态
-  let frame = null;
-  const measure = () => {
-    frame = null;
-    window.gnixMeasureArticleGutter?.();
-  };
-  const scheduleMeasure = () => {
-    if (frame == null) frame = requestAnimationFrame(measure);
-  };
-  if (!root.dataset.articleGutter) measure();
-  window.addEventListener("resize", scheduleMeasure, { passive: true });
-  new MutationObserver(scheduleMeasure).observe(root, { attributes: true, attributeFilter: ["data-article-width"] });
-
-  // 手动开合；放不下工具栏时 TOC 改开弹层
-  for (const [name, section] of Object.entries(sections)) {
-    section.querySelector(".article-rail__toggle")?.addEventListener("click", () => {
-      if (name === "toc" && root.dataset.articleGutter !== "wide") {
-        tocPopover?.togglePopover?.();
-        return;
-      }
-      setRailOpen(section, !section.hasAttribute("data-open"));
+// 文末「Go to top」
+function initScrollTop() {
+  for (const button of document.querySelectorAll('[data-action="scroll-top"]:not([data-bound])')) {
+    button.dataset.bound = "";
+    button.addEventListener("click", () => {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
     });
   }
 }
+// #endregion
 
 // 当前小节：以视口上四分之一处为准线，最后一个越过准线的标题所在的小节为当前；
 // 侧栏与弹层里对应的链接都加 .is-current，侧栏另把当前项滚进可见范围（只滚侧栏自己）
@@ -697,6 +729,25 @@ function initTocSpy() {
   const headings = Array.from(content.querySelectorAll(":is(h1, h2, h3, h4, h5, h6)[id]")).filter((heading) => links.has(heading.id));
   if (!headings.length) return;
 
+  // 顶层条目的序号（01、02…）与节名：语境钮显示当前所在的顶层小节，读到更深的层级时不跟着跳
+  const topList = container.querySelector(":scope > .toc");
+  const topItems = topList ? [...topList.children].filter((node) => node.matches(".toc-item")) : [];
+  const total = topItems.length;
+  const contextIndex = document.querySelector(".navbar-context__index");
+  const contextLabel = document.querySelector(".navbar-context__label");
+  const setContext = (link) => {
+    if (!contextIndex || !contextLabel) return;
+    const topItem = link?.closest(".toc-item") && topItems.find((item) => item.contains(link));
+    if (!topItem) {
+      contextIndex.textContent = "";
+      contextLabel.textContent = contextLabel.dataset.default || "Contents";
+      return;
+    }
+    const number = String(topItems.indexOf(topItem) + 1).padStart(2, "0");
+    contextIndex.textContent = `${number}/${String(total).padStart(2, "0")}`;
+    contextLabel.textContent = topItem.querySelector(":scope > .toc-link")?.textContent.trim() || "";
+  };
+
   let currentId = null;
   const setCurrent = (id) => {
     if (id === currentId) return;
@@ -710,14 +761,10 @@ function initTocSpy() {
       link.classList.add("is-current");
       link.setAttribute("aria-current", "location");
     }
-    const railLink = active.find((link) => link.closest(".toc-rail"));
-    const body = railLink?.closest(".toc-rail");
-    if (!body) return;
-    const bounds = body.getBoundingClientRect();
-    const rect = railLink.getBoundingClientRect();
-    const pad = 24;
-    if (rect.top < bounds.top + pad) body.scrollTop += rect.top - bounds.top - pad;
-    else if (rect.bottom > bounds.bottom - pad) body.scrollTop += rect.bottom - bounds.bottom + pad;
+    setContext(active[0]);
+    // 常驻目录跟着把当前小节滚进可见范围
+    const panel = document.getElementById("article-panel");
+    if (panel && tocDocked() && !panel.hasAttribute("data-collapsed")) revealCurrentTocLink(panel);
   };
 
   const update = () => {
@@ -737,27 +784,13 @@ function initTocSpy() {
 }
 // #endregion
 
-// 规格表里折起的标签：点「+N」展开
-function initInfoTags() {
-  document.querySelectorAll(".article-info__expand:not([data-bound])").forEach((button) => {
-    button.dataset.bound = "";
-    button.addEventListener("click", () => {
-      const more = button.previousElementSibling;
-      if (more?.classList.contains("article-info__more")) more.hidden = false;
-      button.setAttribute("aria-expanded", "true");
-      button.hidden = true;
-    });
-  });
-}
-
 function initPage() {
   initArticleReveal();
   handleMermaid();
   addHighlightTool();
   document.querySelectorAll(".content img").forEach(markImageZoomable);
-  initTocPopover();
-  initInfoTags();
-  initArticleRail();
+  initArticlePanel();
+  initScrollTop();
   initTocSpy();
   initArticleCommentPopover();
 }

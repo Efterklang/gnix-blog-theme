@@ -1,50 +1,8 @@
-const { Component, formatMonthDay, isValidDate, parseISO } = require("../include/util/common");
+const { Component } = require("../include/util/common");
 const { filterByLanguage, isExternalUrl } = require("../include/util/i18n");
-const { Icon } = require("../include/util/lucide");
 const { isEncrypted } = require("../include/hexo/encrypt");
 
-// 未配置 home.rows 时的兜底：前三个标签
-const DEFAULT_ROWS = [{ label: "Top Topics", tags: 3 }];
-const DEFAULT_TAG_LIMIT = 3;
-// 未配置 home.recent 时首页列出的最新文章数
-const DEFAULT_RECENT_LIMIT = 5;
-
-function collectTags(collection) {
-  const tags = [];
-  if (collection?.each) {
-    collection.each((tag) => tags.push(tag));
-  } else if (typeof collection?.toArray === "function") {
-    tags.push(...collection.toArray());
-  } else if (Array.isArray(collection)) {
-    tags.push(...collection);
-  }
-  return tags;
-}
-
-// 按当前语言的文章数取前 limit 个标签；同数按名称排序，保证构建结果稳定
-function getTopTags(siteTags, limit, { page, config, helper }) {
-  const langKey = helper.language_key(page);
-
-  return collectTags(siteTags)
-    .map((tag) => {
-      if (!tag?.length) return null;
-
-      const posts = helper.is_i18n_enabled() ? filterByLanguage(tag.posts, langKey, config || {}) : tag.posts;
-      const count = posts?.length || 0;
-      if (!count) return null;
-
-      return { name: tag.name, count, url: helper.localized_tag_url(tag, langKey) };
-    })
-    .filter(Boolean)
-    .sort((a, b) => b.count - a.count || String(a.name).localeCompare(String(b.name)))
-    .slice(0, limit);
-}
-
-function getTagLimit(value) {
-  if (value === true) return DEFAULT_TAG_LIMIT;
-  const limit = Math.floor(Number(value));
-  return Number.isFinite(limit) && limit > 0 ? limit : 0;
-}
+const SITE_SINCE = "2022";
 
 function collectPosts(collection) {
   const posts = [];
@@ -56,35 +14,12 @@ function collectPosts(collection) {
   return posts;
 }
 
-// 当前语言下最新的 limit 篇公开文章：加密文章只在归档页的「秘密花园」里出现，
-// 否则首页这一条就把标题漏出去了
-function getRecentPosts(sitePosts, limit, { page, config, helper }) {
+function getLanguagePosts(sitePosts, { page, config, helper }) {
   const langKey = helper.language_key(page);
   const collection = helper.is_i18n_enabled() ? filterByLanguage(sitePosts, langKey, config || {}) : sitePosts;
-
-  return collectPosts(collection)
-    .filter((post) => !isEncrypted(post))
-    .sort((a, b) => b.date.valueOf() - a.date.valueOf())
-    .slice(0, limit);
+  return collectPosts(collection);
 }
 
-function getRecentLimit(value) {
-  if (value === undefined || value === true) return DEFAULT_RECENT_LIMIT;
-  const limit = Math.floor(Number(value));
-  return Number.isFinite(limit) && limit > 0 ? limit : 0;
-}
-
-// 条目日期沿用归档列表的「缩写月 + 日」与 dateTime 注脚
-function getPostDateParts(postDate, dateXml, date) {
-  const xml = dateXml(postDate);
-  const parsed = parseISO(xml);
-  return {
-    label: isValidDate(parsed) ? formatMonthDay(parsed) : date(postDate),
-    xml,
-  };
-}
-
-// 站内路径随当前语言本地化（archive → /archive/ 或 /en/archive/），外链原样输出并新开标签页
 function linkAttrs(href, helper, langKey) {
   const target = String(href);
   const attrs = { href: helper.localized_url_for(target, langKey) };
@@ -98,130 +33,124 @@ function linkAttrs(href, helper, langKey) {
 module.exports = class extends Component {
   render() {
     const { config, page, site, helper } = this.props;
-    const home = config.home && typeof config.home === "object" ? config.home : {};
     const langKey = helper.language_key(page);
 
-    const rows = Array.isArray(home.rows) && home.rows.length ? home.rows : DEFAULT_ROWS;
-
-    const recentLimit = getRecentLimit(home.recent);
-    const recentPosts = recentLimit ? getRecentPosts(site?.posts, recentLimit, { page, config, helper }) : [];
+    const posts = getLanguagePosts(site?.posts, { page, config, helper }).filter((post) => !isEncrypted(post));
+    const tagNames = new Set();
+    const yearCounts = new Map();
+    for (const post of posts) {
+      post.tags?.each?.((tag) => tagNames.add(tag.name));
+      const year = post.date.year();
+      yearCounts.set(year, (yearCounts.get(year) || 0) + 1);
+    }
+    const years = [...yearCounts].map(([year, count]) => ({ year, count })).sort((a, b) => b.year - a.year);
     const archiveUrl = helper.localized_url_for(config.archive_generator?.path || "archive");
-    const recentTitle = helper.__("home.recent_writings");
+    const yearUrl = (year) => `${archiveUrl}${archiveUrl.includes("?") ? "&" : "?"}year=${year}`;
 
-    // --i 为页面级入场次序：标题领先，简介与各行依次跟进（见 home.css）
+    const specItems = [
+      ["Writings", posts.length],
+      ["Topics", tagNames.size],
+      ["Since", SITE_SINCE],
+    ];
+    const email = "gjx@linux.do";
+
+    const links = [
+      ["Wiki", "https://wiki.vluv.space"],
+      ["Gallery", "https://gallery.vluv.space"],
+      ["Changelog", "change"],
+      ["Colophon", "colophon"],
+      ["Travellings", "https://www.travellings.cn/go"],
+    ];
+
     let order = 0;
-    const titleNode = (
-      <h1 class="home-hero__title" style={`--i:${order++};`}>
-        GnixAij Oag
-      </h1>
-    );
-    const introNode = (
-      <>
-        <p class="home-hero__intro" style={`--i:${order++}`}>
-          Hello! My name is pronounced{" "}
-          <span class="home-hero__ipa" lang="und-Latn-fonipa">
-            /nɪkˈsaɪdʒ oʊɡ/
-          </span> —— a name I coined myself.
-          I was born in 2004 in Qingdao, Shandong.
-          This is my digital garden, where I archive essays and engineering notes. There is also
-          a{" "}
-          <a class="home-intro__link" {...linkAttrs("https://wiki.vluv.space", helper, langKey)}>
-            Wiki
-          </a>{" "}
-          and a{" "}
-          <a class="home-intro__link" {...linkAttrs("https://gallery.vluv.space", helper, langKey)}>
-            Gallery
-          </a> if you'd like to wander further.
-        </p>
-        <p class="home-hero__intro" style={`--i:${order++}`}>
-          See the{" "}
-          <a class="home-intro__link" {...linkAttrs("change", helper, langKey)}>
-            Changelog
-          </a>{" "}
-          for updates and the{" "}
-          <a class="home-intro__link" {...linkAttrs("colophon", helper, langKey)}>
-            Colophon
-          </a>{" "}
-          for how this site is made. Reach me at{" "}
-          <a class="home-intro__link" {...linkAttrs("mailto:gjx@linux.do", helper, langKey)}>
-            gjx@linux.do
-          </a>
-          .
-        </p>
-        <p class="home-hero__caption" style={`--i:${order++}`}>
-          Scroll down for the top topics and my recent writings.
-        </p>
-      </>
-    );
-
-    const rowNodes = rows
-      .map((row, index) => {
-        if (!row || typeof row !== "object") return null;
-
-        const links = Array.isArray(row.links) ? row.links.filter((link) => link?.href) : [];
-        const tagLimit = getTagLimit(row.tags);
-        const tags = tagLimit ? getTopTags(site?.tags, tagLimit, { page, config, helper }) : [];
-        if (!links.length && !tags.length) return null;
-
-        return (
-          <div key={index} class="home-links__row" style={`--i:${order++}`}>
-            <dt class="home-links__label">{row.label}</dt>
-            <dd class="home-links__value">
-              {links.map((link) => (
-                <a key={`${link.href}:${link.text}`} class="home-list-link" {...linkAttrs(link.href, helper, langKey)}>
-                  {link.text || link.href}
-                </a>
-              ))}
-              {tags.map((tag) => (
-                <a key={tag.url} class="home-list-link home-list-link--tag" href={tag.url}>
-                  {tag.name}
-                </a>
-              ))}
-            </dd>
-          </div>
-        );
-      })
-      .filter(Boolean);
-
     return (
       <main class="home-page">
         <section class="home-hero">
-          {titleNode}
-          {introNode}
-        </section>
-        {rowNodes.length || recentPosts.length ? (
-          <section class="home-index">
-            {rowNodes.length ? <dl class="home-links__list">{rowNodes}</dl> : null}
-            {recentPosts.length ? (
-              <div class="home-recent">
-                <h2 id="home-recent-title" class="home-recent__title" style={`--i:${order++}`}>
-                  <a class="home-recent__title-link" href={archiveUrl}>
-                    {recentTitle}
-                    <Icon name="arrow-up-right" size={12} />
-                  </a>
-                </h2>
-                <div class="home-recent__body">
-                  <ol class="home-recent__list">
-                    {recentPosts.map((post) => {
-                      const postDate = getPostDateParts(post.date, helper.date_xml, helper.date);
-                      return (
-                        <li key={post.path} class="home-recent__item" style={`--i:${order++}`}>
-                          {/* 一行文本：标题在前、日期在后 */}
-                          <a class="home-list-link" href={helper.url_for(post.link || post.path)}>
-                            {post.title}{" "}
-                            <time class="home-recent__date" dateTime={postDate.xml}>
-                              {postDate.label}
-                            </time>
-                          </a>
-                        </li>
-                      );
-                    })}
-                  </ol>
-                </div>
+
+          {/* 1. 顶部区域：左上巨字 + 右上数据表 */}
+          <div class="home-hero__top">
+            <div class="home-hero__brand" style={`--i:${order++}`}>
+              <h1 class="home-hero__title">
+                GnixAij<br/>Oag
+              </h1>
+              <span class="home-hero__ipa">/nɪkˈsaɪdʒ oʊɡ/</span>
+
+              <div class="home-hero__lead">
+                <p class="home-hero__intro">I was born in Qingdao, Shandong, in 2004.</p>
+                <p class="home-hero__intro home-hero__intro--muted">This space archives my essays and technical notes.</p>
               </div>
+            </div>
+
+            <dl class="home-hero__spec" style={`--i:${order++}`}>
+              {specItems.map(([label, value]) => (
+                <div key={label} class="home-hero__spec-row">
+                  <dt class="home-hero__spec-label">{label}</dt>
+                  <dd class="home-hero__spec-value">{value}</dd>
+                </div>
+              ))}
+              <div class="home-hero__spec-row">
+                <dt class="home-hero__spec-label">Email</dt>
+                <dd class="home-hero__spec-value">
+                  <a class="home-intro__link" href={`mailto:${email}`}>
+                    {email}
+                  </a>
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          {/* 2. 中腰带区域：精致五联导航带（通栏分割线之间） */}
+          <nav class="home-hero__mid" style={`--i:${order++}`} aria-label="Destinations">
+            <div class="home-hero__mid-header">
+              <span class="home-hero__mid-label">Links</span>
+              <span class="home-hero__mid-count">[05]</span>
+            </div>
+            <ul class="home-hero__links">
+              {links.map(([label, href], index) => (
+                <li key={label} class="home-hero__link-item">
+                  <a class="home-hero__link" {...linkAttrs(href, helper, langKey)}>
+                    <span class="home-hero__link-index">0{index + 1}</span>
+                    <span class="home-hero__link-text">{label}</span>
+                    {isExternalUrl(href) && <span class="home-hero__external">↗</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <div class="home-hero__bottom">
+            {years.length ? (
+              <nav class="home-hero__caption" style={`--i:${order++}`} aria-label="Archive">
+                <a class="home-archive__label" href={archiveUrl}>
+                  Writing Collections
+                </a>
+                <ul class="home-archive__years">
+                  {years.map(({ year, count }, index) => (
+                    <li key={year}>
+                      <a
+                        class="home-archive__year"
+                        href={yearUrl(year)}
+                        data-home-year
+                        data-current={index === 0 ? "true" : undefined}
+                        aria-label={`${year}, ${count} ${count === 1 ? "writing" : "writings"}`}
+                      >
+                        <span class="home-archive__year-value">{String(year).slice(-2)}</span>
+                        <span class="home-archive__year-count" aria-hidden="true">
+                          {count}
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
             ) : null}
-          </section>
-        ) : null}
+          </div>
+        </section>
+
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.querySelector(".home-hero__caption")?.addEventListener("click",function(e){var a=e.target.closest("[data-home-year]");if(!a)return;document.querySelectorAll(".home-archive__year-value").forEach(function(v){v.style.viewTransitionName=""});a.querySelector(".home-archive__year-value").style.viewTransitionName="archive-year"});`,
+          }}
+        ></script>
       </main>
     );
   }

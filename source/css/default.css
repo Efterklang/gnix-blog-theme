@@ -352,9 +352,6 @@ body {
   flex-direction: column;
   font-synthesis: none;
   font-family: var(--font-sans-serif);
-  -moz-font-feature-settings: "kern";
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 :where(h1, h2, h3, h4, h5, h6) {
@@ -382,7 +379,7 @@ hr {
   display: block;
   margin: 1.5rem 0;
   background: transparent;
-  border-top: 1px solid var(--rule-strong);
+  border-top: 1px solid var(--rule);
 }
 
 /* #endregion Color */
@@ -1062,6 +1059,10 @@ pre,
 textarea {
   margin: 0;
   padding: 0;
+  ::selection {
+    color: var(--base);
+    background-color: var(--title-text-color);
+  }
 }
 
 ul {
@@ -1090,8 +1091,8 @@ html {
 }
 
 :where([id], a[name]) {
-  /* 顶部不再有遮挡正文的导航条，锚点只留阅读间距与安全区。 */
-  scroll-margin-top: calc(env(safe-area-inset-top) + 1rem);
+  /* 顶栏常驻吸顶：锚点让出顶栏的高度，再留一段阅读间距 */
+  scroll-margin-top: calc(var(--navbar-height) + env(safe-area-inset-top) + 1.5rem);
 }
 
 /* 触屏点按不画系统的高亮底色（iOS / Android 默认一块半透明色块，像文本被选中），按钮自己的
@@ -1109,8 +1110,7 @@ html {
 
 /* #region Navbar */
 
-/* 顶栏（所有尺寸同一份）：站名在左、右侧一排图标钮，不画线。吸顶：往下滚时让位（整条滑出），
-   往上滚时回来（main.js 以 <html data-navbar="hidden"> 驱动）；底色与页面同色 */
+/* 顶栏（所有尺寸同一份）：站名在左、右侧一排图标钮，不画线。吸顶常驻、不让位；底色与页面同色 */
 .navbar {
   position: sticky;
   top: 0;
@@ -1123,17 +1123,6 @@ html {
   z-index: 100;
   user-select: none;
   background: var(--mantle);
-  transition: translate 240ms var(--ease-out);
-}
-
-:root[data-navbar="hidden"] .navbar {
-  translate: 0 -100%;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .navbar {
-    transition: none;
-  }
 }
 
 :where(.navbar) button {
@@ -1143,6 +1132,72 @@ html {
 }
 
 /* 站名：等宽大写的小字标 */
+/* 左手一组：站名常驻；文章页后面接一节语境（/ 当前位置 ⌄），占去站名与图标之间的余量，放不下就省略 */
+.navbar-lead {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.navbar-lead__sep {
+  flex: none;
+  color: color-mix(in oklab, var(--sub-text-color) 45%, transparent);
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+}
+
+/* 语境钮：等宽的小节序号（01/07）+ 节名；静息灰、悬停与展开时墨。
+   热区比字大：左右各让出 0.5rem 的内边距，再用负外边距把字拉回分隔符旁 */
+.navbar-context {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  max-width: min(34rem, 100%);
+  height: 2.25rem;
+  margin-inline-start: -0.5rem;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--sub-text-color);
+  font: 400 0.8125rem / 1.2 var(--font-sans-serif);
+  cursor: pointer;
+  transition: color 120ms ease;
+
+  &:hover,
+  &[aria-expanded="true"] {
+    color: var(--title-text-color);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: -2px;
+  }
+}
+
+.navbar-context__index {
+  flex: none;
+  opacity: 0.6;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.navbar-context__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .navbar-brand {
   flex: 0 0 auto;
   color: var(--title-text-color);
@@ -1159,8 +1214,84 @@ html {
   }
 }
 
+/* 站名缩写 GA.O：尾字母收成零宽（0fr 列），悬停或聚焦时展开为全名，分隔点同时收起 */
+.navbar-brand__tail,
+.navbar-brand__dot {
+  display: inline-grid;
+  grid-template-columns: 0fr;
+  vertical-align: bottom;
+  transition: grid-template-columns 360ms cubic-bezier(0.2, 0, 0, 1);
+
+  > span {
+    overflow: hidden;
+  }
+}
+
+.navbar-brand__dot {
+  grid-template-columns: 1fr;
+}
+
+.navbar-brand:is(:hover, :focus-visible) {
+  .navbar-brand__tail {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar-brand__dot {
+    grid-template-columns: 0fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar-brand__tail,
+  .navbar-brand__dot {
+    transition: none;
+  }
+}
+
+/* #region Cross-document view transition
+   首页的页名与其它页的站名共用一个名字：从首页跳走时巨字缩进左上角的站名，返回首页时反过来。
+   整页（root）不做交叉淡化——其余页面之间的跳转仍是瞬时切换，过渡只发生在这两处具名元素上 */
+@view-transition {
+  navigation: auto;
+}
+
+.navbar-brand,
+.home-hero__title {
+  view-transition-name: site-brand;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-group(site-brand),
+::view-transition-group(archive-year) {
+  animation-duration: 520ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* 文字快照按高度缩放、贴左对齐：巨字与小字标宽高比不同，不拉伸变形 */
+::view-transition-old(site-brand),
+::view-transition-new(site-brand),
+::view-transition-old(archive-year),
+::view-transition-new(archive-year) {
+  width: auto;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+/* #endregion */
+
 .navbar-actions {
   display: flex;
+  flex: none;
   align-items: center;
   gap: 0.25rem;
   margin-left: auto;
@@ -1203,102 +1334,147 @@ html {
   }
 }
 
-/* 目录钮只在窄屏出现（桌面的目录在文章左侧的工具栏），且只在有目录的页面 */
-.navbar-toc {
-  display: none;
+/* 站名作为按钮时去掉 UA 的按钮样式，字形与链接时一致 */
+button.navbar-brand {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
 }
 
-/* 菜单：一张从右上角落下的小卡片。每个栏目一行：左边一列等宽序号（01、02…）、右边栏目名，
-   序号列对齐、行高 2.75rem、卡片四周留 0.5rem（卡片 12px 圆角减去留白正好是行的 8px 圆角）。
-   状态不靠底色区分：栏目静息灰、悬停墨、当前栏目墨字加一条细下划线。
-   关闭态由 [popover] 的 UA 样式隐藏；打开态需中和全局 :popover-open 的铺满与遮罩 */
+/* 栏目页：点站名弹出的整屏一张纸（与页面同底色，不透出底下的内容）。
+   顶上一行与顶栏同高同边距：左边站名全称（回首页），右边关闭钮；下面是大字栏目名，从上往下靠左排成一列、不编号。
+   栏目名一律墨色，悬停变灰。打开时整页淡入，栏目名依次上浮 */
 .navbar-menu {
-  position: fixed;
-  inset: calc(var(--navbar-height) + env(safe-area-inset-top) + 0.25rem) var(--page-margin) auto auto;
-  width: 14rem;
-  height: auto;
-  margin: 0;
-  padding: 0.5rem;
-  border: 0;
-  color: inherit;
-  translate: 0 -6px;
   opacity: 0;
   transition:
-    translate 200ms var(--ease-out),
-    opacity 160ms ease,
+    opacity 200ms ease,
     display 200ms allow-discrete,
     overlay 200ms allow-discrete;
+}
+
+.navbar-menu:popover-open {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  box-sizing: border-box;
+  padding: env(safe-area-inset-top) var(--page-margin) calc(env(safe-area-inset-bottom) + clamp(2rem, 8svh, 4rem));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--base);
+  opacity: 1;
 
   &::before {
     content: none;
   }
-}
 
-.navbar-menu:popover-open {
-  display: grid;
-  gap: 2px;
-  inset: calc(var(--navbar-height) + env(safe-area-inset-top) + 0.25rem) var(--page-margin) auto auto;
-  width: 14rem;
-  height: auto;
-  translate: 0 0;
-  opacity: 1;
+  &::backdrop {
+    background: transparent;
+  }
 }
 
 @starting-style {
   .navbar-menu:popover-open {
-    translate: 0 -6px;
     opacity: 0;
   }
 }
 
-.navbar-menu__item {
-  display: grid;
-  grid-template-columns: 1.5rem minmax(0, 1fr);
+.navbar-menu__bar {
+  flex: none;
+  display: flex;
   align-items: center;
-  gap: 0.75rem;
-  height: 2.75rem;
-  padding: 0 0.875rem;
-  border-radius: var(--radius-sm);
-  color: var(--sub-text-color);
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: var(--navbar-height);
+}
+
+.navbar-menu__brand {
+  color: var(--title-text-color);
   font-family: var(--font-label);
   font-size: var(--label-size);
   font-weight: var(--label-weight);
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
   text-decoration: none;
-  transition: color 120ms ease;
+  white-space: nowrap;
 
-  &:hover,
-  &.is-active {
-    color: var(--title-text-color);
-  }
-
-  &.is-active .navbar-menu__name {
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.3em;
-  }
-
-  &:focus-visible {
-    outline: var(--focus-ring);
-    outline-offset: -2px;
+  &:hover {
+    color: var(--sub-text-color);
   }
 }
 
-.navbar-menu__index {
-  color: inherit;
-  opacity: 0.55;
-  font-family: var(--font-mono);
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0;
+.navbar-menu__close {
+  margin-right: -0.5rem;
+}
+
+.navbar-menu__links {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: clamp(0.25rem, 1svh, 0.75rem);
+  padding-top: clamp(2rem, 10svh, 6rem);
+}
+
+.navbar-menu__item {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.15em;
+  max-width: 100%;
+  color: var(--title-text-color);
+  font-family: var(--article-font-family);
+  font-size: clamp(2.75rem, 9vw, 6.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-decoration: none;
+  transition: color 160ms ease;
+
+  svg {
+    flex: none;
+    width: 0.32em;
+    height: 0.32em;
+    margin-top: 0.12em;
+  }
+
+  &:hover {
+    color: var(--sub-text-color);
+  }
+
+  &:focus-visible {
+    border-radius: 2px;
+    outline: var(--focus-ring);
+    outline-offset: 4px;
+  }
 }
 
 .navbar-menu__name {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .navbar-menu:popover-open .navbar-menu__item {
+    animation: navbar-menu-rise 520ms var(--ease-out) backwards;
+    animation-delay: calc(60ms + var(--i, 0) * 50ms);
+  }
+}
+
+@keyframes navbar-menu-rise {
+  from {
+    opacity: 0;
+    translate: 0 0.4em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar-menu {
+    transition: none;
+  }
 }
 
 /* #endregion Navbar */
@@ -1324,11 +1500,9 @@ html {
   margin-top: 5rem;
   padding: 1.25rem var(--page-margin) calc(2rem + env(safe-area-inset-bottom));
   color: var(--sub-text-color);
-  font-family: var(--font-label);
-  font-size: var(--label-size);
-  font-weight: var(--label-weight);
-  letter-spacing: var(--label-tracking);
-  text-transform: uppercase;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: light;
   text-align: start;
 }
 
@@ -1894,7 +2068,7 @@ input.command-palette-input {
 
 /* #region Segmented control
    分段条：一条 0.5px 浅描边围住一排等宽的格子，偏好弹窗与设置页共用（设置页只改宽度与格高，见 preferences.css）。
-   三种状态不靠底色区分：静息灰字、悬停墨字、选中墨字加一条短下划线；格子透明，只有面本身是纸色卡片。
+   三种状态只靠字色区分：静息浅灰、悬停灰、选中墨字（不画下划线）；格子透明，只有面本身是纸色卡片。
    容器可能是 <fieldset>，顺手抹掉它的 UA 描边与外边距 */
 .segmented {
   display: grid;
@@ -1920,32 +2094,19 @@ input.command-palette-input {
   padding: 0 0.5rem;
   border: 0;
   border-radius: calc(var(--radius-sm) - 2px);
-  color: var(--sub-text-color);
+  color: color-mix(in oklab, var(--sub-text-color) 55%, transparent);
   background: transparent;
   font: var(--font-weight-semibold) 0.8125rem / 1.2 var(--font-sans-serif);
   cursor: pointer;
   transition: color 120ms ease;
 
-  /* 选中记号：格子底部一条短线，随文字颜色 */
-  &::after {
-    content: "";
-    position: absolute;
-    inset: auto 0.4rem 0.2rem;
-    height: 1px;
-    background: currentColor;
-    opacity: 0;
-    transition: opacity 120ms ease;
+  &:hover:not(:disabled) {
+    color: var(--sub-text-color);
   }
 
-  &:hover:not(:disabled),
   &.is-active,
   &[aria-pressed="true"] {
     color: var(--title-text-color);
-  }
-
-  &.is-active::after,
-  &[aria-pressed="true"]::after {
-    opacity: 1;
   }
 
   &:disabled {
@@ -1978,57 +2139,95 @@ input.command-palette-input {
 
 /* #endregion Segmented control */
 
-/* #region Preference quick popup
-   一张从顶栏右侧落下的小卡片：每行左标签右控件（主题 / 字体 / 字号 / 语言），标签列等宽、控件（分段条）靠右；
-   底下一条去设置页的链接，与上面以一条行线分开、贴着卡片下缘 */
-.preference-popup {
-  --quick-motion-duration: 200ms;
-  --quick-closed-offset: 0 -6px;
+/* #region Popup card
+   顶栏落下的卡片（偏好 / 手机上的目录）与搜索框同一套外观：纸色底、0.5px 的 --edge-color 描边、
+   --radius 圆角、--shadow-soft 柔和投影；打开时身后铺一层纸色遮罩（同搜索框，只是更透一些，
+   偏好卡片切换字号、主题时还能看见底下的正文）——深浅主题因此都是「卡片浮在一层均匀的纸面上」，
+   不用在暗底上靠投影或提亮来分层。
+   各卡片只通过变量给出位置与宽度（--popup-inset / --popup-width / --popup-padding），贴着自己的触发钮那一侧。
+   关闭态由 [popover] 的 UA 样式隐藏；打开态需中和全局 :popover-open 的铺满与遮罩 */
+:root {
+  --popup-radius: var(--radius);
+  --popup-top: calc(var(--navbar-height) + env(safe-area-inset-top) + 0.25rem);
+}
+
+.popup-card,
+.popup-card:popover-open {
   position: fixed;
-  inset: auto;
-  top: calc(var(--navbar-height) + env(safe-area-inset-top) + 0.25rem);
-  right: var(--page-margin);
+  inset: var(--popup-inset, var(--popup-top) var(--page-margin) auto auto);
   z-index: 1000;
   box-sizing: border-box;
-  width: min(19rem, calc(100vw - 2rem));
+  width: var(--popup-width, 16rem);
+  max-width: calc(100vw - 2rem);
   height: auto;
-  max-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 2rem);
+  max-height: calc(100dvh - var(--popup-top) - 1rem - env(safe-area-inset-bottom));
   margin: 0;
-  padding: 0;
-  overflow: visible;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  color: var(--sub-text-color);
-  translate: var(--quick-closed-offset);
-  opacity: 0;
-  pointer-events: none;
-  transition:
-    translate var(--quick-motion-duration) var(--ease-out),
-    opacity 160ms ease,
-    display var(--quick-motion-duration) allow-discrete,
-    overlay var(--quick-motion-duration) allow-discrete;
+  padding: var(--popup-padding, 0.5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 0.5px solid var(--edge-color);
+  border-radius: var(--popup-radius);
+  background-color: var(--base);
+  box-shadow: var(--shadow-soft);
+  color: inherit;
 
   &::before {
     content: none;
   }
-}
 
-.preference-popup:popover-open {
-  translate: 0 0;
-  opacity: 1;
-  pointer-events: auto;
-}
-
-@starting-style {
-  .preference-popup:popover-open {
-    translate: var(--quick-closed-offset);
-    opacity: 0;
+  &::backdrop {
+    background: color-mix(in oklab, var(--base) 72%, transparent);
   }
 }
 
-.preference-popup::backdrop {
-  background: transparent;
+.popup-card {
+  translate: 0 -6px;
+  opacity: 0;
+  transition:
+    translate 200ms var(--ease-out),
+    opacity 160ms ease,
+    display 200ms allow-discrete,
+    overlay 200ms allow-discrete;
+}
+
+.popup-card:popover-open {
+  translate: 0 0;
+  opacity: 1;
+}
+
+.popup-card::backdrop {
+  transition:
+    background-color 200ms ease,
+    display 200ms allow-discrete,
+    overlay 200ms allow-discrete;
+}
+
+@starting-style {
+  .popup-card:popover-open {
+    translate: 0 -6px;
+    opacity: 0;
+  }
+
+  .popup-card:popover-open::backdrop {
+    background-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popup-card {
+    transition: none;
+  }
+}
+
+/* #endregion Popup card */
+
+/* #region Preference quick popup
+   一张从顶栏右侧落下的小卡片：每行左标签右控件（主题 / 字体 / 字号 / 语言），标签列等宽、控件（分段条）靠右；
+   底下一条去设置页的链接，与上面以一条行线分开、贴着卡片下缘 */
+.preference-popup {
+  --popup-width: min(19rem, calc(100vw - 2rem));
+  --popup-padding: 0;
+  color: var(--sub-text-color);
 }
 
 .preference-quick {
@@ -2071,7 +2270,7 @@ input.command-palette-input {
   margin: 0.375rem -0.75rem -0.5rem;
   padding: 0 0.75rem;
   border-top: 1px solid var(--rule);
-  border-radius: 0 0 var(--radius) var(--radius);
+  border-radius: 0 0 var(--popup-radius) var(--popup-radius);
   text-decoration: none;
   transition: color 120ms ease;
 
