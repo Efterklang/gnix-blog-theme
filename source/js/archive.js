@@ -251,7 +251,8 @@ function initArchiveGarden() {
 // 检视面板：清单右侧常驻的一块，显示悬停（或键盘聚焦）到的那一篇的封面、摘要与标签；
 // 指针离开不清空，停在最后看过的一篇上。载入时不自动挑第一篇（首篇被高亮会像是当前页），
 // 面板先显示占位框（data-empty）；年份切片把当前这一篇切走时也回到占位态。
-// 数据来自每条目里隐藏的 .archive-item__data（构建期渲染）与 data-cover
+// 数据来自每条目里隐藏的 .archive-item__data（构建期渲染）与 data-cover。
+// 悬停带安全三角：指针正从当前这一篇赶往面板时，途中掠过的条目不抢面板（见 isAiming）
 function initArchiveInspector() {
   const page = document.querySelector(".archive-page");
   const panel = page?.querySelector(".archive-inspector");
@@ -263,6 +264,14 @@ function initArchiveInspector() {
   const meta = panel.querySelector(".archive-inspector__meta");
   const groups = page.querySelector(".archive-groups");
   let current = null;
+
+  // 安全三角的状态：面板所在的那一栏、指针最近的轨迹、被按住还没切过去的条目和它的停留计时
+  const AIM_LOOKBACK = 100; // ms：三角的顶点取指针这么久之前的位置——贴得太近的两点量不出方向
+  const AIM_REST = 150; // ms：指针在被按住的条目上停这么久，就算是真想看它
+  const column = panel.parentElement;
+  const trail = [];
+  let pending = null;
+  let restTimer = 0;
 
   // 蓝点：只有一枚，钉在清单容器上，换条目时滑到新条目标题首行的中线
   const dot = document.createElement("span");
@@ -286,7 +295,10 @@ function initArchiveInspector() {
   }
 
   function show(item) {
-    if (!item || item === current) return;
+    if (!item) return;
+    // 无论从哪条路切过来（悬停、停留计时、键盘聚焦），之前按住的那一篇都作废
+    hold(null);
+    if (item === current) return;
     current = item;
     delete panel.dataset.empty;
     for (const other of page.querySelectorAll(".archive-item[data-inspected]")) delete other.dataset.inspected;
@@ -339,22 +351,76 @@ function initArchiveInspector() {
 
   // 回到占位态：没有被检视的条目，面板只剩占位框，箭头收起
   function reset() {
+    hold(null);
     current = null;
     panel.dataset.empty = "";
     for (const other of page.querySelectorAll(".archive-item[data-inspected]")) delete other.dataset.inspected;
     placeDot();
   }
 
+  function track(event) {
+    trail.push({ x: event.clientX, y: event.clientY, t: event.timeStamp });
+    // 只留 AIM_LOOKBACK 以内的轨迹，外加窗口之前最近的那一点——trail[0] 就是三角的顶点；
+    // 指针停久了，顶点自然落在它停着的地方
+    while (trail.length > 2 && event.timeStamp - trail[1].t > AIM_LOOKBACK) trail.shift();
+  }
+
+  // 安全三角：面板在清单右边，指针从当前这一篇斜着赶过去，会掠过别的条目。以指针片刻之前的位置为顶点、
+  // 面板一栏的左缘（视口里的那一段）为底边画一个三角——指针现在落在三角里，就是正朝面板去
+  function isAiming() {
+    const from = trail[0];
+    const to = trail[trail.length - 1];
+    if (!current?.isConnected || !from || !column) return false;
+    const edge = column.getBoundingClientRect();
+    // 面板一栏没显示（窄屏）、或者指针没在往右走：谈不上赶路
+    if (!edge.width || to.x <= from.x || from.x >= edge.left) return false;
+    // 走完了到左缘那段横向距离的几分之几；同一比例下，三角的上下两条边各升降多少
+    const reach = (to.x - from.x) / (edge.left - from.x);
+    const rise = to.y - from.y;
+    return rise >= (Math.max(edge.top, 0) - from.y) * reach && rise <= (Math.min(edge.bottom, window.innerHeight) - from.y) * reach;
+  }
+
+  // 按住一篇先不切：指针在它上面停满 AIM_REST 才切过去；传 null 即撤销
+  function hold(item) {
+    clearTimeout(restTimer);
+    pending = item;
+    if (item) restTimer = setTimeout(() => show(item), AIM_REST);
+  }
+
+  // 指针在一个条目上：回到当前这一篇就撤销按住的；正赶往面板就按住它；否则立刻切过去
+  function aim(item) {
+    if (item === current) hold(null);
+    else if (isAiming()) hold(item);
+    else show(item);
+  }
+
   page.addEventListener("pointerover", (event) => {
     if (event.pointerType === "touch") return;
+    // pointerover 先于同一位置的 pointermove 派发：这一点得先记进轨迹
+    track(event);
     const item = event.target.closest?.(".archive-item");
-    if (item && page.contains(item)) show(item);
+    if (item && page.contains(item)) aim(item);
+    // 指针离开了条目（进了面板，或落在条目之间的空隙）：被按住的那一篇不算数
+    else hold(null);
   });
+  page.addEventListener(
+    "pointermove",
+    (event) => {
+      if (event.pointerType === "touch") return;
+      track(event);
+      // 还在被按住的条目上：仍朝面板去就接着按（停留计时重来），拐了弯就切过去
+      if (pending) aim(pending);
+    },
+    { passive: true },
+  );
+  page.addEventListener("pointerleave", () => hold(null));
   page.addEventListener("focusin", (event) => {
     const item = event.target.closest?.(".archive-item");
     if (item) show(item);
   });
   page.addEventListener("gnix:archive-sliced", () => {
+    // 被按住的那一篇可能刚被切走
+    hold(null);
     if (current?.closest(".is-sliced-out")) reset();
     // 切片换了，行的位置也换了：下一帧再量
     requestAnimationFrame(placeDot);
