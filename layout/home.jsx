@@ -4,6 +4,77 @@ const { isEncrypted } = require("../include/hexo/encrypt");
 
 const SITE_SINCE = "2022";
 
+// 年份刻度尺：悬停／聚焦到哪一格，读数与指针就跟到哪一年（不必点击）；离开刻度区回到选中的年份。
+// 点击把那一年记为选中（sessionStorage，后退回来仍在）再跳转；触屏上分两下：先选中，再点一次进入。
+// 脚本紧跟标记内联执行，首帧前就位。
+const ARCHIVE_SCALE_SCRIPT = `(function () {
+  var root = document.querySelector(".home-archive");
+  var scale = root && root.querySelector(".home-archive__scale");
+  if (!scale) return;
+  var ticks = [].slice.call(scale.querySelectorAll("[data-home-year]"));
+  var figure = root.querySelector("[data-home-figure]");
+  var full = root.querySelector("[data-home-full]");
+  var count = root.querySelector("[data-home-count]");
+  var KEY = "gnix:home-year";
+  var active = ticks[0];
+
+  function mark(attr, tick) {
+    ticks.forEach(function (t) {
+      if (t === tick) t.setAttribute(attr, "true");
+      else t.removeAttribute(attr);
+    });
+  }
+  function tune(tick) {
+    var year = tick.dataset.homeYear;
+    var n = tick.dataset.count;
+    mark("data-tuned", tick);
+    scale.style.setProperty("--needle", ticks.indexOf(tick));
+    figure.textContent = year.slice(-2);
+    full.textContent = year;
+    count.textContent = n + (n === "1" ? " writing" : " writings");
+  }
+  function select(tick) {
+    active = tick;
+    mark("aria-current", tick);
+    tune(tick);
+    try { sessionStorage.setItem(KEY, tick.dataset.homeYear); } catch (e) {}
+  }
+  function tickOf(event) {
+    return event.target.closest("[data-home-year]");
+  }
+
+  try {
+    var saved = sessionStorage.getItem(KEY);
+    var restored = ticks.filter(function (t) { return t.dataset.homeYear === saved; })[0];
+    if (restored) select(restored);
+  } catch (e) {}
+
+  scale.addEventListener("pointerover", function (event) {
+    var tick = tickOf(event);
+    if (tick) tune(tick);
+  });
+  scale.addEventListener("pointerleave", function () { tune(active); });
+  scale.addEventListener("focusin", function (event) {
+    var tick = tickOf(event);
+    if (tick) tune(tick);
+  });
+  scale.addEventListener("focusout", function (event) {
+    if (!scale.contains(event.relatedTarget)) tune(active);
+  });
+  // 触屏没有悬停：第一下只选中（读数换到那一年），再点一下已选中的那一格才跳转。
+  // 按这一次按下的指针类型判断，触屏笔记本上用鼠标仍是一次直达；键盘回车没有 pointerdown（detail 为 0），也直达
+  var touch = false;
+  scale.addEventListener("pointerdown", function (event) { touch = event.pointerType === "touch"; });
+  scale.addEventListener("click", function (event) {
+    var tick = tickOf(event);
+    if (!tick) return;
+    if (touch && event.detail !== 0 && tick !== active) event.preventDefault();
+    select(tick);
+  });
+})();`;
+
+const writingsLabel = (count) => `${count} ${count === 1 ? "writing" : "writings"}`;
+
 function collectPosts(collection) {
   const posts = [];
   if (collection?.each) {
@@ -119,38 +190,54 @@ module.exports = class extends Component {
           </nav>
           <div class="home-hero__bottom">
             {years.length ? (
-              <nav class="home-hero__caption" style={`--i:${order++}`} aria-label="Archive">
+              <nav class="home-hero__caption home-archive" style={`--i:${order++}`} aria-label="Archive">
                 <a class="home-archive__label" href={archiveUrl}>
                   Writing Collections
                 </a>
-                <ul class="home-archive__years">
-                  {years.map(({ year, count }, index) => (
-                    <li key={year}>
-                      <a
-                        class="home-archive__year"
-                        href={yearUrl(year)}
-                        data-home-year
-                        data-current={index === 0 ? "true" : undefined}
-                        aria-label={`${year}, ${count} ${count === 1 ? "writing" : "writings"}`}
-                      >
-                        <span class="home-archive__year-value">{String(year).slice(-2)}</span>
-                        <span class="home-archive__year-count" aria-hidden="true">
-                          {count}
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+
+                {/* 读数：只是刻度尺的回显，信息已在每个刻度链接的 aria-label 里 */}
+                <div class="home-archive__readout" aria-hidden="true">
+                  <span class="home-archive__figure" data-home-figure>
+                    {String(years[0].year).slice(-2)}
+                  </span>
+                  <p class="home-archive__meta">
+                    <span class="home-archive__meta-year" data-home-full>
+                      {years[0].year}
+                    </span>
+                    <span class="home-archive__meta-count" data-home-count>
+                      {writingsLabel(years[0].count)}
+                    </span>
+                  </p>
+                </div>
+
+                {/* 刻度尺：--ticks 等分栏数，--needle 指针所在的格（由脚本随悬停更新） */}
+                <div class="home-archive__scale" style={`--ticks:${years.length};--needle:0`}>
+                  <span class="home-archive__needle" aria-hidden="true"></span>
+                  <ul class="home-archive__years">
+                    {years.map(({ year, count }, index) => (
+                      <li key={year}>
+                        <a
+                          class="home-archive__year"
+                          href={yearUrl(year)}
+                          data-home-year={year}
+                          data-count={count}
+                          data-tuned={index === 0 ? "true" : undefined}
+                          aria-current={index === 0 ? "true" : undefined}
+                          aria-label={`${year}, ${writingsLabel(count)}`}
+                        >
+                          <span class="home-archive__tick"></span>
+                          <span class="home-archive__year-value">{String(year).slice(-2)}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </nav>
             ) : null}
           </div>
         </section>
 
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `document.querySelector(".home-hero__caption")?.addEventListener("click",function(e){var a=e.target.closest("[data-home-year]");if(!a)return;document.querySelectorAll(".home-archive__year-value").forEach(function(v){v.style.viewTransitionName=""});a.querySelector(".home-archive__year-value").style.viewTransitionName="archive-year"});`,
-          }}
-        ></script>
+        {years.length ? <script dangerouslySetInnerHTML={{ __html: ARCHIVE_SCALE_SCRIPT }} /> : null}
       </main>
     );
   }

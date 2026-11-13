@@ -93,12 +93,6 @@ class TextImageSection extends HTMLElement {
         font-style: italic;
       }
 
-      /* Tame nested blockquotes inside the text area so they
-         don't fight the image's float/stacked layout. */
-      text-image-section > blockquote {
-        margin: 0;
-      }
-
       @media (max-width: 640px) {
         text-image-section > .ti-figure,
         text-image-section[left] > .ti-figure {
@@ -108,12 +102,6 @@ class TextImageSection extends HTMLElement {
              blockquote so its left border doesn't visually align
              with the image edge */
           margin: 0 0 20px 0;
-        }
-
-        /* When a blockquote follows the figure on mobile, give it
-           a touch more breathing room from the image above */
-        text-image-section > .ti-figure + blockquote {
-          margin-top: 4px;
         }
       }
     `;

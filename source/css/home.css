@@ -240,14 +240,26 @@
   align-items: end;
 }
 
-/* 核心重构：Collections 独占右侧 7 栏并彻底右对齐，与左上角标题呼应 */
+/* Collections：手机通栏，往上收到右侧 6 栏 / 5 栏，与左上角标题呼应 */
 .home-hero__caption {
-  grid-column: 6 / span 7;
-  justify-self: end;
-  align-items: flex-end;
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .home-hero__caption {
+    grid-column: 7 / -1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-hero__caption {
+    grid-column: 8 / -1;
+  }
 }
 
 .home-archive__label {
+  display: inline-block;
   color: color-mix(in oklab, var(--sub-text-color) 65%, transparent);
   font-family: var(--font-mono, monospace);
   font-size: 0.6875rem;
@@ -261,59 +273,157 @@
   }
 }
 
+/* 读数：左边两位数巨字，右下角完整年份 + 篇数；跟着刻度尺的指针实时换（见 layout/home.jsx 的内联脚本） */
+.home-archive__readout {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  padding-bottom: 1rem;
+}
+
+.home-archive__figure {
+  display: block;
+  margin-left: -0.04em;
+  color: var(--title-text-color);
+  font-family: var(--article-font-family);
+  font-size: clamp(3.5rem, 7vw, 6rem);
+  font-weight: 900;
+  /* 等宽数字：扫过刻度时数字换而不抖 */
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+  line-height: 0.85;
+  /* 跳到归档页时，与刊头的年份（archive.css 的 .archive-year__value）接成一次共享元素过渡 */
+  view-transition-name: archive-year;
+}
+
+.home-archive__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  margin: 0;
+  font-family: var(--font-mono, monospace);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.home-archive__meta-year {
+  color: var(--title-text-color);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.home-archive__meta-count {
+  color: color-mix(in oklab, var(--sub-text-color) 65%, transparent);
+  font-size: 0.6875rem;
+}
+
+/* 刻度尺：上下两条 Hairline 之间，每个年份占一格等分栏；年份再多也只是栏变窄，始终一行 */
+.home-archive__scale {
+  --scale-tick-top: 1.75rem;
+  position: relative;
+  border-block: 1px solid var(--home-hairline);
+}
+
 .home-archive__years {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0 clamp(1.5rem, 4vw, 3rem);
   margin: 0;
   padding: 0;
   list-style: none;
-  justify-content: flex-start;
-}
 
-.home-archive__year {
-  position: relative;
-  display: inline-block;
-  color: color-mix(in oklab, var(--title-text-color) 35%, transparent);
-  font-family: var(--article-font-family);
-  font-size: clamp(3rem, 6.5vw, 5rem);
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1;
-  text-decoration: none;
-  transition: color 800ms ease, transform 200ms ease;
-
-  &[data-current="true"], &:hover {
-    color: var(--title-text-color);
+  & > li {
+    flex: 1 1 0;
+    min-width: 0;
   }
 }
 
-.home-archive__years:has(.home-archive__year:hover) .home-archive__year:not(:hover) {
-  color: color-mix(in oklab, var(--sub-text-color) 25%, transparent) !important;
-}
-
-.home-archive__year-count {
-  position: absolute;
-  top: 10%;
-  left: 100%;
-  margin-left: 0.25rem;
-  color: var(--sub-text-color);
+/* 整格都是链接：悬停、点击都不必对准那根细线 */
+.home-archive__year {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: var(--scale-tick-top) 1rem;
+  color: color-mix(in oklab, var(--sub-text-color) 65%, transparent);
   font-family: var(--font-mono, monospace);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
-  opacity: 0;
-  transform: translateX(-4px);
-  transition: opacity 180ms ease, transform 180ms ease;
+  line-height: 1;
+  text-decoration: none;
+  transition: color 160ms ease;
+
+  /* 选中但指针暂时不在的那一格：墨色稍重，提示「松手会回到这里」 */
+  &[aria-current] {
+    color: var(--sub-text-color);
+  }
+
+  &:hover,
+  &[data-tuned] {
+    color: var(--title-text-color);
+  }
+
+  &[data-tuned] {
+    font-weight: 700;
+  }
+
+  &:focus-visible {
+    outline: 1.5px solid var(--title-text-color);
+    outline-offset: -2px;
+  }
 }
 
-.home-archive__year:hover > .home-archive__year-count {
-  opacity: 1;
-  transform: translateX(0);
+.home-archive__tick {
+  width: 1px;
+  height: 0.875rem;
+  background: color-mix(in oklab, var(--sub-text-color) 40%, transparent);
 }
 
-@media (max-width: 640px) {
-  .home-archive__year-count {
-    display: none;
+.home-archive__year-value {
+  margin-top: 0.75rem;
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* 指针那一格的刻度更长，数字跟着让出一点 */
+.home-archive__year[data-tuned] > .home-archive__year-value {
+  transform: translateY(0.375rem);
+}
+
+/* 指针：一格宽的覆盖层，内含 ▼ 与加粗刻度；translateX 的百分比相对自身宽度，恰好一格一格地滑 */
+.home-archive__needle {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: calc(100% / var(--ticks, 1));
+  pointer-events: none;
+  transform: translateX(calc(var(--needle, 0) * 100%));
+  transition: transform 260ms cubic-bezier(0.2, 0, 0, 1);
+
+  &::before,
+  &::after {
+    position: absolute;
+    left: 50%;
+    content: "";
+  }
+
+  &::before {
+    top: 0.75rem;
+    margin-left: -4px;
+    border: 4px solid transparent;
+    border-top: 5px solid var(--title-text-color);
+    border-bottom: 0;
+  }
+
+  &::after {
+    top: var(--scale-tick-top);
+    width: 2px;
+    height: 1.25rem;
+    margin-left: -1px;
+    background: var(--title-text-color);
   }
 }
 
@@ -334,9 +444,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-  .home-archive__year,
   .home-hero__link {
     transform: none !important;
+  }
+
+  /* 指针与数字直接到位，不滑动 */
+  .home-archive__needle,
+  .home-archive__year-value {
+    transition: none;
   }
 }
