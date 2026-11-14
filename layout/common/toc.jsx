@@ -1,38 +1,12 @@
 const { Component } = require("../../include/util/common");
 
-class FloatingToc extends Component {
+// 目录：文章卡片 #article-panel 里 Contents 一页的列表（见 common/article.jsx）。
+// 不编号，层级只靠缩进；
+// 当前小节由 article.js 加 .is-current。加密文章先输出空容器，解密后由 decrypt.js 按正文标题重建
+module.exports = class extends Component {
   render() {
-    const { helper, page } = this.props;
-    const tocContent = helper.toc(page.content, {
-      class: "toc",
-      list_number: false,
-    });
-
-    if (!tocContent && !page.encrypt) {
-      return null;
-    }
-
-    const tocLabel = helper.__("article.toc");
-
-    return (
-      <div class="toc-container" id="toc" style={page.encrypt ? "display:none" : null}>
-        <button class="toc-button" type="button" popovertarget="toc-body" aria-label={tocLabel}>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-        </button>
-        <div id="toc-body" popover="auto" class="toc-body">
-          <div id="toc-insert" dangerouslySetInnerHTML={{ __html: tocContent || "" }} />
-        </div>
-      </div>
-    );
+    const { content, encrypt } = this.props;
+    if (!content && !encrypt) return null;
+    return <nav id="toc" class="article-toc" aria-label="Table of contents" dangerouslySetInnerHTML={{ __html: content || "" }} />;
   }
-}
-
-class Widgets extends Component {
-  render() {
-    return <FloatingToc {...this.props} />;
-  }
-}
-
-module.exports = Widgets;
+};

@@ -52,7 +52,7 @@ const FILE_ICONS = {
   fish: "\uf489",
   rs: "\ue7a8",
   go: "\ue626",
-  vue: "\ufde1",
+  vue: "\ue6a0",
   svelte: "\ue697",
   png: "\uf1c5",
   jpg: "\uf1c5",
@@ -110,7 +110,7 @@ const STYLES = `
     display: block;
     margin: 1.5em 0;
     font-family: var(--font-mono, 'SF Mono', 'Fira Code', monospace);
-    font-size: 14px;
+    font-size: var(--type-ui-size);
     line-height: 1.6;
   }
 
@@ -126,9 +126,9 @@ const STYLES = `
   .file-tree::before {
     content: attr(data-root);
     display: block;
-    font-size: 12px;
+    font-size: var(--type-label-size);
     font-weight: 600;
-    color: var(--subtext0, #7f849c);
+    color: var(--sub-text-color, #8e99b2);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 12px;
@@ -169,7 +169,7 @@ const STYLES = `
     height: 18px;
     border: none;
     background: transparent;
-    color: var(--subtext0, #7f849c);
+    color: var(--sub-text-color, #8e99b2);
     cursor: pointer;
     padding: 0;
     border-radius: 3px;
@@ -178,7 +178,7 @@ const STYLES = `
   }
 
   .tree-toggle:hover {
-    color: var(--text, #cdd6f4);
+    color: var(--title-text-color, #e1e7f6);
     background: var(--surface1, #45475a);
   }
 
@@ -196,7 +196,8 @@ const STYLES = `
     color: var(--blue, #89b4fa);
     display: inline-flex;
     align-items: center;
-    font-size: 15px;
+    font-family: var(--font-symbols, "Symbols Nerd Font Mono");
+    font-size: var(--type-ui-size);
     line-height: 1;
   }
 
@@ -221,7 +222,7 @@ const STYLES = `
   }
 
   .tree-icon.go {
-    color: var(--sky, #89dceb);
+    color: var(--blue, #89dceb);
   }
 
   .tree-icon.rs {
@@ -237,8 +238,8 @@ const STYLES = `
   }
 
   .tree-label {
-    color: var(--text, #cdd6f4);
-    font-size: 13px;
+    color: var(--sub-text-color, #bac4de);
+    font-size: var(--type-caption-size);
   }
 
   .tree-children {

@@ -3,8 +3,8 @@ const DEFAULT_THEME = "system";
 const DEFAULT_MODE = "system";
 
 const SYSTEM_THEME = Object.freeze({
-  dark: "mocha",
-  light: "nord",
+  dark: "mono_dark",
+  light: "mono_light",
 });
 
 const DEFAULT_PREFERENCES = Object.freeze({
@@ -17,17 +17,18 @@ const THEME_OPTIONS = Object.freeze([
   { name: "System", value: DEFAULT_THEME },
   { name: "Catppuccin Latte", value: "latte", colorScheme: "light" },
   { name: "Nord Light", value: "nord", colorScheme: "light" },
-  { name: "Sunny", value: "sunny", colorScheme: "light" },
   { name: "Song Porcelain", value: "song_ci", colorScheme: "light" },
+  { name: "Mono Light", value: "mono_light", colorScheme: "light" },
   { name: "Nord Night", value: "nord_night", colorScheme: "night" },
   { name: "Rosé Pine", value: "rose_pine", colorScheme: "night" },
   { name: "Catppuccin Mocha", value: "mocha", colorScheme: "night" },
   { name: "Tokyo Night", value: "tokyo_night", colorScheme: "night" },
+  { name: "Mono Dark", value: "mono_dark", colorScheme: "night" },
 ]);
 
+const THEME_SCHEME_MAP = Object.freeze(Object.fromEntries(THEME_OPTIONS.filter((theme) => theme.value !== DEFAULT_THEME).map((theme) => [theme.value, theme.colorScheme])));
+
 function getClientThemeConfig() {
-  const themeClassMap = Object.fromEntries(THEME_OPTIONS.filter((theme) => theme.value !== DEFAULT_THEME).map((theme) => [theme.value, theme.colorScheme]));
-  const themeSchemeMap = Object.fromEntries(THEME_OPTIONS.filter((theme) => theme.value !== DEFAULT_THEME).map((theme) => [theme.value, theme.colorScheme]));
   return {
     storageKey: STORAGE_KEY,
     defaultTheme: DEFAULT_THEME,
@@ -35,8 +36,7 @@ function getClientThemeConfig() {
     defaultPreferences: DEFAULT_PREFERENCES,
     systemTheme: SYSTEM_THEME,
     themes: THEME_OPTIONS,
-    themeClassMap,
-    themeSchemeMap,
+    themeSchemeMap: THEME_SCHEME_MAP,
   };
 }
 
@@ -57,21 +57,26 @@ function getThemeInitScript() {
   var LEGACY_DEFAULT = config.defaultTheme;
   var DEFAULT_MODE = config.defaultMode || "system";
   var defaultPreferences = config.defaultPreferences || { mode: DEFAULT_MODE, light: config.systemTheme.light, dark: config.systemTheme.dark };
-  var themeClassMap = config.themeClassMap || {};
-  var themeSchemeMap = config.themeSchemeMap || themeClassMap;
-  var THEME_CLASSES = Array.from(new Set(Object.values(themeClassMap)));
+  var themeSchemeMap = config.themeSchemeMap;
+  var THEME_CLASSES = Array.from(new Set(Object.values(themeSchemeMap)));
   var html = document.documentElement;
   var darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
   function isValidTheme(t) {
-    return Object.prototype.hasOwnProperty.call(themeClassMap, t);
+    return Object.prototype.hasOwnProperty.call(themeSchemeMap, t);
   }
 
   function normalizeMode(mode) {
     return mode === "light" || mode === "dark" || mode === DEFAULT_MODE ? mode : DEFAULT_MODE;
   }
 
+  function normalizeThemeName(theme) {
+    if (theme === "sunny") return defaultPreferences.light;
+    return theme === "openai_dark" ? "mono_dark" : theme;
+  }
+
   function normalizeThemeForScheme(theme, scheme, fallback) {
+    theme = normalizeThemeName(theme);
     return isValidTheme(theme) && themeSchemeMap[theme] === scheme ? theme : fallback;
   }
 
@@ -91,6 +96,7 @@ function getThemeInitScript() {
 
   function normalizePreferences(value) {
     if (typeof value === "string") {
+      value = normalizeThemeName(value);
       if (value === LEGACY_DEFAULT || value === DEFAULT_MODE) {
         return Object.assign({}, defaultPreferences, { mode: DEFAULT_MODE });
       }
@@ -138,7 +144,7 @@ function getThemeInitScript() {
   function applyThemePreferences(preferences, persist) {
     var preference = normalizePreferences(preferences);
     var resolved = resolveTheme(preference);
-    var themeClass = themeClassMap[resolved];
+    var themeClass = themeSchemeMap[resolved];
     html.setAttribute("data-theme", resolved);
     html.setAttribute("data-theme-mode", preference.mode);
     html.setAttribute("data-theme-light", preference.light);
@@ -155,6 +161,7 @@ function getThemeInitScript() {
   }
 
   function applyTheme(theme, persist) {
+    theme = normalizeThemeName(theme);
     var current = getThemePreferences();
 
     if (theme === LEGACY_DEFAULT || theme === DEFAULT_MODE) {
@@ -189,6 +196,12 @@ function getThemeInitScript() {
   darkQuery.addEventListener("change", function() {
     var preferences = getThemePreferences();
     if (preferences.mode === DEFAULT_MODE) applyThemePreferences(preferences);
+  });
+
+  // bfcache 返回时本脚本不再执行，<html> 上仍是页面被缓存那一刻的主题。
+  // 按 localStorage 重放一次（applyThemePreferences 会派发 gnix:theme-change 供 UI 同步）
+  window.addEventListener("pageshow", function(event) {
+    if (event.persisted) applyThemePreferences(getThemePreferences());
   });
 })();
 `;

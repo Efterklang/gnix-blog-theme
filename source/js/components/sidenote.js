@@ -19,7 +19,7 @@ const STYLES = `
     display: block;
     margin: 1.5rem 0;
     padding: 0.4rem 0 0.4rem 1rem;
-    color: var(--subtext0);
+    color: var(--sub-text-color);
     font-size: 0.875em;
     line-height: 1.55;
     border-left: 2px solid var(--surface1);
@@ -33,32 +33,35 @@ const STYLES = `
     margin-bottom: 0;
   }
 
+  /* 正文 .content 外还包着一层（.article-main），所以这里一律用后代选择器；
+     只有真正含 side-note 的正文才放开 overflow，不影响其他文章的横向滚动容器 */
   @media screen and (min-width: 1280px) {
-    article.article > .content {
+    article.article .content:has(> side-note) {
       overflow: visible;
       display: flow-root;
     }
 
-    article.article > .content > side-note {
+    article.article .content > side-note {
       float: right;
       clear: right;
       box-sizing: border-box;
-      width: 11rem;
-      margin: 0 -12.5rem 1rem 1.5rem;
+      /* 落在文章网格右手的 margin 栏里（article.css 的 --margin-width / --margin-gap） */
+      width: var(--margin-width, 11rem);
+      margin: 0 calc(-1 * (var(--margin-width, 11rem) + var(--margin-gap, 1.5rem))) 1rem var(--margin-gap, 1.5rem);
       padding: 0 0 0 0.875rem;
       font-size: 0.8em;
     }
 
-    article.article > .content.is-side-note-layout {
+    article.article .content.is-side-note-layout {
       position: relative;
     }
 
-    article.article > .content.is-side-note-layout > side-note {
+    article.article .content.is-side-note-layout > side-note {
       float: none;
       clear: none;
       position: absolute;
       top: var(--side-note-top, 0);
-      right: -12.5rem;
+      right: calc(-1 * (var(--margin-width, 11rem) + var(--margin-gap, 1.5rem)));
       margin: 0;
     }
   }
@@ -73,8 +76,9 @@ function injectStyles() {
   styleSheetInjected = true;
 }
 
+// 与样式表一致：.content 不是 article 的直接子元素，用后代选择器
 function getArticleContentBlocks() {
-  return document.querySelectorAll("article.article > .content");
+  return document.querySelectorAll("article.article .content");
 }
 
 function getSideNotes(content) {

@@ -32,24 +32,29 @@ function waitForLazyAsset(element, key) {
   if (element.dataset.loadState === "loaded") return Promise.resolve(element);
   if (lazyAssetPromises.has(key)) return lazyAssetPromises.get(key);
 
+  element.dataset.loadState = "loading";
   const promise = new Promise((resolve, reject) => {
+    const controller = new AbortController();
     element.addEventListener(
       "load",
       () => {
+        controller.abort();
         element.dataset.loadState = "loaded";
         lazyAssetPromises.delete(key);
         resolve(element);
       },
-      { once: true },
+      { once: true, signal: controller.signal },
     );
     element.addEventListener(
       "error",
       () => {
+        controller.abort();
         element.dataset.loadState = "error";
+        element.remove();
         lazyAssetPromises.delete(key);
         reject(new Error(`Unable to load ${element.href || element.src}`));
       },
-      { once: true },
+      { once: true, signal: controller.signal },
     );
   });
 
@@ -88,7 +93,6 @@ function loadScriptOnce(path, options = {}) {
   script.src = resolveAssetHref(path);
   script.async = options.async ?? true;
   script.defer = options.defer ?? true;
-  script.dataset.loadState = "loading";
   setFetchPriority(script, options.fetchPriority);
 
   const promise = waitForLazyAsset(script, key);
@@ -164,10 +168,11 @@ function handleLazyAssetError(error) {
 
 // #region Keyboard Shortcuts
 
-// 全站快捷键；文章页专属快捷键（Esc 关脚注/缩放、空格跳过首屏、Cmd/Ctrl+T 目录）在 article.js
+// 全站快捷键；文章页专属快捷键（图片操作、Esc 关脚注/缩放、Cmd/Ctrl+T 目录）在 article.js
 function handleKeyDown(e) {
   const isModifier = e.metaKey || e.ctrlKey;
   if (!isModifier) return;
+  if (document.querySelector("dialog:modal, #article-comment-popover:popover-open")) return;
 
   const tag = e.target.tagName;
   if (["INPUT", "TEXTAREA"].includes(tag) || e.target.isContentEditable) return;
@@ -179,9 +184,12 @@ function handleKeyDown(e) {
     return;
   }
 
+  // 命令面板（搜索 + 命令）：脚本按需加载，就绪后再打开；加载器都不在时退回直接开 popover
   if (e.code === "KeyK") {
     e.preventDefault();
-    document.querySelector("#searchbox")?.showPopover();
+    if (window.gnixCommandPalette) window.gnixCommandPalette.open();
+    else if (window.gnixOpenCommandPalette) window.gnixOpenCommandPalette();
+    else document.getElementById("command-palette")?.showPopover();
   }
 }
 
@@ -190,12 +198,27 @@ function handleKeyDown(e) {
 // #region boot
 // main.js 以 <script type="module"> 加载，具备 defer 语义：执行到这里时 DOM 必已解析完毕，
 // 无需 DOMContentLoaded 门控；prerender 页面经 runWhenActivated 推迟到激活后初始化
+// 栏目页（点站名弹出的整屏 #navbar-menu）：popovertarget 不维护 aria-expanded，这里跟随开合同步；
+// 打开时焦点落在当前栏目（没有就第一项），关上后回到站名钮
+function initNavbarMenu() {
+  const menu = document.getElementById("navbar-menu");
+  const trigger = document.querySelector('[data-navbar-menu-trigger][popovertarget="navbar-menu"]');
+  if (!menu || !trigger) return;
+  menu.addEventListener("toggle", (event) => {
+    const open = event.newState === "open";
+    trigger.setAttribute("aria-expanded", String(open));
+    if (open) (menu.querySelector(".navbar-menu__item.is-active") || menu.querySelector(".navbar-menu__item"))?.focus({ preventScroll: true });
+  });
+}
+
 runWhenActivated(() => {
   document.addEventListener("keydown", handleKeyDown, {
     capture: true, // 捕获阶段监听，优先于浏览器默认处理
     passive: false, // 允许调用 preventDefault
   });
+  initNavbarMenu();
 });
+
 // #endregion
 
 // 文章页专属交互（脚注 tooltip/图片缩放/代码块工具栏/mermaid/TOC/评论/满高首屏）

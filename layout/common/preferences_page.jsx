@@ -1,326 +1,265 @@
 const { Component } = require("../../include/util/common");
-const { LINE_HEIGHT } = require("../../include/util/article_font");
+const { Icon } = require("../../include/util/lucide");
+const { CUSTOM_FONT_PRESETS } = require("../../include/util/article_font");
 const { DEFAULT_PREFERENCES, THEME_OPTIONS } = require("../../include/util/theme");
+const { THEME_MODE_OPTIONS, FONT_SIZE_OPTIONS, FONT_TYPE_OPTIONS, FONT_WEIGHT_OPTIONS, ARTICLE_WIDTH_OPTIONS } = require("../../include/util/preference_options");
+
+const LOREM_IPSUM =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
+// 自定义字体族输入框的占位示例
+const CUSTOM_FAMILY_PLACEHOLDERS = {
+  "sans-serif": '"Inter", sans-serif',
+  serif: '"Noto Serif SC", serif',
+  mono: '"Fira Code", monospace',
+  handwriting: '"LXGW WenKai", cursive',
+};
 
 function translate(helper, key, fallback) {
   const value = helper.__(key);
   return value === key ? fallback : value;
 }
 
-function icon(name) {
-  const common = {
-    "aria-hidden": "true",
-    fill: "none",
-    focusable: "false",
-    height: "18",
-    stroke: "currentColor",
-    "stroke-linecap": "round",
-    "stroke-linejoin": "round",
-    "stroke-width": "2",
-    viewBox: "0 0 24 24",
-    width: "18",
-    xmlns: "http://www.w3.org/2000/svg",
-  };
-
-  switch (name) {
-    case "arrow-left":
-      return (
-        <svg {...common}>
-          <title>arrow-left</title>
-          <path d="m12 19-7-7 7-7" />
-          <path d="M19 12H5" />
-        </svg>
-      );
-    case "rotate-ccw":
-      return (
-        <svg {...common}>
-          <title>rotate-ccw</title>
-          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-          <path d="M3 3v5h5" />
-        </svg>
-      );
-    default:
-      return null;
-  }
+// 节头：坐标式编号（01、02…）+ 节名 + 一行说明
+function renderPanelHeader(index, titleId, title, description) {
+  return (
+    <header class="preference-panel__header">
+      <span class="preference-panel__index" aria-hidden="true">
+        {String(index).padStart(2, "0")}
+      </span>
+      <div>
+        <h2 id={titleId}>{title}</h2>
+        <p>{description}</p>
+      </div>
+    </header>
+  );
 }
 
-const THEME_MODE_OPTIONS = [
-  ["system", "System"],
-  ["light", "Light"],
-  ["dark", "Dark"],
-];
-
-const FONT_SIZE_OPTIONS = [
-  ["small", "preferences.font_size_small", "Small"],
-  ["medium-small", "preferences.font_size_medium_small", "Medium Small"],
-  ["medium", "preferences.font_size_medium", "Medium"],
-  ["medium-large", "preferences.font_size_medium_large", "Medium Large"],
-  ["large", "preferences.font_size_large", "Large"],
-];
-
-const ARTICLE_WIDTH_OPTIONS = [
-  ["narrow", "preferences.width_narrow", "Narrow"],
-  ["medium-narrow", "preferences.width_medium_narrow", "Medium Narrow"],
-  ["medium", "preferences.width_medium", "Medium"],
-  ["medium-wide", "preferences.width_medium_wide", "Medium Wide"],
-  ["wide", "preferences.width_wide", "Wide"],
-];
-
-const FONT_TYPE_OPTIONS = [
-  ["sans-serif", "preferences.typeface_sans_serif", "Sans Serif"],
-  ["serif", "preferences.typeface_serif", "Serif"],
-  ["mono", "preferences.typeface_mono", "Monospace"],
-  ["handwriting", "preferences.typeface_handwriting", "Handwriting"],
-];
-
-const FONT_WEIGHT_OPTIONS = [
-  ["light", "preferences.weight_light", "Light"],
-  ["regular", "preferences.weight_regular", "Regular"],
-  ["medium", "preferences.weight_medium", "Medium"],
-];
-
-function renderThemeSchemeControl(helper, kind, themes, idPrefix) {
-  const isLight = kind === "light";
-  const title = translate(helper, isLight ? "preferences.light_theme" : "preferences.dark_theme", isLight ? "Light Theme" : "Dark Theme");
-  const selectLabel = translate(helper, isLight ? "preferences.light_scheme" : "preferences.dark_scheme", isLight ? "Light Scheme" : "Dark Scheme");
-  const defaultThemeValue = DEFAULT_PREFERENCES[kind];
-  const selectId = `${idPrefix}-${kind}-theme-select`;
-
+// 一行：左边标签（与可选的一句说明），右边控件
+function renderRow(label, control, { note, labelFor, modifier } = {}) {
   return (
-    <div class="theme-scheme-control">
-      <label class="theme-scheme-title" for={selectId}>
-        {title}
-      </label>
-      <span class="theme-scheme-select-shell">
-        <select id={selectId} class="theme-scheme-select" data-theme-scheme-kind={kind} aria-label={selectLabel}>
-          {themes.map((theme) => (
-            <option value={theme.value} selected={theme.value === defaultThemeValue}>
-              {theme.name}
-            </option>
-          ))}
-        </select>
-      </span>
+    <div class={`preference-row${modifier ? ` preference-row--${modifier}` : ""}`}>
+      <div class="preference-row__label">
+        {labelFor ? <label for={labelFor}>{label}</label> : <span>{label}</span>}
+        {note && <small>{note}</small>}
+      </div>
+      {control}
     </div>
   );
 }
 
-function renderThemeModePreview(value) {
-  const panes =
-    value === "system"
-      ? [
-          ["light", DEFAULT_PREFERENCES.light],
-          ["dark", DEFAULT_PREFERENCES.dark],
-        ]
-      : [[value, DEFAULT_PREFERENCES[value]]];
-
+// 一条分段条：每个选项一格，文字（或传入的渲染函数的结果）就是格子内容；hookClass 是 preferences.js 找控件用的类名
+function renderSegmented(helper, legend, options, { hookClass, dataKey, renderCell }) {
   return (
-    <span class={`theme-mode-preview theme-mode-preview--${value}`} aria-hidden="true">
-      {panes.map(([scheme, theme]) => (
-        <span class={`theme-mode-preview__pane theme-mode-preview__pane--${scheme}`} data-theme-preview-scheme={scheme} data-theme={theme}>
-          <span class="theme-mode-preview__surface"></span>
-        </span>
-      ))}
-    </span>
+    <fieldset class="segmented">
+      <legend class="preference-sr-only">{legend}</legend>
+      {options.map((option) => {
+        const label = translate(helper, option.key, option.fallback);
+        const data = { [`data-${dataKey}`]: option.value };
+        return (
+          <button type="button" class={`segmented__cell${hookClass ? ` ${hookClass}` : ""}`} {...data} aria-pressed="false" aria-label={label}>
+            {renderCell ? renderCell(option, label) : label}
+          </button>
+        );
+      })}
+    </fieldset>
   );
 }
 
+// 亮 / 暗两套配色各一行：一个下拉
+function renderThemeSchemeRow(helper, kind, themes, idPrefix) {
+  const isLight = kind === "light";
+  const title = translate(helper, isLight ? "preferences.light_theme" : "preferences.dark_theme", isLight ? "Light Theme" : "Dark Theme");
+  const note = translate(
+    helper,
+    isLight ? "preferences.light_scheme_description" : "preferences.dark_scheme_description",
+    isLight ? "Used when Light mode is active" : "Used when Dark mode is active",
+  );
+  const selectLabel = translate(helper, isLight ? "preferences.light_scheme" : "preferences.dark_scheme", isLight ? "Light Scheme" : "Dark Scheme");
+  const selectId = `${idPrefix}-${kind}-theme-select`;
+
+  return renderRow(
+    title,
+    <span class="theme-scheme-select-shell">
+      <select id={selectId} class="theme-scheme-select" data-theme-scheme-kind={kind} aria-label={selectLabel}>
+        {themes.map((theme) => (
+          <option value={theme.value} selected={theme.value === DEFAULT_PREFERENCES[kind]}>
+            {theme.name}
+          </option>
+        ))}
+      </select>
+      <Icon name="chevron-down" size={14} class="theme-scheme-select-chevron" />
+    </span>,
+    { note, labelFor: selectId },
+  );
+}
+
+// 设置页：一张清单。刊头（标题、说明、Reset / Back）之下两节——01 Theme、02 Typography——每节若干行，
+// 行左标签右控件；控件与顶栏的偏好弹窗同一款分段条（default.css）。preferences.js 按 data-* 与类名钩子找控件
 module.exports = class extends Component {
   render() {
     const { helper } = this.props;
     const lightThemes = THEME_OPTIONS.filter((theme) => theme.colorScheme === "light");
     const darkThemes = THEME_OPTIONS.filter((theme) => theme.colorScheme === "night");
     const backLabel = translate(helper, "preferences.back_to_app", "Back");
+    const resetLabel = translate(helper, "preferences.reset", "Reset");
     const homeUrl = helper.localized_url_for("/");
     const idPrefix = "preference-page";
-    const pageTitleId = `${idPrefix}-title`;
     const themeTitleId = `${idPrefix}-theme-title`;
     const fontTitleId = `${idPrefix}-font-title`;
-    const lineHeightSliderId = `${idPrefix}-article-line-height-slider`;
+    const t = (key, fallback) => translate(helper, key, fallback);
+    const widthTitle = t("preferences.content_width", "Article Width");
 
     return (
       <div class="preference-page" data-preferences-page data-preference-surface="page">
         <div class="preference-shell">
           <header class="preference-page-header">
-            <h1 id={pageTitleId}>{translate(helper, "preferences.title", "Preferences")}</h1>
+            <div class="preference-page-heading">
+              <h1 id={`${idPrefix}-title`}>{t("preferences.title", "Preferences")}</h1>
+              <p>{t("preferences.autosave_note", "Changes are saved automatically in this browser.")}</p>
+            </div>
             <div class="preference-header-actions">
-              <button type="button" class="preference-reset-action" data-preference-reset-all>
-                {icon("rotate-ccw")}
-                <span>{translate(helper, "preferences.reset", "Reset")}</span>
+              <button type="button" class="preference-reset-action" aria-label={resetLabel} title={resetLabel} data-preference-reset-all>
+                <Icon name="rotate-ccw" size={14} />
+                <span>{resetLabel}</span>
               </button>
-              <button type="button" class="preference-back-link" aria-label={backLabel} data-preference-back data-home-url={homeUrl}>
-                {icon("arrow-left")}
+              <button type="button" class="preference-back-link" aria-label={backLabel} title={backLabel} data-preference-back data-home-url={homeUrl}>
+                <Icon name="arrow-left" size={14} />
                 <span>{backLabel}</span>
               </button>
             </div>
           </header>
 
           <section id="preferences-appearance" class="preference-panel" aria-labelledby={themeTitleId}>
-            <header class="preference-panel__header">
-              <h2 id={themeTitleId}>{translate(helper, "preferences.theme_eyebrow", "Theme")}</h2>
-            </header>
-
-            <div class="preference-theme-controls">
-              <fieldset class="preference-choice-group preference-choice-group--mode">
-                <legend class="preference-sr-only">{translate(helper, "preferences.theme_mode", "Mode")}</legend>
-                {THEME_MODE_OPTIONS.map(([value, fallback]) => (
-                  <button type="button" class="preference-choice-button preference-choice-button--theme-mode" data-theme-mode={value} aria-pressed="false">
-                    {renderThemeModePreview(value)}
-                    <span class="theme-mode-label">{translate(helper, `preferences.theme_mode_${value}`, fallback)}</span>
-                  </button>
-                ))}
-              </fieldset>
-
-              <div class="preference-theme-schemes">
-                {renderThemeSchemeControl(helper, "light", lightThemes, idPrefix)}
-                {renderThemeSchemeControl(helper, "dark", darkThemes, idPrefix)}
-              </div>
-            </div>
+            {renderPanelHeader(1, themeTitleId, t("preferences.theme_eyebrow", "Theme"), t("preferences.theme_description", "Use light, dark, or match your system"))}
+            {renderRow(t("preferences.theme_mode", "Mode"), renderSegmented(helper, t("preferences.theme_mode", "Mode"), THEME_MODE_OPTIONS, { dataKey: "theme-mode" }))}
+            {renderThemeSchemeRow(helper, "light", lightThemes, idPrefix)}
+            {renderThemeSchemeRow(helper, "dark", darkThemes, idPrefix)}
           </section>
 
           <section id="preferences-typography" class="preference-panel" aria-labelledby={fontTitleId}>
-            <header class="preference-panel__header">
-              <h2 id={fontTitleId}>{translate(helper, "preferences.font_title", "Typography")}</h2>
-            </header>
+            {renderPanelHeader(2, fontTitleId, t("preferences.font_title", "Typography"), t("preferences.typography_description", "Tune article reading density, typeface, and custom web fonts"))}
 
-            <div class="preference-row">
-              <div class="preference-row__label">
-                <span>{translate(helper, "preferences.font_size", "Size")}</span>
-              </div>
-              <fieldset class="preference-choice-group preference-choice-group--font-size font-size-selector">
-                <legend class="preference-sr-only">{translate(helper, "preferences.font_size", "Size")}</legend>
-                {FONT_SIZE_OPTIONS.map(([value, key, fallback]) => (
-                  <button type="button" class="preference-choice-button preference-choice-button--size font-size-btn" data-size={value} aria-label={translate(helper, key, fallback)}>
-                    <span class="font-size-preview">A</span>
-                  </button>
-                ))}
-              </fieldset>
-            </div>
+            {renderRow(
+              t("preferences.font_size", "Size"),
+              renderSegmented(helper, t("preferences.font_size", "Size"), FONT_SIZE_OPTIONS, {
+                hookClass: "font-size-btn",
+                dataKey: "size",
+                renderCell: () => <span class="font-size-preview">A</span>,
+              }),
+            )}
 
-            <div class="preference-row">
-              <div class="preference-row__label">
-                <span>{translate(helper, "preferences.weight", "Weight")}</span>
-              </div>
-              <fieldset class="preference-choice-group preference-choice-group--segmented preference-choice-group--font-weight font-weight-selector">
-                <legend class="preference-sr-only">{translate(helper, "preferences.weight", "Weight")}</legend>
-                {FONT_WEIGHT_OPTIONS.map(([value, key, fallback]) => (
-                  <button type="button" class="preference-choice-button preference-choice-button--segmented font-weight-btn" data-weight={value} aria-label={translate(helper, key, fallback)}>
-                    <span class="font-option-name">{translate(helper, key, fallback)}</span>
-                  </button>
-                ))}
-              </fieldset>
-            </div>
+            {renderRow(t("preferences.weight", "Weight"), renderSegmented(helper, t("preferences.weight", "Weight"), FONT_WEIGHT_OPTIONS, { hookClass: "font-weight-btn", dataKey: "weight" }))}
 
-            <div class="preference-row">
-              <div class="preference-row__label">
-                <span>{translate(helper, "preferences.content_width", "Article Width")}</span>
-                <small>{translate(helper, "preferences.content_width_description", "Only affects the article column")}</small>
-              </div>
-              <fieldset class="preference-choice-group preference-choice-group--article-width font-width-selector">
-                <legend class="preference-sr-only">{translate(helper, "preferences.content_width", "Article Width")}</legend>
-                {ARTICLE_WIDTH_OPTIONS.map(([value, key, fallback]) => (
-                  <button type="button" class="preference-choice-button preference-choice-button--width font-width-btn" data-width={value} aria-label={translate(helper, key, fallback)}>
-                    <span class="font-width-preview" aria-hidden="true"></span>
-                  </button>
-                ))}
-              </fieldset>
-            </div>
+            {/* 栏宽与字重一样直接选档；窄屏仍可保存偏好，页面实际宽度受视口限制。 */}
+            {renderRow(
+              widthTitle,
+              renderSegmented(helper, widthTitle, ARTICLE_WIDTH_OPTIONS, {
+                hookClass: "font-width-btn",
+                dataKey: "width",
+              }),
+              { note: t("preferences.content_width_description", "Sets the width of articles and this settings page"), modifier: "width" },
+            )}
 
-            <div class="preference-row">
-              <div class="preference-row__label">
-                <span>{translate(helper, "preferences.line_height", "Line Height")}</span>
-              </div>
-              <div class="font-line-height-stack">
-                <div class="font-line-height-control">
-                  <span class="font-line-height-label">{translate(helper, "preferences.compact", "Compact")}</span>
-                  <input
-                    id={lineHeightSliderId}
-                    class="font-line-height-slider"
-                    type="range"
-                    min={String(LINE_HEIGHT.min)}
-                    max={String(LINE_HEIGHT.max)}
-                    step="0.05"
-                    value="1.7"
-                    aria-label={translate(helper, "preferences.line_height", "Line Height")}
-                  />
-                  <span class="font-line-height-label">{translate(helper, "preferences.relaxed", "Relaxed")}</span>
-                </div>
-                <output class="font-line-height-value" for={lineHeightSliderId}>
-                  1.70
-                </output>
-              </div>
-            </div>
-
-            <div class="preference-row preference-row--control-only">
-              <fieldset class="preference-choice-group preference-choice-group--font-type font-type-selector">
-                <legend class="preference-sr-only">{translate(helper, "preferences.typeface", "Typeface")}</legend>
-                {FONT_TYPE_OPTIONS.map(([value, key, fallback]) => (
-                  <button type="button" class="preference-choice-button preference-choice-button--type font-type-btn" data-font={value}>
+            {/* 字体族：四张卡片（大「Aa」+ 名字），不是分段条 */}
+            {renderRow(
+              t("preferences.typeface", "Typeface"),
+              <fieldset class="preference-type-grid">
+                <legend class="preference-sr-only">{t("preferences.typeface", "Typeface")}</legend>
+                {FONT_TYPE_OPTIONS.map(({ value, key, fallback }) => (
+                  <button type="button" class="preference-type-card font-type-btn" data-font={value} aria-pressed="false">
                     <span class="font-type-preview">Aa</span>
-                    <span class="font-type-name">{translate(helper, key, fallback)}</span>
+                    <span class="font-type-name">{t(key, fallback)}</span>
                   </button>
                 ))}
-              </fieldset>
-            </div>
+              </fieldset>,
+              { modifier: "stacked" },
+            )}
 
             <div class="preference-row preference-row--stacked">
-              <div class="preference-row__label">
-                <span>{translate(helper, "preferences.custom_fonts", "Custom Fonts")}</span>
-                <small>{translate(helper, "preferences.custom_fonts_description", "Load web font CSS and map families")}</small>
-              </div>
-              <div class="font-custom-panel">
-                <form class="font-custom-form">
-                  <label class="font-custom-field">
-                    <span>{translate(helper, "preferences.web_font_css", "Web Font CSS URL")}</span>
-                    <small>{translate(helper, "preferences.font_css_help", "Paste one web font CSS URL per line. Each URL can load one or more font families.")}</small>
-                    <textarea
-                      class="font-custom-imports"
-                      name="font-custom-imports"
-                      rows="3"
-                      placeholder="https://fonts.googleapis.com/css2?family=..."
-                      aria-label={translate(helper, "preferences.web_font_css", "Web Font CSS URL")}
-                    ></textarea>
-                  </label>
-                  <div class="font-custom-family-grid">
-                    <label class="font-custom-field">
-                      <span>{translate(helper, "preferences.typeface_serif", "Serif")}</span>
-                      <input class="font-custom-family-input" name="font-custom-family-serif" type="text" data-font-family="serif" placeholder={'"Noto Serif SC", serif'} autocomplete="off" />
-                    </label>
-                    <label class="font-custom-field">
-                      <span>{translate(helper, "preferences.typeface_sans_serif", "Sans Serif")}</span>
-                      <input class="font-custom-family-input" name="font-custom-family-sans-serif" type="text" data-font-family="sans-serif" placeholder={'"Inter", sans-serif'} autocomplete="off" />
-                    </label>
-                    <label class="font-custom-field">
-                      <span>{translate(helper, "preferences.typeface_mono", "Monospace")}</span>
-                      <input class="font-custom-family-input" name="font-custom-family-mono" type="text" data-font-family="mono" placeholder={'"Fira Code", monospace'} autocomplete="off" />
-                    </label>
-                    <label class="font-custom-field">
-                      <span>{translate(helper, "preferences.typeface_handwriting", "Handwriting")}</span>
-                      <input
-                        class="font-custom-family-input"
-                        name="font-custom-family-handwriting"
-                        type="text"
-                        data-font-family="handwriting"
-                        placeholder={'"LXGW WenKai", cursive'}
-                        autocomplete="off"
-                      />
-                    </label>
+              <form class="font-custom-form">
+                <details class="font-custom-details font-preset-details">
+                  <summary>{t("preferences.font_presets", "Recommended Fonts")}</summary>
+                  <div class="font-custom-details__body">
+                    <fieldset class="font-preset-group">
+                      <legend class="preference-sr-only">{t("preferences.font_presets", "Recommended Fonts")}</legend>
+                      <small>{t("preferences.font_presets_description", "Check to download fonts, then enter their names below to use them.")}</small>
+                      <div class="font-preset-list">
+                        {CUSTOM_FONT_PRESETS.map((preset) => {
+                          const { key, fallback } = FONT_TYPE_OPTIONS.find((option) => option.value === preset.type);
+                          return (
+                            <label class="font-preset-option">
+                              <input type="checkbox" data-font-preset={preset.id} aria-labelledby={`font-preset-name-${preset.id}`} aria-describedby={`font-preset-status-${preset.id}`} />
+                              <span class="font-preset-copy">
+                                <strong id={`font-preset-name-${preset.id}`}>{preset.name}</strong>
+                                <span>{t(key, fallback)}</span>
+                              </span>
+                              <small class="font-preset-status" id={`font-preset-status-${preset.id}`} data-font-preset-state={preset.id} data-state="idle" aria-live="polite">
+                                {t("preferences.font_preset_idle", "Check to download")}
+                              </small>
+                            </label>
+                          );
+                        })}
+                      </div>
+                      <p class="font-preset-note">{t("preferences.font_presets_storage", "Font files are cached in this browser for reuse.")}</p>
+                      <span
+                        hidden
+                        data-font-preset-messages
+                        data-idle={t("preferences.font_preset_idle", "Check to download")}
+                        data-loading={t("preferences.font_preset_loading", "Downloading…")}
+                        data-ready={t("preferences.font_preset_ready", "Downloaded")}
+                        data-uncached={t("preferences.font_preset_uncached", "Loaded")}
+                        data-copied={t("preferences.font_preset_copied", "Downloaded · copied “%s”")}
+                        data-error={t("preferences.font_preset_error", "Download failed. Uncheck and try again.")}
+                      ></span>
+                    </fieldset>
                   </div>
-                  <button type="button" class="font-custom-reset">
-                    {translate(helper, "preferences.reset_fonts", "Reset Fonts")}
-                  </button>
-                </form>
-              </div>
+                </details>
+                <details class="font-custom-details" open>
+                  <summary>{t("preferences.custom_fonts", "Custom Fonts")}</summary>
+                  <div class="font-custom-details__body">
+                    <p>{t("preferences.custom_fonts_description", "Load web font CSS and map families")}</p>
+                    <label class="font-custom-field">
+                      <span>{t("preferences.web_font_css", "Web Font CSS URL")}</span>
+                      <small>{t("preferences.font_css_help", "Paste one web font CSS URL per line. Each URL can load one or more font families.")}</small>
+                      <textarea
+                        class="font-custom-imports"
+                        name="font-custom-imports"
+                        rows="3"
+                        placeholder="https://fonts.googleapis.com/css2?family=..."
+                        aria-label={t("preferences.web_font_css", "Web Font CSS URL")}
+                      ></textarea>
+                    </label>
+                    <div class="font-custom-family-grid">
+                      {FONT_TYPE_OPTIONS.map(({ value, key, fallback }) => (
+                        <label class="font-custom-field">
+                          <span>{t(key, fallback)}</span>
+                          <input
+                            class="font-custom-family-input"
+                            name={`font-custom-family-${value}`}
+                            type="text"
+                            data-font-family={value}
+                            placeholder={CUSTOM_FAMILY_PLACEHOLDERS[value]}
+                            autocomplete="off"
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </details>
+                <button type="button" class="font-custom-reset">
+                  {t("preferences.reset_fonts", "Reset Fonts")}
+                </button>
+              </form>
             </div>
 
             <div class="preference-row preference-row--preview">
-              <div class="font-preview-copy">
-                <p class="font-preview-title">
-                  <span class="font-preview-marker">[{translate(helper, "preferences.preview", "Preview")}]</span> {translate(helper, "preferences.preview_title", "When You Are Old")}
-                </p>
-                <p class="font-preview-excerpt">{translate(helper, "preferences.preview_copy", "When you are old and grey and full of sleep, and nodding by the fire, take down this book,")}</p>
-                <p class="font-preview-excerpt">
-                  {translate(helper, "preferences.preview_copy_secondary", "And slowly read, and dream of the soft look your eyes had once, and of their shadows deep.")}
-                </p>
+              <div class="font-preview">
+                <span class="preference-preview-label">{t("preferences.live_preview", "Live Preview")}</span>
+                <div class="font-preview-copy">
+                  <p class="font-preview-title">Lorem Ipsum</p>
+                  <p class="font-preview-excerpt">{LOREM_IPSUM}</p>
+                </div>
               </div>
             </div>
           </section>

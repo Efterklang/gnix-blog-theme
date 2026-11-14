@@ -18,7 +18,7 @@
     return family;
   }
 
-  function normalizeCustomFonts(value, familyOptions, importLimit) {
+  function normalizeCustomFonts(value, familyOptions, importLimit, presetOptions = []) {
     var customFonts = value && typeof value === "object" ? value : {};
     var sourceFamilies = customFonts.families && typeof customFonts.families === "object" ? customFonts.families : {};
     var importSource = customFonts.imports;
@@ -44,7 +44,45 @@
     return {
       imports: imports,
       families: families,
+      presets: presetOptions.filter((preset) => Array.isArray(customFonts.presets) && customFonts.presets.includes(preset.id)).map((preset) => preset.id),
     };
+  }
+
+  function resolveCustomFontFamilies(customFonts) {
+    // Downloaded presets make fonts available; only explicit family names apply them.
+    return { ...customFonts.families };
+  }
+
+  // 预设字体来自第三方字体服务：只为启用了预设的读者预先建连，其余访客不付出这次握手
+  // （此前 head 对所有人写死 preconnect，未启用预设的页面被 Lighthouse 标为未使用的连接）
+  function preconnectPresetOrigins(ids, presets) {
+    if (typeof document === "undefined" || !document.head) return;
+    presets.forEach((preset) => {
+      if (!ids.includes(preset.id) || !preset.css) return;
+      var origin;
+      try {
+        origin = new URL(preset.css, window.location.href).origin;
+      } catch (_) {
+        return;
+      }
+      if (origin === window.location.origin || document.querySelector('link[rel="preconnect"][href="' + origin + '"]')) return;
+      var link = document.createElement("link");
+      link.rel = "preconnect";
+      link.href = origin;
+      link.crossOrigin = "anonymous";
+      document.head.appendChild(link);
+    });
+  }
+
+  let presetLoader;
+  function applyFontPresets(ids = [], presets = []) {
+    if (!ids.length && !presetLoader) return;
+    preconnectPresetOrigins(ids, presets);
+    presetLoader ||= import("/js/font-presets.js");
+    presetLoader.then((module) => module.applyPresetFonts(ids, presets)).catch(() => {
+      presetLoader = null;
+      ids.forEach((id) => window.dispatchEvent(new CustomEvent("gnix:font-preset-state", { detail: { id, state: "error" } })));
+    });
   }
 
   function applyCustomFontImports(imports, selector) {
@@ -82,7 +120,9 @@
   function applyCustomFontFamilies(html, families, familyOptions) {
     Object.keys(familyOptions || {}).forEach((key) => {
       if (families?.[key]) {
-        html.style.setProperty(familyOptions[key], families[key]);
+        // Keep icon coverage when a reader supplies a family without Nerd glyphs.
+        // The saved/editable family stays as entered; only the applied stack changes.
+        html.style.setProperty(familyOptions[key], `${families[key]}, var(--font-symbols, "Symbols Nerd Font Mono")`);
       } else {
         html.style.removeProperty(familyOptions[key]);
       }
@@ -93,6 +133,8 @@
     normalizeCustomFontImport: normalizeCustomFontImport,
     normalizeCustomFontFamily: normalizeCustomFontFamily,
     normalizeCustomFonts: normalizeCustomFonts,
+    resolveCustomFontFamilies,
+    applyFontPresets,
     applyCustomFontImports: applyCustomFontImports,
     applyCustomFontFamilies: applyCustomFontFamilies,
   };

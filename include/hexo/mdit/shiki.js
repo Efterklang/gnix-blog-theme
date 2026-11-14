@@ -3,14 +3,19 @@ const t = require("@shikijs/transformers");
 const { transformerColorizedBrackets } = require("@shikijs/colorized-brackets");
 const { mkdir, writeFile } = require("node:fs/promises");
 const { dirname } = require("node:path");
+const { monoDark, monoLight } = require("./shiki-mono");
 
 const THEMES = {
   light: "catppuccin-latte",
   dark: "catppuccin-mocha",
   song: "everforest-light",
+  // Shiki 内置 nord 只有深色版本，Nord Light 使用独立的浅色主题。
+  "nord-light": "github-light",
   nord: "nord",
   tokyo: "tokyo-night",
   rose: "rose-pine",
+  "mono-dark": monoDark,
+  "mono-light": monoLight,
 };
 
 const TRANSFORMERS = [
@@ -25,17 +30,23 @@ const TRANSFORMERS = [
   t.transformerRemoveLineBreak(),
   t.transformerRemoveNotationEscape(),
   t.transformerRenderWhitespace(),
-  transformerColorizedBrackets(),
+  // 括号配色只内置了 shiki 自带主题，自定义主题需显式给出（末位为不匹配括号色）
+  transformerColorizedBrackets({
+    themes: {
+      [monoDark.name]: ["#90bce9", "#e4a0bf", "#e9b082", "#ef958e"],
+      [monoLight.name]: ["#32618e", "#8a4066", "#925a25", "#9a3936"],
+    },
+  }),
 ];
 
 const SVG_WRAP =
-  '<label class="toggle-wrap" title="Toggle Wrap" aria-label="Toggle word wrap"><input type="checkbox" hidden><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16-3 3 3 3"/><path d="M3 12h14.5a1 1 0 0 1 0 7H13"/><path d="M3 19h6"/><path d="M3 5h18"/></svg></label>';
+  '<label class="toggle-wrap" title="Toggle Wrap" aria-label="Toggle word wrap"><input type="checkbox" hidden><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16-3 3 3 3"/><path d="M3 12h14.5a1 1 0 0 1 0 7H13"/><path d="M3 19h6"/><path d="M3 5h18"/></svg></label>';
 const SVG_COPY =
-  '<div class="copy-notice"></div><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="copy-button"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M16 4h2a2 2 0 0 1 2 2v4"/><path d="M21 14H11"/><path d="m15 10-4 4 4 4"/></svg>';
+  '<div class="copy-notice"></div><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="copy-button"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M16 4h2a2 2 0 0 1 2 2v4"/><path d="M21 14H11"/><path d="m15 10-4 4 4 4"/></svg>';
 const SVG_EXPAND =
-  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="expand-icon"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>';
+  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="expand-icon"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>';
 const SVG_COLLAPSE =
-  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="collapse-icon"><path d="m7 20 5-5 5 5"/><path d="m7 4 5 5 5-5"/></svg>';
+  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="collapse-icon"><path d="m7 20 5-5 5 5"/><path d="m7 4 5 5 5-5"/></svg>';
 
 const RE_LINE = /<span class="line/g;
 
@@ -44,20 +55,18 @@ function escapeHtml(code) {
 }
 
 function createShikiTools(lang, title, { lang: showLang, title: showTitle, wrapToggle, copyButton }) {
-  let left = '<div class="left"><div class="traffic-lights"> <span class="traffic-light red"></span> <span class="traffic-light yellow"></span> <span class="traffic-light green"></span> </div>';
-  if (showLang) left += `<div class="code-lang">${lang.toUpperCase()}</div>`;
+  // 顶栏只放语言与标题两枚小字；两者都没有时 CSS 让顶栏退出文档流，按钮浮在代码右上角
+  let left = '<div class="left">';
+  if (showLang && lang) left += `<span class="code-lang">${lang.toUpperCase()}</span>`;
+  if (showTitle && title) left += `<span class="code-title">${title}</span>`;
   left += "</div>";
-
-  let center = '<div class="center">';
-  if (showTitle && title) center += `\n<div class="code-title">${title}</div>`;
-  center += "\n</div>";
 
   let right = '<div class="right">';
   if (wrapToggle) right += `\n${SVG_WRAP}`;
   if (copyButton) right += `\n${SVG_COPY}`;
   right += "\n</div>";
 
-  return `<div class="shiki-tools">${left}${center}${right}</div>`;
+  return `<div class="shiki-tools">${left}${right}</div>`;
 }
 
 async function writeCssAsync(cssGetter, cssOutputPath) {

@@ -1,3 +1,4 @@
+const fs = require("node:fs");
 const path = require("node:path");
 const { clearComponentCache } = require("../include/util/common");
 
@@ -28,10 +29,30 @@ if (isHexoServerCommand(hexo)) {
   /* JSX 模板热更新：渲染走 require(data.path)（见 include/hexo/renderer.js），
      但 Node 的 require 缓存与 cacheComponent 的元素缓存都钉着旧组件；
      侦测到 layout 下 jsx 变动后，在下一轮生成前整体清掉两层缓存，
-     渲染时 esbuild 按需重新编译。include/ 下的 js 不在 Box 监听范围，
-     改动仍需重启 server */
+     渲染时 esbuild 按需重新编译。include/ 不在 Box 监听范围，这里自己盯
+     include/util：变更时标脏并轻触 layout 触发一轮生成，连同 util 的
+     require 缓存一起清掉 */
   const layoutDir = path.join(hexo.theme_dir, "layout") + path.sep;
   let layoutDirty = false;
+
+  const utilDir = path.join(hexo.theme_dir, "include", "util") + path.sep;
+  let utilDirty = false;
+  let touchTimer = null;
+
+  if (fs.existsSync(utilDir)) {
+    fs.watch(utilDir, { recursive: true }, () => {
+      utilDirty = true;
+      clearTimeout(touchTimer);
+      touchTimer = setTimeout(() => {
+        try {
+          const now = new Date();
+          fs.utimesSync(path.join(hexo.theme_dir, "layout", "layout.jsx"), now, now);
+        } catch (_) {
+          /* 触碰失败时放弃这一轮，改动会在下次触发时一并生效 */
+        }
+      }, reloadDebounceMs);
+    });
+  }
 
   hexo.theme.on("processAfter", (file) => {
     if (file.path?.endsWith(".jsx")) {
@@ -40,13 +61,16 @@ if (isHexoServerCommand(hexo)) {
   });
 
   hexo.on("generateBefore", () => {
-    if (!layoutDirty) {
+    if (!layoutDirty && !utilDirty) {
       return;
     }
     layoutDirty = false;
+    utilDirty = false;
 
+    /* util 变更时必须连 layout 缓存一起清：layout 在加载时就捕获了 util 的导出，
+       只清 util 的话旧引用还在 */
     for (const id of Object.keys(require.cache)) {
-      if (id.startsWith(layoutDir)) {
+      if (id.startsWith(layoutDir) || id.startsWith(utilDir)) {
         delete require.cache[id];
       }
     }

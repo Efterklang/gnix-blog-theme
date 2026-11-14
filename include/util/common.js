@@ -8,6 +8,9 @@ const { createElement } = require("inferno-create-element");
 
 const cache = {};
 
+// 列表日期的英文缩写月（Oct）：与扉页日期一样固定英文，不随站点语言切换
+const shortMonthFormatter = new Intl.DateTimeFormat("en", { month: "short" });
+
 function computeHash(props) {
   return crypto.createHash("md5").update(JSON.stringify(props)).digest("hex");
 }
@@ -54,14 +57,18 @@ module.exports = {
     console.warn(`[gnix-theme] Failed to load widget: ${name}`);
   },
 
+  // 字数：去掉标签后，一个 CJK 字符或一个拉丁单词计一；文章信息弹层与扉页题注共用
+  getWordCount: (content) => {
+    if (typeof content !== "string") return 0;
+    const text = content.replace(/<\/?[a-z][^>]*>/gi, "").trim();
+    return text ? (text.match(/[\u00ff-\uffff]|[a-zA-Z]+/g) || []).length : 0;
+  },
+
   isValidDate: (val) => val instanceof Date && !Number.isNaN(val.getTime()),
   parseISO: (str) => new Date(str),
-  // 列表日期统一为纯数字 mm.dd（05.13）：数据注脚的最低调形态，
-  // 与季节标签、年份轴的数字语汇一致，也没有大小写强调问题
-  formatMonthDay: (d) => {
-    const pad2 = (n) => String(n).padStart(2, "0");
-    return `${pad2(d.getMonth() + 1)}.${pad2(d.getDate())}`;
-  },
+  // 列表日期统一为「缩写月 + 日」，日补零到两位（Oct 04）：
+  // 日期是一列数字，等宽等长才对得齐
+  formatMonthDay: (d) => `${shortMonthFormatter.format(d)} ${String(d.getDate()).padStart(2, "0")}`,
   dateFormatters: {
     longMonth: new Intl.DateTimeFormat("en", { month: "long" }),
   },

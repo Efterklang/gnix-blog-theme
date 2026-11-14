@@ -1,6 +1,7 @@
 const { extname } = require("node:path");
 const { generateAtomFeed } = require("feedsmith");
 const { gravatar, full_url_for, encodeURL, url_for } = require("hexo-util");
+const { isEncrypted } = require("./encrypt");
 
 const EXISTING_FEED_LINK_RE = /type=['|"]?application\/atom\+xml['|"]?/i;
 const HEAD_RE = /<head>(?!<\/head>).+?<\/head>/s;
@@ -34,7 +35,7 @@ module.exports = (hexo) => {
     const { limit, order_by } = feedConfig;
     let processedPosts = posts.sort(order_by || "-date");
     processedPosts = processedPosts.filter((post) => post.draft !== true);
-    processedPosts = processedPosts.filter((post) => !post.password);
+    processedPosts = processedPosts.filter((post) => !isEncrypted(post));
     if (limit) processedPosts = processedPosts.limit(limit);
     return processedPosts;
   }

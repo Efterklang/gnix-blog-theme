@@ -1,27 +1,7 @@
+import { decryptPayload, GARDEN_PASSWORD_KEY, POST_PASSWORD_PREFIX, readStoredPassword, storePassword } from "./crypto.js";
+
 function getCacheKey() {
-  return `gnix-encrypt:${location.pathname}`;
-}
-
-function b64ToBytes(base64) {
-  const bin = atob(base64);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return bytes;
-}
-
-async function deriveKey(password, salt) {
-  const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
-  return crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" }, material, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
-}
-
-async function decryptPayload(password, base64) {
-  const data = b64ToBytes(base64);
-  const salt = data.slice(0, 16);
-  const iv = data.slice(16, 28);
-  const ciphertext = data.slice(28);
-  const key = await deriveKey(password, salt);
-  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext);
-  return new TextDecoder().decode(plain);
+  return `${POST_PASSWORD_PREFIX}${location.pathname}`;
 }
 
 function buildToc() {
@@ -44,29 +24,37 @@ function buildToc() {
     li.appendChild(a);
     ol.appendChild(li);
   }
-  const insert = tocContainer.querySelector("#toc-insert");
-  if (insert) {
-    insert.innerHTML = "";
-    insert.appendChild(ol);
-  }
-  tocContainer.style.display = "";
+  // 目录在文章卡片的 Contents 页里（见 common/toc.jsx）：整张列表换掉
+  tocContainer.replaceChildren(ol);
 }
 
 async function decrypt(container, password) {
   const base64 = container.querySelector(".encrypted-data").textContent.trim();
   const html = await decryptPayload(password, base64);
-  container.outerHTML = html;
-  localStorage.setItem(getCacheKey(), password);
+  // 经 innerHTML / outerHTML 插入的 <script> 不会执行：内容进入文档后，把其中的脚本换成
+  // 新建的 script 节点，文中组件的模块脚本（如 /js/components/video-player.js）才会加载
+  const template = document.createElement("template");
+  template.innerHTML = html;
+  const inertScripts = Array.from(template.content.querySelectorAll("script"));
+  container.replaceWith(template.content);
+  for (const inert of inertScripts) {
+    const script = document.createElement("script");
+    for (const { name, value } of inert.attributes) script.setAttribute(name, value);
+    script.textContent = inert.textContent;
+    inert.replaceWith(script);
+  }
+  storePassword(getCacheKey(), password);
   buildToc();
   document.dispatchEvent(new CustomEvent("gnix:decrypted-content-ready"));
 }
 
 function showError(container) {
   const form = container.querySelector("#encrypt-form");
-  let el = form.querySelector(".encrypt-error");
+  let el = form.querySelector(".gate__error");
   if (!el) {
     el = document.createElement("p");
-    el.className = "encrypt-error";
+    el.className = "gate__error";
+    el.setAttribute("role", "alert");
     form.appendChild(el);
   }
   el.textContent = container.dataset.errorMessage || "Wrong password, please try again";
@@ -77,32 +65,47 @@ function showError(container) {
   }
 }
 
-async function tryDecrypt(container, password) {
+async function attempt(container, password, { silent = false } = {}) {
   try {
     await decrypt(container, password);
+    return true;
   } catch {
-    showError(container);
+    // 自动尝试（本地记住的密码）失败时不报错：读者什么都没输，弹「密码错误」只会让人困惑
+    if (!silent) showError(container);
+    return false;
   }
 }
 
 function init() {
   const container = document.getElementById("encrypted-article");
   if (!container) return;
-  const cached = localStorage.getItem(getCacheKey());
-  if (cached) {
-    tryDecrypt(container, cached);
-    return;
-  }
   const form = container.querySelector("#encrypt-form");
   if (form) {
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
       const pw = container.querySelector("#encrypt-pass")?.value.trim();
-      if (pw) tryDecrypt(container, pw);
+      if (pw) attempt(container, pw);
     });
   }
-  const input = container.querySelector("#encrypt-pass");
-  if (input) input.focus();
+
+  // 归档页「秘密花园」里输过的密码同样适用：先试本页记住的，再试花园的
+  const candidates = [readStoredPassword(getCacheKey()), readStoredPassword(GARDEN_PASSWORD_KEY)].filter(
+    (value, index, list) => value && list.indexOf(value) === index,
+  );
+
+  if (!candidates.length) {
+    container.querySelector("#encrypt-pass")?.focus();
+    return;
+  }
+
+  (async () => {
+    for (const password of candidates) {
+      if (await attempt(container, password, { silent: true })) return;
+    }
+    // 全部落空（比如密码改过）：清掉本页失效的记忆，直接把输入框交给读者
+    storePassword(getCacheKey(), null);
+    container.querySelector("#encrypt-pass")?.focus();
+  })();
 }
 
 (window.__gnixPrerender?.runWhenActivated || ((callback) => callback()))(init);

@@ -11,9 +11,11 @@ hexo config theme gnix
 
 Support multiple light and dark themes:
 
-- **System Theme**: Follow system theme automatically, use `Nord` for light mode and `Mocha` for dark mode by default
-- **Light Themes**: `Nord`, `Catppuccin Latte`, `Song Porcelain`
-- **Dark Themes**: `Catppuccin Mocha`, `Nord Night`, `Rosé Pine`, `Tokyo Night`
+- **System Theme**: Follow system theme automatically, use `Mono Light` for light mode and `Mono Dark` for dark mode by default
+- **Light Themes**: `Nord Light`, `Catppuccin Latte`, `Song Porcelain`, `Mono Light`
+- **Dark Themes**: `Catppuccin Mocha`, `Nord Night`, `Rosé Pine`, `Tokyo Night`, `Mono Dark`
+
+`Mono Dark` uses a pure black background with white text; `Mono Light` uses a pure white background with black text. Each has a matching Shiki palette. Shiki's built-in `nord` theme is dark-only, so `Nord Night` uses `nord` and `Nord Light` uses `github-light` for code highlighting.
 
 <table border="1">
   <tr>
@@ -24,6 +26,62 @@ Support multiple light and dark themes:
 </table>
 
 ## Components
+
+### Mermaid diagrams
+
+Mermaid fences render at build time as inline SVG using
+[agentic-mermaid](https://github.com/adewale/agentic-mermaid), requiring Node.js
+22 or later. Diagrams inherit the site's colors and fonts and retain the
+pan, zoom and copy controls. The fullscreen-preview button opens a viewport-sized
+dialog with the same controls. Escape or the close button returns to the article
+and restores its previous zoom and pan; inside the preview, arrow keys pan,
+`+` / `-` zoom and `0` resets the view. Gantt, pie, mindmap and Git graphs can now render
+at build time alongside flowcharts, sequence diagrams, class diagrams and ER
+diagrams.
+
+`markdown_exit.mermaid_options.render` passes options through to
+`agentic-mermaid` (for example `style`, `padding` or `font`). The defaults use a
+transparent background, theme CSS variables and no external font imports.
+Unsupported syntax or renderer errors produce a warning and fall back to
+browser-side Mermaid; set `markdown_exit.mermaid_options.fallback: false` to
+display the source as a code block instead.
+
+Cached SVGs from the previous renderer remain styled. Regenerate cached
+Markdown in Hexo's database to render existing posts with agentic-mermaid.
+
+### Responsive images and metadata cache
+
+Bitiful Markdown images and article covers share a metadata cache at
+`thumbcache.json` in the Hexo project root. Caching is enabled by default and
+reuses the existing file. Identical in-flight requests are combined, and at most
+four images request metadata concurrently. The cache is saved after generation
+and on Hexo exit.
+
+Metadata failures only produce warnings and do not stop the build. If dimensions
+are unavailable, the image uses standard markup and its original URL. If only
+ThumbHash generation fails, responsive sizing remains available without a
+placeholder.
+
+Optional overrides belong in the site's `_config.yml`:
+
+```yaml
+markdown_exit:
+  image_options:
+    cache_path: thumbcache.json # Relative to the Hexo project root; false disables disk caching.
+    concurrency: 4
+    request_timeout: 10000 # Per metadata request, in milliseconds.
+```
+
+Lazy Markdown images use `sizes="auto, …"` with explicit dimensions and an
+aspect-ratio wrapper. Supporting browsers select candidates from the actual
+layout, including reading-width preferences; older browsers use a responsive
+fallback based on the default article column. An explicit `progressive.sizes`
+option still overrides this default. Covers use their real dimensions, a
+layout-specific `sizes` value and a cached ThumbHash or 32px placeholder.
+Other image hosts keep their original URLs without Bitiful resize parameters.
+
+Existing rendered Markdown in Hexo's database must be regenerated for the new
+image markup to appear; the metadata cache can be retained across that rebuild.
 
 ### Table, Math, Quote, Callout & Tabs, Highlight
 

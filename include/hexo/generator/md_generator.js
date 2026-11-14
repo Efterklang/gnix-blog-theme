@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { Readable } = require("node:stream");
+const { isEncrypted } = require("../encrypt");
 
 const UTF8_BOM = Buffer.from([0xef, 0xbb, 0xbf]);
 const MARKDOWN_EXTENSIONS = new Set([".md", ".markdown", ".mdown", ".mkd", ".mkdn"]);
@@ -10,10 +11,6 @@ function getPosts(posts) {
   if (Array.isArray(posts?.data)) return posts.data;
   if (Array.isArray(posts)) return posts;
   return [];
-}
-
-function hasPassword(post) {
-  return Boolean(post?.password || post?.password === 0);
 }
 
 function isMarkdownSource(post) {
@@ -32,7 +29,8 @@ function getHtmlRoutePath(routePath) {
 }
 
 function getMarkdownOutputPath(post) {
-  if (hasPassword(post) || !isMarkdownSource(post)) return null;
+  // 加密文章的 .md 直出会绕过正文加密，必须排除（判定统一走 isEncrypted，不能只看 password）
+  if (isEncrypted(post) || !isMarkdownSource(post)) return null;
 
   const htmlPath = getHtmlRoutePath(post?.path);
   if (!htmlPath) return null;

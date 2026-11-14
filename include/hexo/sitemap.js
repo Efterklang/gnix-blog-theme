@@ -3,6 +3,7 @@
 
 const { extname } = require("node:path");
 const { encodeURL, url_for } = require("hexo-util");
+const { isEncrypted } = require("./encrypt");
 
 const DEFAULT_CONFIG = {
   path: ["sitemap.xml", "sitemap.txt"],
@@ -140,7 +141,8 @@ module.exports = (hexo) => {
     const isSkipped = buildMatcher(skipPatterns);
     const posts = []
       .concat(locals.posts.toArray(), locals.pages.toArray())
-      .filter((post) => post.sitemap !== false && !isSkipped(post.source))
+      // 加密文章不进站点地图：它们的入口是归档页的「秘密花园」
+      .filter((post) => post.sitemap !== false && !isSkipped(post.source) && !isEncrypted(post))
       .sort((a, b) => getSortKey(b) - getSortKey(a));
 
     if (posts.length === 0) {

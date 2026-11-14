@@ -30,7 +30,7 @@ function escapeAttribute(value) {
 function displayUrlFromHref(href) {
   try {
     const url = new URL(href);
-    return url.hostname.replace(/^www\./, "www.");
+    return url.hostname;
   } catch {
     return href.replace(/^https?:\/\//, "").replace(/\/$/, "");
   }
@@ -76,7 +76,7 @@ function injectFriendsListStyles() {
     friend-card:focus-within,
     friend-card:hover {
       border-color: var(--lavender);
-      box-shadow: 0 0.75rem 2.5rem -0.75rem hsl(from var(--text) h s l / 0.1);
+      box-shadow: 0 0.75rem 2.5rem -0.75rem hsl(from var(--title-text-color) h s l / 0.1);
     }
 
     friend-card:nth-last-child(1):nth-child(3n+1) {
@@ -123,7 +123,7 @@ function injectFriendsListStyles() {
       opacity: 0.08;
       filter: grayscale(0.5);
       transform: rotate(-8deg);
-      transition: all 0.3s ease;
+      transition: opacity 0.3s ease, filter 0.3s ease, transform 0.3s ease;
       z-index: 0;
       pointer-events: none;
       border: none;
@@ -148,14 +148,13 @@ function injectFriendsListStyles() {
     h3.friend-name {
       font-family: var(--font-serif);
       font-style: italic;
-      font-synthesis: none;
-      font-size: 0.92rem;
-      font-weight: bolder;
-      color: var(--text);
+      font-size: var(--type-subtitle-size);
+      font-weight: var(--font-weight-semibold);
+      color: var(--title-text-color);
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      line-height: 1.3;
+      line-height: var(--type-subtitle-leading);
       margin: 0;
     }
 
@@ -165,12 +164,12 @@ function injectFriendsListStyles() {
       justify-content: center;
       width: 1.25rem;
       height: 1.25rem;
-      color: var(--subtext0);
+      color: var(--sub-text-color);
       text-decoration: none;
-      transition: all 0.2s ease;
+      transition: color 0.2s ease, border-color 0.2s ease;
       border: 1px solid var(--surface0);
       border-radius: 50%;
-      font-size: 0.75rem;
+      font-size: var(--type-caption-size);
       position: relative;
       z-index: 3;
       flex: 0 0 auto;
@@ -183,11 +182,10 @@ function injectFriendsListStyles() {
 
     .friend-url {
       font-family: var(--font-mono);
-      font-size: 0.75rem;
+      font-size: var(--type-caption-size);
       font-weight: 400;
-      color: var(--subtext0);
-      opacity: 0.7;
-      transition: all 0.2s ease;
+      color: var(--sub-text-color);
+      transition: color 0.2s ease;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -195,14 +193,15 @@ function injectFriendsListStyles() {
     }
 
     friend-card:hover .friend-url {
-      opacity: 1;
       color: var(--lavender);
     }
 
     .friend-desc {
       font-family: var(--font-sans-serif);
-      font-size: 0.8rem;
-      color: var(--subtext1);
+      font-size: var(--type-ui-size);
+      line-height: var(--type-ui-leading);
+      text-wrap: pretty;
+      color: var(--sub-text-color);
       margin: 0.5rem 0 0;
       padding: 0;
       overflow: hidden;

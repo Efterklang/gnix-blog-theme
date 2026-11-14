@@ -3,28 +3,45 @@ const STORAGE_KEY = "gnix-article-font";
 const DEFAULT_SETTINGS = Object.freeze({
   size: "medium",
   type: "sans-serif",
-  lineHeight: 1.7,
   weight: "regular",
-  width: "medium",
+  width: "narrow",
 });
 
 const SIZE_OPTIONS = Object.freeze(["small", "medium-small", "medium", "medium-large", "large"]);
 const FONT_OPTIONS = Object.freeze(["sans-serif", "serif", "mono", "handwriting"]);
 const WEIGHT_OPTIONS = Object.freeze(["light", "regular", "medium"]);
 const WIDTH_OPTIONS = Object.freeze(["narrow", "medium-narrow", "medium", "medium-wide", "wide"]);
-const LINE_HEIGHT = Object.freeze({
-  min: 1.45,
-  max: 1.9,
-});
 
 const CUSTOM_FONT_FAMILY_OPTIONS = Object.freeze({
   serif: "--font-serif",
   "sans-serif": "--font-sans-serif",
   mono: "--font-mono",
-  handwriting: "--font-handwriting",
+  handwriting: "--font-handwritten",
 });
 
 const CUSTOM_FONT_IMPORT_LIMIT = 6;
+const CUSTOM_FONT_PRESETS = Object.freeze([
+  {
+    id: "elms-sans",
+    type: "sans-serif",
+    name: "Elms Sans",
+    family: '"Elms Sans", system-ui, sans-serif',
+    css: "https://fonts.googleapis.com/css2?family=Elms+Sans:ital,wght@0,100..900;1,100..900&display=swap",
+  },
+  { id: "geist", type: "sans-serif", name: "Geist", family: '"Geist", system-ui, sans-serif', css: "https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" },
+  {
+    id: "geist-mono",
+    type: "mono",
+    name: "Geist Mono",
+    family: '"Geist Mono", "SF Mono", Consolas, monospace',
+    css: "https://fonts.googleapis.com/css2?family=Geist+Mono:ital,wght@0,100..900;1,100..900&display=swap",
+  },
+  { id: "lekton", type: "mono", name: "Lekton", family: '"Lekton", ui-monospace, monospace', css: "https://fonts.googleapis.com/css2?family=Lekton:ital,wght@0,400;0,700;1,400;1,700&display=swap" },
+  { id: "maple-mono-nf-cn", type: "mono", name: "Maple Mono NF CN", family: '"Maple Mono NF CN", ui-monospace, monospace', css: "https://fontsapi.zeoseven.com/442/main/result.css" },
+  { id: "chill-kai", type: "serif", name: "ChillKai", family: '"ChillKai", serif', css: "https://fontsapi.zeoseven.com/5/main/result.css" },
+  { id: "noto-serif-sc", type: "serif", name: "Noto Serif SC", family: '"Noto Serif SC", serif', css: "https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200..900&display=swap" },
+  { id: "ping-fang-zhui-guang", type: "handwriting", name: "PING FANG ZHUI GUANG", family: '"PING FANG ZHUI GUANG", cursive', css: "https://fontsapi.zeoseven.com/505/main/result.css" },
+]);
 
 function getClientArticleFontConfig() {
   return {
@@ -34,10 +51,10 @@ function getClientArticleFontConfig() {
     fontOptions: FONT_OPTIONS,
     weightOptions: WEIGHT_OPTIONS,
     widthOptions: WIDTH_OPTIONS,
-    lineHeight: LINE_HEIGHT,
     customFonts: {
       familyOptions: CUSTOM_FONT_FAMILY_OPTIONS,
       importLimit: CUSTOM_FONT_IMPORT_LIMIT,
+      presets: CUSTOM_FONT_PRESETS,
     },
   };
 }
@@ -56,68 +73,72 @@ function getArticleFontInitScript() {
 (function() {
   var config = ${config};
   var defaults = config.defaultSettings || {};
-  var stored = null;
-  var parsed = {};
   var utils = window.__GNIX_ARTICLE_FONT_UTILS__ || {};
+  var html = document.documentElement;
 
   window.__GNIX_ARTICLE_FONT_CONFIG__ = config;
-
-  try {
-    stored = localStorage.getItem(config.storageKey);
-  } catch (_) {}
-
-  if (stored) {
-    try {
-      parsed = JSON.parse(stored) || {};
-    } catch (_) {}
-  }
 
   function hasOption(options, value) {
     return Array.isArray(options) && options.indexOf(value) !== -1;
   }
 
-  function normalizeLineHeight(value) {
-    if (value === "compact") return 1.55;
-    if (value === "normal") return 1.7;
-    if (value === "relaxed") return 1.85;
+  function readStoredSettings() {
+    var stored = null;
+    var parsed = {};
 
-    var parsedValue = Number(value);
-    var min = Number(config.lineHeight && config.lineHeight.min);
-    var max = Number(config.lineHeight && config.lineHeight.max);
-    var fallback = Number(defaults.lineHeight);
+    try {
+      stored = localStorage.getItem(config.storageKey);
+    } catch (_) {}
 
-    if (!Number.isFinite(parsedValue)) parsedValue = Number.isFinite(fallback) ? fallback : 1.7;
-    if (!Number.isFinite(min)) min = 1.45;
-    if (!Number.isFinite(max)) max = 1.9;
+    if (stored) {
+      try {
+        parsed = JSON.parse(stored) || {};
+      } catch (_) {}
+    }
 
-    return Math.min(max, Math.max(min, parsedValue));
+    var candidate = Object.assign({}, defaults, parsed);
+
+    return {
+      size: hasOption(config.sizeOptions, candidate.size) ? candidate.size : defaults.size,
+      type: hasOption(config.fontOptions, candidate.type) ? candidate.type : defaults.type,
+      weight: hasOption(config.weightOptions, candidate.weight) ? candidate.weight : defaults.weight,
+      width: hasOption(config.widthOptions, candidate.width) ? candidate.width : defaults.width,
+      customFonts: utils.normalizeCustomFonts
+        ? utils.normalizeCustomFonts(
+            candidate.customFonts,
+            config.customFonts && config.customFonts.familyOptions,
+            config.customFonts && config.customFonts.importLimit,
+            config.customFonts && config.customFonts.presets
+          )
+        : { imports: [], families: {} }
+    };
   }
 
-  var candidate = Object.assign({}, defaults, parsed);
-  var customFonts = utils.normalizeCustomFonts
-    ? utils.normalizeCustomFonts(
-        candidate.customFonts,
-        config.customFonts && config.customFonts.familyOptions,
-        config.customFonts && config.customFonts.importLimit
-      )
-    : { imports: [], families: {} };
-  var settings = {
-    size: hasOption(config.sizeOptions, candidate.size) ? candidate.size : defaults.size,
-    type: hasOption(config.fontOptions, candidate.type) ? candidate.type : defaults.type,
-    lineHeight: normalizeLineHeight(candidate.lineHeight),
-    weight: hasOption(config.weightOptions, candidate.weight) ? candidate.weight : defaults.weight,
-    width: hasOption(config.widthOptions, candidate.width) ? candidate.width : defaults.width,
-    customFonts: customFonts
-  };
-  var html = document.documentElement;
+  function applySettings(settings) {
+    if (utils.applyCustomFontImports) utils.applyCustomFontImports(settings.customFonts.imports);
+    if (utils.applyFontPresets) utils.applyFontPresets(settings.customFonts.presets, config.customFonts.presets);
+    if (utils.applyCustomFontFamilies) utils.applyCustomFontFamilies(html, utils.resolveCustomFontFamilies(settings.customFonts, config.customFonts.presets), config.customFonts && config.customFonts.familyOptions);
+    html.setAttribute("data-article-font-size", settings.size);
+    html.setAttribute("data-article-font-family", settings.type);
+    html.setAttribute("data-article-font-weight", settings.weight);
+    html.setAttribute("data-article-width", settings.width);
+    // Ignore spacing saved by older versions; prose now has one shared rhythm.
+    html.removeAttribute("data-article-spacing");
+  }
 
-  if (utils.applyCustomFontImports) utils.applyCustomFontImports(settings.customFonts.imports);
-  if (utils.applyCustomFontFamilies) utils.applyCustomFontFamilies(html, settings.customFonts.families, config.customFonts && config.customFonts.familyOptions);
-  html.setAttribute("data-article-font-size", settings.size);
-  html.setAttribute("data-article-font-family", settings.type);
-  html.setAttribute("data-article-font-weight", settings.weight);
-  html.setAttribute("data-article-width", settings.width);
-  html.style.setProperty("--article-line-height", String(settings.lineHeight));
+  applySettings(readStoredSettings());
+
+  // bfcache 返回时本脚本不再执行，<html> 上仍是页面被缓存那一刻的字体设置。
+  // 按 localStorage 重放一次，并广播给偏好面板等监听者同步 UI
+  window.addEventListener("pageshow", function(event) {
+    if (!event.persisted) return;
+
+    var settings = readStoredSettings();
+    applySettings(settings);
+    try {
+      window.dispatchEvent(new CustomEvent("gnix:article-font-settings-change", { detail: settings }));
+    } catch (_) {}
+  });
 })();
 `;
 }
@@ -125,9 +146,9 @@ function getArticleFontInitScript() {
 module.exports = {
   CUSTOM_FONT_FAMILY_OPTIONS,
   CUSTOM_FONT_IMPORT_LIMIT,
+  CUSTOM_FONT_PRESETS,
   DEFAULT_SETTINGS,
   FONT_OPTIONS,
-  LINE_HEIGHT,
   SIZE_OPTIONS,
   STORAGE_KEY,
   WEIGHT_OPTIONS,

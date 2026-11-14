@@ -1,7 +1,7 @@
 .accordion {
   display: block;
   interpolate-size: allow-keywords;
-  margin: 1em 0;
+  margin-block: var(--flow-media, calc(16em / 14)) 0;
 }
 
 .accordion > details.accordion-item {
@@ -16,7 +16,7 @@
 
 .accordion > details.accordion-item > summary {
   align-items: center;
-  color: var(--text);
+  color: var(--title-text-color);
   cursor: pointer;
   display: flex;
   font-size: 0.875em;
@@ -36,15 +36,15 @@
 }
 
 .accordion > details.accordion-item > summary:hover {
-  color: var(--subtext0);
+  color: var(--sub-text-color);
 }
 
 .accordion > details.accordion-item > summary::before {
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   content: "+";
   display: inline-flex;
   flex: 0 0 16px;
-  font-size: 16px;
+  font-size: var(--type-body-size);
   font-weight: 300;
   justify-content: center;
   line-height: 1;
@@ -69,8 +69,8 @@
 }
 
 .accordion > details.accordion-item > summary ~ * {
-  color: var(--subtext1);
-  font-size: 14px;
+  color: var(--sub-text-color);
+  font-size: var(--type-ui-size);
   line-height: 1.6;
   margin-left: 28px;
 }

@@ -1,5 +1,6 @@
 require("../include/hexo/i18n")(hexo);
 require("../include/hexo/filter")(hexo);
+require("../include/hexo/bundle")(hexo);
 require("../include/hexo/generator")(hexo);
 require("../include/hexo/feed")(hexo);
 require("../include/hexo/sitemap")(hexo);

@@ -5,31 +5,22 @@
 
 const PREVIEW_COLORS = [
   "rosewater",
-  "flamingo",
-  "pink",
   "mauve",
   "red",
-  "maroon",
   "peach",
   "yellow",
   "green",
   "teal",
-  "sky",
-  "sapphire",
   "blue",
   "lavender",
-  "text",
-  "subtext1",
-  "subtext0",
-  "overlay2",
+  "title-text-color",
+  "body-text-color",
+  "sub-text-color",
   "overlay1",
   "overlay0",
-  "surface2",
   "surface1",
   "surface0",
 ];
-
-const THEME_DATA_CACHE_PREFIX = "themeDataCache-v2";
 
 function getThemeOptions() {
   const config = window.__GNIX_THEME_CONFIG__;
@@ -37,10 +28,6 @@ function getThemeOptions() {
   if (!Array.isArray(config?.themes)) return [];
 
   return config.themes.filter((theme) => theme.value !== config.defaultTheme).map((theme) => ({ id: theme.value, name: theme.name }));
-}
-
-function getThemeDataCacheKey(themes) {
-  return `${THEME_DATA_CACHE_PREFIX}:${themes.map((theme) => theme.id).join(",")}`;
 }
 
 function hasThemeDataForThemes(themeData, themes) {
@@ -58,7 +45,7 @@ class ThemeStackedElement extends HTMLElement {
     this.attachShadow({ mode: "open" });
   }
 
-  async connectedCallback() {
+  connectedCallback() {
     this._themes = getThemeOptions();
     if (this._themes.length === 0) return;
 
@@ -66,51 +53,46 @@ class ThemeStackedElement extends HTMLElement {
       this._isVisible = e[0].isIntersecting;
     });
     this._observer.observe(this);
-    await this.loadThemeData();
+    this.loadThemeData();
     this.render();
     this.init();
   }
 
   disconnectedCallback() {
     this._observer?.disconnect();
-    document.removeEventListener("keydown", this._keyHandler);
-    document.removeEventListener("mouseup", this._mouseUpHandler);
+    this._cardStack?.removeEventListener("keydown", this._keyHandler);
+    this._dragEvents?.abort();
+    this._finishDrag(false);
   }
 
-  async loadThemeData() {
+  loadThemeData() {
     if (hasThemeDataForThemes(window.__cachedThemeData, this._themes)) {
       this._themeData = window.__cachedThemeData;
       return;
     }
 
-    const cacheKey = getThemeDataCacheKey(this._themes);
-
+    // Read the current stylesheet once per page. Persisting computed colors in
+    // localStorage made previews stale after palette changes or a deployment.
+    const container = document.createElement("div");
+    container.style.cssText = "position:absolute;visibility:hidden;pointer-events:none;width:0;height:0;overflow:hidden;";
+    const samples = this._themes.map((theme) => {
+      const sample = document.createElement("div");
+      sample.setAttribute("data-theme", theme.id);
+      container.appendChild(sample);
+      return { theme, sample };
+    });
+    // Attach all theme scopes before reading any styles, avoiding a forced
+    // style recalculation between each theme's write and read.
+    document.body.appendChild(container);
     try {
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        const cachedThemeData = JSON.parse(cached);
-        if (hasThemeDataForThemes(cachedThemeData, this._themes)) {
-          this._themeData = window.__cachedThemeData = cachedThemeData;
-          return;
-        }
+      for (const { theme, sample } of samples) {
+        const computed = window.getComputedStyle(sample);
+        this._themeData[theme.id] = Object.fromEntries(PREVIEW_COLORS.map((color) => [color, computed.getPropertyValue(`--${color}`).trim()]).filter(([, value]) => value));
       }
-    } catch (_e) {}
-
-    const temp = document.createElement("div");
-    temp.style.cssText = "position:absolute;left:-9999px;width:0;height:0;overflow:hidden;";
-    document.body.appendChild(temp);
-
-    for (const theme of this._themes) {
-      temp.setAttribute("data-theme", theme.id);
-      const computed = window.getComputedStyle(temp);
-      this._themeData[theme.id] = Object.fromEntries(PREVIEW_COLORS.map((c) => [c, computed.getPropertyValue(`--${c}`).trim()]).filter(([, v]) => v));
+    } finally {
+      container.remove();
     }
-
-    temp.remove();
     window.__cachedThemeData = this._themeData;
-    try {
-      localStorage.setItem(cacheKey, JSON.stringify(this._themeData));
-    } catch (_e) {}
   }
 
   render() {
@@ -146,12 +128,17 @@ class ThemeStackedElement extends HTMLElement {
           place-items: center;
         }
 
+        .card-stack:focus-visible {
+          outline: 2px solid var(--blue);
+          outline-offset: -2px;
+        }
+
         .theme-card {
           grid-area: 1 / 1;
           position: relative;
           width: min(550px, 90%);
           background: var(--base);
-          border: 2px solid color-mix(in oklch, var(--base) 80%, var(--text));
+          border: 2px solid var(--surface0);
           border-radius: 16px;
           padding: 1.5rem;
           cursor: grab;
@@ -207,10 +194,10 @@ class ThemeStackedElement extends HTMLElement {
 
         }
         .card-title {
-          font-family: var(--font-handwriting);
+          font-family: var(--font-handwritten);
           font-size: 2em;
           font-weight: 600;
-          color: var(--lavender);
+          color: var(--title-text-color);
           margin: 0 0 0.75rem;
           text-align: center;
         }
@@ -253,11 +240,11 @@ class ThemeStackedElement extends HTMLElement {
             bottom: 100%;
             left: 50%;
             transform: translateX(-50%) translateY(-6px);
-            background: var(--crust);
-            color: var(--text);
+            background: var(--base);
+            color: var(--sub-text-color);
             padding: 0.4rem 0.6rem;
             border-radius: 6px;
-            font-size: 0.7rem;
+            font-size: var(--type-label-size);
             font-family: var(--font-mono);
             white-space: pre;
             text-align: center;
@@ -280,11 +267,11 @@ class ThemeStackedElement extends HTMLElement {
           flex: 1;
           padding: 0.6rem 1rem;
           background: var(--blue);
-          color: var(--crust);
+          color: var(--base);
           border: none;
           border-radius: 8px;
           font-family: var(--font-mono);
-          font-size: 0.85rem;
+          font-size: var(--type-ui-size);
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -311,7 +298,7 @@ class ThemeStackedElement extends HTMLElement {
           border: 1px solid var(--surface0);
           border-radius: 8px;
           background: var(--base);
-          color: var(--text);
+          color: var(--title-text-color);
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -356,10 +343,30 @@ class ThemeStackedElement extends HTMLElement {
             background: var(--overlay0);
           }
         }
+
+        .stacked-container[data-navigation-input="keyboard"] .theme-card,
+        .stacked-container[data-navigation-input="keyboard"] .dot {
+          transition: none;
+        }
+
+        .stacked-container[data-navigation-input="drag"] .theme-card {
+          transition: transform 420ms var(--ease-out), opacity 240ms var(--ease-out);
+        }
+
+        .card-stack[data-dragging] .theme-card,
+        .card-stack[data-dragging] .theme-card * {
+          cursor: grabbing;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .stacked-container[data-navigation-input="drag"] .theme-card {
+            transition: opacity 160ms ease;
+          }
+        }
       </style>
 
       <div class="stacked-container">
-        <div class="card-stack" id="card-stack"></div>
+        <div class="card-stack" id="card-stack" tabindex="0" role="group" aria-label="Theme previews"></div>
 
         <div class="controls">
           <button class="nav-btn" id="prev-btn" aria-label="Previous theme">
@@ -381,6 +388,7 @@ class ThemeStackedElement extends HTMLElement {
   }
 
   init() {
+    this._stackedContainer = this.shadowRoot.querySelector(".stacked-container");
     this._cardStack = this.shadowRoot.querySelector("#card-stack");
     this._dotsContainer = this.shadowRoot.querySelector("#dots");
     this._prevBtn = this.shadowRoot.querySelector("#prev-btn");
@@ -423,7 +431,9 @@ class ThemeStackedElement extends HTMLElement {
 
   renderDots() {
     this._dotsContainer.innerHTML = this._themes.map((_, i) => `<button class="dot" data-index="${i}" aria-label="Go to theme ${i + 1}"></button>`).join("");
-    this._dotsContainer.querySelectorAll(".dot").forEach((dot, i) => dot.addEventListener("click", () => this.goTo(i)));
+    this._dotsContainer.querySelectorAll(".dot").forEach((dot, index) => {
+      dot.addEventListener("click", (event) => this.goTo(index, true, event.detail === 0 ? "keyboard" : "pointer"));
+    });
   }
 
   updateStack() {
@@ -441,9 +451,11 @@ class ThemeStackedElement extends HTMLElement {
     return d === 0 ? 0 : d === 1 ? 1 : d === total - 1 ? -1 : 2;
   }
 
-  goTo(index, animate = true) {
+  goTo(index, animate = true, input = "pointer") {
     if (this._themes.length === 0) return;
 
+    this._stackedContainer.dataset.navigationInput = input;
+    this._finishDrag(false);
     this._currentIndex = ((index % this._themes.length) + this._themes.length) % this._themes.length;
     this.updateStack();
     if (animate)
@@ -454,73 +466,180 @@ class ThemeStackedElement extends HTMLElement {
       );
   }
 
-  next() {
-    this.goTo(this._currentIndex + 1);
+  next(input = "pointer") {
+    this.goTo(this._currentIndex + 1, true, input);
   }
-  prev() {
-    this.goTo(this._currentIndex - 1);
+  prev(input = "pointer") {
+    this.goTo(this._currentIndex - 1, true, input);
   }
 
   attachEvents() {
-    this._prevBtn.addEventListener("click", () => this.prev());
-    this._nextBtn.addEventListener("click", () => this.next());
+    this._prevBtn.addEventListener("click", (event) => this.prev(event.detail === 0 ? "keyboard" : "pointer"));
+    this._nextBtn.addEventListener("click", (event) => this.next(event.detail === 0 ? "keyboard" : "pointer"));
 
-    this._cardStack.addEventListener("click", (e) => {
-      const swatch = e.target.closest(".color-swatch");
+    this._cardStack.addEventListener("click", (event) => {
+      const swatch = event.target.closest(".color-swatch");
       if (swatch) {
-        e.stopPropagation();
+        event.stopPropagation();
         const hex = (swatch.dataset.value || "").replace("#", "");
         if (hex && hex !== "transparent") window.open(`https://www.colorhexa.com/${hex}`, "_blank");
         return;
       }
-      const applyBtn = e.target.closest(".apply-btn");
+      const applyBtn = event.target.closest(".apply-btn");
       if (applyBtn) {
-        e.stopPropagation();
-        this.applyTheme(applyBtn.dataset.theme);
+        event.stopPropagation();
+        this.applyTheme(applyBtn.dataset.theme, event.detail === 0 ? "keyboard" : "pointer");
         return;
       }
-      const card = e.target.closest(".theme-card");
-      if (card && !card.classList.contains("active")) this.goTo(Number(card.dataset.index));
+      const card = event.target.closest(".theme-card");
+      if (card && !card.classList.contains("active")) this.goTo(Number(card.dataset.index), true, event.detail === 0 ? "keyboard" : "pointer");
     });
 
-    this._keyHandler = (e) => {
-      if (!this._isVisible) return;
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        this.prev();
-      } else if (e.key === "ArrowRight" || e.key === " ") {
-        e.preventDefault();
-        this.next();
-      } else if (e.key === "Enter") this.applyTheme(this._themes[this._currentIndex].id);
+    this._keyHandler = (event) => {
+      if (
+        event.target !== this._cardStack ||
+        !this._isVisible ||
+        this._themes.length === 0 ||
+        event.defaultPrevented ||
+        event.isComposing ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey
+      )
+        return;
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        this.prev("keyboard");
+      } else if (event.key === "ArrowRight" || event.key === " ") {
+        event.preventDefault();
+        this.next("keyboard");
+      } else if (event.key === "Enter") {
+        event.preventDefault();
+        this.applyTheme(this._themes[this._currentIndex].id, "keyboard");
+      }
     };
-    document.addEventListener("keydown", this._keyHandler);
+    this._cardStack.addEventListener("keydown", this._keyHandler);
 
-    let startX = 0,
-      dragging = false;
-    const onStart = (x) => {
-      if (!this._isVisible) return;
-      startX = x;
-      dragging = true;
-    };
-    const onEnd = (x) => {
-      if (!dragging) return;
-      dragging = false;
-      const diff = startX - x;
-      if (Math.abs(diff) > 50) diff > 0 ? this.next() : this.prev();
-    };
+    this.attachDragEvents();
+  }
 
-    this._cardStack.addEventListener("touchstart", (e) => onStart(e.touches[0].clientX), { passive: true });
-    this._cardStack.addEventListener("touchend", (e) => onEnd(e.changedTouches[0].clientX));
-    this._cardStack.addEventListener("mousedown", (e) => {
-      onStart(e.clientX);
-      this._cardStack.style.cursor = "grabbing";
-    });
-    this._mouseUpHandler = (e) => {
-      if (!this._isVisible) return;
-      onEnd(e.clientX);
-      this._cardStack.style.cursor = "";
-    };
-    document.addEventListener("mouseup", this._mouseUpHandler, { passive: true });
+  attachDragEvents() {
+    this._dragEvents = new AbortController();
+    const { signal } = this._dragEvents;
+
+    this._cardStack.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (this._drag || !event.isPrimary || event.button !== 0 || !this._isVisible || this._themes.length < 2) return;
+        this._suppressDragClick = false;
+        const card = event.target.closest(".theme-card.active");
+        if (!card) return;
+        this._drag = {
+          pointerId: event.pointerId,
+          card,
+          startX: event.clientX,
+          startY: event.clientY,
+          offset: 0,
+          locked: false,
+          samples: [{ x: event.clientX, time: event.timeStamp }],
+        };
+      },
+      { signal },
+    );
+
+    // Listen outside the stack while deciding the axis; capture only once a
+    // horizontal drag is confirmed, leaving pan-y and ordinary clicks intact.
+    window.addEventListener("pointermove", (event) => this._moveDrag(event), { signal, passive: false });
+    window.addEventListener(
+      "pointerup",
+      (event) => {
+        if (event.pointerId !== this._drag?.pointerId) return;
+        if (this._drag.locked) this._moveDrag(event);
+        this._finishDrag(true);
+      },
+      { signal },
+    );
+    window.addEventListener(
+      "pointercancel",
+      (event) => {
+        if (event.pointerId === this._drag?.pointerId) this._finishDrag(false);
+      },
+      { signal },
+    );
+    this._cardStack.addEventListener(
+      "lostpointercapture",
+      (event) => {
+        if (event.target === this._cardStack && event.pointerId === this._drag?.pointerId) this._finishDrag(false);
+      },
+      { signal },
+    );
+    window.addEventListener("blur", () => this._finishDrag(false), { signal });
+
+    this._cardStack.addEventListener(
+      "click",
+      (event) => {
+        if (!this._suppressDragClick || event.detail === 0) return;
+        this._suppressDragClick = false;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      },
+      { signal, capture: true },
+    );
+  }
+
+  _moveDrag(event) {
+    const drag = this._drag;
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    const dx = event.clientX - drag.startX;
+    const dy = event.clientY - drag.startY;
+    if (!drag.locked) {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 8) return;
+      if (Math.abs(dy) >= Math.abs(dx)) {
+        this._finishDrag(false);
+        return;
+      }
+
+      // Freeze the rendered position, including an interrupted settle, before
+      // adding the pointer displacement. No transition runs under the finger.
+      const transform = getComputedStyle(drag.card).transform;
+      drag.transform = transform === "none" ? "" : transform;
+      drag.card.style.transition = "none";
+      drag.locked = true;
+      this._stackedContainer.dataset.navigationInput = "drag";
+      this._cardStack.dataset.dragging = "";
+      this._cardStack.setPointerCapture(event.pointerId);
+      this._cardStack.focus({ preventScroll: true });
+    }
+
+    if (event.cancelable) event.preventDefault();
+    drag.offset = dx;
+    drag.card.style.transform = `translateX(${dx}px) ${drag.transform}`;
+    drag.samples.push({ x: event.clientX, time: event.timeStamp });
+    while (drag.samples.length > 2 && drag.samples[0].time < event.timeStamp - 100) drag.samples.shift();
+  }
+
+  _finishDrag(commit) {
+    const drag = this._drag;
+    if (!drag) return;
+    this._drag = null;
+    delete this._cardStack.dataset.dragging;
+    if (this._cardStack.hasPointerCapture(drag.pointerId)) this._cardStack.releasePointerCapture(drag.pointerId);
+    if (!drag.locked) return;
+
+    this._suppressDragClick = true;
+    // Commit the last pointer position before letting CSS retarget from it.
+    void getComputedStyle(drag.card).transform;
+    drag.card.style.removeProperty("transition");
+    drag.card.style.removeProperty("transform");
+
+    const first = drag.samples[0];
+    const last = drag.samples[drag.samples.length - 1];
+    const velocity = (last.x - first.x) / Math.max(1, last.time - first.time);
+    // Recent samples make a quick flick count, but not a swipe held still
+    // before release. A reversal near release follows its latest direction.
+    const direction = Math.abs(velocity) > 0.5 ? Math.sign(velocity) : Math.abs(drag.offset) > 50 ? Math.sign(drag.offset) : 0;
+    if (commit && direction) this.goTo(this._currentIndex - direction, true, "drag");
   }
 
   getCurrentTheme() {
@@ -546,7 +665,7 @@ class ThemeStackedElement extends HTMLElement {
     return document.documentElement.getAttribute("data-theme") || config?.systemTheme?.dark || this._themes[0]?.id;
   }
 
-  applyTheme(themeId) {
+  applyTheme(themeId, input = "pointer") {
     if (!window.applyTheme) return;
     window.applyTheme(themeId, true);
     this._cards.forEach((card, i) => {
@@ -556,6 +675,10 @@ class ThemeStackedElement extends HTMLElement {
       btn.textContent = match ? "Applied ✓" : "Apply Theme";
     });
     const btn = this._cards[this._currentIndex].querySelector(".apply-btn");
+    if (input === "keyboard") {
+      btn.style.transform = "";
+      return;
+    }
     btn.style.transform = "scale(0.95)";
     setTimeout(() => {
       btn.style.transform = "";

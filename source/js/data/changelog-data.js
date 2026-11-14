@@ -3,6 +3,277 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "11.14",
+        cn: [
+          "参考 Palermo 定义完整的 Title、Body 与 Paragraph 文字角色，统一字号、行高和字重；长文保留独立的 16px 阅读字号和 1.7 行高。文章宽度改为五档点选，设置页随所选栏宽调整，移除间距偏好设置。",
+          "归档检视面板的标签改为无下划线的链接，跳转到对应语言的标签页；顶栏使用 120px 的背景渐变遮罩。",
+          "顶栏语境使用辅助文字色，以正文阅读进度百分比代替小节序号，保留当前小节名称与目录入口。",
+          "文末重排为收尾文字、独立的 Back to archive 主入口与评论和邮件操作；偏好设置页随文章栏宽即时调整。首页站名可打开栏目菜单，归档大年份靠右显示，篇数移到刻度尺下方。",
+          "评论区增加固定标题、关闭按钮和加载重试，重新排版表单与回复；首屏加载后的空闲时段提前初始化 Twikoo 并请求评论列表，打开弹层复用已加载内容。",
+        ],
+        en: [
+          "Palermo-inspired Title, Body and Paragraph roles pair font size, line height and weight. Long-form reading keeps its own 16px default and 1.7 line height. Article width becomes five selectable options that also size the settings page; the spacing preference is removed.",
+          "Tags in the archive inspector link to their localized tag pages without underlines, and the navbar uses a 120px background fade.",
+          "The navbar context uses secondary text color and shows article reading progress as a percentage instead of a section count, while keeping the current section name and TOC access.",
+          "The article ending separates its closing note, primary Back to archive link, and comment and email actions. The settings page follows the article width preference. The home page name opens the navigation menu, the large archive year aligns to the right, and the writing count moves below the year scale.",
+          "The comment dialog gains a fixed header, close button and loading retry, with updated forms and replies. Twikoo initializes and requests the first comment page during idle time after initial page load, then reuses that content when the dialog opens.",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "11.08",
+        cn: ["文章首屏按有无封面分为 6:6 与 8:4 两种版式，桌面端目录常驻左侧。", "去掉菜单钮，点站名打开整屏的栏目页。"],
+        en: [
+          "The article opening now has 6:6 and 8:4 layouts for posts with and without a cover, and the desktop TOC stays docked on the left.",
+          "The menu button is gone; clicking the site name opens a full-screen page of links.",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "11.02",
+        cn: [
+          "重做偏好相关的几张面：顶栏的菜单与偏好卡片放大留白，控件统一为 0.5px 描边的分段条，状态不再用底色区分（静息灰、悬停墨、选中墨字加短下划线）；设置页去掉主题示意图、章节加编号、栏宽滑块改圆头，手机上不再双层留白、也不显示栏宽一行；文章页载入时 INFO 面板不再先展开再折叠，脚注前的分隔线改浅；首页暂不链出双链图",
+        ],
+        en: [
+          "Rework the preference surfaces: the menu and preferences cards gain breathing room and share one 0.5px-edged segmented control whose states are told apart by ink, not fills (grey at rest, ink on hover, ink plus a short underline when selected); the settings page drops the theme illustrations, numbers its sections and rounds the width slider, and on phones stops double-padding and hides the width row; the article INFO panel no longer expands and then collapses on load, the footnote rule is lightened, and the home page stops linking to the graph for now",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "11.01",
+        cn: [
+          "全站改为 Swiss 风格：移除液态玻璃与背景纹理，顶栏精简为站名 · 文章标题 · 一排图标（栏目收进菜单卡片，手机不再有底部工具条），弹层改为小圆角、0.5px 浅描边的卡片；文章页改为封面 → 居中粗体标题 → 左栏规格表（取代 info 弹层）+ 右栏导语与正文，Back 与「TOC」常驻左上角、点 TOC 展开目录；归档页左侧新增检视面板，悬停到哪一条就显示那一篇的封面、摘要与标签（单双栏切换随之取消）；偏好弹窗只留主题 / 字体 / 字号三行，文章首屏是封面（原比例）+ 标题 + 摘要、正文从下一屏起，左上角 Back · INFO · TOC 一列可展开面板（首屏 INFO 开、进入正文后换成 TOC 开，高度过渡），归档去掉像素字、清单在左面板在右按黄金分割、条目静息灰聚焦墨；全站一条版心边距对齐站名、Back 与归档大字，小标签统一为无衬线、等宽只留给数据；表格只留横线，代码块去掉行号与窗口圆点",
+        ],
+        en: [
+          "Move the whole site to a Swiss style: liquid glass and page textures are gone, the top bar is reduced to site name · article title · a row of icons (sections live in a menu card, the phone bottom bar is gone), popovers become cards with small radii and a 0.5px light border; the article page runs cover → centred bold title → a spec-sheet column (replacing the info popover) beside the lead and body, with Back and a resident “TOC” toggle at the top left; the archive gains an inspector panel on the left that shows the hovered post's cover, excerpt and tags (the column toggle is dropped); the preferences popup is reduced to theme / type / size rows, the article opens with cover (natural ratio) + title + summary on one screen and the body on the next, the top-left rail stacks Back · INFO · TOC as animated collapsible panels (INFO open on the opening screen, TOC open once reading), the archive drops its pixel type, puts the list on the left and the inspector on the right at the golden ratio, and greys list titles until focused; one page margin aligns the site name, Back and the archive title, labels move to the grotesk with mono reserved for data; tables keep only horizontal rules and code blocks lose line numbers and window dots",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "10.18",
+        cn: ["使用 pele 绘制图表"],
+        en: ["Use pele for diagram"],
+        category: "feature",
+      },
+      {
+        date: "10.18",
+        cn: [
+          "归档页重排：页名缩到栏宽的三分之一（字号按实际字宽量出，换字体、换栏宽都对齐），下面一行 caption 报出篇数、话题数，并可就地切换单栏／双栏（窄屏选两栏只给一句提醒）与按话题筛选；条目两列（标题贴左缘、日期补零成 Oct 04 贴右缘），季节行右端一枚浅色像素字（半嵌进清单里），滚动到时浮现；加密文章从归档、首页、搜索索引、站点地图与 feed 中隐去",
+          "秘密花园改为页面的第二种视图：在归档页或标签页连点页名三次（或敲 garden）后，公开清单整块换成加密清单，密码解锁后才渲染标题与链接",
+          "文章页首屏改为左右对置：封面宽幅横裁在左、标题与摘要在右，标签移入 info 弹层；导航链接改为左上角竖排的编号列表",
+          "推荐字体新增 Lekton，下载完成后自动把字体名复制到剪贴板",
+          "归档改为年份切片：刊头右端一枚像素年份（只报两位），点一下数字像翻表一样滚到上一年、到头绕回最新的一年，默认当年、?year= 可分享，规模行移到 caption 左端",
+          "话题幕帘改为全屏选择器：顶端一枚标签标题与关闭钮，清单按归档的栏宽铺开、留白更足，条目仍逐条上浮；caption 引线改虚线，季节像素字缩小一成，计数改用等宽字体",
+        ],
+        en: [
+          "Rework the archive page: the page name shrinks to a third of the column (its size is measured from the text itself, so it holds up across typefaces and column widths), and the caption line beneath reports the post and topic counts while switching between one and two columns (a narrow screen only gets a warning) and filtering by topic; entries run in two columns with titles at the left edge and zero-padded dates such as Oct 04 at the right, and each season row carries a pale pixel word-mark at its right, half sunk into the list, that surfaces as you scroll to it; encrypted posts disappear from the archive, home, search index, sitemap and feed",
+          "Turn the Secret Garden into a second view of the page: three clicks on the page name (on the archive or a tag page) or typing garden swap the public list for the encrypted one, whose titles and links only render once the password is entered",
+          "Rebuild the article hero as a left–right pair — a wide-cropped cover beside the title and excerpt — with tags moved into the info popover; the nav links become a stacked numbered list at the top left",
+          "Add Lekton to Recommended Fonts; the font name is copied to the clipboard once its download completes",
+          "Slice the archive by year: the pixel year at the masthead's right (two digits) rolls to the previous year when clicked, wrapping at the oldest, defaults to this year and shares via ?year=, with the count moved to the caption's left",
+          "Turn the topic curtain into a full-screen selector with a tags title and close button above a list laid out to the archive's column width, and give its rows more air; the caption leader becomes dashed, the season pixel marks shrink by a tenth and the counts use the mono font",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "10.17",
+        cn: ["归档页季节标签改为构建期生成的手写笔画 SVG，悬浮或点按逐笔书写；标签置顶吸附、滑入内容渐进模糊，不再依赖访客本地字体"],
+        en: [
+          "Archive season labels become build-time handwritten stroke SVGs that draw themselves on hover or tap; the label sticks to the viewport top with a progressive blur for content sliding under, and no longer depends on visitors' local fonts",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "10.15",
+        cn: [
+          "首页改为整屏分页：首屏只留标题与简介，话题与近期写作同占其后一屏、页尾直接落在该屏底部并逐页吸附，链接行改单列排布；桌面端导航链接不再靠悬停浮现",
+          "偏好设置里的「纸质纹理」开关改为六种背景材质：纸张、牛皮纸、亚麻布、棉纸、印刷网点与胶片颗粒，深浅主题下都可见",
+          "导航栏的偏好快捷面板改为控制中心式排布：各项设置各自成一块液态玻璃，主题只留设备／太阳／月亮三个图标、字体只留四格「Aa」，选中是一块更实的浅色磁贴，语言改成中英两格一点即切，三个调节器统一用减号加号，手机端隐藏栏宽",
+        ],
+        en: [
+          "Turn the home page into full-screen pages: the opening screen holds only the title and intro, topics and recent writings share the next screen with the footer at its bottom and page-by-page snapping, the link rows become single-column, and the desktop nav links are always visible",
+          "Turn the Paper Texture switch in preferences into a choice of six background materials — paper, kraft, linen, cotton, halftone and film grain — all visible in both light and dark themes",
+          "Lay the navbar preference popover out like a control center: every setting becomes its own liquid-glass tile, theme mode keeps only its device / sun / moon icons and typefaces only their four “Aa” previews, selection is a more solid pale tile, language becomes a one-tap Chinese/English switch, all three steppers share the same minus and plus pair, and article width is hidden on phones",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "10.11",
+        cn: [
+          "新增独立首页：姓名、简短自我介绍与常用链接；归档列表迁至 /archive/",
+          "统计脚本、命令面板与偏好脚本改为页面空闲后加载；移除 homemade-apple 手写字体",
+          "导航 logo 改为菜单里的 HOME 项；文章扉页左上角增加返回归档的图标；桌面端导航栏中部不再拦截点击",
+          "文章扉页按极简风格重排",
+          "首页新增「Recent」近期列表：最新 5 篇文章标题后跟日期，加密文章带锁，标签本身可跳转全部文章；简介改为两段直接写进主题，原 INDEX 链接行移除",
+          "归档列表日期移到标题右侧并改为 Oct 1 格式，去掉页面入场动画；Mono Light 的次级文字色调浅",
+        ],
+        en: [
+          "Add a dedicated home page with the name, a short introduction and key links; move the archive list to /archive/",
+          "Load analytics, the command palette and the preferences script once the page is idle; remove the homemade-apple handwriting font",
+          "Replace the navbar logo with a HOME menu item; add a back-to-archive icon at the top-left of the article title page; the middle of the desktop navbar no longer blocks clicks",
+          "Restructure the article title page",
+          "Add a Recent list to the home page: the five latest posts with dates after their titles, encrypted ones marked with a lock, and the label itself linking to all posts; the intro becomes two paragraphs written into the theme; remove the INDEX row",
+          "Move archive dates to the right of titles in the Oct 1 format and drop the page entrance animation; lighten Mono Light's secondary text color",
+        ],
+        category: "feature",
+      },
+      {
+        date: "10.8",
+        cn: [
+          "文章扉页与正文改用原生 CSS 滚动吸附：两个独立区域明确首屏与正文开头的落点，长正文保持连续滚动；同步调整桌面、平板与手机端首屏高度，短文章补足滚动空间，页尾保留可到达的落点。移除首屏空格键的 JavaScript 拦截，恢复浏览器原生翻页",
+          "标题、目录与脚注锚点不再预留导航条高度，仅保留阅读间距与安全区；平滑滚动遵循系统减少动态效果偏好",
+          "移除液态玻璃的「鲜艳度」设置，旧保存值不再生效；玻璃背景保持原始饱和度，仅将亮度降到 95%，前景文字与图标保持原色。图片轮播、视频控件与 WebGL 视频透镜同步采用这一默认效果",
+        ],
+        en: [
+          "Use native CSS scroll snapping for article title pages and reading areas. Separate regions define the opening screen and body start while long articles retain continuous scrolling. Adjust title-page height across desktop, tablet and mobile, provide enough scroll space for short articles, and keep the footer reachable. Remove the opening-screen JavaScript Space-key override to restore native browser paging",
+          "Remove the obsolete navbar-height offset from heading, table-of-contents and footnote anchors, retaining only reading space and safe-area insets. Smooth scrolling now respects the system reduced-motion preference",
+          "Remove the Liquid Glass Vibrancy setting and ignore its saved values. Glass backdrops retain their original saturation with brightness reduced to 95%, while foreground text and icons retain their original colors. Image carousels, video controls and WebGL video lenses use the same default treatment",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "10.7",
+        cn: [
+          "Mermaid 构建期渲染器由 beautiful-mermaid 换为 agentic-mermaid，Gantt、饼图、思维导图和 Git 图也可直接生成内联 SVG。保留主题配色、字体与平移 / 缩放 / 复制操作，同步新库文字色阶并使用原生 ID 隔离；不支持的语法或渲染错误仍告警后回退，不中断构建。Node.js 最低版本更新为 22",
+          "修正《图片加载》及英文版 Gantt 示例中的重复任务 ID，低分辨率占位图的请求与显示使用独立 ID，恢复构建期渲染",
+          "Mermaid 工具栏新增全屏预览：原生弹窗铺满视口，复用原图与平移 / 缩放 / 复制操作；方向键平移、+ / - 缩放、0 重置，Esc 或关闭按钮返回文章并恢复原来的视图与焦点。入口兼容缓存图表，触屏按钮扩大到 44px，并尊重减少动态效果偏好",
+        ],
+        en: [
+          "Replace beautiful-mermaid with agentic-mermaid for build-time Mermaid rendering, adding inline SVG output for Gantt, pie, mindmap and Git diagrams. Keep theme colors, fonts and pan / zoom / copy controls, adopt the new text contrast levels and native ID namespacing, and retain warning-based fallback for unsupported syntax or renderer errors without stopping the build. Require Node.js 22 or later",
+          "Fix duplicate task IDs in the Chinese and English image-loading Gantt examples. Give placeholder fetching and display separate IDs so both diagrams render at build time",
+          "Add fullscreen Mermaid previews in a viewport-sized native dialog, reusing the original diagram and pan / zoom / copy controls. Arrow keys pan, + / - zoom, 0 resets, and Escape or Close returns to the article with its previous view and focus restored. Cached diagrams also receive the preview button; touch controls use 44px targets and reduced-motion preferences are respected",
+        ],
+        category: "feature",
+      },
+      {
+        date: "10.6",
+        cn: [
+          "图片元数据缓存默认启用并由正文、封面共用，复用项目根目录的 thumbcache.json，合并重复请求并限制并发；正文图片按实际显示宽度选择资源，封面使用真实尺寸与 ThumbHash / 32px 占位图。Nerd Font 细分为常用图标与 Unicode 分片，常用 48 个字符仅需约 9.4 KB，其余分片按字符加载，保留完整字形覆盖",
+          "推荐字体新增 Noto Serif SC 与 Maple Mono NF CN；默认等宽字体改用系统字体，Maple 由读者自行选择下载。自托管 Symbols Nerd Font Mono 补齐图标，按 Unicode 范围拆分、遇到对应字符才加载，自定义字体同样保留图标回退",
+          "精简九套主题的中性色，移除 overlay2、surface2 与 crust；同步调整组件、设置页与评论样式，并将存量文章迁移到保留的背景色与语义文字色变量",
+          "修正脚注浮层定位：跟随脚注标记并在视口边缘避让，使用顶层 popover 避免遮挡，背景改为主题纯色",
+        ],
+        en: [
+          "Enable a shared image metadata cache for Markdown and covers, reusing the project's thumbcache.json, deduplicating requests and limiting concurrency. Markdown images select resources from their rendered width; covers use real dimensions and ThumbHash / 32px placeholders. Split Nerd Font into a 9.4 KB subset of 48 common characters and character-loaded Unicode shards, retaining full glyph coverage",
+          "Add Noto Serif SC and Maple Mono NF CN to Recommended Fonts. The default monospace stack now uses system fonts, with Maple available as an optional download. Self-hosted Symbols Nerd Font Mono supplies missing icons through Unicode subsets loaded when matching characters are needed; custom font stacks retain the same icon fallback",
+          "Simplify neutral palettes across all nine themes by removing overlay2, surface2 and crust. Update components, preferences and comments, and migrate existing posts to the retained background tokens and semantic text colors",
+          "Stabilize footnote popover positioning around its reference with viewport collision handling. Use the browser's top layer to avoid clipping and a solid theme background",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "10.1",
+        cn: [
+          "重调全部九套主题的文字与中性色阶：统一为 title-text-color / body-text-color / sub-text-color 三级，标题最醒目、正文适中、辅助信息更淡；各主题独立定义固定色值，不再用 color-mix 推导色板。surface / overlay 专用于底色、边框与装饰，文章、归档、设置页、评论和组件同步使用语义文字色，主题预览同步展示新色板",
+        ],
+        en: [
+          "Retune text and neutral shades across all nine themes around three semantic tokens: title-text-color, body-text-color and sub-text-color. Titles carry the strongest contrast, body copy sits one level below, and supporting text recedes. Every theme defines fixed palette values instead of color-mix derivations; surface and overlay shades are reserved for backgrounds, borders and decoration. Articles, archives, preferences, comments and components adopt the text tokens, with theme previews updated to match",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "9.28",
+        cn: [
+          "设置页新增「液态玻璃」分区：可整体开关玻璃（关闭后按钮与弹层退回实色）、开关按压反馈，并调节模糊、鲜艳度、折射强度（默认拉满）与表面不透明度，附即时预览；设置存于 localStorage，由 head 内联脚本在首帧前应用。边缘折射不再限于桌面端，Android 上的 Chrome / Edge 等 Chromium 浏览器同样生效（局域网 http 调试时也能识别），命令面板加上折射并跟随设置页的模糊，字号改为 14px",
+          "偏好弹窗与移动端菜单改为 macOS 26 控制中心式：弹窗本身透明，每组控件各是一块浮着的玻璃（步进器 2×2 胶囊、下拉胶囊、圆形图标），新增玻璃开关；移动端导航移到屏幕底部成为拇指工具条（菜单 · 偏好 · 搜索 · 目录，统一为独立玻璃圆），文章首屏期间收起、滚过首屏滑出；桌面导航去掉渐变与渐进模糊，菜单为纯文字。目录弹窗去掉卡片、文字直接浮在模糊幕布上；移动端文章扉页重排为竖幅海报（刊头细线、下半屏左对齐大标题、发布日描边巨字底纹），恰好一屏不露下文；触屏点按不再出现系统高亮底色",
+        ],
+        en: [
+          "Preferences gain a Liquid Glass section: turn the glass off entirely (buttons and popups fall back to solid surfaces), toggle press feedback, and tune blur, vibrancy, refraction strength (maxed by default) and surface opacity with a live preview; settings live in localStorage and an inline head script applies them before first paint. Edge refraction is no longer desktop-only — Chromium browsers on Android (Chrome, Edge) get it too, including over plain-http LAN dev servers. The command palette now refracts, follows the blur setting, and uses a 14px font size",
+          "The preferences popup and the mobile menu adopt the macOS 26 Control Center style: the popup itself is transparent and each control group is its own floating glass (a 2×2 grid of stepper capsules, dropdown pills, round icons), plus a new glass toggle. On mobile the navbar moves to a bottom thumb toolbar (menu · preferences · search · TOC as matching glass circles) that stays tucked away on an article's opening screen and slides up once you scroll past it; the desktop navbar drops its gradient and progressive blur, and the menu is plain text. The TOC popup loses its card so entries float on the blurred scrim; the mobile article title page becomes a vertical poster (masthead rule, large left-aligned title in the lower half, an outlined day numeral as backdrop) that fills exactly one screen; taps no longer flash the system highlight",
+        ],
+        category: "feature",
+      },
+      {
+        date: "9.24",
+        cn: [
+          "新增 &lt;video-player&gt; 组件（仿 loomix）：自托管视频用全套自定义控件——中央「后退 10 秒 · 播放/暂停 · 前进 10 秒」玻璃按钮簇，底栏进度条（缓冲段、悬停时间预览、拖动）、播放、音量（悬停弹出竖向滑块，iOS 只做静音）、时间、字幕、倍速菜单、画中画与全屏，标题与「在 YouTube / 哔哩哔哩观看」胶囊在顶栏；播放中 2.2 秒无操作自动隐藏，键盘 Space/K、M、F、C、←/→、J/L、↑/↓、0–9 可控；中央按钮在视频允许 CORS 时升级为 WebGL2 折射玻璃（video-lens.js 按需加载：视频帧直传纹理、squircle 斜面 + 斯涅尔折射 + 色散、mipmap 磨砂、着色器内按画面亮度自适应压暗、只在新视频帧或按钮动画时重绘），否则保持 CSS 玻璃。YouTube / 哔哩哔哩走门面模式：激活前只有封面与玻璃播放钮（悬停预连接平台域名），点击后换上官方播放器并移除全部浮层。文章里的 YouTube / 哔哩哔哩 iframe 已替换为该组件。加密文章解密后，正文里的组件脚本现在会执行",
+          "按钮与弹层换成 Apple Liquid Glass 设计语言：default.css 新增 .glass / .glass-button 与一套随主题明暗切换的 --glass-* token——主题 base 调出的半透明底色 + 模糊 / 提饱和 / 提亮、1px 渐变高光描边（左上迎光、右下回光）、按压提亮与弹簧回弹；导航栏动作区收进一枚玻璃胶囊、移动端 burger 与 TOC 浮钮成为玻璃圆，命令面板改为 Spotlight 式玻璃面板（身后只压淡暗色，不再全屏模糊），偏好弹窗本体成为玻璃面板（移动端为四周悬空的浮动 sheet），目录、文章信息、评论、脚注提示、Cookie 提示、Mermaid 工具按钮与图片轮播 / 群图的翻页按钮一并玻璃化；Chromium 桌面端由 glass-lens.js 空闲时按元素尺寸生成位移贴图，经 backdrop-filter: url() 补上边缘折射；玻璃材质直接挂在淡入淡出的元素自身，避开 Backdrop Root 导致的模糊延迟出现；减少透明度偏好或不支持 backdrop-filter 时在 token 层退回实色",
+        ],
+        en: [
+          'Add the &lt;video-player&gt; component (after loomix): self-hosted videos get full custom controls — a centered glass cluster (back 10s · play/pause · forward 10s), a bottom bar with a seek bar (buffered range, hover time preview, scrubbing), play, volume (hover slider; mute-only on iOS), time, captions, a speed menu, picture-in-picture and fullscreen, plus the title and a "Watch on YouTube / Bilibili" pill up top; controls hide after 2.2s of inactivity while playing, and Space/K, M, F, C, ←/→, J/L, ↑/↓ and 0–9 work from the keyboard. When the video is CORS-enabled the center buttons upgrade to WebGL2 refracting glass (video-lens.js, loaded on demand: frames uploaded straight to a texture, a squircle bevel with Snell refraction and dispersion, mipmap frosting, luminance-adaptive dimming computed in the shader, redrawn only on new video frames or button animation); otherwise they keep the CSS glass. YouTube / Bilibili use a facade: only the poster and a glass play button until activation (platform origins are preconnected on hover), then the official player takes over and every overlay is removed. The YouTube / Bilibili iframes in posts now use the component, and component scripts inside encrypted posts now run after decryption',
+          "Buttons and popups adopt Apple's Liquid Glass language: default.css gains .glass / .glass-button and a set of --glass-* tokens that follow each theme's light or dark scheme — a translucent fill mixed from the theme base with blur / saturation / brightness, a 1px gradient specular rim (lit top-left, reflected bottom-right), press illumination and a springy release. The navbar actions sit in a glass capsule, the mobile burger and TOC button become glass circles, the command palette becomes a Spotlight-style glass panel (only a faint dim behind it instead of a full-screen blur), the preferences popup itself is a glass panel (a floating inset sheet on mobile), and the TOC, article info, comments, footnote tooltips, cookie notice, Mermaid tool buttons and the image-carousel / image-group arrows follow suit. On desktop Chromium, glass-lens.js builds per-element displacement maps at idle time and adds edge refraction through backdrop-filter: url(). The glass material lives on the fading element itself to avoid the Backdrop Root delay, and reduced-transparency or no backdrop-filter support falls back to solid surfaces at the token level",
+        ],
+        category: "feature",
+      },
+      {
+        date: "9.22",
+        cn: [
+          "搜索框升级为命令面板：同一输入框检索文章 / 页面 / 标签与内置命令，`>` 前缀只搜命令、`#` 只搜标签，空查询列出命令与最近文章；内置命令包括切换深色 / 浅色模式、跟随系统外观、切换主题（子列表按浅色 / 深色分组，每项带该主题的色板）、切换正文字体（无衬线 / 衬线 / 等宽 / 手写，Aa 以对应字体渲染）、切换语言（无译文的文章回退到目标语言首页并注明）、前往导航菜单与偏好设置；首项默认选中、回车即执行，子列表中 Backspace / Esc 或点击范围标签返回；预览片段改为围绕命中位置截取并补省略号；content.json 新增 pages 索引（search.index_pages: false 可关闭），文章按日期倒序。快捷键仍为 ⌘ / Ctrl + K",
+        ],
+        en: [
+          "The search box becomes a command palette: one input searches posts / pages / tags and built-in commands, a `>` prefix limits results to commands and `#` to tags, and an empty query lists the commands plus recent posts. Built-in commands: switch to dark / light mode, follow the system appearance, switch theme (a sub-list grouped into light / dark with a swatch in each theme's own colors), switch the article typeface (sans / serif / mono / handwriting, each Aa rendered in its face), switch language (untranslated posts fall back to that language's home page and say so), and go to the navbar menu entries or Preferences. The first row is selected by default so Enter runs it; inside a sub-list Backspace / Esc or clicking the scope chip goes back; previews are now clipped around the first hit with ellipses; content.json gains a pages index (disable with search.index_pages: false) and posts are sorted newest first. The shortcut stays ⌘ / Ctrl + K",
+        ],
+        category: "feature",
+      },
+      {
+        date: "9.19",
+        cn: [
+          "重调 Mono Dark / Mono Light 配色：底色仍是纯黑 / 纯白，十四个强调色改为在 OKLCH 中统一亮度与彩度的「墨洗」色（浅色 L≈0.48 C≈0.10，深色 L≈0.78 C≈0.08），只以色相区分，替换此前高饱和的霓虹色；浅色正文由 #666 提到 #3d3d3d 与近墨标题拉开一档，深色正文压为粉笔白 #ebebeb 减少黑底晕光。代码高亮与彩色括号同步取自同一色板，所有强调色对白底 ≥ 4.9:1、对黑底 ≥ 8.7:1",
+        ],
+        en: [
+          "Retune Mono Dark / Mono Light: backgrounds stay pure black / white, while the fourteen accents become an ink-wash set with uniform OKLCH lightness and chroma (light L≈0.48 C≈0.10, dark L≈0.78 C≈0.08) that differ only by hue, replacing the earlier saturated neon. Light body text rises from #666 to #3d3d3d to sit one step below the near-black headings; dark body text settles to chalk white #ebebeb to reduce halation on black. Syntax highlighting and colorized brackets draw from the same palette; every accent reaches ≥ 4.9:1 on white and ≥ 8.7:1 on black",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "9.11",
+        cn: [
+          "优化移动端文章扉页：标题均衡折行，摘要略窄于标题并左对齐，日期紧接摘要且共用左边缘；圆形跳转箭头居中，comments · info 位于右下。沿用现有字体，留白随视口调整，长标题或字号放大时内容自然向下延伸",
+          "文章日期统一为点分格式，同年合并为「2026.06.15 — 07.24」，跨年保留两个年份，同一天只显示一次；桌面端同步支持",
+        ],
+        en: [
+          "Refine the mobile article title page with balanced title wrapping, a narrower excerpt aligned to the left and dates immediately below on the same left edge. Center the circular skip arrow and place comments · info at the lower right. Keep the existing typefaces, adapt the whitespace to the viewport and let long titles or enlarged text extend the page naturally",
+          "Format article dates as 2026.06.15 — 07.24 when both dates share a year, retain both years across year boundaries and show the date only once when creation and update fall on the same day; the compact format also applies on desktop",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "9.11",
+        cn: [
+          "新增 Mono Dark / Mono Light 主题（原 OpenAI Dark 更名）：深色为 #000 背景、#fff 正文，浅色为 #fff 背景、#000 正文；代码块与行内代码分别适配深浅语法高亮，并提供对应的彩色括号。Shiki 内置 Nord 仅支持深色，Nord Night 保留 Nord 高亮，Nord Light 改用 GitHub Light",
+        ],
+        en: [
+          "Add Mono Dark / Mono Light (renamed from OpenAI Dark): dark uses a #000 background with #fff body text, and light uses a #fff background with #000 body text. Code blocks and inline code receive separate light and dark syntax palettes, with matching colorized brackets. Shiki's bundled Nord is dark-only, so Nord Night keeps Nord highlighting while Nord Light uses GitHub Light",
+        ],
+        category: "feature",
+      },
+      {
+        date: "9.10",
+        cn: ["Mermaid 图改由 beautiful-mermaid 在构建期渲染为内联 SVG"],
+        en: ["Mermaid diagrams are now rendered at build time into inline SVG by beautiful-mermaid"],
+        category: "feature",
+      },
+      {
+        date: "9.10",
+        cn: [
+          "修复搜索框、TOC 与文章信息 / 评论弹层的遮罩只是一块实色、不模糊页面：UA 样式给 [popover] 铺了不透明的 background-color: Canvas，而全局 :popover-open::before 遮罩层（z-index: -1）画在宿主自身背景之上，backdrop-filter 模糊到的只是这块实色——现宿主统一 background: transparent，页面得以透过遮罩被模糊；遮罩顺带补上 -webkit-backdrop-filter，并新增测试守住该约束",
+        ],
+        en: [
+          "Fix the search box, TOC and article info / comment popovers covering the page with a flat fill instead of blurring it: the UA stylesheet paints [popover] with an opaque background-color: Canvas, and the global :popover-open::before overlay (z-index: -1) sits above the host's own background, so its backdrop-filter only ever blurred that solid fill — the host is now background: transparent so the page shows through blurred; the overlay also gains -webkit-backdrop-filter, and a new test guards the constraint",
+        ],
+        category: "fix",
+      },
+      {
+        date: "9.10",
+        cn: [
+          "文章正文纵向节奏改为 4px 栅格：default.css 立 --spacing 基准（0.25rem），正文所有纵向留白取其整数倍——段落/列表等文字块 6 格、图片/代码块/表格/引用等媒体块 8 格，h2–h6 上方 16/10/8/6/6 格、下方 4/3/2/2/2 格，标题之后的首块清零上边距，正文首块与 hero 固定一档段距；间距全部改用 margin-block 并以 :where 压平特定性，shiki 代码块、callout、mermaid、accordion、side-note 与 x-tree / x-chat / x-info-card / image-group / image-carousel 组件一并纳入栅格，image.js 的图片 figure 不再内联 1em 外边距；h2 行高收至 1.3；偏好设置新增「间距」三档（紧凑 3px / 常规 4px / 舒缓 5px，写入 data-article-spacing）——设置页为分段按钮、快捷弹窗为第四组 stepper（移动端改 2×2 排布），随字体设置一起持久化、首帧由 head 内联脚本应用、bfcache 返回同步",
+        ],
+        en: [
+          "The article body's vertical rhythm moves onto a 4px grid: default.css gains a --spacing base (0.25rem) and every vertical gap in the body is an integer multiple of it — 6 units for text blocks (paragraphs, lists), 8 for media blocks (images, code, tables, quotes), 16/10/8/6/6 above h2–h6 and 4/3/2/2/2 below, with the first block after a heading zeroing its top margin and the body's first block sitting one paragraph gap under the hero; all spacing switches to margin-block with :where-flattened specificity, and shiki code blocks, callouts, mermaid, accordion, side-note and the x-tree / x-chat / x-info-card / image-group / image-carousel components join the grid while image.js figures drop their inline 1em margin; h2 line-height tightens to 1.3; preferences gain a three-step Spacing control (compact 3px / normal 4px / relaxed 5px, written to data-article-spacing) — segmented buttons on the settings page, a fourth stepper in the quick popup (2×2 on mobile) — persisted with the font settings, applied on first paint by the head inline script and re-synced on bfcache restore",
+        ],
+        category: "uiux",
+      },
+      {
+        date: "8.15",
+        cn: [
+          "全站动效整改：default.css 立共享缓动 token --ease-out（easeOutQuint，与归档页既有曲线一致），归档页六处字面量、脚注 tooltip、shiki 工具栏及本轮新代码统一引用，纯色彩 hover 仍用内置 ease；搜索框选中指示条改静态几何 + opacity 开关、条目底色过渡一并移除——方向键高频移动即时落位，不再动画 height/top 布局属性；移动端菜单入场 0.56s/80ms 步进压至 0.28s/40ms（末项可见 1.1s → 约 0.5s），填充按站内规矩改 backwards，删基态 opacity: 0 与冗余 to 帧；偏好弹窗桌面+移动两变体从入场 keyframes + 退场硬切迁移为主题幕帘同款 transition + @starting-style + display/overlay allow-discrete——布局样式移交 .preference-popup 基类、靠文件序压过全局 popover 样式，桌面进 180ms 自触发角落下/退 130ms 收回，移动抽屉进 220ms/退 170ms 沿进场路径退回，被浏览器强制关闭仍无残留；代码复制提示由只过渡 visibility 的硬弹改为自复制按钮侧 6px 滑出（160ms）+ 纯淡出（200ms）；键帽按压 top → translateY 不再牵动布局，按下 60ms 快于回弹 120ms，删除从未生效的 border-bottom-width 过渡；折叠代码展开提示的常驻无限脉冲降为 hover 才动（静息取脉冲基准透明度 0.6）；shiki 工具栏图标 hover 0.3s/scale(1.2) → 0.15s/scale(1.1)；清扫 transition: all 共 10 处（twikoo ×4、friends-list ×3、x-changelog ×2、mermaid ×1）逐处枚举真实变化的属性，x-changelog 时间轴圆点顺带 0.5s → 0.2s",
+        ],
+        en: [
+          "A site-wide motion pass: default.css gains a shared easing token --ease-out (easeOutQuint, matching the archive page's existing curve), now referenced by the archive page's six literal curves, the footnote tooltip, the shiki toolbar, and all new code from this round, while pure color hovers keep the built-in ease; the searchbox selection indicator becomes static geometry toggled via opacity with the row background transition removed too — arrow-key navigation lands instantly and no longer animates the layout properties height/top; the mobile menu entrance drops from 0.56s/80ms stagger to 0.28s/40ms (last item visible at ~0.5s instead of 1.1s), switches to backwards fill per the house rule, and sheds the base opacity: 0 and the redundant to frame; both preference-popup variants (desktop and mobile) migrate from an enter-only keyframe with a hard-cut exit to the topic-curtain pattern — transition + @starting-style + display/overlay allow-discrete — with layout styles moved to the .preference-popup base class, winning over the global popover styles by file order: desktop enters in 180ms from the trigger corner and retracts in 130ms, the mobile drawer enters in 220ms and backs out in 170ms along its entry path, and browser-forced closes still leave no residue; the code-copy notice goes from a visibility-only hard pop to sliding 6px out from the copy button (160ms) and fading away (200ms); keycap presses swap top for translateY so layout is untouched, with a 60ms press faster than the 120ms rebound and the never-effective border-bottom-width transition removed; the collapsed-code expand hint's perpetual pulse now runs only on hover (resting at the pulse's base opacity 0.6); shiki toolbar icon hovers tighten from 0.3s/scale(1.2) to 0.15s/scale(1.1); and ten transition: all declarations (twikoo ×4, friends-list ×3, x-changelog ×2, mermaid ×1) are replaced with the properties that actually change, with the x-changelog timeline dot also cut from 0.5s to 0.2s",
+        ],
+        category: "uiux",
+      },
+      {
         date: "7.29",
         cn: [
           "归档页分组扁平化：撤去年份大标题一层（year → season → posts 收拢为 season+year → posts），分组标题直接写「季节缩写.两位年份」（spr.26 / aut.25）；冬季按气象季跨年归组，12 月与次年 1-2 月连成一段、标题记起讫年（win.25/26），此前同一自然年首尾各出现一段同名 Winter（section id 与 JSX key 还会重复）的问题随之消除；右侧年份轴保留自然年刻度，锚点改指向该年最新文章所在的分组，scroll-margin 移交分组承担；.archive-era 年份标记的样式与分组的相邻例外规则一并删除",

@@ -1,61 +1,155 @@
 :root {
   /* font */
-  --font-serif: Gentium, ChillKai, Baskerville, New York, Georgia, Noto Serif CJK, STFangsong, STSong, Songti SC, serif;
-  --font-sans-serif: Avenir Next, system-ui, sans-serif;
-  --font-mono: "SF Mono", "Maple Mono NF CN Local", "Maple Mono NF CN", Monaco, Consolas, monospace;
-  --font-handwriting: "Bradley Hand", "homemade-apple", XingKai SC, cursive;
+  --font-symbols: "Symbols Nerd Font Mono";
+  --font-serif: var(--font-symbols), serif;
+  /* Swiss 的无衬线：Helvetica 一系（mac 的 Helvetica Neue、Windows 的 Arial），退回系统字 */
+  --font-sans-serif: "Helvetica Neue", Helvetica, Arial, system-ui, var(--font-symbols), sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", var(--font-symbols), monospace;
+  --font-handwritten: "Bradley Hand", XingKai SC, var(--font-symbols), cursive;
   --article-font-size: 1rem;
   --article-font-family: var(--font-sans-serif);
-  /* 行高实际值由 head 内联脚本 / preferences.js 写入行内
-     --article-line-height，此处仅作无 JS 时的回退，与默认设置保持一致 */
-  --article-line-height: 1.7;
-  --article-font-weight: 400;
-  --article-bold-font-weight: 700;
-  /* 文章页正文栏宽（article.css 消费，其余页面保持默认列宽） */
-  --article-max-width: 50em;
-  /* misc */
+  /* Palermo 的 Title / Body / Paragraph 分工：字号、行高、字重作为完整角色。
+     界面层级固定；博客 Display 和可调阅读字号独立于产品界面。见 docs/typography.md。 */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --type-page-size: 1.75rem;
+  --type-page-leading: calc(32 / 28);
+  --type-heading-tracking: -0.015625rem;
+  --type-editorial-size: clamp(3.25rem, 8.5vw, 8rem);
+  --type-editorial-leading: 0.95;
+  --type-editorial-tracking: -0.04em;
+  --type-hero-size: clamp(2.75rem, 1.5rem + 3.6vw, 4.75rem);
+  --type-display-size: clamp(2rem, 1.4rem + 2.6vw, 3.75rem);
+  --type-display-leading: 1.15;
+  --type-display-tracking: -0.025em;
+  --type-title-size: 1.5rem;
+  --type-title-leading: calc(32 / 24);
+  --type-title-tracking: var(--type-heading-tracking);
+  --type-subtitle-size: 1.125rem;
+  --type-subtitle-leading: calc(24 / 18);
+  --type-body-size: 0.875rem;
+  --type-body-leading: calc(20 / 14);
+  --type-body-spaced-leading: calc(24 / 14);
+  --type-ui-size: 0.8125rem;
+  --type-ui-leading: calc(18 / 13);
+  --type-ui-spaced-leading: calc(20 / 13);
+  --type-caption-size: 0.75rem;
+  --type-caption-leading: calc(16 / 12);
+  --type-label-size: 0.75rem;
+  --type-label-leading: calc(16 / 12);
+  --type-paragraph-leading: 1.7;
+  --type-paragraph-small-leading: 1.7;
+  --type-page-font: var(--font-weight-semibold) var(--type-page-size) / var(--type-page-leading) var(--font-sans-serif);
+  --type-title-font: var(--font-weight-semibold) var(--type-title-size) / var(--type-title-leading) var(--font-sans-serif);
+  --type-subtitle-font: var(--font-weight-semibold) var(--type-subtitle-size) / var(--type-subtitle-leading) var(--font-sans-serif);
+  --type-body-font: var(--font-weight-regular) var(--type-body-size) / var(--type-body-leading) var(--font-sans-serif);
+  --type-body-spaced-font: var(--font-weight-regular) var(--type-body-size) / var(--type-body-spaced-leading) var(--font-sans-serif);
+  --type-ui-font: var(--font-weight-regular) var(--type-ui-size) / var(--type-ui-leading) var(--font-sans-serif);
+  --type-ui-spaced-font: var(--font-weight-regular) var(--type-ui-size) / var(--type-ui-spaced-leading) var(--font-sans-serif);
+  --type-caption-font: var(--font-weight-regular) var(--type-caption-size) / var(--type-caption-leading) var(--font-sans-serif);
+  --type-paragraph-font: var(--article-font-weight) var(--article-font-size) / var(--type-paragraph-leading) var(--article-font-family);
+  --type-paragraph-small-font: var(--font-weight-regular) var(--type-ui-size) / var(--type-paragraph-small-leading) var(--font-sans-serif);
+  --prose-h1-size: calc(var(--article-font-size) * 2);
+  --prose-h2-size: calc(var(--article-font-size) * 1.5);
+  --prose-h3-size: calc(var(--article-font-size) * 1.25);
+  --prose-h4-size: calc(var(--article-font-size) * 1.125);
+  --article-font-weight: var(--font-weight-regular);
+  --article-bold-font-weight: var(--font-weight-semibold);
+  /* 文章与归档的默认栏宽为最窄档；各档位显式定义，供偏好设置切换。 */
+  --article-max-width: 42em;
+  /* 统一阅读节奏：段落一档，节前两档，标题后半档；em 随文字缩放。 */
+  --spacing: 0.25rem;
+  --prose-gap: 1em;
+  --prose-heading-gap: 2em;
+  --prose-subheading-gap: 1.5em;
+  --prose-heading-after: 0.5em;
+  --prose-caption-gap: 0.75em;
+  --prose-list-gap: 0.5em;
+  --prose-divider-gap: 2em;
+  /* misc：面（弹层、菜单、卡片）用小圆角、0.5px 的浅描边与一点柔和的投影；
+     --rule 是表格的行线，--rule-strong 只用在表头下 */
   --radius: 12px;
+  --radius-sm: 8px;
+  --rule: color-mix(in oklab, var(--title-text-color) 10%, transparent);
+  --rule-strong: var(--title-text-color);
+  --edge-color: color-mix(in oklab, var(--title-text-color) 14%, transparent);
+  /* 投影两层：一道贴边的接触影 + 一道远而柔的投影，面才像搁在纸上而不是贴在纸上 */
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.04), 0 16px 40px -20px rgb(0 0 0 / 0.24);
+  --hover-fill: color-mix(in oklab, var(--title-text-color) 6%, transparent);
+  --focus-ring: 1px solid var(--title-text-color);
   --navbar-height: 3.5rem;
+  /* 版心：所有页面共用一条左缘——站名、Back、工具栏、归档的大字都落在这条线上 */
+  --page-margin: clamp(1.25rem, 2.5vw, 2.5rem);
+  /* 标签：全站的小标签只用一副无衬线、大写、12px、中等字重、0.06em 字距；
+     等宽字只留给数据——日期、计数、代码、规格表的取值 */
+  --font-label: var(--font-sans-serif);
+  --label-size: var(--type-label-size);
+  --label-tracking: 0.06em;
+  --label-weight: 500;
+  /* motion：入场/位移的全站缓动基准（easeOutQuint，与归档页动效一致）；
+     纯色彩 hover 过渡仍用内置 ease */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --scroll-reveal-duration: 500ms;
+  --scroll-reveal-distance: 8px;
 
   &[data-article-font-size="small"] {
     --article-font-size: 0.875rem;
   }
+
   &[data-article-font-size="medium-small"] {
     --article-font-size: 0.9375rem;
   }
+
   &[data-article-font-size="medium-large"] {
-    --article-font-size: 1.0625rem;
-  }
-  &[data-article-font-size="large"] {
     --article-font-size: 1.125rem;
   }
+
+  &[data-article-font-size="large"] {
+    --article-font-size: 1.25rem;
+  }
+
   &[data-article-font-family="sans-serif"] {
     --article-font-family: var(--font-sans-serif);
   }
+
   &[data-article-font-family="serif"] {
     --article-font-family: var(--font-serif);
   }
+
   &[data-article-font-family="mono"] {
     --article-font-family: var(--font-mono);
   }
+
   &[data-article-font-family="handwriting"] {
-    --article-font-family: var(--font-handwriting);
+    --article-font-family: var(--font-handwritten);
   }
+
   &[data-article-font-weight="light"] {
     --article-font-weight: 300;
   }
+
   &[data-article-font-weight="medium"] {
     --article-font-weight: 500;
   }
+
   &[data-article-width="narrow"] {
     --article-max-width: 42em;
   }
+
   &[data-article-width="medium-narrow"] {
     --article-max-width: 46em;
   }
+
+  &[data-article-width="medium"] {
+    --article-max-width: 50em;
+  }
+
   &[data-article-width="medium-wide"] {
     --article-max-width: 56em;
   }
+
   &[data-article-width="wide"] {
     --article-max-width: 64em;
   }
@@ -63,216 +157,296 @@
 
 /* #region Color */
 
-/* 色板派生色阶声明在 :where([data-theme]) 而非 :root：var() 在声明所在元素上
-   求值，放 :root 会按页面主题算好后被全站继承，嵌套主题作用域（如
-   theme-mode-preview 的 pane、theme-stacked 的取色元素）将读不到自身色板的
-   派生值。主题块以 &:where() 嵌套，与原顶层 :where() 一样保持零特定性。 */
+/* 每个主题独立定义固定色值，嵌套 data-theme 的预览也能拿到完整色板。
+   文字仅分前景、柔和两级；正文与辅助信息共用柔和色；中性色保留 base / mantle、surface0 / surface1、
+   overlay0 / overlay1，用于底色、边框与装饰。 */
 :where([data-theme]) {
-  --subtext1: color-mix(in oklch, var(--text) 90%, var(--base));
-  --subtext0: color-mix(in oklch, var(--text) 80%, var(--base));
-  --surface0: color-mix(in oklch, var(--base) 80%, var(--text));
-  --surface1: color-mix(in oklch, var(--base) 78%, var(--text));
-  --surface2: color-mix(in oklch, var(--base) 67%, var(--text));
-  --overlay0: color-mix(in oklch, var(--base) 56%, var(--text));
-  --overlay1: color-mix(in oklch, var(--base) 45%, var(--text));
-  --overlay2: color-mix(in oklch, var(--base) 34%, var(--text));
-
   &:where([data-theme="latte"]) {
     color-scheme: light;
     --rosewater: #dc8a78;
-    --flamingo: #dd7878;
-    --pink: #ea76cb;
     --mauve: #8839ef;
     --red: #d20f39;
-    --maroon: #e64553;
     --peach: #fe640b;
     --yellow: #df8e1d;
     --green: #40a02b;
     --teal: #179299;
-    --sky: #04a5e5;
-    --sapphire: #209fb5;
     --blue: #1e66f5;
     --lavender: #7287fd;
-    --text: #4c4f69;
+    --title-text-color: #35384b;
+    --sub-text-color: #50546b;
+    --surface0: #dce0e8;
+    --surface1: #ccd0da;
+    --overlay0: #acb0be;
+    --overlay1: #9ca0b0;
     --base: #eff1f5;
     --mantle: #e6e9ef;
-    --crust: #dce0e8;
   }
 
   &:where([data-theme="rose_pine"]) {
     color-scheme: dark;
     --rosewater: #f6c177;
-    --flamingo: #f2cdcd;
-    --pink: #ebbcba;
     --mauve: #c4a7e7;
     --red: #eb6f92;
-    --maroon: #ea9a97;
     --peach: #f2cdcd;
     --yellow: #f6c177;
     --green: #9ccfd8;
     --teal: #31748f;
-    --sky: #9ccfd8;
-    --sapphire: #31748f;
     --blue: #9ccfd8;
     --lavender: #c4a7e7;
-    --text: #e0def4;
+    --title-text-color: #e8e3f3;
+    --sub-text-color: #c6c1d4;
+    --surface0: #302c40;
+    --surface1: #3e394f;
+    --overlay0: #645d78;
+    --overlay1: #78718b;
     --base: #191726;
     --mantle: #161422;
-    --crust: #11111b;
   }
 
   &:where([data-theme="nord"]) {
     color-scheme: light;
     --rosewater: #bf616a;
-    --flamingo: #d08770;
-    --pink: #b48ead;
     --mauve: #b48ead;
     --red: #bf616a;
-    --maroon: #bf616a;
     --peach: #d08770;
     --yellow: #ebcb8b;
     --green: #a3be8c;
     --teal: #8fbcbb;
-    --sky: #81a1c1;
-    --sapphire: #5e81ac;
     --blue: #81a1c1;
     --lavender: #5e81ac;
-    --text: #4c566a;
+    --title-text-color: #2e3440;
+    --sub-text-color: #4c566a;
+    --surface0: #d8dee9;
+    --surface1: #c9d1dd;
+    --overlay0: #a2afc1;
+    --overlay1: #8e9baf;
     --base: #eceff4;
     --mantle: #e5e9f0;
-    --crust: #d8dee9;
-  }
-
-  &:where([data-theme="sunny"]) {
-    color-scheme: light;
-    --rosewater: #c98a5f;
-    --flamingo: #d98b6e;
-    --pink: #cf5d83;
-    --mauve: #9a5fa0;
-    --red: #c33b2b;
-    --maroon: #a64a3c;
-    --peach: #df7a18;
-    --yellow: #cf971a;
-    --green: #5f8a37;
-    --teal: #2f8a78;
-    --sky: #3f9fc4;
-    --sapphire: #2f7a9b;
-    --blue: #2f5fa0;
-    --lavender: #7a64b0;
-    --text: #463a28;
-    --base: #fbf7ef;
-    --mantle: #f3eee2;
-    --crust: #e7decb;
-    /* Golden sunlight tint used by the Sunny atmosphere layers */
-    --gnix-sun: #ffce7a;
   }
 
   &:where([data-theme="song_ci"]) {
     color-scheme: light;
     --rosewater: #d8a48f;
-    --flamingo: #c87363;
-    --pink: #c04851;
     --mauve: #7f5a83;
     --red: #b13a2e;
-    --maroon: #9a3f3f;
     --peach: #d68a3a;
     --yellow: #c99a2e;
     --green: #5f8f6f;
     --teal: #2f7d73;
-    --sky: #73a6a1;
-    --sapphire: #2d6f8f;
     --blue: #2f5597;
     --lavender: #6f6a9f;
-    --text: #0f4c20;
+    --title-text-color: #263f32;
+    --sub-text-color: #46594a;
+    --surface0: #dedfd1;
+    --surface1: #cdd2c1;
+    --overlay0: #a4b296;
+    --overlay1: #8e9e80;
     --base: #f4efe3;
     --mantle: #f1efea;
-    --crust: #c4d1b5;
   }
 
   &:where([data-theme="mocha"]) {
     color-scheme: dark;
     --rosewater: #f5e0dc;
-    --flamingo: #f2cdcd;
-    --pink: #f5c2e7;
     --mauve: #cba6f7;
     --red: #f38ba8;
-    --maroon: #eba0ac;
     --peach: #fab387;
     --yellow: #f9e2af;
     --green: #a6e3a1;
     --teal: #94e2d5;
-    --sky: #89dceb;
-    --sapphire: #74c7ec;
     --blue: #89b4fa;
     --lavender: #b4befe;
-    --text: #cdd6f4;
+    --title-text-color: #e1e7f6;
+    --sub-text-color: #bac4de;
+    --surface0: #313244;
+    --surface1: #45475a;
+    --overlay0: #6c7086;
+    --overlay1: #7f849c;
     --base: #1e1e2e;
     --mantle: #181825;
-    --crust: #11111b;
   }
 
   &:where([data-theme="tokyo_night"]) {
     color-scheme: dark;
     --rosewater: #f7768e;
-    --flamingo: #ff9e64;
-    --pink: #bb9af7;
     --mauve: #bb9af7;
     --red: #f7768e;
-    --maroon: #db4b4b;
     --peach: #ff9e64;
     --yellow: #e0af68;
     --green: #9ece6a;
     --teal: #1abc9c;
-    --sky: #7dcfff;
-    --sapphire: #2ac3de;
     --blue: #7aa2f7;
     --lavender: #82aaff;
-    --text: #c0caf5;
+    --title-text-color: #d5defa;
+    --sub-text-color: #b0bddf;
+    --surface0: #292d41;
+    --surface1: #363c54;
+    --overlay0: #59637f;
+    --overlay1: #6b7694;
     --base: #1a1b26;
     --mantle: #16161e;
-    --crust: #101014;
   }
 
   &:where([data-theme="nord_night"]) {
     color-scheme: dark;
     --rosewater: #b48ead;
-    --flamingo: #d08770;
-    --pink: #b48ead;
     --mauve: #b48ead;
     --red: #bf616a;
-    --maroon: #bf616a;
     --peach: #d08770;
     --yellow: #ebcb8b;
     --green: #a3be8c;
     --teal: #8fbcbb;
-    --sky: #88c0d0;
-    --sapphire: #81a1c1;
     --blue: #5e81ac;
     --lavender: #81a1c1;
-    --text: #eceff4;
+    --title-text-color: #eceff4;
+    --sub-text-color: #c0c8d4;
+    --surface0: #3b4252;
+    --surface1: #434c5e;
+    --overlay0: #606d82;
+    --overlay1: #738198;
     --base: #2e3440;
     --mantle: #292e39;
-    --crust: #242933;
   }
+
+  &:where([data-theme="mono_light"]) {
+    color-scheme: light;
+    --rosewater: #8c5a4d;
+    --mauve: #674689;
+    --red: #9a3936;
+    --peach: #e88aa0;
+    --yellow: #8c6c1f;
+    --green: #397247;
+    --teal: #1f7265;
+    --blue: #2e598f;
+    --lavender: #4e508e;
+    --title-text-color: lab(2.75381% 0 0);
+    --sub-text-color: lab(48.496% 0 0);
+    --surface0: #e5e5e5;
+    --surface1: #d4d4d4;
+    --overlay0: #a6a6a6;
+    --overlay1: #929292;
+    --base: #fff;
+    --mantle: #fff;
+  }
+
+  &:where([data-theme="mono_dark"]) {
+    color-scheme: dark;
+    --rosewater: #e2b9af;
+    --mauve: #c5a9e6;
+    --red: #ef958e;
+    --peach: #e9b082;
+    --yellow: #e6c686;
+    --green: #99cda3;
+    --teal: #8bcdbf;
+    --blue: #95baea;
+    --lavender: #adb2ea;
+    --title-text-color: #e8e8e8;
+    --sub-text-color: #999;
+    --surface0: #242424;
+    --surface1: #333333;
+    --overlay0: #575757;
+    --overlay1: #686868;
+    --base: #000;
+    --mantle: #000;
+  }
+}
+
+html {
+  font-size: 100%;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   background: var(--mantle);
-  color: var(--subtext1);
+  color: var(--sub-text-color);
   min-height: 100%;
-  line-height: 1.7;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-leading);
   display: flex;
   flex-direction: column;
-  font-synthesis: none;
   font-family: var(--font-sans-serif);
 }
 
+:where(h1, h2, h3, h4, h5, h6) {
+  color: var(--title-text-color);
+  font-weight: var(--font-weight-semibold);
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+:where(h1) {
+  font: var(--type-page-font);
+  letter-spacing: var(--type-heading-tracking);
+}
+
+:where(h2) {
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-leading);
+  letter-spacing: var(--type-title-tracking);
+}
+
+:where(h3, h4) {
+  font-size: var(--type-subtitle-size);
+  line-height: var(--type-subtitle-leading);
+  letter-spacing: var(--type-heading-tracking);
+}
+
+:where(h5, h6) {
+  font-size: var(--type-body-size);
+  line-height: var(--type-subtitle-leading);
+}
+
+:where(button, input, select, textarea) {
+  font: inherit;
+}
+
+/* 完整文字角色不设置颜色；页面与组件按语义使用，颜色由所在层级决定。 */
+.type-page-title {
+  font: var(--type-page-font);
+  letter-spacing: var(--type-heading-tracking);
+}
+.type-title {
+  font: var(--type-title-font);
+  letter-spacing: var(--type-heading-tracking);
+}
+.type-subtitle {
+  font: var(--type-subtitle-font);
+  letter-spacing: var(--type-heading-tracking);
+}
+.type-body {
+  font: var(--type-body-font);
+}
+.type-body-spaced {
+  font: var(--type-body-spaced-font);
+}
+.type-ui {
+  font: var(--type-ui-font);
+}
+.type-ui-spaced {
+  font: var(--type-ui-spaced-font);
+}
+.type-caption {
+  font: var(--type-caption-font);
+}
+.type-paragraph {
+  font: var(--type-paragraph-font);
+}
+.type-paragraph-small {
+  font: var(--type-paragraph-small-font);
+}
+
+/* 链接是墨色加一条细下划线；悬停退一档灰。强调色不再用于文字 */
 a {
-  color: var(--lavender);
-  text-decoration: none;
+  color: var(--title-text-color);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+  text-decoration-skip-ink: auto;
 
   &:hover {
-    color: var(--blue);
+    color: var(--sub-text-color);
   }
 }
 
@@ -285,10 +459,43 @@ hr {
   display: block;
   margin: 1.5rem 0;
   background: transparent;
-  border-top: 2px dotted var(--surface0);
+  border-top: 1px solid var(--rule);
 }
 
 /* #endregion Color */
+
+/* #region Surface
+
+   面：纸色底、小圆角、0.5px 的浅描边、一点柔和的投影；不模糊。原先的液态玻璃（模糊、折射、按压弹簧）
+   已整体移除。.surface 给面板，.surface-button 给可点的面：悬停只换底色一档，按下反白 */
+.surface {
+  position: relative;
+  border-radius: var(--radius);
+  background-color: var(--base);
+  box-shadow:
+    0 0 0 0.5px var(--edge-color),
+    var(--shadow-soft);
+}
+
+.surface-button {
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--hover-fill);
+    }
+  }
+
+  &:active {
+    background-color: var(--title-text-color);
+    color: var(--base);
+  }
+}
+
+/* #endregion Surface */
 
 /* #region Font */
 
@@ -299,6 +506,7 @@ hr {
   font-weight: 700;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/bold-italic.woff2") format("woff2");
@@ -306,6 +514,7 @@ hr {
   font-weight: 700;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/book.woff2") format("woff2");
@@ -313,6 +522,7 @@ hr {
   font-weight: 450;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/book-bold.woff2") format("woff2");
@@ -320,6 +530,7 @@ hr {
   font-weight: 450;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/book-bold-italic.woff2") format("woff2");
@@ -327,6 +538,7 @@ hr {
   font-weight: 450;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/book-italic.woff2") format("woff2");
@@ -334,6 +546,7 @@ hr {
   font-weight: 450;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/book-medium.woff2") format("woff2");
@@ -341,6 +554,7 @@ hr {
   font-weight: 500;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/book-medium-italic.woff2") format("woff2");
@@ -348,6 +562,7 @@ hr {
   font-weight: 500;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/book-semi-bold.woff2") format("woff2");
@@ -355,6 +570,7 @@ hr {
   font-weight: 600;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/book-semi-bold-italic.woff2") format("woff2");
@@ -362,6 +578,7 @@ hr {
   font-weight: 600;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/extra-bold.woff2") format("woff2");
@@ -369,6 +586,7 @@ hr {
   font-weight: 800;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/extra-bold-italic.woff2") format("woff2");
@@ -376,6 +594,7 @@ hr {
   font-weight: 800;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/italic.woff2") format("woff2");
@@ -383,6 +602,7 @@ hr {
   font-weight: 400;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/medium.woff2") format("woff2");
@@ -390,6 +610,7 @@ hr {
   font-weight: 500;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/medium-italic.woff2") format("woff2");
@@ -397,6 +618,7 @@ hr {
   font-weight: 500;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/main.woff2") format("woff2");
@@ -404,6 +626,7 @@ hr {
   font-weight: 400;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Gentium";
   src: url("https://fontsapi.zeoseven.com/2105/semi-bold-italic.woff2") format("woff2");
@@ -412,20 +635,487 @@ hr {
   font-display: swap;
 }
 
+/* #region Nerd Font subsets (generated by tools/subset-nerd-font.py) */
+
 @font-face {
-  font-family: "Maple Mono NF CN Local";
-  font-weight: 100 900;
-  src: local("MapleMono-NF-CN-Regular");
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-common.62e14a96.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range:
+    U+26A1, U+E5FF, U+E60B, U+E626, U+E628, U+E62A, U+E697, U+E69F-E6A0, U+E71E, U+E73C, U+E749, U+E74E, U+E758, U+E781, U+E7A8, U+E7BA, U+F013, U+F016, U+F023, U+F02D, U+F03D, U+F07B, U+F0B3, U+F109, U+F120, U+F13B-F13C, U+F15B, U+F1C1, U+F1C5, U+F1D3, U+F2DB, U+F308, U+F410, U+F469, U+F481, U+F489-F48A, U+F4BC, U+F4D2, U+F0150, U+F02CA, U+F035B, U+F03D6, U+F04E1, U+F09E8, U+F0A5F;
 }
 
 @font-face {
-  font-family: homemade-apple;
-  font-display: swap;
-  src:
-    local("Homemade Apple"),
-    local("HomemadeApple-Regular"),
-    url("font/woff2/HomemadeApple.woff2") format("woff2");
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-u2300.005c42ca.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+23FB-23FE;
 }
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-u2600.5594bea0.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+2630, U+2665;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-u2700.f83dfd7e.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+276C-2771;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-u2b00.591288c9.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+2B58;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-ue000.3b5e5b2f.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+E000-E00A, U+E0A0-E0A3, U+E0B0-E0C8, U+E0CA, U+E0CC-E0D2, U+E0D4, U+E0D6-E0D7;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-ue200.947321e6.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+E200-E2A9;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-ue300.982537ef.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+E300-E3E3;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-ue500.2e9483e3.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+E5FA-E5FE;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-ue600.f5a41bcd.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+E600-E60A, U+E60C-E625, U+E627, U+E629, U+E62B-E696, U+E698-E69E, U+E6A1-E6B8;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-ue700-a.f0ab451a.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+E700-E71D, U+E71F-E73B, U+E73D-E748, U+E74A-E74D, U+E74F-E757, U+E759-E780;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-ue700-b.bca8ac93.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+E782-E7A7, U+E7A9-E7B9, U+E7BB-E7FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-ue800-a.78834523.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+E800-E877;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-ue800-b.33a41369.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+E878-E8EF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uea00.a1967f21.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+EA60-EA88, U+EA8A-EA8C, U+EA8F-EAC7, U+EAC9, U+EACC-EAFF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-ueb00.c3c2d723.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+EB00-EB09, U+EB0B-EB4E, U+EB50-EBFF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uec00.7b5c823c.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+EC00-EC1E;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-ued00.6cda0ff3.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+ED00-EDFF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uee00.b500fbc6.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+EE00-EEFF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uef00.8a49217d.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+EF00-EFCE;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf000.77b42d16.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F000-F012, U+F014-F015, U+F017-F022, U+F024-F02C, U+F02E-F03C, U+F03E-F07A, U+F07C-F0B2, U+F0B4-F0FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf100.3c48e803.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F100-F108, U+F10A-F11F, U+F121-F13A, U+F13D-F15A, U+F15C-F1C0, U+F1C2-F1C4, U+F1C6-F1D2, U+F1D4-F1FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf200.b91a9254.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F200-F2DA, U+F2DC-F2FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf300.136d982f.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F300-F307, U+F309-F381;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf400.1c8cc766.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F400-F40F, U+F411-F468, U+F46A-F480, U+F482-F488, U+F48B-F4BB, U+F4BD-F4D1, U+F4D3-F4FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf500.9adf17ef.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F500-F533;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0000.912bfa97.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0001-F00FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0100.f06b3fca.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0100-F014F, U+F0151-F01FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0200.70ddb2b4.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0200-F02C9, U+F02CB-F02FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0300.cddf6b3b.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0300-F035A, U+F035C-F03D5, U+F03D7-F03FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0400.8bcc67d2.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0400-F04E0, U+F04E2-F04FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0500.96cb0de8.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0500-F05FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0600.11b92079.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0600-F06FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0700.0bebb4e7.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0700-F07FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0800.0ca95458.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0800-F08FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0900.09d8613d.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0900-F09E7, U+F09E9-F09FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0a00.c0eb79dd.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0A00-F0A5E, U+F0A60-F0AFF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0b00.c2f1407b.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0B00-F0BFF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0c00.1f4bc865.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0C00-F0CFF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0d00.b16f41d9.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0D00-F0DFF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0e00.c8e8db59.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0E00-F0EFF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf0f00.ea6cca37.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F0F00-F0FFF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf1000.404d8837.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F1000-F10FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf1100.f45e4f6f.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F1100-F11FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf1200.8f10b2df.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F1200-F12FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf1300.0c373f78.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F1300-F13FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf1400.c1e566c0.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F1400-F14FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf1500.7a653fe0.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F1500-F15FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf1600.18b3cc19.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F1600-F16FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf1700.af9c80ec.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F1700-F17FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf1800.6282a94d.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F1800-F18FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf1900.1d378e4b.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F1900-F19FF;
+}
+
+@font-face {
+  font-family: "Symbols Nerd Font Mono";
+  src: url("font/woff2/SymbolsNerdFontMono-uf1a00.ac999edb.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  unicode-range: U+F1A00-F1AF0;
+}
+
+/* #endregion Nerd Font subsets */
 
 /* #endregion */
 
@@ -450,6 +1140,10 @@ pre,
 textarea {
   margin: 0;
   padding: 0;
+  ::selection {
+    color: var(--base);
+    background-color: var(--title-text-color);
+  }
 }
 
 ul {
@@ -469,146 +1163,424 @@ html {
   min-width: 300px;
   overflow-x: hidden;
   overflow-y: scroll;
-  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 :where([id], a[name]) {
-  scroll-margin-top: calc(var(--navbar-height) + env(safe-area-inset-top) + 1rem);
+  /* 顶栏常驻吸顶：锚点让出顶栏的高度，再留一段阅读间距 */
+  scroll-margin-top: calc(var(--navbar-height) + env(safe-area-inset-top) + 1.5rem);
+}
+
+/* 触屏点按不画系统的高亮底色（iOS / Android 默认一块半透明色块，像文本被选中），按钮自己的
+   按压反馈（:active 反白）已足够；按钮文字也不因长按被选中、弹出系统菜单。
+   键盘聚焦仍由各控件的 :focus-visible 描边负责 */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(button, [role="button"], [role="switch"], .surface-button, summary, select) {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* #region Navbar */
 
+/* 顶栏：文字浮在纸色渐变之上，向下淡出到滚动内容；不叠加背景模糊。 */
 .navbar {
+  position: sticky;
+  top: 0;
+  box-sizing: border-box;
   min-height: var(--navbar-height);
   display: flex;
-  position: sticky;
-  padding-top: env(safe-area-inset-top);
-  top: 0;
-  z-index: 100;
-  user-select: none;
-  /* 底部不画 border：渐变底色 + .navbar-blur 的渐进模糊向正文自然消融 */
-  background: linear-gradient(
-    to bottom,
-    hsl(from var(--mantle) h s l / 0.95),
-    hsl(from var(--mantle) h s l / 0.7) 55%,
-    hsl(from var(--mantle) h s l / 0)
-  );
-
-  button {
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-}
-
-/* 渐进模糊：多层 backdrop-filter 配三角渐变 mask 交叉淡化，
-   模糊半径自上而下 16→2px 递减、底缘趋近 0，滚过的内容逐渐融进导航条。
-   注意 .navbar 自身不能再挂 filter/backdrop-filter，否则会成为
-   backdrop root，切断各层对页面内容的取样 */
-.navbar-blur {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-
-  > div {
-    position: absolute;
-    inset: 0;
-  }
-
-  > div:nth-child(1) {
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    mask-image: linear-gradient(to bottom, #000, transparent 25%);
-  }
-
-  > div:nth-child(2) {
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    mask-image: linear-gradient(to bottom, transparent, #000 25%, transparent 50%);
-  }
-
-  > div:nth-child(3) {
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
-    mask-image: linear-gradient(to bottom, transparent 25%, #000 50%, transparent 75%);
-  }
-
-  > div:nth-child(4) {
-    -webkit-backdrop-filter: blur(2px);
-    backdrop-filter: blur(2px);
-    mask-image: linear-gradient(to bottom, transparent 50%, #000 75%, transparent);
-  }
-}
-
-#navbar-logo-link {
-  font-family: homemade-apple, var(--font-handwriting);
-  color: var(--subtext1);
-  display: flex;
   align-items: center;
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
-  text-transform: lowercase;
-  padding: 0 0.9rem;
+  gap: 1rem;
+  padding: env(safe-area-inset-top) var(--page-margin) 0;
+  z-index: 100;
+  background: transparent;
+}
+
+/* 与参考页的 120px 遮罩同样使用背景色 → 透明；顶栏在上方，淡出方向相应向下。
+   渐变只覆盖视觉，不拦截其下内容的点击，也不改变顶栏的布局高度。 */
+.navbar-material {
+  position: absolute;
+  inset: 0 1px auto;
+  height: calc(7.5rem + env(safe-area-inset-top));
+  min-height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--mantle), transparent);
+}
+
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
+  .navbar {
+    background: var(--mantle);
+  }
+
+  .navbar-material {
+    display: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .navbar {
+    border-bottom: 1px solid var(--title-text-color);
+  }
+}
+
+:where(.navbar) button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* 站名：无衬线大写的小字标 */
+/* 左手一组：站名常驻；文章页后面接一节语境（/ 当前位置 ⌄），占去站名与图标之间的余量，放不下就省略 */
+.navbar-lead {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.navbar-lead__sep {
+  flex: none;
+  color: color-mix(in oklab, var(--sub-text-color) 45%, transparent);
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+}
+
+/* 语境钮：等宽的阅读百分比 + 节名；静息灰、悬停与展开时墨。
+   热区比字大：左右各让出 0.5rem 的内边距，再用负外边距把字拉回分隔符旁 */
+.navbar-context {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  max-width: min(34rem, 100%);
+  height: 2.25rem;
+  margin-inline-start: -0.5rem;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--sub-text-color);
+  font: var(--label-weight) var(--type-ui-size) / var(--type-ui-leading) var(--font-sans-serif);
+  cursor: pointer;
+  transition: color 120ms ease;
+
+  &:hover,
+  &[aria-expanded="true"] {
+    color: var(--title-text-color);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: -2px;
+  }
+}
+
+.navbar-context__progress {
+  flex: none;
+  min-inline-size: 4ch;
+  font-family: var(--font-mono);
+  font-size: var(--type-label-size);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  text-align: end;
+}
+
+.navbar-context__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navbar-brand {
+  flex: 0 0 auto;
+  color: var(--title-text-color);
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    color: var(--sub-text-color);
+  }
+}
+
+/* 站名缩写 GA.O：尾字母收成零宽（0fr 列），悬停或聚焦时展开为全名，分隔点同时收起 */
+.navbar-brand__tail,
+.navbar-brand__dot {
+  display: inline-grid;
+  grid-template-columns: 0fr;
+  vertical-align: bottom;
+  transition: grid-template-columns 360ms cubic-bezier(0.2, 0, 0, 1);
+
+  > span {
+    overflow: hidden;
+  }
+}
+
+.navbar-brand__dot {
+  grid-template-columns: 1fr;
+}
+
+.navbar-brand:is(:hover, :focus-visible) {
+  .navbar-brand__tail {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar-brand__dot {
+    grid-template-columns: 0fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar-brand__tail,
+  .navbar-brand__dot {
+    transition: none;
+  }
+}
+
+/* #region Cross-document view transition
+   首页的页名与其它页的站名共用一个名字：从首页跳走时巨字缩进左上角的站名，返回首页时反过来。
+   整页（root）不做交叉淡化——其余页面之间的跳转仍是瞬时切换，过渡只发生在这两处具名元素上 */
+@view-transition {
+  navigation: auto;
+}
+
+.navbar-brand,
+.home-hero__title {
+  view-transition-name: site-brand;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-group(site-brand),
+::view-transition-group(archive-year) {
+  animation-duration: 520ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* 文字快照按高度缩放、贴左对齐：巨字与小字标宽高比不同，不拉伸变形 */
+::view-transition-old(site-brand),
+::view-transition-new(site-brand),
+::view-transition-old(archive-year),
+::view-transition-new(archive-year) {
+  width: auto;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+/* #endregion */
+
+.navbar-actions {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
 }
 
 .navbar-item {
-  color: var(--subtext0);
+  display: inline-flex;
   align-items: center;
-  display: flex;
-  padding: 0 0.5rem;
-  position: relative;
-  flex-grow: 0;
-  flex-shrink: 0;
-  letter-spacing: 0.05em;
-  transition: color 220ms ease;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--sub-text-color);
   font: inherit;
   background: transparent;
-  border: none;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
+
+  &:hover {
+    color: var(--title-text-color);
+    background-color: var(--hover-fill);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: -2px;
+  }
+
   &:disabled {
     cursor: not-allowed;
     opacity: 0.45;
   }
-}
 
-/* 常驻动作区（偏好、搜索）：桌面与移动端都固定在导航条右侧，
-   不随移动端 burger 菜单折叠 */
-.navbar-actions {
-  display: flex;
-  align-items: stretch;
-  margin-left: auto;
-}
-
-:is(.navbar-end, .navbar-actions) {
   svg {
-    width: 1.1em;
-    opacity: 0.78;
-    transition:
-      opacity 220ms ease,
-      transform 220ms ease;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* 站名作为按钮时去掉 UA 的按钮样式，字形与链接时一致 */
+button.navbar-brand {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+/* 栏目页：点站名弹出的整屏一张纸（与页面同底色，不透出底下的内容）。
+   顶上一行与顶栏同高同边距：左边站名全称（回首页），右边关闭钮；下面是大字栏目名，从上往下靠左排成一列、不编号。
+   栏目名一律墨色，悬停变灰。打开时整页淡入，栏目名依次上浮 */
+.navbar-menu {
+  opacity: 0;
+  transition:
+    opacity 200ms ease,
+    display 200ms allow-discrete,
+    overlay 200ms allow-discrete;
+}
+
+.navbar-menu:popover-open {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  box-sizing: border-box;
+  padding: env(safe-area-inset-top) var(--page-margin) calc(env(safe-area-inset-bottom) + clamp(2rem, 8svh, 4rem));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--base);
+  opacity: 1;
+
+  &::before {
+    content: none;
   }
 
-  .navbar-item {
-    padding: 0 0.6rem;
-    transition: color 220ms ease;
+  &::backdrop {
+    background: transparent;
+  }
+}
+
+@starting-style {
+  .navbar-menu:popover-open {
+    opacity: 0;
+  }
+}
+
+.navbar-menu__bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: var(--navbar-height);
+}
+
+.navbar-menu__brand {
+  color: var(--title-text-color);
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    color: var(--sub-text-color);
+  }
+}
+
+.navbar-menu__close {
+  margin-right: -0.5rem;
+}
+
+.navbar-menu__links {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: clamp(0.25rem, 1svh, 0.75rem);
+  padding-top: clamp(2rem, 10svh, 6rem);
+}
+
+.navbar-menu__item {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.15em;
+  max-width: 100%;
+  color: var(--title-text-color);
+  font-family: var(--article-font-family);
+  font-size: clamp(2.75rem, 9vw, 6.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-decoration: none;
+  transition: color 160ms ease;
+
+  svg {
+    flex: none;
+    width: 0.32em;
+    height: 0.32em;
+    margin-top: 0.12em;
   }
 
-  .navbar-item:hover {
-    color: var(--text);
+  &:hover {
+    color: var(--sub-text-color);
   }
 
-  .navbar-item:hover svg {
-    opacity: 1;
-    transform: translateY(-1px);
+  &:focus-visible {
+    border-radius: 2px;
+    outline: var(--focus-ring);
+    outline-offset: 4px;
   }
+}
 
-  .navbar-item:disabled:hover {
-    color: var(--subtext0);
+.navbar-menu__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .navbar-menu:popover-open .navbar-menu__item {
+    animation: navbar-menu-rise 520ms var(--ease-out) backwards;
+    animation-delay: calc(60ms + var(--i, 0) * 50ms);
   }
+}
 
-  .navbar-item:disabled:hover svg {
-    opacity: 0.78;
-    transform: none;
+@keyframes navbar-menu-rise {
+  from {
+    opacity: 0;
+    translate: 0 0.4em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar-menu {
+    transition: none;
   }
 }
 
@@ -628,53 +1600,54 @@ html {
 
 /* #region Footer */
 
+/* 页尾是页面的最后一行：一行等宽大写小字分左右排开，靠上方的留白与正文分开 */
 .footer {
-  user-select: none;
   position: relative;
-  padding: 4rem 1.5rem 3rem;
-  text-align: center;
-  color: var(--overlay0);
+  margin-top: 5rem;
+  padding: 1.25rem var(--page-margin) calc(2rem + env(safe-area-inset-bottom));
+  color: var(--sub-text-color);
   font-family: var(--font-mono);
+  font-size: var(--type-label-size);
+  font-weight: var(--font-weight-regular);
+  text-align: start;
 }
 
 .footer-brand {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
 }
 
 .footer-credit,
 .footer-credit > a {
-  font-size: 0.75rem;
-  font-weight: 400;
+  font-size: inherit;
   margin: 0;
-  letter-spacing: 0.06em;
   color: inherit;
 }
 
+.footer a {
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--title-text-color);
+  }
+}
+
 .footer-author {
-  font-family: homemade-apple, var(--font-handwriting);
-  color: var(--subtext0);
-  letter-spacing: 0.01em;
+  color: var(--title-text-color);
 }
 
 .footer-meta {
-  font-size: 0.65rem;
+  font-size: inherit;
   font-weight: 400;
   margin: 0;
   line-height: 1.8;
-  letter-spacing: 0.02em;
 }
 
 .footer-icp {
   color: inherit;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.footer-icp:hover {
-  color: var(--lavender);
 }
 
 /* #endregion Footer */
@@ -701,160 +1674,393 @@ small {
   font-size: 0.875em;
 }
 
-/* #region Search */
+/* #region Gate（密码门禁）
 
-input.searchbox-input {
-  color: inherit;
-  background-color: transparent;
-  font-family: inherit;
-  font-size: 0.95rem;
-  border: none;
-  outline: 0;
-  flex-grow: 1;
-  box-sizing: border-box;
-  padding: 1em 1.25em;
+   文章页的加密提示与归档页「秘密花园」共用同一套语汇：没有边框、没有底色块，
+   「这里是输入框」交给光标、占位文字与右侧的提交词去说，聚焦时整行上强调色
+   （站内一贯用颜色而不是描边表达状态）。强调色取 --archive-accent，归档页外回退到 lavender */
 
-  &::placeholder {
-    color: var(--overlay1);
+.gate {
+  --gate-accent: var(--archive-accent, var(--title-text-color));
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0;
+}
+
+.gate__message {
+  margin: 0;
+  color: var(--sub-text-color);
+  font-family: var(--article-font-family);
+  font-size: var(--article-font-size);
+  line-height: var(--type-body-leading);
+  text-align: center;
+}
+
+.gate__field {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  padding-block: 0.25rem;
+  color: var(--sub-text-color);
+  transition: color 160ms var(--ease-out);
+
+  &:focus-within {
+    color: var(--gate-accent);
+  }
+
+  /* 输入框自身不画描边，键盘聚焦的可见指示交给整行 */
+  &:has(input:focus-visible) {
+    outline: auto;
+    outline-offset: 3px;
+    border-radius: 2px;
   }
 }
 
-.searchbox,
-.searchbox-container {
-  align-items: center;
-  flex-direction: column;
-  line-height: 1.25em;
+.gate__mark {
+  flex: none;
+  color: var(--gate-accent);
+  font-family: var(--font-mono);
+  font-size: var(--type-caption-size);
+  line-height: 1;
 }
 
-.searchbox-container {
-  border: 1px solid var(--surface0);
-  color: var(--text);
+input.gate__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.35rem 0;
+  border: none;
+  background: transparent;
+  color: var(--title-text-color);
+  font-family: var(--font-mono);
+  font-size: var(--type-body-size);
+  letter-spacing: 0.02em;
+  outline: none;
+
+  &::placeholder {
+    color: color-mix(in oklch, var(--sub-text-color) 75%, transparent);
+  }
+
+  /* 触屏上 16px 起 iOS 才不会为了可读性放大整页 */
+  @media (pointer: coarse), (max-width: 768px) {
+    font-size: 1rem;
+  }
+}
+
+.gate__submit {
+  flex: none;
+  padding: 0.35rem 0;
+  border: none;
+  background: transparent;
+  color: var(--sub-text-color);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--type-caption-size);
+  letter-spacing: 0.08em;
+  transition: color 140ms var(--ease-out);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--gate-accent);
+  }
+}
+
+.gate__error {
+  margin: 0;
+  color: var(--red);
+  font-family: var(--font-mono);
+  font-size: var(--type-caption-size);
+  line-height: 1.5;
+}
+
+/* #endregion */
+
+/* #region Command palette（搜索 + 命令）
+
+   原搜索框升级：同一输入框检索文章 / 页面 / 标签与内置命令，`>` 只搜命令、`#` 只搜标签，
+   空查询列出命令与最近文章；主题 / 字体等选项多的命令进入子列表，输入框前显示范围标签。
+   鼠标与方向键共用选中态，指示条与底色一律即时落位，整段不做过渡 */
+
+input.command-palette-input {
+  color: inherit;
+  background-color: transparent;
+  font-family: inherit;
+  font-size: var(--type-ui-size);
+  border: none;
+  outline: 0;
+  flex-grow: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 1em 0;
+
+  &::placeholder {
+    color: var(--sub-text-color);
+  }
+}
+
+@media (pointer: coarse), (max-width: 768px) {
+  input.command-palette-input {
+    font-size: 1rem;
+  }
+}
+
+.command-palette,
+.command-palette-container {
+  align-items: center;
+  flex-direction: column;
+  line-height: var(--type-ui-leading);
+}
+
+/* 面板是一张纸：纸色底、一条墨线描边，不投影不模糊 */
+.command-palette-container {
+  font-size: var(--type-ui-size);
+  color: var(--sub-text-color);
   position: fixed;
   z-index: 101;
   display: flex;
   overflow: hidden;
+  border: 0.5px solid var(--edge-color);
   border-radius: var(--radius);
   width: min(640px, 92vw);
   top: 10vh;
-  box-shadow: 0 20px 60px hsl(from var(--crust) h s l / 0.4);
-
-  /* 模糊层独立于内容：结果列表重绘时 blur 可被合成器缓存复用 */
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background-color: hsl(from var(--mantle) h s l / 0.85);
-    -webkit-backdrop-filter: blur(20px) saturate(1.4);
-    backdrop-filter: blur(20px) saturate(1.4);
-  }
+  background: var(--base);
+  box-shadow: var(--shadow-soft);
 }
 
-.searchbox-input-container {
+.command-palette-input-container {
   width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 0.75em;
+  padding-inline: 1.25em;
   line-height: 1.5em;
   min-height: 3.25rem;
 }
 
-.searchbox-body {
+/* 搜索图标与结果行的图标同列（同宽的居中盒，间距一致），输入文字随之与各行标题对齐；
+   进入子列表时由范围标签接替 */
+.command-palette-input-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  justify-content: center;
+  width: 1.5em;
+  color: var(--sub-text-color);
+}
+
+.command-palette-input-container:has(.command-palette-scope) > .command-palette-input-icon {
+  display: none;
+}
+
+/* 子列表范围标签：显示当前所在的命令组，点击返回上一层 */
+.command-palette-scope {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.25em 0.7em 0.25em 0.5em;
+  border: 0.5px solid var(--edge-color);
+  border-radius: 999px;
+  background-color: transparent;
+  color: var(--sub-text-color);
+  font: inherit;
+  font-size: var(--type-caption-size);
+  line-height: 1.4;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--title-text-color);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: -2px;
+  }
+}
+
+.command-palette-body {
   flex-grow: 1;
   width: 100%;
+  max-height: min(60dvh, 30rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
-/* Divider between input and results — only when there are results,
-   otherwise it would stack on the container's bottom border before searching. */
-.searchbox-body:not(:empty) {
-  border-top: 1px solid var(--surface0);
+/* 输入框与结果之间的分隔线仅在有结果时出现 */
+.command-palette-body:not(:empty) {
+  border-top: 1px solid var(--rule);
 }
 
-.searchbox-result-section {
+.command-palette-section {
   &:not(:last-child) {
-    border-bottom: 1px solid var(--surface0);
+    border-bottom: 1px solid var(--rule);
   }
 
   & > header {
     padding: 0.75em 1.25em 0.35em;
-    font-size: 0.68rem;
-    letter-spacing: 0.18em;
+    font-family: var(--font-label);
+    font-size: var(--label-size);
+    font-weight: var(--label-weight);
+    letter-spacing: var(--label-tracking);
     text-transform: uppercase;
-    color: var(--overlay0);
+    color: var(--sub-text-color);
   }
 }
 
-.searchbox-result-section--posts,
-.searchbox-result-section--pages {
-  max-height: 450px;
-  overflow-y: auto;
-}
-
-.searchbox-result-item {
+/* 结果行：文章 / 标签 / 导航命令是 <a>，动作命令是 <button>，外观统一 */
+.command-palette-item {
   display: flex;
   flex-direction: row;
+  align-items: center;
+  gap: 0.75em;
+  width: 100%;
+  box-sizing: border-box;
   padding: 0.7em 1.25em;
   position: relative;
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
 
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 3px;
-    height: 0;
-    background-color: var(--mauve);
-    border-radius: 0 2px 2px 0;
-    transition:
-      height 0.18s ease,
-      top 0.18s ease;
-  }
-
-  &:hover {
-    background-color: hsl(from var(--surface0) h s l / 0.55);
-  }
-
+  /* 选中行：只换一档底色 */
   &.active {
-    background-color: hsl(from var(--surface0) h s l / 0.8);
+    background-color: var(--hover-fill);
   }
 
-  &.active::before {
-    height: 60%;
-    top: 20%;
+  &.active > .command-palette-item-icon {
+    color: var(--title-text-color);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: -2px;
   }
 }
 
-.searchbox-result-content {
+.command-palette-item-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5em;
+  height: 1.5em;
+  color: var(--sub-text-color);
+}
+
+/* 文章 / 页面是标题 + 摘要两行：图标对齐标题行，并使用辅助文字色。 */
+.command-palette-item--document {
+  align-items: flex-start;
+
+  & > .command-palette-item-icon {
+    height: 1.25em;
+    color: var(--sub-text-color);
+  }
+}
+
+/* 主题色板：data-theme 让色板变量在该元素上按目标主题求值，底色 + 强调色各取一格 */
+.command-palette-swatch {
+  position: relative;
+  width: 1.05em;
+  height: 1.05em;
+  border-radius: 50%;
+  background-color: var(--base);
+  box-shadow: inset 0 0 0 1px var(--surface1);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 30%;
+    border-radius: 50%;
+    background-color: var(--mauve);
+  }
+}
+
+/* 字体项以对应字体渲染 Aa */
+.command-palette-glyph {
+  font-size: 0.95em;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+
+  &[data-typeface="sans-serif"] {
+    font-family: var(--font-sans-serif);
+  }
+
+  &[data-typeface="serif"] {
+    font-family: var(--font-serif);
+  }
+
+  &[data-typeface="mono"] {
+    font-family: var(--font-mono);
+  }
+
+  &[data-typeface="handwriting"] {
+    font-family: var(--font-handwritten);
+  }
+}
+
+.command-palette-item-content {
   overflow: hidden;
   flex-grow: 1;
   min-width: 0;
 }
 
-.searchbox-result-title {
+.command-palette-item-title {
   display: block;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-weight: 500;
-  color: var(--text);
+  font-weight: var(--font-weight-semibold);
+  color: var(--title-text-color);
 }
 
-.searchbox-result-preview {
+.command-palette-item-preview {
   display: block;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: var(--subtext0);
+  color: var(--sub-text-color);
   font-size: 0.85em;
   margin-top: 0.25em;
 }
 
-.searchbox-result-section--tags {
-  max-height: 250px;
-  overflow-y: auto;
+.command-palette-mark {
+  background: transparent;
+  color: var(--title-text-color);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.command-palette-item-hint {
+  flex: 0 0 auto;
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  letter-spacing: 0.04em;
+  color: var(--sub-text-color);
+  white-space: nowrap;
+}
+
+.command-palette-item-check,
+.command-palette-item-chevron {
+  flex: 0 0 auto;
+  display: inline-flex;
+}
+
+.command-palette-item-check {
+  color: var(--title-text-color);
+}
+
+.command-palette-item-chevron {
+  color: var(--sub-text-color);
+}
+
+.command-palette-section--tags {
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
@@ -865,37 +2071,83 @@ input.searchbox-input {
     flex-basis: 100%;
   }
 
-  & > .searchbox-result-item {
+  & > .command-palette-item {
+    width: auto;
     padding: 0.25em 0.85em;
-    border: 1px solid var(--surface1);
+    border: 0.5px solid var(--edge-color);
     border-radius: 999px;
-    background-color: hsl(from var(--surface0) h s l / 0.5);
-    transition:
-      background-color 0.15s ease,
-      border-color 0.15s ease;
+    background-color: transparent;
 
     &::before {
       content: none;
     }
 
-    & .searchbox-result-title {
+    & .command-palette-item-title {
       white-space: nowrap;
       overflow: visible;
       text-overflow: clip;
       font-weight: 400;
-      font-size: 0.88em;
+      font-size: var(--type-caption-size);
     }
 
     &:hover,
     &.active {
-      background-color: var(--surface1);
-      border-color: var(--mauve);
+      background-color: var(--hover-fill);
+      border-color: var(--rule-strong);
     }
   }
 }
 
-/* #endregion Search */
+.command-palette-empty {
+  padding: 1.4em 1.25em;
+  font-size: var(--type-ui-size);
+  color: var(--sub-text-color);
+  text-align: center;
+}
 
+/* 底部按键提示：只作说明，不参与交互 */
+.command-palette-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em 1.1em;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.55em 1.25em;
+  border-top: 1px solid var(--rule);
+  font-size: var(--type-label-size);
+  color: var(--sub-text-color);
+  white-space: nowrap;
+
+  & > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+  }
+}
+
+/* 键帽里是图标（方向键、回车）或字符，统一在定高的盒子里居中 */
+.command-palette-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1em;
+  box-sizing: border-box;
+  min-width: 1.7em;
+  height: 1.7em;
+  padding: 0 0.35em;
+  border: 0.5px solid var(--edge-color);
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--sub-text-color);
+  font: inherit;
+  font-family: var(--font-mono);
+  line-height: 1;
+}
+
+/* #endregion Command palette */
+
+/* 全局 popover 遮罩（搜索框 / TOC / 文章信息与评论弹层共用）：一层近乎不透明的纸色，不模糊，
+   放在独立的 fixed 伪层；宿主自身透明（UA 样式给 [popover] 铺了不透明的 Canvas 底色） */
 :popover-open {
   position: fixed;
   width: 100%;
@@ -903,362 +2155,253 @@ input.searchbox-input {
   inset: 0;
   margin: 0;
   border: none;
+  background: transparent;
 
   &::before {
     content: "";
     position: fixed;
     inset: 0;
     z-index: -1;
-    background: hsl(from var(--mantle) h s l / 0.7);
-    backdrop-filter: blur(10px);
+    background: color-mix(in oklab, var(--base) 94%, transparent);
   }
 
-  &.searchbox {
-    font-family: var(--font-mono);
+  &.command-palette {
+    font-family: var(--font-sans-serif);
     line-height: 0;
     display: flex;
   }
 }
 
-/* #region Preference quick popup（仿 Obsidian Web Clipper reader 设置面板）
-
-   弹窗骨架在所有页面随 navbar 渲染，故样式常驻 default.css；
-   /preferences 独立页的样式在 preferences.css，仅该页面加载。
-
-   无遮罩、无面板底色：弹窗打开时页面保持可见、可滚动，方便对照正文
-   查看排版调整效果；控件用不透明的 --mantle 填充 + 描边与页面区分。
-   开关由原生 popover（navbar 按钮 popovertarget / 快捷键 togglePopover）
-   驱动；可见样式只挂在 :popover-open 下（特定性压过上方全局 popover
-   样式的 inset: 0 + 全屏模糊背景），关闭态回落到 UA 的 display: none，
-   即使 popover 被浏览器强制关闭（如进入全屏）也不会残留。 */
-
-.preference-popup:popover-open {
-  position: fixed;
-  inset: auto;
-  top: calc(var(--navbar-height) + env(safe-area-inset-top) + 0.6rem);
-  right: 0.9rem;
-  z-index: 1000;
-  width: min(17rem, calc(100vw - 1.8rem));
-  height: auto;
-  max-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 2rem);
+/* #region Segmented control
+   分段条：一条 0.5px 浅描边围住一排等宽的格子，偏好弹窗与设置页共用（设置页只改宽度与格高，见 preferences.css）。
+   三种状态只靠字色区分：静息浅灰、悬停灰、选中墨字（不画下划线）；格子透明，只有面本身是纸色卡片。
+   容器可能是 <fieldset>，顺手抹掉它的 UA 描边与外边距 */
+.segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  min-inline-size: 0;
   margin: 0;
-  padding: 0;
-  overflow: auto;
+  padding: 2px;
   border: 0;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 0.5px var(--edge-color);
+}
+
+.segmented__cell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 2rem;
+  min-height: 2rem;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: calc(var(--radius-sm) - 2px);
+  color: var(--sub-text-color);
   background: transparent;
-  color: var(--text);
-  scrollbar-width: none;
-  transform-origin: top right;
-  animation: preference-popup-in 160ms ease;
+  font: var(--font-weight-semibold) var(--type-ui-size) / var(--type-ui-leading) var(--font-sans-serif);
+  cursor: pointer;
+  transition: color 120ms ease;
+
+  &:hover:not(:disabled) {
+    color: var(--sub-text-color);
+  }
+
+  &.is-active,
+  &[aria-pressed="true"] {
+    color: var(--title-text-color);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: -2px;
+  }
+}
+
+/* 格子里的文字就是内容（语言的 ZH / EN）：小一号、不大写 */
+.segmented__cell--text {
+  font-size: var(--type-label-size);
+  text-transform: none;
+}
+
+/* 字体族的格子：「Aa」按各自的字族渲染，切换前就能看到字形（设置页的卡片把这个字样放大） */
+.font-type-preview {
+  font-family: var(--font-type-preview-family, var(--font-sans-serif));
+  font-size: var(--type-ui-size);
+  line-height: 1;
+}
+
+.font-type-btn[data-font="serif"] {
+  --font-type-preview-family: var(--font-serif);
+}
+.font-type-btn[data-font="mono"] {
+  --font-type-preview-family: var(--font-mono);
+}
+.font-type-btn[data-font="handwriting"] {
+  --font-type-preview-family: var(--font-handwritten);
+}
+
+/* #endregion Segmented control */
+
+/* #region Popup card
+   顶栏落下的卡片（偏好 / 手机上的目录）与搜索框同一套外观：纸色底、0.5px 的 --edge-color 描边、
+   --radius 圆角、--shadow-soft 柔和投影；打开时身后铺一层纸色遮罩（同搜索框，只是更透一些，
+   偏好卡片切换字号、主题时还能看见底下的正文）——深浅主题因此都是「卡片浮在一层均匀的纸面上」，
+   不用在暗底上靠投影或提亮来分层。
+   各卡片只通过变量给出位置与宽度（--popup-inset / --popup-width / --popup-padding），贴着自己的触发钮那一侧。
+   关闭态由 [popover] 的 UA 样式隐藏；打开态需中和全局 :popover-open 的铺满与遮罩 */
+:root {
+  --popup-radius: var(--radius);
+  --popup-top: calc(var(--navbar-height) + env(safe-area-inset-top) + 0.25rem);
+}
+
+.popup-card,
+.popup-card:popover-open {
+  position: fixed;
+  inset: var(--popup-inset, var(--popup-top) var(--page-margin) auto auto);
+  z-index: 1000;
+  box-sizing: border-box;
+  width: var(--popup-width, 16rem);
+  max-width: calc(100vw - 2rem);
+  height: auto;
+  max-height: calc(100dvh - var(--popup-top) - 1rem - env(safe-area-inset-bottom));
+  margin: 0;
+  padding: var(--popup-padding, 0.5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 0.5px solid var(--edge-color);
+  border-radius: var(--popup-radius);
+  background-color: var(--base);
+  box-shadow: var(--shadow-soft);
+  color: inherit;
 
   &::before {
     content: none;
   }
-}
 
-.preference-popup::backdrop {
-  background: transparent;
-}
-
-.preference-popup::-webkit-scrollbar {
-  display: none;
-}
-
-@keyframes preference-popup-in {
-  from {
-    opacity: 0;
-    transform: translateY(-6px) scale(0.98);
+  &::backdrop {
+    background: color-mix(in oklab, var(--base) 72%, transparent);
   }
+}
+
+.popup-card {
+  translate: 0 -6px;
+  opacity: 0;
+  transition:
+    translate 200ms var(--ease-out),
+    opacity 160ms ease,
+    display 200ms allow-discrete,
+    overlay 200ms allow-discrete;
+}
+
+.popup-card:popover-open {
+  translate: 0 0;
+  opacity: 1;
+}
+
+.popup-card::backdrop {
+  transition:
+    background-color 200ms ease,
+    display 200ms allow-discrete,
+    overlay 200ms allow-discrete;
+}
+
+@starting-style {
+  .popup-card:popover-open {
+    translate: 0 -6px;
+    opacity: 0;
+  }
+
+  .popup-card:popover-open::backdrop {
+    background-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popup-card {
+    transition: none;
+  }
+}
+
+/* #endregion Popup card */
+
+/* #region Preference quick popup
+   一张从顶栏右侧落下的小卡片：每行左标签右控件（主题 / 字体 / 字号 / 语言），标签列等宽、控件（分段条）靠右；
+   底下一条去设置页的链接，与上面以一条行线分开、贴着卡片下缘 */
+.preference-popup {
+  --popup-width: min(19rem, calc(100vw - 2rem));
+  --popup-padding: 0;
+  color: var(--sub-text-color);
 }
 
 .preference-quick {
+  box-sizing: border-box;
   display: grid;
-  gap: 1.05rem;
+  gap: 0.125rem;
+  padding: 0.5rem 0.75rem;
   font-family: var(--font-sans-serif);
 }
 
-.preference-quick__steppers {
+.preference-quick__row {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.45rem;
-}
-
-.preference-quick__stepper {
-  display: flex;
-  overflow: hidden;
-  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
-  border-radius: 10px;
-  background: var(--mantle);
-}
-
-.preference-quick__step-btn {
-  flex: 1 1 0;
-  display: inline-flex;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
-  min-width: 0;
-  height: 2.35rem;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--subtext0);
-  cursor: pointer;
-
-  /* 外侧圆角随容器（10px 减去 1px 边框）：聚焦环不受容器 overflow 裁剪，
-     按钮需自带圆角，悬停背景与 -2px 聚焦环才不会以直角溢出 stepper 的圆角边框 */
-  &:first-child {
-    border-radius: 9px 0 0 9px;
-  }
-
-  &:last-child {
-    border-radius: 0 9px 9px 0;
-  }
-
-  & + .preference-quick__step-btn {
-    border-left: 1px solid hsl(from var(--surface1) h s l / 0.8);
-  }
-
-  &:hover:not(:disabled) {
-    color: var(--text);
-    background: color-mix(in oklch, var(--mantle) 90%, var(--text));
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--mauve);
-    outline-offset: -2px;
-  }
-
-  &:disabled {
-    opacity: 0.35;
-    cursor: default;
-  }
+  gap: 0.75rem;
+  min-height: 2.75rem;
 }
 
-.preference-quick__selects {
-  display: grid;
-  gap: 0.45rem;
+.preference-quick__label,
+.preference-quick__link {
+  color: var(--sub-text-color);
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
 }
 
-.preference-quick__select-row {
-  position: relative;
+.preference-quick__row > .segmented {
+  justify-self: end;
+}
+
+/* 去设置页：卡片的页脚——出血到卡片两侧与下缘，上面一条行线，整行可点、圆角接卡片下角 */
+.preference-quick__link {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  min-width: 0;
-}
-
-.preference-quick__select-icon {
-  position: absolute;
-  left: 0.6rem;
-  z-index: 1;
-  display: inline-flex;
-  color: var(--subtext0);
-  pointer-events: none;
-}
-
-.preference-quick__select-row:hover .preference-quick__select-icon {
-  color: var(--text);
-}
-
-/* 主题模式行按当前生效配色展示太阳/月亮（html 根类由 theme init 脚本维护） */
-.preference-quick__select-icon--moon {
-  display: none;
-}
-
-html.night .preference-quick__select-icon--sun {
-  display: none;
-}
-
-html.night .preference-quick__select-icon--moon {
-  display: inline-flex;
-}
-
-.preference-quick__select {
-  flex: 1 1 auto;
-  width: 100%;
-  min-width: 0;
-  height: 2.35rem;
-  padding: 0 1.9rem 0 2.25rem;
-  appearance: none;
-  -webkit-appearance: none;
-  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
-  border-radius: 10px;
-  color: var(--text);
-  background-color: var(--mantle);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-opacity='0.5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.6rem center;
-  background-size: 13px;
-  font: 550 0.86rem / 1.2 var(--font-sans-serif);
-  cursor: pointer;
-
-  &:hover {
-    border-color: hsl(from var(--surface2) h s l / 0.9);
-    background-color: color-mix(in oklch, var(--mantle) 92%, var(--text));
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--mauve);
-    outline-offset: -2px;
-  }
-}
-
-html.night .preference-quick__select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-opacity='0.55' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
-}
-
-.preference-quick__row-action {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.35rem;
-  height: 2.35rem;
-  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
-  border-radius: 10px;
-  color: var(--subtext0);
-  background: var(--mantle);
-
-  &:hover {
-    color: var(--text);
-    border-color: hsl(from var(--surface2) h s l / 0.9);
-    background: color-mix(in oklch, var(--mantle) 90%, var(--text));
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--mauve);
-    outline-offset: -2px;
-  }
-}
-
-.preference-quick__settings {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  height: 2.35rem;
-  padding: 0 0.7rem;
-  border: 1px solid hsl(from var(--surface1) h s l / 0.8);
-  border-radius: 10px;
-  color: var(--subtext0);
-  background: var(--mantle);
-  font: 550 0.86rem / 1.2 var(--font-sans-serif);
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  margin: 0.375rem -0.75rem -0.5rem;
+  padding: 0 0.75rem;
+  border-top: 1px solid var(--rule);
+  border-radius: 0 0 var(--popup-radius) var(--popup-radius);
   text-decoration: none;
+  transition: color 120ms ease;
 
   &:hover {
-    color: var(--text);
-    background: color-mix(in oklch, var(--mantle) 90%, var(--text));
+    color: var(--title-text-color);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--mauve);
+    outline: var(--focus-ring);
     outline-offset: -2px;
   }
 }
 
-@media (max-width: 768px) {
+@media (prefers-reduced-motion: reduce) {
+  .preference-popup,
   .preference-popup:popover-open {
-    top: auto;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    width: auto;
-    max-height: min(82dvh, 100dvh - 3rem);
-    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
-    border: 1px solid hsl(from var(--surface1) h s l / 0.74);
-    border-bottom: 0;
-    border-radius: 18px 18px 0 0;
-    background: var(--base);
-    box-shadow: 0 -18px 50px -30px rgba(0, 0, 0, 0.45);
-    transform-origin: bottom center;
-    animation: preference-popup-up 200ms ease;
-  }
-
-  .preference-quick {
-    gap: 1.05rem;
-  }
-
-  .preference-quick__steppers {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .preference-quick__step-btn {
-    height: 2.55rem;
-  }
-
-  .preference-quick__select,
-  .preference-quick__row-action {
-    height: 2.55rem;
-  }
-
-  .preference-quick__settings {
-    height: 2.6rem;
-  }
-}
-
-@keyframes preference-popup-up {
-  from {
-    opacity: 0;
-    transform: translateY(10%);
+    translate: none;
+    transition: none;
   }
 }
 
 /* #endregion Preference quick popup */
-
-/* #region Sunny atmosphere */
-
-/* Atmosphere layers are injected only when Sunny is active. Visuals mirror
-   dany.works: a cream page palette, a golden radial sun glow behind content,
-   and a full-screen multiply-blended moving texture over the page. */
-.gnix-sunny-glow,
-.gnix-sunny-leaves {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 700ms ease;
-}
-
-.gnix-sunny-glow {
-  z-index: -1;
-  background:
-    radial-gradient(115% 68% at 50% -18%, hsl(from var(--gnix-sun) h s l / 0.28), transparent 56%), radial-gradient(70% 48% at 88% 0%, hsl(from var(--gnix-sun) h s l / 0.14), transparent 48%);
-}
-
-.gnix-sunny-leaves {
-  z-index: 999;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
-  mix-blend-mode: multiply;
-}
-
-/* Activate the atmosphere only under the Sunny theme. */
-:root[data-theme="sunny"] .gnix-sunny-glow {
-  opacity: 1;
-}
-
-:root[data-theme="sunny"] .gnix-sunny-leaves.is-ready {
-  opacity: var(--gnix-sunny-leaves-opacity, 1);
-}
-
-/* #endregion Sunny atmosphere */
-
-/* #region Slide-enter 进场动画
-
-   仿 antfu.me 的 slide-enter：块自下方 10px 上浮淡入，由文章页（article.css）在
-   .gnix-revealed 后触发。只声明 from，动画结束后不残留 translate。两个注意点：
-   1. 不要把它用在内部含 fixed/anchor 定位后代的容器上（如归档条目，其悬浮预览为
-      fixed）——translate 动画期间容器会成为 containing block，使其定位失效；
-      归档页因此在 archive.css 里拆成 opacity 与 translate 两个关键帧分层挂载；
-   2. 填充一律用 backwards（只为覆盖 delay 阶段），不要用 both/forwards——
-      动画会永远处于 in effect 状态，元素常驻 stacking context，内部 fixed
-      元素的 z-index 被困住（文章页脚注底栏曾被后续段落盖住、看似透明） */
-@keyframes slide-enter {
-  from {
-    opacity: 0;
-    translate: 0 10px;
-  }
-}
-
-/* #endregion Slide-enter 进场动画 */

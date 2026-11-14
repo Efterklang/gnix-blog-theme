@@ -5,138 +5,56 @@ const LEGACY_STORAGE_KEY = "cookieconsent_status";
 
 const COOKIE_CONSENT_STYLE = `
 .gnix-cookie-consent {
-  --cookie-consent-x: 0;
-  --cookie-consent-y: 0.5rem;
   position: fixed;
   bottom: max(1rem, env(safe-area-inset-bottom));
   left: max(1rem, env(safe-area-inset-left));
   z-index: 140;
-  box-sizing: border-box;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.875rem 1rem;
-  width: min(32rem, calc(100vw - 2rem));
-  padding: 1rem;
-  border: 1px solid var(--surface0);
-  border-radius: var(--radius);
-  background: var(--mantle);
-  color: var(--text);
-  box-shadow:
-    0 20px 60px -32px rgba(0, 0, 0, 0.58),
-    0 0 0 1px hsl(from var(--base) h s l / 0.18);
-  font-family: var(--font-sans-serif);
-  line-height: 1.55;
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+  max-width: calc(100vw - 2rem);
+  padding: 0.875rem 1rem;
+  background: var(--base);
+  border-top: 1px solid var(--title-text-color);
+  color: var(--sub-text-color);
+  font: 0.8125rem/1.5 var(--font-sans-serif);
   opacity: 0;
-  transform: translate3d(var(--cookie-consent-x), var(--cookie-consent-y), 0);
-  transition:
-    opacity 0.18s ease,
-    transform 0.18s ease;
+  transition: opacity 0.18s ease;
 }
 
-@supports (background: color-mix(in oklch, black 50%, transparent)) {
-  .gnix-cookie-consent {
-    background: color-mix(in oklch, var(--mantle) 88%, transparent);
-    -webkit-backdrop-filter: blur(16px) saturate(1.2);
-    backdrop-filter: blur(16px) saturate(1.2);
-  }
-}
+.gnix-cookie-consent.is-visible { opacity: 1; }
+.gnix-cookie-consent.is-hiding { opacity: 0; pointer-events: none; }
+.gnix-cookie-consent.is-static { position: static; margin: 1rem auto; }
 
-.gnix-cookie-consent.is-visible {
-  --cookie-consent-y: 0;
-  opacity: 1;
-}
-
-.gnix-cookie-consent.is-hiding {
-  --cookie-consent-y: 0.5rem;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.gnix-cookie-consent.is-static {
-  position: static;
-  width: min(42rem, calc(100% - 2rem));
-  margin: 1rem auto;
-}
-
-.gnix-cookie-consent__message {
-  min-width: 0;
-  margin: 0;
-  color: var(--subtext1);
-  font-size: 0.9rem;
-}
+.gnix-cookie-consent__message { margin: 0; }
 
 .gnix-cookie-consent__link {
-  color: var(--lavender);
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.gnix-cookie-consent__link:hover {
+  color: inherit;
   text-decoration: underline;
-}
-
-.gnix-cookie-consent__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.5rem;
+  text-underline-offset: 2px;
 }
 
 .gnix-cookie-consent__button {
-  min-height: 2.25rem;
-  padding: 0.55rem 0.8rem;
-  border: 1px solid var(--surface0);
-  border-radius: 8px;
-  background: hsl(from var(--surface0) h s l / 0.24);
-  color: var(--text);
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--title-text-color);
   cursor: pointer;
-  font: 600 0.78rem/1 var(--font-sans-serif);
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease,
-    transform 0.15s ease;
+  font: 600 0.75rem/1.5 var(--font-mono, monospace);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.gnix-cookie-consent__button:hover {
-  border-color: var(--overlay0);
-  background: hsl(from var(--surface0) h s l / 0.38);
-  transform: translateY(-1px);
-}
+.gnix-cookie-consent__button:hover { text-decoration: underline; text-underline-offset: 3px; }
+.gnix-cookie-consent__button:focus-visible { outline: 1px solid var(--title-text-color); outline-offset: 3px; }
 
-.gnix-cookie-consent__button:focus-visible {
-  outline: 2px solid var(--lavender);
-  outline-offset: 2px;
-}
-
-.gnix-cookie-consent__button--primary {
-  border-color: var(--lavender);
-  background: var(--lavender);
-  color: var(--base);
-}
-
-.gnix-cookie-consent__button--primary:hover {
-  border-color: var(--mauve);
-  background: var(--mauve);
-  color: var(--base);
-}
-
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  /* 手机端导航条固定在屏幕底部，横幅抬到它上方 */
   .gnix-cookie-consent {
-    left: max(0.75rem, env(safe-area-inset-left));
-    grid-template-columns: 1fr;
-    width: auto;
-    padding: 0.875rem;
-    --cookie-consent-x: 0;
-  }
-
-  .gnix-cookie-consent__actions {
-    justify-content: stretch;
-  }
-
-  .gnix-cookie-consent__button {
-    flex: 1 1 auto;
+    bottom: calc(62px + env(safe-area-inset-bottom) + 0.75rem);
+    right: max(1rem, env(safe-area-inset-right));
+    justify-content: space-between;
   }
 }
 `;
@@ -192,10 +110,10 @@ class CookieConsent extends Component {
               } catch (_) {}
             }
 
-            function createButton(label, action, variant) {
+            function createButton(label, action) {
               var button = document.createElement("button");
               button.type = "button";
-              button.className = "gnix-cookie-consent__button" + (variant ? " gnix-cookie-consent__button--" + variant : "");
+              button.className = "gnix-cookie-consent__button";
               button.textContent = label;
               button.setAttribute("data-cookie-consent-action", action);
               return button;
@@ -222,7 +140,7 @@ class CookieConsent extends Component {
 
               var message = document.createElement("p");
               message.className = "gnix-cookie-consent__message";
-              message.appendChild(document.createTextNode("This website uses cookies to improve your experience."));
+              message.appendChild(document.createTextNode("This site uses cookies."));
 
               if (options.policyLink) {
                 var link = document.createElement("a");
@@ -235,19 +153,14 @@ class CookieConsent extends Component {
                 message.appendChild(link);
               }
 
-              var actions = document.createElement("div");
-              actions.className = "gnix-cookie-consent__actions";
-              actions.appendChild(createButton("Decline", "deny"));
-              actions.appendChild(createButton("Accept", "allow", "primary"));
-
-              actions.addEventListener("click", function(event) {
-                var button = event.target.closest("[data-cookie-consent-action]");
-                if (!button) return;
-                closeConsent(root, button.getAttribute("data-cookie-consent-action"));
+              // 还没有禁用 Cookie 的实现，所以只给一个 Accept
+              var accept = createButton("Accept", "allow");
+              accept.addEventListener("click", function() {
+                closeConsent(root, "allow");
               });
 
               root.appendChild(message);
-              root.appendChild(actions);
+              root.appendChild(accept);
               document.body.appendChild(root);
               window.requestAnimationFrame(function() {
                 root.classList.add("is-visible");

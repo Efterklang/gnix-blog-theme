@@ -4,6 +4,8 @@ const ratex = require("./mdit/ratex");
 const code = require("./mdit/shiki");
 const obsidianCallouts = require("./mdit/obsidian-callouts");
 const s3Image = require("./mdit/image");
+const table = require("./mdit/table");
+const getImageMetadata = require("./image");
 const anchor = require("markdown-it-anchor");
 const footnote = require("markdown-it-footnote");
 const footnoteTooltip = require("./mdit/footnote-tooltip");
@@ -13,28 +15,6 @@ const createTitlebasedLink = require("./mdit/titlebased-link");
 
 function resolveDefault(module) {
   return module && typeof module === "object" && "default" in module ? module.default : module;
-}
-
-function wrapMarkdownItTable(md, options = {}) {
-  const { figureClass = "table-wrapper", tableClass = "" } = options;
-
-  const defaultTableOpen = md.renderer.rules.table_open || ((tokens, idx, opts, _env, self) => self.renderToken(tokens, idx, opts));
-
-  const defaultTableClose = md.renderer.rules.table_close || ((tokens, idx, opts, _env, self) => self.renderToken(tokens, idx, opts));
-
-  md.renderer.rules.table_open = (tokens, idx, opts, env, self) => {
-    if (tableClass) {
-      tokens[idx].attrJoin("class", tableClass);
-    }
-
-    return `<figure class="${figureClass}">\n${defaultTableOpen(tokens, idx, opts, env, self)}`;
-  };
-
-  md.renderer.rules.table_close = (tokens, idx, opts, env, self) => {
-    return `${defaultTableClose(tokens, idx, opts, env, self)}\n</figure>`;
-  };
-
-  return md;
 }
 
 class MarkdownRenderer {
@@ -80,11 +60,11 @@ class MarkdownRenderer {
         .use(resolveDefault(mark))
         .use(resolveDefault(taskLists))
         .use(resolveDefault(code), this.config.code_options)
-        .use(mermaidDiagram)
+        .use(mermaidDiagram, this.config.mermaid_options)
         .use(ratex, this.config.ratex_options)
         .use(obsidianCallouts, this.config.callout_options)
-        .use(s3Image, this.config.image_options)
-        .use(wrapMarkdownItTable)
+        .use(s3Image, this.config.image_options, getImageMetadata(this.hexo))
+        .use(table)
         .use(resolveDefault(anchor), {
           permalink: resolveDefault(anchor).permalink.headerLink(),
         });
@@ -137,7 +117,8 @@ class MarkdownRenderer {
   async render(data) {
     if (!data.text) return "";
     const md = await this.getMarkdownIt();
-    return md.renderAsync(data.text);
+    // env 带上源文件路径，插件（如 mermaid 回退告警）可指出问题出自哪篇文章
+    return md.renderAsync(data.text, { path: data.path });
   }
 }
 
@@ -206,6 +187,7 @@ function renderer(data, locals) {
 renderer.compile = compile;
 
 module.exports = (hexo) => {
+  getImageMetadata(hexo);
   const titlebasedLink = createTitlebasedLink(hexo);
   const markdownConfig = hexo.config.markdown_exit || {};
   const markdownRenderer = async (data) => getMarkdownRenderer(hexo, titlebasedLink).render(data);

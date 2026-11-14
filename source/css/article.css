@@ -2,47 +2,250 @@
 
 /* #region Content */
 
-/* 文章页跟随宽度偏好（--article-max-width 由 :root[data-article-width] 决定），
-   其余页面不加载本文件，保持 default.css 的固定列宽 */
-.main-content {
-  max-width: calc(var(--article-max-width) + 3rem);
-  /* 封面图高度，满高首屏的 min-height 计算需扣除它（移动端在 responsive.css 覆写） */
-  --cover-height: 380px;
+/* 文章页版心的上内边距：首屏的高度要减掉它，所以它是一个变量 */
+:root {
+  --article-page-pad-top: clamp(1.5rem, 5svh, 3rem);
 }
 
+@media (max-width: 768px) {
+  :root {
+    --article-page-pad-top: 1rem;
+  }
+}
+
+/* 文章页不用 .main-content 的居中定宽：版心交给 .article 自己的网格，左右内边距归零 */
+.main-content:has(> .article) {
+  max-width: none;
+  padding: var(--article-page-pad-top) 0 clamp(3rem, 10svh, 6rem);
+}
+
+/* 文章页的网格：以阅读栏为中轴、左右对称的五条轨
+     index  │ gap │ text │ gap │ margin
+   - text：阅读栏，宽度随偏好（42em 起），空间不够时收窄。首屏的封面、标题、导语、规格行，正文与文末，
+     全都落在它的左右两缘之内——整页只有这一条阅读轴，首屏与正文同宽；
+   - index / margin：左右两条同宽（11rem）的边栏，让阅读栏居中；宽表格与 side note 伸进右手的 margin。
+   <1280 两条边栏收成 0：只剩 text 一栏居中，窄屏贴着版心边距 */
 .article {
-  padding: 1.25em 1.25rem 0 1.25rem;
+  font-size: var(--article-font-size);
+  --column-gap: clamp(2rem, 3vw, 3rem);
+  --margin-width: 0px;
+  --margin-gap: 0px;
+  /* 顶栏之下、首屏之上的高度；首屏因此正好一屏，折线落在它的下沿 */
+  --article-top: calc(var(--navbar-height) + env(safe-area-inset-top) + var(--article-page-pad-top));
+  --opening-height: calc(100svh - var(--article-top));
+  position: relative;
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(var(--page-margin), 1fr)
+    [wide-start index-start] var(--margin-width) [index-end] var(--margin-gap)
+    [text-start] minmax(0, var(--article-max-width)) [text-end] var(--margin-gap)
+    [margin-start] var(--margin-width) [margin-end wide-end]
+    minmax(var(--page-margin), 1fr) [full-end];
+  align-content: start;
   /* Ref: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-autospace */
   text-autospace: normal;
+
+  > * {
+    grid-column: text;
+    min-width: 0;
+  }
 }
 
-/* 文章页进场动画（仿 antfu.me 的 slide-enter，关键帧共享于 default.css）：
-   只有首屏摘要自下方 10px 上浮淡入，标题、封面与正文直接呈现——首屏即时可读，
-   LCP 不受动画影响。.gnix-revealed 由 head 内联脚本在 pagereveal（不支持时
-   内联立即）添加，保证 prerender 激活时动画从首个可见帧才开始；无 JS 时不加类，
-   摘要直接可见 */
-:root.gnix-revealed .article-hero .article-excerpt {
-  animation: slide-enter 600ms backwards;
+@media (min-width: 1280px) {
+  .article {
+    --margin-width: 11rem;
+    --margin-gap: var(--column-gap);
+  }
+}
+
+/* 入场：封面、标题、导语、规格行依次淡入上浮（0 / 80 / 160 / 260ms）；正文各块由 scroll-reveal 逐块进场。
+   .gnix-revealed 由 head 内联脚本在 pagereveal 时添加；无 JS 时不加类，全部直接可见 */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+:root.gnix-revealed .article-opening :is(.cover-image, .article-title, .article-lead, .article-dateline) {
+  animation: hero-rise 640ms var(--ease-out) backwards;
+}
+
+:root.gnix-revealed .article-opening .article-title {
+  animation-delay: 80ms;
+}
+
+:root.gnix-revealed .article-opening .article-lead {
+  animation-delay: 160ms;
+}
+
+:root.gnix-revealed .article-opening .article-dateline {
+  animation-delay: 260ms;
+}
+
+/* One entrance per body block. Pending blocks have no displacement, so long
+   articles don't gain scrollbars or shift fixed descendants before entry.
+   Backwards fill releases all transforms and stacking contexts after entry. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  #article-content > [data-scroll-reveal="pending"] {
+    opacity: 0;
+  }
+
+  #article-content > [data-scroll-reveal="visible"] {
+    animation: article-block-fade var(--scroll-reveal-duration) var(--ease-out) var(--scroll-reveal-delay, 0ms) backwards;
+  }
+
+  /* Footnote panels can be fixed to the viewport on touch. Custom components
+     may own overlays too; move only ordinary blocks without footnotes. */
+  #article-content > :is(p, h1, h2, h3, h4, h5, h6, ul, ol, dl, figure, pre, blockquote, table, hr)[data-scroll-reveal="visible"]:not(:has(.footnote-ref)) {
+    animation-name: article-block-rise;
+  }
+}
+
+@keyframes article-block-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes article-block-rise {
+  from {
+    opacity: 0;
+    translate: 0 var(--scroll-reveal-distance);
+  }
+}
+
+/* 正文入口：目录锚点只留阅读间距 */
+#article-content {
+  scroll-margin-top: 1rem;
+
+  > :first-child {
+    margin-block-start: 0;
+  }
+}
+
+.content a.wiki-link {
+  border-radius: 4px;
+  background: transparent;
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+
+  &:hover {
+    background: var(--hover-fill);
+    text-decoration-style: solid;
+    text-decoration-thickness: 1px;
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 3px;
+  }
+}
+
+.wiki-link-preview[popover] {
+  /* Match Archive previews: paper surface, article typography, muted excerpt. */
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: fit-content;
+  min-width: min(20rem, calc(100vw - 24px));
+  max-width: min(34rem, calc(100vw - 24px));
+  height: auto;
+  max-height: min(50dvh, calc(100dvh - 24px));
+  box-sizing: border-box;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0.85rem 1rem 0.9rem;
+  border: 1px solid color-mix(in oklab, var(--sub-text-color) 20%, transparent);
+  border-radius: 0;
+  background: var(--base);
+  color: var(--sub-text-color);
+  font-family: var(--article-font-family);
+  font-size: var(--article-font-size);
+  font-weight: var(--article-font-weight);
+  line-height: var(--type-paragraph-leading);
+  overflow-wrap: anywhere;
+  text-align: start;
+
+  &::before {
+    content: none;
+  }
+
+  /* 预览展示期间把正文压暗一档：摘要浮在失焦的纸面上 */
+  &::backdrop {
+    background: hsl(from var(--mantle) h s l / 0.4);
+    pointer-events: none;
+  }
+}
+
+.wiki-link-preview__title {
+  margin: 0;
+  color: var(--title-text-color);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--type-subtitle-size);
+  line-height: var(--type-subtitle-leading);
+  letter-spacing: var(--type-heading-tracking);
+  text-wrap: pretty;
+}
+
+.wiki-link-preview__excerpt {
+  margin: 0.5em 0 0;
+  color: var(--sub-text-color);
 }
 
 .content {
+  --type-body-size: var(--article-font-size);
+  --type-body-leading: var(--type-paragraph-leading);
   overflow: auto;
   overflow-wrap: break-word;
-  color: var(--subtext1);
+  color: var(--sub-text-color);
   font-size: var(--article-font-size);
   font-family: var(--article-font-family);
-  line-height: var(--article-line-height);
+  line-height: var(--type-body-leading);
   font-weight: var(--article-font-weight);
+  /* 间距只放在块上方，em 随当前文字字号缩放。
+     --flow 别名也供文章中的自定义组件使用。 */
+  --flow: var(--prose-gap);
+  --flow-media: var(--prose-gap);
+
+  :is(h1, h2, h3, h4, h5, h6) {
+    color: var(--title-text-color);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: normal;
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: var(--prose-h1-size);
+    line-height: var(--type-display-leading);
+    font-weight: var(--font-weight-bold);
+    margin-block: var(--prose-heading-gap) 0;
+  }
+
+  :is(strong, b) {
+    font-weight: var(--article-bold-font-weight);
+  }
+
+  figcaption {
+    color: var(--sub-text-color);
+    font-size: var(--type-caption-size);
+    line-height: var(--type-caption-leading);
+  }
 
   a.header-anchor {
-    color: var(--text);
+    color: var(--title-text-color);
     font-family: var(--article-font-family);
     text-decoration: none;
-    font-weight: 400;
+    font-weight: inherit;
     &::after {
       margin-left: 0.4em;
       opacity: 0;
-      color: var(--surface0);
+      color: var(--sub-text-color);
       transition: opacity 0.2s ease;
     }
 
@@ -51,56 +254,24 @@
     }
   }
 
-  sup.footnote-ref > a,
-  li.footnote-item,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    scroll-margin-top: var(--navbar-height);
-  }
-
   .footnote-ref > a,
   .footnote-backref {
     text-decoration: none;
   }
 
   h2 {
-    font-size: 1.5em;
-    margin: 1rem 0;
-    letter-spacing: -0.01em;
-    counter-increment: h2-counter;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-
-    &::before {
-      content: "";
-      order: 1;
-      flex: 1;
-      border-top: 1px dashed var(--surface0);
-    }
-
-    &::after {
-      content: counter(h2-counter, decimal-leading-zero);
-      order: 2;
-      color: var(--overlay0);
-      font-family: var(--font-serif);
-      font-style: italic;
-      letter-spacing: -0.01em;
-      font-size: 0.7em;
-      font-weight: 400;
-      font-variant-numeric: oldstyle-nums;
-      flex-shrink: 0;
-    }
+    font-size: var(--prose-h2-size);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--type-title-tracking);
+    line-height: var(--type-title-leading);
+    margin: var(--prose-heading-gap) 0 0;
   }
 
   h3 {
-    font-size: 1.25em;
-    margin: 2.25rem 0 0.75rem;
-    line-height: 1.35;
+    font-size: var(--prose-h3-size);
     letter-spacing: -0.005em;
+    margin: var(--prose-subheading-gap) 0 0;
+    line-height: var(--type-subtitle-leading);
 
     > a.header-anchor:hover::after {
       content: "###";
@@ -108,9 +279,9 @@
   }
 
   h4 {
-    font-size: 1.15em;
-    margin: 1.875rem 0 0.5rem;
-    line-height: 1.4;
+    font-size: var(--prose-h4-size);
+    margin: var(--prose-subheading-gap) 0 0;
+    line-height: var(--type-subtitle-leading);
 
     > a.header-anchor:hover::after {
       content: "####";
@@ -118,9 +289,10 @@
   }
 
   h5 {
-    font-size: 1em;
-    margin: 1.625rem 0 0.5rem;
-    line-height: 1.5;
+    font-size: var(--article-font-size);
+    font-weight: var(--font-weight-bold);
+    margin: var(--prose-subheading-gap) 0 0;
+    line-height: var(--type-subtitle-leading);
 
     > a.header-anchor:hover::after {
       content: "#####";
@@ -128,12 +300,9 @@
   }
 
   h6 {
-    font-size: 0.8125em;
-    margin: 1.625rem 0 0.5rem;
-    line-height: 1.5;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--subtext0);
+    font-size: var(--article-font-size);
+    margin: var(--prose-subheading-gap) 0 0;
+    line-height: var(--type-subtitle-leading);
 
     > a.header-anchor {
       color: inherit;
@@ -144,28 +313,72 @@
     }
   }
 
-  p,
-  ol,
-  dl,
-  pre,
-  blockquote,
-  details {
-    margin-bottom: 1.4em;
-    line-height: var(--article-line-height);
+  /* 文字、媒体和嵌入组件使用同一个段落节奏。 */
+  :where(
+      p,
+      ul,
+      ol,
+      dl,
+      details,
+      aside,
+      side-note,
+      text-image-section,
+      .footnotes,
+      figure,
+      pre,
+      .ratex-display,
+      x-tree,
+      x-chat,
+      x-info-card,
+      image-group,
+      image-carousel,
+      video-player,
+      .table-wrapper,
+      .callout,
+      .accordion,
+      .mermaid-container
+    ),
+  > :where(img, iframe, video) {
+    margin-block: var(--flow) 0;
   }
 
-  p,
-  li,
-  dd {
-    text-wrap: pretty;
+  /* 外层 figure 承担代码块间距，避免内层 pre 再叠加。 */
+  figure > pre {
+    margin-block: 0;
   }
 
-  li {
-    margin-bottom: 0.5rem;
+  :is(h1, h2, h3, h4, h5, h6) + * {
+    margin-block-start: var(--prose-heading-after);
   }
 
-  p:last-child {
-    margin-bottom: 0;
+  hr {
+    margin-block: var(--prose-divider-gap) 0;
+  }
+
+  hr + * {
+    margin-block-start: var(--prose-divider-gap);
+  }
+
+  /* 正文与扉页的距离由容器负责，首块不额外留白。 */
+  > :first-child {
+    margin-block-start: 0;
+  }
+
+  li + li {
+    margin-top: var(--prose-list-gap);
+  }
+
+  /* 松散列表中的段落沿用段落间距，嵌套列表只留一档列表项间距。 */
+  li > :where(p, figure, blockquote, details, .callout, .ratex-display) {
+    margin-block: var(--prose-gap) 0;
+  }
+
+  li > :is(ul, ol) {
+    margin-block: var(--prose-list-gap) 0;
+  }
+
+  li > :first-child {
+    margin-block-start: 0;
   }
 
   img,
@@ -173,19 +386,28 @@
   video {
     display: block;
     max-width: 100%;
-    margin: 0 auto 0.5rem auto;
+    margin-inline: auto;
 
     &:hover {
       cursor: pointer;
     }
+
+    /* 同一段落里连排的媒体 */
+    + :is(img, iframe, video) {
+      margin-top: calc(var(--spacing) * 2);
+    }
   }
+
+  /* image.js 给 figure 内联 max-width，居中靠这里 */
   figure {
+    margin-inline: auto;
     text-align: center;
   }
 
   figcaption {
-    font-style: italic;
-    font-family: var(--font-serif);
+    margin-block: var(--prose-caption-gap) 0;
+    color: var(--sub-text-color);
+    font-style: normal;
   }
 
   button.physical-btn,
@@ -194,21 +416,21 @@
     padding: 0 0.3em;
     margin: 0 0.3em;
     font-family: var(--font-mono);
-    font-size: 0.85em;
-    color: var(--subtext0);
+    font-size: max(var(--type-caption-size), 0.875em);
+    color: var(--sub-text-color);
     background: linear-gradient(180deg, var(--base) 0%, var(--mantle) 100%);
     border: 1px solid var(--surface0);
     border-bottom-width: 3px;
     border-bottom-color: var(--surface0);
     border-radius: 6px;
     position: relative;
-    top: -3px;
-    transition:
-      top 0.1s ease,
-      border-bottom-width 0.1s ease;
+    /* 键帽行程走 transform 不动布局；按下 60ms 快于回弹 120ms */
+    transform: translateY(-3px);
+    transition: transform 120ms var(--ease-out);
 
     &:active {
-      top: 0;
+      transform: translateY(0);
+      transition-duration: 60ms;
     }
   }
 
@@ -225,10 +447,8 @@
   ul {
     list-style: disc outside;
     padding-left: 2em;
-    margin: 1em 0;
 
     ul {
-      margin-top: 0.5em;
       list-style: circle;
 
       ul {
@@ -243,13 +463,13 @@
 
   math {
     overflow: auto;
-    margin-bottom: 1rem;
+    margin-bottom: calc(var(--spacing) * 4);
   }
 
   .ratex {
     max-width: 100%;
     line-height: 0;
-    color: var(--text);
+    color: var(--sub-text-color);
 
     svg {
       display: block;
@@ -294,7 +514,6 @@
     justify-content: center;
     width: 100%;
     max-width: 100%;
-    margin: 1.5rem 0;
     overflow-x: auto;
     overflow-y: hidden;
 
@@ -308,23 +527,26 @@
 
   pre {
     overflow-x: auto;
-    font-size: 0.85em;
+    font-size: max(var(--type-caption-size), 0.875em);
     padding: 1rem;
-    margin: 0 0 1rem 0;
     white-space: pre;
     overflow-wrap: normal;
-    line-height: 1.45;
+    line-height: var(--type-ui-leading);
   }
 
+  /* 行内代码：一枚无描边的浅色小片，靠底色与正文区分 */
   code {
-    font-size: 0.85em;
+    font-size: max(var(--type-caption-size), 0.875em);
     font-family: var(--font-mono);
-    padding: 0 0.25em;
-    margin: 0 0.2em;
-    background-color: var(--base);
-    color: var(--subtext1);
-    border: 1px solid var(--surface0);
+    padding: 0.1em 0.35em;
+    margin: 0 0.15em;
+    background-color: color-mix(in oklab, var(--title-text-color) 5%, transparent);
+    color: var(--sub-text-color);
     border-radius: 4px;
+  }
+
+  pre code {
+    font-size: inherit;
   }
 
   sub,
@@ -342,22 +564,20 @@
     text-decoration: underline;
     text-underline-offset: 3.5px;
     text-decoration-thickness: 1px;
-    text-decoration-color: hsl(from var(--lavender) h s l / 0.8);
-    color: var(--text);
+    text-decoration-color: color-mix(in oklab, currentColor 55%, transparent);
+    color: var(--title-text-color);
     &:hover {
-      text-decoration-color: var(--blue);
-      text-decoration-thickness: 2px;
+      text-decoration-color: currentColor;
     }
   }
 
   aside {
     display: block;
-    margin: 1.5rem 0;
     padding: 0.4rem 0 0.4rem 1rem;
-    color: var(--subtext0);
+    color: var(--sub-text-color);
     font-size: 0.875em;
     line-height: 1.55;
-    border-left: 2px solid var(--surface1);
+    border-left: 1px solid var(--rule);
 
     > :first-child {
       margin-top: 0;
@@ -373,128 +593,170 @@
   font-size: 0.9em;
 }
 
+/* 脚注前的分隔线：正文里的 hr 是墨线，这一条退成表格的行线（浅灰），上面留足、下面留少 */
+.footnotes-sep {
+  margin: calc(var(--spacing) * 12) 0 calc(var(--spacing) * 6);
+  border-top-color: var(--rule);
+}
+
+/* Keep the rendered content beside its reference for reading order. The native
+   popover lifts it out of article overflow, transforms and stacking contexts. */
 .footnote-ref .footnote-tooltip {
   display: none;
 }
 
-sup.footnote-ref.is-footnote-tooltip-open {
-  position: relative;
-}
-
-sup.footnote-ref.is-footnote-tooltip-open .footnote-tooltip {
-  display: block;
+.footnote-tooltip[popover] {
   position: fixed;
-  right: 1rem;
-  bottom: calc(1rem + env(safe-area-inset-bottom));
-  left: 1rem;
+  inset: auto 1rem calc(1rem + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  width: auto;
+  height: auto;
   max-height: min(52dvh, 22rem);
+  margin: 0;
   overflow: auto;
+  overscroll-behavior: contain;
+  overflow-wrap: anywhere;
   padding: 0.75rem 0.9rem;
-  border: 1px solid var(--surface0);
-  border-radius: 0.75rem;
-  background: var(--mantle);
-  box-shadow: 0 12px 36px hsl(from var(--crust) h s l / 0.5);
-  color: var(--subtext1);
-  font-size: 0.9rem;
-  font-style: normal;
-  font-weight: var(--article-font-weight);
+  border: none;
+  border-radius: var(--radius);
+  background: var(--base);
+  box-shadow:
+    0 0 0 1px var(--surface0),
+    0 6px 20px rgb(0 0 0 / 0.12);
+  color: var(--sub-text-color);
+  font-family: var(--article-font-family);
+  font-size: var(--type-caption-size);
   line-height: 1.65;
-  text-align: left;
+  text-align: start;
   white-space: normal;
-  pointer-events: auto;
-  z-index: 1000;
-}
 
-/* Hover preview for footnote refs; content is injected at build time by
-   include/hexo/mdit/footnote-tooltip.js. Hover-capable pointers only —
-   on touch, simulated hover would eat the first tap on the ref link. */
-@media (hover: hover) and (pointer: fine) {
-  sup.footnote-ref {
-    position: relative;
+  &:popover-open {
+    display: block;
+  }
 
-    .footnote-tooltip {
-      display: block;
-      position: absolute;
-      bottom: calc(100% + 0.4em);
-      left: 50%;
-      /* --footnote-tooltip-shift 由 main.js 在 hover 时测量设置，
-         防止靠近 .content（overflow: auto）两端时被裁剪 */
-      transform: translateX(calc(-50% + var(--footnote-tooltip-shift, 0px))) translateY(0.25em);
-      width: max-content;
-      max-width: min(24rem, 70vw);
-      padding: 0.6em 0.85em;
-      border: 1px solid var(--surface0);
-      border-radius: 0.5em;
-      background: var(--mantle);
-      box-shadow: 0 8px 24px hsl(from var(--crust) h s l / 0.5);
-      color: var(--subtext1);
-      font-size: 0.8rem;
-      font-style: normal;
-      font-weight: var(--article-font-weight);
-      line-height: 1.6;
-      text-align: left;
-      white-space: normal;
-      opacity: 0;
-      visibility: hidden;
-      transition:
-        opacity 0.15s ease,
-        transform 0.15s ease,
-        visibility 0.15s;
-      pointer-events: none;
-      z-index: 10;
+  /* Footnotes are small previews, without the global popover's page backdrop. */
+  &::before {
+    content: none;
+  }
 
-      /* invisible bridge across the gap so hover survives the mouse travel */
-      &::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        height: 0.5em;
-      }
-    }
-
-    &:hover .footnote-tooltip,
-    &:focus-within .footnote-tooltip {
-      opacity: 1;
-      visibility: visible;
-      transform: translateX(calc(-50% + var(--footnote-tooltip-shift, 0px))) translateY(0);
-      pointer-events: auto;
-    }
+  &::backdrop {
+    background: transparent;
+    pointer-events: none;
   }
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .footnote-tooltip[popover] {
+    /* article.js supplies viewport coordinates; geometry is never animated. */
+    inset: auto;
+    width: max-content;
+    max-width: min(24rem, calc(100vw - 24px));
+    max-height: calc(100dvh - 24px);
+    padding: 0.65rem 0.85rem;
+    line-height: 1.6;
+  }
+}
+
+/* 表格：不画外框、底纹与悬停高亮，只留几条横向细线——表头下一条、行与行之间一条；
+   首末列贴齐正文的左右边缘，表格读起来像排好的文字，而不是页面上的一个盒子。
+   表头是等宽小写字母标签，与文章信息、归档的标签同一套 */
 .table-wrapper {
+  box-sizing: border-box;
   max-width: 100%;
-  margin: 1.5em 0;
-  overflow-x: auto;
+
+  > .table-caption {
+    /* 只由表格决定外层的固有宽度，长表题按最终可见宽度换行。 */
+    contain: inline-size;
+    margin: 0 0 calc(var(--spacing) * 2);
+    color: var(--sub-text-color);
+    font-family: var(--article-font-family);
+    font-size: 0.875em;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.6;
+    text-align: center;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+
+  > .table-scroll {
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--overlay0) transparent;
+
+    &:focus-visible {
+      outline: var(--focus-ring);
+      outline-offset: 4px;
+    }
+  }
 
   table {
-    min-width: max-content;
     width: 100%;
-    border-collapse: collapse;
-    border-spacing: 0;
-    overflow: auto;
-    margin: 1rem 0;
+    font-size: 0.9375em;
+    line-height: 1.6;
   }
+}
+
+/* 正文仍建立 BFC，但不裁切宽表格；仅顶层表格可以变宽——左缘钉在阅读轴上，只向右手的边栏伸
+   （≥1280 最宽到边栏外缘），不越过左侧工具栏。列表、引用和组件里的表格继续遵循各自容器。窄表保留正文宽度 */
+@media screen and (min-width: 769px) {
+  #article-content {
+    overflow: visible;
+  }
+
+  #article-content > .table-wrapper {
+    width: max-content;
+    min-width: 100%;
+    max-width: calc(100% + var(--margin-gap, 0px) + var(--margin-width, 0px));
+  }
+}
+
+/* 组件内与无 wrapper 的表格沿用同一套线条 */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  text-align: start;
 }
 
 td,
 th {
-  vertical-align: middle;
-  padding: 0.75em 1em;
+  padding: 0.7em 1em;
+  vertical-align: top;
+  white-space: normal;
+  overflow-wrap: anywhere;
+
   &:not([align]) {
     text-align: left;
+  }
+
+  &:first-child {
+    padding-inline-start: 0;
+  }
+
+  &:last-child {
+    padding-inline-end: 0;
+  }
+
+  code {
+    white-space: nowrap;
   }
 }
 
 thead th {
-  font-weight: 700;
-  border-bottom: 1px solid var(--surface0);
-  padding: 1em;
+  padding-block: 0.4em 0.7em;
+  color: var(--sub-text-color);
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--surface1);
 }
 
-tbody tr td {
+tbody td {
   border-bottom: 1px solid var(--surface0);
 }
 
@@ -504,23 +766,55 @@ tbody tr:last-child td {
 
 blockquote {
   position: relative;
-  padding: 0.25rem 0 0.25rem 1.75rem;
-  margin: 1.75rem 0;
-  border-left: 2px solid var(--surface1);
-  font-family: Georgia, Kai, var(--font-serif);
-  font-style: italic;
-  font-synthesis: none;
-  color: var(--subtext0);
+  margin: var(--flow-media, calc(16em / 14)) 0 0;
+  padding: 0 0 0 2rem;
+  color: var(--sub-text-color);
+  font-family: inherit;
+  font-size: 0.8em;
+  font-style: normal;
+
+  &::before {
+    content: "\201C";
+    position: absolute;
+    top: -0.12em;
+    left: -0.05em;
+    color: color-mix(in oklab, var(--sub-text-color) 40%, transparent);
+    font-family: var(--article-font-family);
+    font-size: 2.6em;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  blockquote {
+    padding-left: 1.25rem;
+    font-size: 1em;
+
+    &::before {
+      content: none;
+    }
+  }
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
 
   cite {
     display: block;
-    text-align: right;
-    margin-top: 0.75em;
-    color: var(--overlay1);
+    margin-top: 0.875em;
+    color: var(--sub-text-color);
+    font-family: var(--font-mono);
+    font-size: 0.75em;
     font-style: normal;
-    font-family: var(--font-sans-serif);
-    font-size: 0.8125em;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
+
+    &::before {
+      content: "\2014\00a0";
+    }
   }
 }
 
@@ -557,25 +851,159 @@ input.task-list-item-checkbox {
     top: 50%;
     left: 40%;
     transform: translate(-50%, -50%);
-    font-size: 0.9rem;
-    font-weight: 700;
+    font-size: var(--type-ui-size);
+    font-weight: var(--font-weight-semibold);
   }
 }
 
-.medium-zoom-overlay {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: 150;
+img[data-zoomable="true"] {
+  &,
+  &:hover {
+    cursor: zoom-in;
+  }
+
+  &:focus-visible {
+    /* 渐进图片的 wrapper 会裁切，焦点环留在图内。 */
+    outline-offset: -3px;
+  }
 }
 
-.medium-zoom-image--opened {
-  z-index: 151;
+.image-zoom {
   position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: max(1.5rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  border: 0;
+  background: transparent;
+  color: var(--sub-text-color);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  cursor: zoom-out;
+
+  &[open] {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 1rem;
+  }
+
+  &::backdrop {
+    background: color-mix(in oklab, var(--mantle) 90%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+.image-zoom-stage {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+}
+
+.image-zoom-image {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transform-origin: top left;
+}
+
+.image-zoom-toolbar {
+  display: flex;
+  align-items: center;
+  justify-self: center;
+  gap: 0.25rem;
+  padding: 0.375rem;
+  max-width: 100%;
+  box-sizing: border-box;
+  cursor: default;
+  direction: ltr;
+}
+
+.image-zoom-button {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--title-text-color);
+  cursor: pointer;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  &[aria-disabled="true"] {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) {
+    &:hover:not([aria-disabled="true"]) {
+      background: var(--hover-fill);
+    }
+  }
+}
+
+.image-zoom-close {
+  margin-inline-start: 0.5rem;
+  background: var(--hover-fill);
+}
+
+.image-zoom-counter {
+  min-width: 5ch;
+  padding-inline: 0.375rem;
+  font: var(--font-weight-semibold) 0.8125rem / 1.5 var(--font-sans-serif);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .image-zoom::backdrop,
+  .image-zoom-toolbar {
+    transition: opacity 200ms ease-out;
+  }
+
+  .image-zoom.is-closing::backdrop,
+  .image-zoom.is-closing .image-zoom-toolbar {
+    opacity: 0;
+  }
+
+  .image-zoom-button {
+    transition:
+      scale 150ms var(--ease-out),
+      background-color 150ms ease;
+
+    &:active:not([aria-disabled="true"]) {
+      scale: 0.96;
+    }
+  }
+}
+
+@starting-style {
+  .image-zoom[open]::backdrop {
+    opacity: 0;
+  }
 }
 
 .heimu {
-  color: var(--text);
-  background-color: var(--text);
+  color: var(--title-text-color);
+  background-color: var(--title-text-color);
   &:hover {
     color: var(--base);
   }
@@ -587,143 +1015,560 @@ a strong {
 
 /* #endregion Content */
 
-/* #region Article Meta*/
+/* #region Article Meta */
 
-.article-title {
-  font-family: var(--article-font-family);
-  font-size: 1.75em;
-  font-weight: 100;
-  line-height: 1.2;
-  margin-bottom: 0.3em;
-  text-wrap: balance;
+/* 首屏：铺满一屏，内容在屏内垂直居中，底边一条细线把首屏与正文分开。
+   ≥1024 是 12 栏网格：
+     有封面 6 : 6 —— 左边标题、导语、规格行（三格一排，上有细线），右边 16:10 封面；
+     无封面 8 : 4 —— 左边大号标题与带左线的导语，右边一张规格表（左边一条竖线隔开）。
+   <1024 单栏：标题、导语、规格行，封面排在最后 */
+.article-opening {
+  grid-column: full;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+  align-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: calc(96rem + 2 * var(--page-margin));
+  min-height: var(--opening-height);
+  justify-self: center;
+  padding: clamp(2rem, 5svh, 3.5rem) var(--page-margin);
+  border-bottom: 0.5px solid var(--archive-hairline, color-mix(in oklab, var(--sub-text-color) 18%, transparent));
+  text-align: start;
 
-  > a {
-    color: var(--text);
+  :is(h1, p, dl, figure) {
+    margin: 0;
   }
 }
 
-.meta-separator {
-  color: var(--overlay0);
-}
-
-/* 文章首屏：居中标题与摘要，底部一行小字（标签 / 版记+跳转箭头 / comments·info） */
-.article-hero {
+.article-opening__main {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
-  padding: 2rem 0 1.25rem;
+  gap: 2rem;
+  min-width: 0;
 }
 
-/* 文章页满高首屏：100dvh 扣去 navbar 与 main-content(3rem)/article(1.25em) 顶部内边距 */
-.article-hero-full {
-  min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 4.25rem);
-  padding: 0 0 1.5rem;
+.article-opening__side {
+  min-width: 0;
 }
 
-/* 封面文章的满高首屏再扣去封面高度，article-hero-meta 仍收在首屏底部 */
-.article-hero-with-cover {
-  min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top) - 4.25rem - var(--cover-height));
+@media (min-width: 1024px) {
+  .article-opening {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 4rem;
+    align-items: center;
+  }
+
+  .article-opening__main {
+    grid-column: 1 / span 6;
+  }
+
+  .article-opening__side {
+    grid-column: 7 / span 6;
+  }
+
+  .article--plain .article-opening {
+    align-items: start;
+  }
+
+  .article--plain .article-opening__main {
+    grid-column: 1 / span 8;
+    gap: 2.5rem;
+  }
+
+  .article--plain .article-opening__side {
+    grid-column: 9 / span 4;
+    padding-left: 2.5rem;
+    border-left: 0.5px solid var(--archive-hairline, color-mix(in oklab, var(--sub-text-color) 18%, transparent));
+  }
 }
 
-.article-hero-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  gap: 1.5rem;
+/* 封面：16:10 裁切铺满右半 */
+.article-opening .cover-image {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  border-radius: 0;
+  background: var(--hover-fill);
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+  }
 }
 
-.article-hero .article-title {
-  margin-bottom: 0;
-}
-
-/* 封面已占去 380px，标题维持常规字号以免把 meta 挤出首屏 */
-.article-hero-full:not(.article-hero-with-cover) .article-title {
-  font-size: clamp(2.9rem, 2.5rem + 2vw, 3.5rem);
-}
-
-.article-hero .article-excerpt {
-  max-width: 36em;
-  line-height: 1.9;
-  text-wrap: pretty;
-}
-
-.article-hero-meta {
+/* 规格行（有封面）：三格一排，上方一条细线。标签款小字在上、等宽取值在下 */
+.article-dateline {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 0.5px solid var(--archive-hairline, color-mix(in oklab, var(--sub-text-color) 18%, transparent));
+}
+
+.article-dateline__item {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.article-dateline__label {
+  color: color-mix(in oklab, var(--sub-text-color) 75%, transparent);
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.article-dateline__value {
+  margin: 0;
+  color: var(--title-text-color);
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--subtext0);
+  font-size: var(--type-caption-size);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+/* 规格表（无封面）：顶上一个 Metadata 小标，下面一项一行，标签靠左、取值靠右，行间浅线 */
+.article-opening__sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .article-dateline {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .article-dateline__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 0.5px solid var(--archive-border-subtle, color-mix(in oklab, var(--sub-text-color) 12%, transparent));
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  .article-dateline__value {
+    text-align: right;
+  }
+
+  .article-dateline__tags {
+    justify-content: flex-end;
+  }
+}
+
+.article-opening__sheet-label {
+  padding-bottom: 0.5rem;
+  border-bottom: 0.5px solid var(--archive-hairline, color-mix(in oklab, var(--sub-text-color) 18%, transparent));
+  color: color-mix(in oklab, var(--sub-text-color) 65%, transparent);
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* 标签：最多显示 3 个，其余折进「+N」，点开就地展开 */
+.article-dateline__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.1rem 0.6rem;
 
   a {
     color: inherit;
     text-decoration: none;
+    transition: color 120ms ease;
 
     &:hover {
-      color: var(--text);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.2em;
+    }
+
+    &:focus-visible {
+      outline: var(--focus-ring);
+      outline-offset: 2px;
     }
   }
 }
 
-em,
-.article-excerpt,
-.footnotes {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-synthesis: none;
+.article-dateline__more {
+  display: contents;
+
+  > summary {
+    list-style: none;
+    color: color-mix(in oklab, var(--sub-text-color) 75%, transparent);
+    cursor: pointer;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &:hover {
+      color: var(--title-text-color);
+    }
+  }
+
+  &[open] > summary {
+    display: none;
+  }
 }
 
-.article-tags {
+/* 标题：粗黑大字。有封面一档，无封面（标题独占左边 8 栏）大一档、更紧；长标题各降一档 */
+.article-title {
+  color: var(--title-text-color);
+  font-family: var(--article-font-family);
+  font-size: var(--type-display-size);
+  font-weight: 800;
+  line-height: var(--type-display-leading);
+  letter-spacing: var(--type-display-tracking);
+  text-wrap: balance;
+}
+
+.article--plain .article-title {
+  font-size: var(--type-hero-size);
+}
+
+.article--long-title .article-title {
+  font-size: clamp(var(--type-title-size), 1.2rem + 2vw, 3rem);
+  line-height: var(--type-title-leading);
+}
+
+.article--plain.article--long-title .article-title {
+  font-size: var(--type-display-size);
+}
+
+/* 中日韩字是满格的方块：负字距与过紧的行距会让字面相撞 */
+.article-title:lang(zh),
+.article-title:lang(ja),
+.article-title:lang(ko) {
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+}
+
+/* 导语：与正文同字号，靠颜色和留白与标题区分。 */
+.article-lead {
+  max-width: 65ch;
+  color: var(--sub-text-color);
+  font-family: var(--article-font-family);
+  font-size: var(--article-font-size);
+  line-height: var(--type-paragraph-leading);
+  text-wrap: pretty;
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+.article--plain .article-lead {
+  max-width: 65ch;
+}
+
+/* 正文：从下一屏开始，顶上留一段空白 */
+.article > #article-content {
+  padding-block-start: clamp(2.5rem, 8svh, 5rem);
+}
+
+/* 独立页面（友链、更新日志…）：没有「首屏」，标题与导语紧凑地排在阅读轴的顶上，正文紧随其后 */
+.article--page {
+  .article-opening {
+    grid-column: text;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: clamp(1rem, 4svh, 2.5rem) 0 0;
+    border-bottom: 0;
+  }
+
+  .article-title {
+    font-size: clamp(2rem, 1.25rem + 2vw, 3.25rem);
+  }
+
+  > #article-content {
+    padding-block-start: clamp(2rem, 6svh, 3.5rem);
+  }
+}
+
+.meta-separator {
+  color: var(--sub-text-color);
+  margin-inline: 0.5em;
+}
+
+/* 文末：一条收尾线、轻量致谢与回顶按钮，然后是主归档入口与讨论入口。
+   所有元素与正文同宽；用字号、位置和留白区分主次。 */
+.article-end {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+  margin-block-start: clamp(4rem, 8svh, 6rem);
+  padding-block-start: 1rem;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-sans-serif);
+}
+
+.article-end__closing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+}
+
+.article-end__thanks {
+  margin: 0;
+  color: var(--sub-text-color);
+  font-size: var(--type-ui-size);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--type-body-leading);
+}
+
+/* 返回归档占据完整的一行，文字与箭头分别落在阅读栏的左右两缘。 */
+.article-end__archive {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 0.2rem;
-}
+  justify-content: space-between;
+  gap: 1.5rem;
+  min-width: 0;
+  min-height: 3.5rem;
+  padding-block: 0.5rem;
+  color: var(--title-text-color);
+  font-family: var(--article-font-family);
+  font-size: var(--type-title-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--type-title-leading);
+  letter-spacing: var(--type-title-tracking);
+  text-decoration: none;
+  transition: color 120ms ease;
 
-.article-colophon {
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
+  span {
+    overflow-wrap: break-word;
+    text-wrap: balance;
+  }
 
-.article-hero-arrow {
-  display: inline-flex;
-  padding: 0.25em;
-  color: var(--subtext0);
-
-  > svg {
-    width: 1.5rem;
-    height: 1.5rem;
+  svg {
+    flex: none;
   }
 
   &:hover {
-    color: var(--green);
+    color: var(--sub-text-color);
   }
 }
 
-.article-hero-actions {
+.article-end__actions {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
 
-  button {
-    padding: 0;
+.article-end__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sub-text-color);
+  font-family: var(--font-sans-serif);
+  font-size: var(--type-caption-size);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--type-caption-leading);
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 120ms ease;
+
+  svg {
+    flex: none;
+  }
+
+  &:hover {
+    color: var(--title-text-color);
+  }
+}
+
+.article-end :is(a, button):focus-visible {
+  border-radius: 2px;
+  outline: 2px solid var(--title-text-color);
+  outline-offset: 4px;
+}
+
+@media (pointer: coarse) {
+  .article-end__action {
+    min-height: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-end :is(a, button) {
+    transition: none;
+  }
+}
+
+/* #endregion Article Meta */
+
+/* #region Article panel
+   目录 #article-panel。<1280：顶栏语境钮弹出的卡片（面、投影、开合动效与手机端的通栏样式见 default.css 的 .popup-card），
+   桌面上落在站名下方左缘；≥1280：常驻在左栏，不是卡片——没有底色、圆角与投影，随页面吸顶 */
+.article-panel {
+  --popup-inset: var(--popup-top) auto auto var(--page-margin);
+  --popup-width: min(23rem, calc(100vw - 2 * var(--page-margin)));
+}
+
+.article-panel:popover-open {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+@media (max-width: 1023px) {
+  .article-panel {
+    --popup-inset: var(--popup-top) auto auto 1rem;
+    --popup-width: min(23rem, calc(100vw - 2rem));
+  }
+}
+
+.article-panel__label {
+  flex: none;
+  padding: 0.75rem 0.875rem 0.625rem;
+  color: var(--title-text-color);
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+}
+
+/* 内容长了在自己里面滚动，不带出页面 */
+.article-panel__page {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--overlay0) transparent;
+}
+
+/* 常驻：index 栏里、正文同一行起，吸顶。关闭态的 UA display:none 在这里被覆盖 */
+@media (min-width: 1280px) {
+  .article-panel,
+  .article-panel:popover-open {
+    position: sticky;
+    inset: auto;
+    top: calc(var(--navbar-height) + env(safe-area-inset-top) + 1.5rem);
+    /* 从页边距一直伸到阅读栏左侧的栏距，比 11rem 的 index 栏宽，长节名少折行 */
+    grid-column: full-start / index-end;
+    grid-row: 2 / span 2;
+    padding-left: var(--page-margin);
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    width: auto;
+    z-index: auto;
+    max-height: calc(100svh - var(--navbar-height) - env(safe-area-inset-top) - 3rem);
+    margin-top: clamp(2.5rem, 8svh, 5rem);
+    padding-block: 0;
+    padding-right: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
     background: none;
-    border: none;
-    cursor: pointer;
-    font: inherit;
-    letter-spacing: 0.05em;
-    color: inherit;
+    box-shadow: none;
+    translate: none;
+    opacity: 1;
+    transition: none;
+  }
+
+  /* 顶栏语境钮可以把常驻目录收起（article.js 记在 localStorage） */
+  .article-panel[data-collapsed] {
+    display: none;
+  }
+
+  .article-panel__label {
+    padding: 0 0.875rem 0.75rem;
+    color: color-mix(in oklab, var(--sub-text-color) 75%, transparent);
+  }
+}
+
+/* 目录：不编号，层级只靠缩进——每深一层，节名向右缩一档，字小一号。
+   状态只靠字色：静息浅灰、悬停灰、当前小节墨色 */
+.article-toc {
+  --toc-indent: 0.875rem;
+
+  .toc,
+  .toc-child {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toc-child {
+    padding-inline-start: var(--toc-indent);
+  }
+
+  .toc-link {
+    display: block;
+    padding: 0.5rem 0.875rem;
+    border-radius: var(--radius-sm);
+    color: color-mix(in oklab, var(--sub-text-color) 60%, transparent);
+    font-family: var(--font-sans-serif);
+    font-size: var(--type-ui-size);
+    line-height: 1.4;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    transition: color 160ms ease;
 
     &:hover {
-      color: var(--text);
+      color: var(--sub-text-color);
+    }
+
+    &.is-current {
+      color: var(--title-text-color);
+    }
+
+    &:focus-visible {
+      outline: var(--focus-ring);
+      outline-offset: -2px;
     }
   }
+
+  .toc-child .toc-link {
+    padding-block: 0.35rem;
+    font-size: var(--type-caption-size);
+  }
+}
+
+/* #endregion Article panel */
+
+/* #region Popovers & cover */
+
+em {
+  font-style: italic;
+  font-synthesis: none;
 }
 
 .article-popover {
@@ -748,51 +1593,68 @@ em,
   overflow-y: auto;
 }
 
-/* 印刷目录风格：右对齐标签 + 冒号、左对齐值，直接渲染在遮罩上 */
-.article-info-list {
-  margin: 0;
-  padding: 0.25rem;
-  display: grid;
-  grid-template-columns: max-content minmax(0, 26rem);
-  gap: 0.625rem 1.25rem;
-  align-items: baseline;
-  font-family: var(--font-mono);
-  font-size: 0.8125rem;
-  line-height: 1.6;
+.article-comment-popover-body {
+  display: flex;
+  flex-direction: column;
+  width: min(42rem, calc(100vw - 2rem));
+  max-width: 100%;
+  max-height: min(84dvh, 52rem);
+  padding: 0;
+  overflow: hidden;
+  background: var(--base);
+  border: 0.5px solid var(--edge-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
 
-  dt {
-    text-align: right;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+.article-comment-header {
+  display: flex;
+  flex: none;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--rule);
 
-    &::after {
-      content: ":";
-    }
+  h2 {
+    margin: 0;
+    color: var(--title-text-color);
+    font: var(--type-subtitle-font);
+    letter-spacing: var(--type-heading-tracking);
   }
 
-  dd {
-    margin: 0;
-    word-break: break-word;
-
-    a {
-      color: var(--lavender);
-      text-decoration: none;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
+  p {
+    margin: 0.375rem 0 0;
+    color: var(--sub-text-color);
+    font: var(--type-ui-spaced-font);
+    text-wrap: pretty;
   }
 }
 
-.article-comment-popover-body {
-  width: min(920px, 92vw);
-  max-height: min(72vh, 760px);
-  border-radius: 16px;
-  background: hsl(from var(--mantle) h s l / 0.7);
-  box-shadow:
-    0 20px 60px -15px rgba(0, 0, 0, 0.3),
-    0 0 0 1px var(--surface0);
+.article-comment-close {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: -0.25rem -0.5rem 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--sub-text-color);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--title-text-color);
+    background: var(--hover-fill);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--title-text-color);
+    outline-offset: 2px;
+  }
 }
 
 .article-comment-panel#comments {
@@ -800,21 +1662,74 @@ em,
 }
 
 .article-comment-panel {
-  padding: 1.25rem;
+  min-height: 0;
+  padding: 1.25rem 1.5rem 1.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  font: var(--type-body-font);
 
   .twikoo {
     margin: 0;
   }
 }
 
-/* #endregion Article Meta */
+.article-comment-panel::-webkit-scrollbar {
+  display: block;
+  width: 0.375rem;
+}
+
+.article-comment-panel::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--edge-color);
+}
+
+.comment-load-status {
+  display: grid;
+  justify-items: start;
+  align-content: center;
+  gap: 1rem;
+  min-height: 14rem;
+  color: var(--sub-text-color);
+  font: var(--type-ui-spaced-font);
+
+  &[hidden] {
+    display: none;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  &[data-state="error"] p {
+    color: var(--red);
+  }
+}
+
+.comment-load-retry {
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--edge-color);
+  border-radius: var(--radius-sm);
+  background: var(--base);
+  color: var(--title-text-color);
+  font: var(--type-ui-font);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--hover-fill);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--title-text-color);
+    outline-offset: 2px;
+  }
+}
 
 .cover-image {
   position: relative;
   display: block;
   overflow: hidden;
-  height: var(--cover-height);
-  border-radius: var(--radius);
 
   img {
     display: block;
@@ -850,7 +1765,7 @@ em,
   padding: 1rem;
   border: none;
   border-radius: 0;
-  color: var(--text);
+  color: var(--sub-text-color);
   overflow: auto;
 
   /* 遮罩底色 + blur 放在独立 fixed 伪层：popover 内容滚动/重绘（如 Twikoo
@@ -870,108 +1785,33 @@ em,
   }
 
   &.article-comment-popover .article-popover-body {
-    width: min(920px, 92vw);
-    max-width: min(920px, 92vw);
+    width: min(42rem, calc(100vw - 2rem));
+    max-width: min(42rem, calc(100vw - 2rem));
   }
 }
 
-/* #region TOC */
+/* 评论采用纸色遮罩，表单和列表重绘时无需重算全屏背景模糊。 */
+:popover-open.article-comment-popover::before {
+  background: color-mix(in oklab, var(--mantle) 88%, transparent);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
 
-.toc-button {
-  position: fixed;
-  bottom: 3rem;
-  right: clamp(1rem, 3vw, 3rem);
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  background-color: var(--base);
-  border: 2px solid var(--surface0);
-  cursor: pointer;
-  transition: opacity 0.3s ease;
-
-  > span {
-    background-color: hsl(from var(--text) h s l / 0.5);
-    height: 2px;
-    left: calc(50% - 8px);
-    position: absolute;
-    width: 1rem;
-
-    &:nth-child(1) {
-      top: calc(50% - 6px);
-    }
-
-    &:nth-child(2) {
-      width: 0.75rem;
-      top: calc(50% - 1px);
-    }
-
-    &:nth-child(3) {
-      top: calc(50% + 4px);
-    }
+@media (prefers-reduced-transparency: reduce) {
+  :popover-open.article-comment-popover::before {
+    background: var(--mantle);
   }
 }
 
-/* 满高首屏页在 JS 可用（gnix-revealed 由 head 内联脚本添加）时先隐藏 TOC 按钮，
-   滚过首屏后由 IntersectionObserver 给 .toc-container 加 .toc-visible 点亮；
-   无 JS 时不加 gnix-revealed，按钮始终可见 */
-:root.gnix-revealed:has(.article-hero-full) .toc-container:not(.toc-visible) .toc-button {
-  opacity: 0;
-  pointer-events: none;
-}
-
-:popover-open.toc-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-}
-
-#toc {
-  .toc {
-    max-height: clamp(22rem, 72dvh, 80dvh);
-    width: clamp(18rem, 86vw, 40rem);
-    overflow-y: auto;
-    padding: 0;
-    list-style: none;
-    font-family: var(--font-sans-serif);
-    font-weight: lighter;
+@media (max-width: 640px) {
+  .article-comment-header {
+    padding: 1rem 1.25rem;
   }
 
-  .toc-item {
-    margin-bottom: clamp(0.35rem, 0.28rem + 0.18vw, 0.5rem);
-  }
-
-  .toc-child {
-    padding-left: clamp(1rem, 0.82rem + 0.7vw, 1.5rem);
-    list-style: none;
-  }
-
-  .toc-text {
-    display: inline;
-    color: var(--subtext0);
-
-    .toc-level-2 & {
-      color: var(--text);
-      font-size: clamp(1.25rem, 1.02rem + 0.84vw, 1.8rem);
-    }
-    .toc-level-3 & {
-      color: var(--subtext1);
-      font-size: clamp(1.15rem, 1.01rem + 0.54vw, 1.5rem);
-    }
-    .toc-level-4 & {
-      font-size: clamp(1rem, 0.91rem + 0.36vw, 1.25rem);
-    }
-    .toc-level-5 & {
-      font-size: clamp(0.9rem, 0.86rem + 0.16vw, 1rem);
-    }
-    .toc-level-6 & {
-      font-size: clamp(0.8rem, 0.76rem + 0.16vw, 0.875rem);
-    }
-    &:hover {
-      color: var(--mauve);
-    }
+  .article-comment-close {
+    width: 2.75rem;
+    height: 2.75rem;
   }
 }
 
-/* #endregion TOC */
+/* #endregion Popovers & cover */

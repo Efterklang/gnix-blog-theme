@@ -17,7 +17,7 @@
  * - width: Image width (default: 300px)
  * - left: Put image on left (default: image on right)
  * - font-family: Text font family
- * - font-size: Text font size (default: 0.8rem)
+ * - font-size: Text font size (default: inherited article size)
  * - color: Text color
  */
 
@@ -36,11 +36,16 @@ class TextImageSection extends HTMLElement {
   }
 
   initZoom() {
-    // main.js 的委托监听会处理点击，这里只需打上标记
+    // article.js 委托处理点击与键盘；组件可能在文章初始化后才渲染。
     const img = this.querySelector(".ti-figure img");
     if (img) {
       img.dataset.zoomable = "true";
       img.style.cursor = "zoom-in";
+      img.tabIndex = 0;
+      img.setAttribute("role", "button");
+      img.setAttribute("aria-haspopup", "dialog");
+      const label = (document.documentElement.lang || "").toLowerCase().startsWith("zh") ? "图片预览" : "Image preview";
+      img.setAttribute("aria-label", `${label}${img.alt ? `: ${img.alt}` : ""}`);
     }
   }
 
@@ -55,9 +60,9 @@ class TextImageSection extends HTMLElement {
         display: flow-root;
         margin: 1em 0;
         font-family: var(--ti-font-family, inherit);
-        font-size: var(--ti-font-size);
+        font-size: var(--ti-font-size, inherit);
         color: var(--ti-color, inherit);
-        line-height: 1.8;
+        line-height: var(--type-paragraph-leading, 1.7);
       }
 
       text-image-section > .ti-figure {
@@ -82,16 +87,10 @@ class TextImageSection extends HTMLElement {
       text-image-section .ti-figure figcaption {
         font-family: var(--font-serif);
         font-size: 0.875em;
-        color: var(--subtext0);
+        color: var(--sub-text-color);
         text-align: center;
         margin-top: 8px;
         font-style: italic;
-      }
-
-      /* Tame nested blockquotes inside the text area so they
-         don't fight the image's float/stacked layout. */
-      text-image-section > blockquote {
-        margin: 0;
       }
 
       @media (max-width: 640px) {
@@ -103,12 +102,6 @@ class TextImageSection extends HTMLElement {
              blockquote so its left border doesn't visually align
              with the image edge */
           margin: 0 0 20px 0;
-        }
-
-        /* When a blockquote follows the figure on mobile, give it
-           a touch more breathing room from the image above */
-        text-image-section > .ti-figure + blockquote {
-          margin-top: 4px;
         }
       }
     `;
