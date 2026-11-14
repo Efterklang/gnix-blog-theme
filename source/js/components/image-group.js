@@ -110,9 +110,9 @@ const STYLES = `
     background: linear-gradient(transparent, rgba(0, 0, 0, 0.64));
     color: #fff;
     font-family: var(--font-serif, serif);
-    font-size: 0.82rem;
+    font-size: var(--type-caption-size);
     font-style: italic;
-    line-height: 1.35;
+    line-height: var(--type-caption-leading);
     text-align: center;
     opacity: 0;
     pointer-events: none;

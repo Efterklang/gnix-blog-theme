@@ -172,7 +172,7 @@ function handleLazyAssetError(error) {
 function handleKeyDown(e) {
   const isModifier = e.metaKey || e.ctrlKey;
   if (!isModifier) return;
-  if (document.querySelector("dialog:modal")) return;
+  if (document.querySelector("dialog:modal, #article-comment-popover:popover-open")) return;
 
   const tag = e.target.tagName;
   if (["INPUT", "TEXTAREA"].includes(tag) || e.target.isContentEditable) return;
@@ -195,7 +195,6 @@ function handleKeyDown(e) {
 
 // #endregion
 
-
 // #region boot
 // main.js 以 <script type="module"> 加载，具备 defer 语义：执行到这里时 DOM 必已解析完毕，
 // 无需 DOMContentLoaded 门控；prerender 页面经 runWhenActivated 推迟到激活后初始化
@@ -203,7 +202,7 @@ function handleKeyDown(e) {
 // 打开时焦点落在当前栏目（没有就第一项），关上后回到站名钮
 function initNavbarMenu() {
   const menu = document.getElementById("navbar-menu");
-  const trigger = document.querySelector('.navbar-brand[popovertarget="navbar-menu"]');
+  const trigger = document.querySelector('[data-navbar-menu-trigger][popovertarget="navbar-menu"]');
   if (!menu || !trigger) return;
   menu.addEventListener("toggle", (event) => {
     const open = event.newState === "open";

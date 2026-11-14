@@ -211,7 +211,7 @@ const STYLES = `
     margin-top: 0.5rem;
     color: var(--sub-text-color, gray);
     font-family: var(--font-sans-serif, sans-serif);
-    font-size: 0.8125rem;
+    font-size: var(--type-caption-size);
     line-height: 1.5;
   }
 
@@ -233,7 +233,7 @@ const STYLES = `
     gap: 0.25rem;
     margin-left: auto;
     font-family: var(--font-mono, monospace);
-    font-size: 0.75rem;
+    font-size: var(--type-label-size);
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.04em;
   }
@@ -452,7 +452,10 @@ class ImageCarousel extends HTMLElement {
     const segmentsHTML = multiSlide
       ? `<div class="segments" role="tablist" aria-label="${getUiText("slideNavigation")}">
           ${this._images
-            .map((_img, i) => `<button class="segment${i === 0 ? " active" : ""}" type="button" data-index="${i}" role="tab" aria-label="${getUiText("slide", i + 1)}" aria-selected="${i === 0}"></button>`)
+            .map(
+              (_img, i) =>
+                `<button class="segment${i === 0 ? " active" : ""}" type="button" data-index="${i}" role="tab" aria-label="${getUiText("slide", i + 1)}" aria-selected="${i === 0}"></button>`,
+            )
             .join("")}
         </div>`
       : "";
@@ -527,16 +530,7 @@ class ImageCarousel extends HTMLElement {
   // ─── autoplay ──────────────────────────────────────────────────────
 
   _canAutoplay() {
-    return (
-      this.isConnected &&
-      this._isVisible &&
-      !document.hidden &&
-      !this._isHovered &&
-      !this._isFocused &&
-      !this._isInteracting &&
-      this.hasAttribute("autoplay") &&
-      this._images.length > 1
-    );
+    return this.isConnected && this._isVisible && !document.hidden && !this._isHovered && !this._isFocused && !this._isInteracting && this.hasAttribute("autoplay") && this._images.length > 1;
   }
 
   _syncAutoplay(restart = false) {
@@ -647,17 +641,13 @@ class ImageCarousel extends HTMLElement {
         if (Math.abs(deltaX) > SWIPE_THRESHOLD_PX) {
           this._userNav(deltaX < 0 ? "next" : "prev");
         }
-        this._isInteracting = Array.from(event.touches).some((touch) =>
-          carousel.contains(touch.target),
-        );
+        this._isInteracting = Array.from(event.touches).some((touch) => carousel.contains(touch.target));
         this._syncAutoplay(true);
       },
       { passive: true },
     );
     carousel.addEventListener("touchcancel", (event) => {
-      this._isInteracting = Array.from(event.touches).some((touch) =>
-        carousel.contains(touch.target),
-      );
+      this._isInteracting = Array.from(event.touches).some((touch) => carousel.contains(touch.target));
       this._syncAutoplay(true);
     });
   }

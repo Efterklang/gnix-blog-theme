@@ -25,8 +25,7 @@
   flex-direction: column;
   justify-content: space-between;
   min-height: 100svh;
-  padding-block:
-    calc(var(--page-margin) + env(safe-area-inset-top)) calc(var(--page-margin) + env(safe-area-inset-bottom));
+  padding-block: calc(var(--page-margin) + env(safe-area-inset-top)) calc(var(--page-margin) + env(safe-area-inset-bottom));
 }
 
 /* ==========================================================================
@@ -62,18 +61,46 @@
   margin: -0.1em 0 0 -0.04em;
   color: var(--title-text-color);
   font-family: var(--article-font-family);
-  font-size: clamp(3.25rem, 8.5vw, 7.5rem);
+  font-size: var(--type-editorial-size);
   font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 0.9;
+  letter-spacing: var(--type-editorial-tracking);
+  line-height: var(--type-editorial-leading);
   text-transform: uppercase;
+}
+
+/* 首页巨字是与顶栏站名相同的菜单入口，保留扉页的完整名字与两行排版。 */
+.home-hero__logo {
+  display: inline-block;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: start;
+  text-transform: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 120ms ease;
+
+  &:hover {
+    color: var(--sub-text-color);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 6px;
+  }
 }
 
 .home-hero__ipa {
   display: block;
   margin-top: 0.85rem;
-  color: color-mix(in oklab, var(--sub-text-color) 85%, transparent);
-  font-family: 'Times New Roman', Times, serif;
+  color: var(--sub-text-color);
+  font-family: "Times New Roman", Times, serif;
   font-size: clamp(1rem, 1.4vw, 1.35rem);
   font-style: italic;
   font-weight: 400;
@@ -84,8 +111,8 @@
   margin-top: clamp(1.75rem, 3.5svh, 2.75rem);
   max-width: 34rem;
   font-family: var(--article-font-family);
-  font-size: 0.9375rem;
-  line-height: 1.6;
+  font: var(--type-paragraph-font);
+  text-wrap: pretty;
 }
 
 .home-hero__intro {
@@ -95,7 +122,7 @@
 
 .home-hero__intro--muted {
   margin-top: 0.25rem;
-  color: color-mix(in oklab, var(--sub-text-color) 70%, transparent);
+  color: var(--sub-text-color);
 }
 
 /* 规格表：增加细腻的底部分隔线，使其与标题更紧凑整齐 */
@@ -111,7 +138,7 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  line-height: 1.65rem;
+  line-height: var(--type-ui-leading);
   padding-block: 0.25rem;
   border-bottom: 1px solid color-mix(in oklab, var(--home-hairline) 60%, transparent);
 }
@@ -121,9 +148,9 @@
 }
 
 .home-hero__spec-label {
-  color: color-mix(in oklab, var(--sub-text-color) 65%, transparent);
+  color: var(--sub-text-color);
   font-family: var(--font-mono, monospace);
-  font-size: 0.6875rem;
+  font-size: var(--label-size);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -132,7 +159,7 @@
   margin: 0;
   color: var(--title-text-color);
   font-family: var(--font-mono, monospace);
-  font-size: 0.8125rem;
+  font-size: var(--type-ui-size);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
@@ -173,10 +200,10 @@
 .home-hero__mid-label,
 .home-hero__mid-count {
   font-family: var(--font-mono, monospace);
-  font-size: 0.6875rem;
+  font-size: var(--label-size);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: color-mix(in oklab, var(--sub-text-color) 45%, transparent);
+  color: var(--sub-text-color);
 }
 
 .home-hero__links {
@@ -201,7 +228,9 @@
   gap: 0.5rem;
   color: var(--title-text-color);
   text-decoration: none;
-  transition: transform 160ms ease, color 160ms ease;
+  transition:
+    transform 160ms ease,
+    color 160ms ease;
 
   &:hover {
     transform: translateY(-2px);
@@ -211,13 +240,13 @@
 
 .home-hero__link-index {
   font-family: var(--font-mono, monospace);
-  font-size: 0.625rem;
-  color: color-mix(in oklab, var(--sub-text-color) 55%, transparent);
+  font-size: var(--label-size);
+  color: var(--sub-text-color);
 }
 
 .home-hero__link-text {
   font-family: var(--font-mono, monospace);
-  font-size: 0.8125rem;
+  font-size: var(--type-ui-size);
   font-weight: 500;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -225,8 +254,8 @@
 }
 
 .home-hero__external {
-  font-size: 0.75rem;
-  color: color-mix(in oklab, var(--sub-text-color) 55%, transparent);
+  font-size: var(--type-caption-size);
+  color: var(--sub-text-color);
 }
 
 /* ==========================================================================
@@ -260,9 +289,9 @@
 
 .home-archive__label {
   display: inline-block;
-  color: color-mix(in oklab, var(--sub-text-color) 65%, transparent);
+  color: var(--sub-text-color);
   font-family: var(--font-mono, monospace);
-  font-size: 0.6875rem;
+  font-size: var(--label-size);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-decoration: none;
@@ -273,11 +302,11 @@
   }
 }
 
-/* 读数：左边两位数巨字，右下角完整年份 + 篇数；跟着刻度尺的指针实时换（见 layout/home.jsx 的内联脚本） */
+/* 读数：两位数大年份落在右缘；篇数在刻度尺下方，跟着指针实时更新。 */
 .home-archive__readout {
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 1rem;
   margin-top: 0.75rem;
   padding-bottom: 1rem;
@@ -285,7 +314,7 @@
 
 .home-archive__figure {
   display: block;
-  margin-left: -0.04em;
+  margin-inline-end: -0.04em;
   color: var(--title-text-color);
   font-family: var(--article-font-family);
   font-size: clamp(3.5rem, 7vw, 6rem);
@@ -298,29 +327,15 @@
   view-transition-name: archive-year;
 }
 
-.home-archive__meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.25rem;
-  margin: 0;
-  font-family: var(--font-mono, monospace);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.home-archive__meta-year {
-  color: var(--title-text-color);
-  font-size: 0.8125rem;
-  font-weight: 700;
-}
-
 .home-archive__meta-count {
-  color: color-mix(in oklab, var(--sub-text-color) 65%, transparent);
-  font-size: 0.6875rem;
+  margin: 0.75rem 0 0;
+  color: var(--sub-text-color);
+  font-family: var(--font-mono, monospace);
+  font-size: var(--label-size);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--label-tracking);
+  line-height: var(--type-label-leading);
+  text-transform: uppercase;
 }
 
 /* 刻度尺：上下两条 Hairline 之间，每个年份占一格等分栏；年份再多也只是栏变窄，始终一行 */
@@ -348,9 +363,9 @@
   flex-direction: column;
   align-items: center;
   padding-block: var(--scale-tick-top) 1rem;
-  color: color-mix(in oklab, var(--sub-text-color) 65%, transparent);
+  color: var(--sub-text-color);
   font-family: var(--font-mono, monospace);
-  font-size: 0.75rem;
+  font-size: var(--type-caption-size);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
   line-height: 1;
@@ -444,6 +459,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .home-hero__logo {
+    transition: none;
+  }
+
   .home-hero__link {
     transform: none !important;
   }

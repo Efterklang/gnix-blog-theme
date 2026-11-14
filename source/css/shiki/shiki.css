@@ -4,7 +4,7 @@
 .code-title {
   min-width: 0;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: var(--type-label-size);
   line-height: 1;
   color: color-mix(in oklab, var(--sub-text-color) 72%, transparent);
 }
@@ -162,7 +162,7 @@ figure.shiki:is(:hover, :focus-within) .shiki-tools > .right {
   translate: 6px -50%;
   white-space: nowrap;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: var(--type-label-size);
   line-height: 1;
   letter-spacing: 0.06em;
   text-transform: uppercase;

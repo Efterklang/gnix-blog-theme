@@ -20,10 +20,8 @@
   margin: 0;
   color: var(--title-text-color);
   font-family: var(--article-font-family);
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: -0.03em;
+  font: var(--type-page-font);
+  letter-spacing: var(--type-heading-tracking);
 }
 
 .graph-caption {
@@ -83,7 +81,7 @@
 .graph-node__label {
   fill: var(--sub-text-color);
   font-family: var(--font-sans-serif);
-  font-size: 10px;
+  font-size: var(--type-label-size);
   text-anchor: middle;
   paint-order: stroke;
   stroke: var(--base);

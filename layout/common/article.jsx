@@ -96,6 +96,7 @@ module.exports = class extends Component {
       .join(" ");
 
     const mailto = `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent(`Re: ${page.title || ""}`)}`;
+    const archiveUrl = helper.localized_url_for(config.archive_generator?.path || "archive", helper.language_key(page));
 
     return (
       <Fragment>
@@ -131,32 +132,47 @@ module.exports = class extends Component {
           <div id="article-content" class="content" dangerouslySetInnerHTML={{ __html: page.content }}></div>
 
           {isPost && (
-            <footer class="article-end">
-              <p class="article-end__thanks">Thanks for reading.</p>
+            <footer class="article-end" lang="en">
+              <div class="article-end__closing">
+                <p class="article-end__thanks">Thanks for reading.</p>
+                <button type="button" class="article-end__action article-end__action--top" data-action="scroll-top">
+                  Back to top
+                  <Icon name="arrow-up" size={16} />
+                </button>
+              </div>
+              <a class="article-end__archive" href={archiveUrl}>
+                <span>Back to archive</span>
+                <Icon name="arrow-left" size={24} />
+              </a>
               <nav class="article-end__actions" aria-label="After reading">
                 {hasComment && (
                   <button type="button" class="article-end__action article-end__action--comments" popovertarget="article-comment-popover">
+                    <Icon name="message-circle" size={16} />
                     Comments
-                    <Icon name="arrow-right" size={12} />
                   </button>
                 )}
                 <a class="article-end__action article-end__action--email" href={mailto}>
+                  <Icon name="mail" size={16} />
                   Send me an email
-                  <Icon name="arrow-up-right" size={12} />
                 </a>
-                <button type="button" class="article-end__action article-end__action--top" data-action="scroll-top">
-                  Go to top
-                  <Icon name="arrow-up" size={12} />
-                </button>
               </nav>
             </footer>
           )}
         </article>
 
         {hasComment && (
-          <div id="article-comment-popover" popover="auto" class="article-popover article-comment-popover">
+          <div id="article-comment-popover" popover="auto" class="article-popover article-comment-popover" role="dialog" aria-modal="true" aria-labelledby="article-comments-title">
             <button class="article-popover-backdrop" type="button" popovertarget="article-comment-popover" popovertargetaction="hide" tabindex="-1" aria-label={closeLabel}></button>
             <div class="article-popover-body article-comment-popover-body surface">
+              <header class="article-comment-header">
+                <div>
+                  <h2 id="article-comments-title">{helper.__("article.comments")}</h2>
+                  <p>{helper.__("article.comments_description")}</p>
+                </div>
+                <button type="button" class="article-comment-close" data-comment-close popovertarget="article-comment-popover" popovertargetaction="hide" aria-label={closeLabel}>
+                  <Icon name="x" size={20} />
+                </button>
+              </header>
               <Comment config={config} page={page} helper={helper} />
             </div>
           </div>

@@ -13,7 +13,6 @@ const ARCHIVE_SCALE_SCRIPT = `(function () {
   if (!scale) return;
   var ticks = [].slice.call(scale.querySelectorAll("[data-home-year]"));
   var figure = root.querySelector("[data-home-figure]");
-  var full = root.querySelector("[data-home-full]");
   var count = root.querySelector("[data-home-count]");
   var KEY = "gnix:home-year";
   var active = ticks[0];
@@ -30,7 +29,6 @@ const ARCHIVE_SCALE_SCRIPT = `(function () {
     mark("data-tuned", tick);
     scale.style.setProperty("--needle", ticks.indexOf(tick));
     figure.textContent = year.slice(-2);
-    full.textContent = year;
     count.textContent = n + (n === "1" ? " writing" : " writings");
   }
   function select(tick) {
@@ -116,6 +114,14 @@ module.exports = class extends Component {
     }
     const years = [...yearCounts].map(([year, count]) => ({ year, count })).sort((a, b) => b.year - a.year);
     const archiveUrl = helper.localized_url_for(config.archive_generator?.path || "archive");
+    const hasMenu = Object.keys(config.navbar?.menu || {}).length > 0;
+    const brand = (
+      <span>
+        GnixAij
+        <br />
+        Oag
+      </span>
+    );
     const yearUrl = (year) => `${archiveUrl}${archiveUrl.includes("?") ? "&" : "?"}year=${year}`;
 
     const specItems = [
@@ -137,12 +143,28 @@ module.exports = class extends Component {
     return (
       <main class="home-page">
         <section class="home-hero">
-
           {/* 1. 顶部区域：左上巨字 + 右上数据表 */}
           <div class="home-hero__top">
             <div class="home-hero__brand" style={`--i:${order++}`}>
               <h1 class="home-hero__title">
-                GnixAij<br/>Oag
+                {hasMenu ? (
+                  <button
+                    type="button"
+                    class="home-hero__logo"
+                    data-navbar-menu-trigger
+                    popovertarget="navbar-menu"
+                    aria-haspopup="dialog"
+                    aria-controls="navbar-menu"
+                    aria-expanded="false"
+                    aria-label={`GnixAij Oag · ${helper.__("navbar.menu")}`}
+                  >
+                    {brand}
+                  </button>
+                ) : (
+                  <a class="home-hero__logo" href={archiveUrl}>
+                    {brand}
+                  </a>
+                )}
               </h1>
               <span class="home-hero__ipa">/nɪkˈsaɪdʒ oʊɡ/</span>
 
@@ -200,14 +222,6 @@ module.exports = class extends Component {
                   <span class="home-archive__figure" data-home-figure>
                     {String(years[0].year).slice(-2)}
                   </span>
-                  <p class="home-archive__meta">
-                    <span class="home-archive__meta-year" data-home-full>
-                      {years[0].year}
-                    </span>
-                    <span class="home-archive__meta-count" data-home-count>
-                      {writingsLabel(years[0].count)}
-                    </span>
-                  </p>
                 </div>
 
                 {/* 刻度尺：--ticks 等分栏数，--needle 指针所在的格（由脚本随悬停更新） */}
@@ -232,6 +246,9 @@ module.exports = class extends Component {
                     ))}
                   </ul>
                 </div>
+                <p class="home-archive__meta-count" data-home-count aria-hidden="true">
+                  {writingsLabel(years[0].count)}
+                </p>
               </nav>
             ) : null}
           </div>

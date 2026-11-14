@@ -30,9 +30,9 @@ module.exports = class extends Component {
         <div class="archive-item__data" hidden>
           {excerpt ? <div class="archive-item__excerpt" dangerouslySetInnerHTML={{ __html: excerpt }}></div> : null}
           {tagList.map((tag) => (
-            <span key={tag} class="archive-item__tag">
-              {tag}
-            </span>
+            <a key={tag.url} class="archive-item__tag" href={tag.url}>
+              {tag.name}
+            </a>
           ))}
           {readTime ? <span class="archive-item__read">{readTime}</span> : null}
         </div>

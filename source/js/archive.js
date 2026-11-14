@@ -335,14 +335,22 @@ function initArchiveInspector() {
     } else if (time?.textContent) rows.push(["Date", time.textContent]);
     const read = data?.querySelector(".archive-item__read")?.textContent;
     if (read) rows.push(["Reading", read]);
-    const tags = data ? [...data.querySelectorAll(".archive-item__tag")].map((node) => node.textContent) : [];
-    if (tags.length) rows.push(["Tags", tags.join(" · ")]);
+    const tags = data ? [...data.querySelectorAll("a.archive-item__tag[href]")] : [];
+    if (tags.length) {
+      const links = document.createDocumentFragment();
+      tags.forEach((tag, index) => {
+        if (index) links.append(document.createTextNode(" · "));
+        links.append(tag.cloneNode(true));
+      });
+      rows.push(["Tags", links]);
+    }
     meta.replaceChildren(
       ...rows.flatMap(([label, text]) => {
         const dt = document.createElement("dt");
         dt.textContent = label;
         const dd = document.createElement("dd");
-        dd.textContent = text;
+        if (typeof text === "string") dd.textContent = text;
+        else dd.append(text);
         return [dt, dd];
       }),
     );

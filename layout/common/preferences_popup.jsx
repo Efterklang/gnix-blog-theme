@@ -8,7 +8,7 @@ function translate(helper, key, fallback) {
   return value === key ? fallback : value;
 }
 
-// 快捷弹窗只留最常动的设置（主题模式、字体、字号、语言）与一条去设置页的链接；栏宽、间距、配色在设置页。
+// 快捷弹窗只留最常动的设置（主题模式、字体、字号、语言）与一条去设置页的链接；栏宽、配色在设置页。
 // 每行一条分段条（.segmented，样式在 default.css，与设置页共用）；preferences.js 按 data-* 钩子找控件，缺哪个都不报错
 module.exports = class extends Component {
   render() {
@@ -20,7 +20,7 @@ module.exports = class extends Component {
     const unavailableLabel = translate(helper, "preferences.language_unavailable", "Not translated");
     const stepLabels = {
       "-1": translate(helper, "preferences.decrease_font_size", "Decrease font size"),
-      "1": translate(helper, "preferences.increase_font_size", "Increase font size"),
+      1: translate(helper, "preferences.increase_font_size", "Increase font size"),
     };
 
     const rows = [
@@ -72,7 +72,9 @@ module.exports = class extends Component {
             aria-label={item.label}
             lang={item.locale}
           >
-            {String(item.key || item.locale || "").split("-")[0].toUpperCase()}
+            {String(item.key || item.locale || "")
+              .split("-")[0]
+              .toUpperCase()}
           </button>
         )),
       ]);

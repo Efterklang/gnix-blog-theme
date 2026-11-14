@@ -32,8 +32,8 @@
 
 .status-line__value {
   color: var(--title-text-color);
-  font-size: 1.1rem;
-  font-weight: 500;
+  font-size: var(--type-subtitle-size);
+  font-weight: var(--font-weight-semibold);
   font-variant-numeric: tabular-nums;
 }
 

@@ -27,11 +27,11 @@
   }
 
   .article-comment-popover-body {
-    max-height: calc(90dvh - 4.25rem);
+    max-height: calc(100dvh - 2rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   }
 
   .article-comment-panel {
-    padding: 1rem 1.75rem;
+    padding: 1rem 1.25rem 1.25rem;
   }
 
   .article-comment-popover-body {

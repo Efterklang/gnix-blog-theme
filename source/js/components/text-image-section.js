@@ -17,7 +17,7 @@
  * - width: Image width (default: 300px)
  * - left: Put image on left (default: image on right)
  * - font-family: Text font family
- * - font-size: Text font size (default: 0.8rem)
+ * - font-size: Text font size (default: inherited article size)
  * - color: Text color
  */
 
@@ -60,9 +60,9 @@ class TextImageSection extends HTMLElement {
         display: flow-root;
         margin: 1em 0;
         font-family: var(--ti-font-family, inherit);
-        font-size: var(--ti-font-size);
+        font-size: var(--ti-font-size, inherit);
         color: var(--ti-color, inherit);
-        line-height: 1.8;
+        line-height: var(--type-paragraph-leading, 1.7);
       }
 
       text-image-section > .ti-figure {

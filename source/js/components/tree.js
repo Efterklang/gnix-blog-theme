@@ -110,7 +110,7 @@ const STYLES = `
     display: block;
     margin: 1.5em 0;
     font-family: var(--font-mono, 'SF Mono', 'Fira Code', monospace);
-    font-size: 14px;
+    font-size: var(--type-ui-size);
     line-height: 1.6;
   }
 
@@ -126,7 +126,7 @@ const STYLES = `
   .file-tree::before {
     content: attr(data-root);
     display: block;
-    font-size: 12px;
+    font-size: var(--type-label-size);
     font-weight: 600;
     color: var(--sub-text-color, #8e99b2);
     text-transform: uppercase;
@@ -197,7 +197,7 @@ const STYLES = `
     display: inline-flex;
     align-items: center;
     font-family: var(--font-symbols, "Symbols Nerd Font Mono");
-    font-size: 15px;
+    font-size: var(--type-ui-size);
     line-height: 1;
   }
 
@@ -239,7 +239,7 @@ const STYLES = `
 
   .tree-label {
     color: var(--sub-text-color, #bac4de);
-    font-size: 13px;
+    font-size: var(--type-caption-size);
   }
 
   .tree-children {

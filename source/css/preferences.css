@@ -1,6 +1,6 @@
 /* /preferences 独立设置页专属样式，仅在该页面加载（head.jsx 按 page.preferences 条件引入）。
    控件本身——分段条 .segmented 与字体预览——在 default.css，与顶栏的偏好弹窗共用；这里只排版：
-   刊头、编号的两节、左标签右控件的行，以及设置页独有的字体卡片、下拉、滑块与自定义字体表单。
+   刊头、编号的两节、左标签右控件的行，以及设置页独有的字体卡片、下拉与自定义字体表单。
    状态一律不靠底色区分：静息灰、悬停墨、选中墨字加记号（分段条的短下划线、卡片与输入框的墨描边）。 */
 
 /* #region Preferences page */
@@ -23,8 +23,8 @@
   --preference-focus-offset: 2px;
 
   /* 小字两级：辅助说明 / 控件与数值 */
-  --preference-font-meta: 0.75rem;
-  --preference-font-ui: 0.8125rem;
+  --preference-font-meta: var(--type-ui-size);
+  --preference-font-ui: var(--type-ui-size);
 
   box-sizing: border-box;
   color: var(--sub-text-color);
@@ -52,31 +52,43 @@
   border: 0;
 }
 
-/* 全站的小标签字：行标签、Reset / Back、滑轨两端的档位名、字段名、折叠卡的摘要、重置钮、预览标签、字体卡片的名字 */
+/* 设置行与控件使用 Body small；编号和预览标签使用 Body mini。 */
 .preference-row__label,
 .preference-back-link,
 .preference-reset-action,
-.font-range-label,
 .font-custom-field,
 .font-custom-details summary,
 .font-custom-reset,
 .preference-preview-label,
 .font-type-name {
-  font-family: var(--font-label);
-  font-size: var(--label-size);
-  font-weight: var(--label-weight);
-  letter-spacing: var(--label-tracking);
-  text-transform: uppercase;
+  font: var(--type-ui-font);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: normal;
+  text-transform: none;
 }
 
-/* 页面本身不加内边距：版心左右的留白由 .main-content 统一给（手机 1.25rem），不再叠一层把手机上的内容挤窄 */
+/* 外层只负责页面边距，设置页和文章共用阅读栏宽；em 按阅读字号计算。
+   控件文字仍用固定的界面字号，调阅读字号不会改变设置行的文字层级。 */
+.main-content:has(> .preference-standalone) {
+  max-width: none;
+  padding-inline: var(--page-margin);
+}
+
 .preference-standalone {
+  width: min(100%, var(--article-max-width));
+  margin-inline: auto;
   padding: 0;
+  font-size: var(--article-font-size);
+}
+
+.preference-standalone .preference-page {
+  font-size: var(--type-body-size);
 }
 
 .preference-shell {
   display: grid;
-  width: min(100%, 54rem);
+  width: 100%;
+  min-width: 0;
   margin: 0 auto;
 }
 
@@ -94,10 +106,8 @@
   h1 {
     margin: 0;
     color: var(--title-text-color);
-    font-size: clamp(1.5rem, 3vw, 1.75rem);
-    font-weight: var(--font-weight-semibold);
-    letter-spacing: -0.01em;
-    line-height: 1.2;
+    font: var(--type-page-font);
+    letter-spacing: var(--type-heading-tracking);
   }
 }
 
@@ -110,8 +120,8 @@
 .preference-panel__header p {
   margin: 0.4rem 0 0;
   color: var(--sub-text-color);
-  font-size: var(--preference-font-ui);
-  line-height: 1.5;
+  font: var(--type-ui-spaced-font);
+  text-wrap: pretty;
 }
 
 .preference-header-actions {
@@ -189,10 +199,8 @@
   h2 {
     margin: 0;
     color: var(--title-text-color);
-    font-size: 0.9375rem;
-    font-weight: var(--font-weight-semibold);
-    letter-spacing: -0.005em;
-    line-height: 1.3;
+    font: var(--type-title-font);
+    letter-spacing: var(--type-heading-tracking);
   }
 }
 
@@ -247,7 +255,7 @@
     font-weight: var(--font-weight-regular);
     letter-spacing: 0;
     text-transform: none;
-    line-height: 1.5;
+    line-height: var(--type-ui-spaced-leading);
   }
 }
 
@@ -277,11 +285,11 @@
 }
 
 .font-size-btn[data-size="small"] {
-  --font-size-preview: 12px;
+  --font-size-preview: 14px;
 }
 
 .font-size-btn[data-size="medium-small"] {
-  --font-size-preview: 14px;
+  --font-size-preview: 15px;
 }
 
 .font-size-btn[data-size="medium-large"] {
@@ -330,7 +338,8 @@
   box-shadow: 0 0 0 0.5px var(--preference-border);
   color: var(--title-text-color);
   background: transparent;
-  font: var(--font-weight-semibold) var(--preference-font-ui) / 1.2 var(--font-sans-serif);
+  font: var(--type-ui-font);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
   transition: box-shadow 120ms ease;
 
@@ -344,136 +353,11 @@
   }
 }
 
-/* 栏宽：两端的档位名夹一条滑轨，右边一格等宽数值 */
-.font-range-stack {
-  display: grid;
-  justify-self: end;
-  grid-template-columns: minmax(0, 1fr) 3.5rem;
-  gap: 0.75rem;
-  align-items: center;
-  width: min(100%, var(--preference-control-width));
+/* 栏宽五档直接点选，英文档位名可换行，窄屏也能设置并保存。 */
+.font-width-btn {
   min-width: 0;
-}
-
-.font-range-control {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.625rem;
-  min-width: 0;
-}
-
-.font-range-label {
-  color: var(--sub-text-color);
-  white-space: nowrap;
-}
-
-.font-range-value {
-  justify-self: end;
-  color: var(--sub-text-color);
-  font-family: var(--font-mono);
-  font-size: var(--preference-font-ui);
-  font-variant-numeric: tabular-nums;
-  text-align: end;
-}
-
-/* 滑块：一条 4px 的圆头轨道，走过的一段墨色、未走的一段浅灰；拇指是一枚 1.25rem 的墨色圆点。
-   原生拇指只负责输入——就位后（.is-ready，preferences.js 加）隐形，由同几何的 DOM 拇指显示，
-   轨道的填充与拇指才能一起按主题色画 */
-.preference-slider {
-  --slider-thumb-size: 1.25rem;
-  --slider-track-height: 0.25rem;
-  --slider-progress: 0;
-  --slider-position: calc(var(--slider-thumb-size) / 2 + (100% - var(--slider-thumb-size)) * var(--slider-progress));
-  position: relative;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  height: 2.5rem;
-  direction: ltr;
-}
-
-.preference-range-slider {
-  width: 100%;
-  min-width: 0;
-  height: 2.5rem;
-  padding: 0;
-  margin: 0;
-  border: 0;
-  appearance: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-.preference-range-slider::-webkit-slider-runnable-track {
-  height: var(--slider-track-height);
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--title-text-color) var(--slider-position), var(--edge-color) var(--slider-position));
-}
-
-.preference-range-slider::-webkit-slider-thumb {
-  box-sizing: border-box;
-  width: var(--slider-thumb-size);
-  height: var(--slider-thumb-size);
-  margin-top: calc((var(--slider-track-height) - var(--slider-thumb-size)) / 2);
-  border: 0;
-  border-radius: 50%;
-  appearance: none;
-  background: var(--title-text-color);
-}
-
-.preference-range-slider::-moz-range-track {
-  height: var(--slider-track-height);
-  border: none;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--title-text-color) var(--slider-position), var(--edge-color) var(--slider-position));
-}
-
-.preference-range-slider::-moz-range-thumb {
-  box-sizing: border-box;
-  width: var(--slider-thumb-size);
-  height: var(--slider-thumb-size);
-  border: 0;
-  border-radius: 50%;
-  background: var(--title-text-color);
-}
-
-.preference-slider__thumb {
-  display: none;
-  position: absolute;
-  top: 50%;
-  left: var(--slider-position);
-  width: var(--slider-thumb-size);
-  height: var(--slider-thumb-size);
-  border-radius: 50%;
-  background: var(--title-text-color);
-  /* 一圈纸色描边，圆点从轨道上立起来 */
-  box-shadow: 0 0 0 2px var(--base);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-
-.preference-slider.is-ready {
-  .preference-slider__thumb {
-    display: block;
-  }
-
-  input::-webkit-slider-thumb {
-    background: transparent;
-  }
-
-  input::-moz-range-thumb {
-    background: transparent;
-  }
-
-  input:focus-visible {
-    outline: none;
-  }
-
-  input:focus-visible + .preference-slider__thumb {
-    outline: var(--preference-focus-ring);
-    outline-offset: 3px;
-  }
+  padding: 0.375rem 0.25rem;
+  white-space: normal;
 }
 
 /* 字体族：四张卡片，大「Aa」按各自的字族渲染（墨色）、下面一行名字（静息灰、悬停与选中墨）；
@@ -497,7 +381,7 @@
   border: 0;
   border-radius: var(--preference-radius-sm);
   box-shadow: 0 0 0 0.5px var(--preference-border);
-  color: color-mix(in oklab, var(--sub-text-color) 55%, transparent);
+  color: var(--sub-text-color);
   background: transparent;
   cursor: pointer;
   transition: color 160ms ease;
@@ -594,7 +478,7 @@
   }
 
   strong {
-    color: color-mix(in oklab, var(--sub-text-color) 75%, transparent);
+    color: var(--sub-text-color);
     transition: color 160ms ease;
     font-size: var(--preference-font-ui);
     font-weight: var(--font-weight-semibold);
@@ -808,7 +692,7 @@
   }
 }
 
-/* 实时预览：一张 0.5px 描边的卡片，里面按当前的字号 / 字族 / 字重 / 行距排一段正文 */
+/* 实时预览：字号 / 字族 / 字重可变，段落与标题沿用统一阅读节奏。 */
 .font-preview {
   display: grid;
   gap: 1rem;
@@ -826,15 +710,12 @@
   width: 100%;
   max-width: 100%;
   color: var(--sub-text-color);
-  font-size: var(--article-font-size);
-  font-family: var(--article-font-family);
-  line-height: var(--type-body-leading);
-  font-weight: var(--article-font-weight);
+  font: var(--type-paragraph-font);
 
   .font-preview-title {
     margin: 0;
     color: var(--title-text-color);
-    font-size: var(--type-subtitle-size);
+    font-size: var(--prose-h3-size);
     line-height: var(--type-subtitle-leading);
     font-weight: var(--article-bold-font-weight);
   }
@@ -847,14 +728,6 @@
     margin: var(--prose-gap) 0 0;
     color: var(--sub-text-color);
     line-height: inherit;
-  }
-}
-
-.preference-row.is-disabled {
-  opacity: 0.45;
-
-  .preference-range-slider {
-    cursor: not-allowed;
   }
 }
 
@@ -881,13 +754,6 @@
 @media (prefers-reduced-motion: reduce) {
   .preference-page :is(button, select, summary, input) {
     transition: none;
-  }
-}
-
-@media (max-width: 768px) {
-  /* 手机与窄平板上栏宽不起作用（正文本就撑满屏宽），不显示这一行 */
-  .preference-row--width {
-    display: none;
   }
 }
 
@@ -942,8 +808,7 @@
   }
 
   .preference-row > .segmented,
-  .theme-scheme-select-shell,
-  .font-range-stack {
+  .theme-scheme-select-shell {
     justify-self: stretch;
     width: 100%;
   }

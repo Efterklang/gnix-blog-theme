@@ -244,7 +244,7 @@ class ThemeStackedElement extends HTMLElement {
             color: var(--sub-text-color);
             padding: 0.4rem 0.6rem;
             border-radius: 6px;
-            font-size: 0.7rem;
+            font-size: var(--type-label-size);
             font-family: var(--font-mono);
             white-space: pre;
             text-align: center;
@@ -271,7 +271,7 @@ class ThemeStackedElement extends HTMLElement {
           border: none;
           border-radius: 8px;
           font-family: var(--font-mono);
-          font-size: 0.85rem;
+          font-size: var(--type-ui-size);
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -506,7 +506,8 @@ class ThemeStackedElement extends HTMLElement {
         event.ctrlKey ||
         event.metaKey ||
         event.shiftKey
-      ) return;
+      )
+        return;
       if (event.key === "ArrowLeft") {
         event.preventDefault();
         this.prev("keyboard");
@@ -527,44 +528,64 @@ class ThemeStackedElement extends HTMLElement {
     this._dragEvents = new AbortController();
     const { signal } = this._dragEvents;
 
-    this._cardStack.addEventListener("pointerdown", (event) => {
-      if (this._drag || !event.isPrimary || event.button !== 0 || !this._isVisible || this._themes.length < 2) return;
-      this._suppressDragClick = false;
-      const card = event.target.closest(".theme-card.active");
-      if (!card) return;
-      this._drag = {
-        pointerId: event.pointerId,
-        card,
-        startX: event.clientX,
-        startY: event.clientY,
-        offset: 0,
-        locked: false,
-        samples: [{ x: event.clientX, time: event.timeStamp }],
-      };
-    }, { signal });
+    this._cardStack.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (this._drag || !event.isPrimary || event.button !== 0 || !this._isVisible || this._themes.length < 2) return;
+        this._suppressDragClick = false;
+        const card = event.target.closest(".theme-card.active");
+        if (!card) return;
+        this._drag = {
+          pointerId: event.pointerId,
+          card,
+          startX: event.clientX,
+          startY: event.clientY,
+          offset: 0,
+          locked: false,
+          samples: [{ x: event.clientX, time: event.timeStamp }],
+        };
+      },
+      { signal },
+    );
 
     // Listen outside the stack while deciding the axis; capture only once a
     // horizontal drag is confirmed, leaving pan-y and ordinary clicks intact.
     window.addEventListener("pointermove", (event) => this._moveDrag(event), { signal, passive: false });
-    window.addEventListener("pointerup", (event) => {
-      if (event.pointerId !== this._drag?.pointerId) return;
-      if (this._drag.locked) this._moveDrag(event);
-      this._finishDrag(true);
-    }, { signal });
-    window.addEventListener("pointercancel", (event) => {
-      if (event.pointerId === this._drag?.pointerId) this._finishDrag(false);
-    }, { signal });
-    this._cardStack.addEventListener("lostpointercapture", (event) => {
-      if (event.target === this._cardStack && event.pointerId === this._drag?.pointerId) this._finishDrag(false);
-    }, { signal });
+    window.addEventListener(
+      "pointerup",
+      (event) => {
+        if (event.pointerId !== this._drag?.pointerId) return;
+        if (this._drag.locked) this._moveDrag(event);
+        this._finishDrag(true);
+      },
+      { signal },
+    );
+    window.addEventListener(
+      "pointercancel",
+      (event) => {
+        if (event.pointerId === this._drag?.pointerId) this._finishDrag(false);
+      },
+      { signal },
+    );
+    this._cardStack.addEventListener(
+      "lostpointercapture",
+      (event) => {
+        if (event.target === this._cardStack && event.pointerId === this._drag?.pointerId) this._finishDrag(false);
+      },
+      { signal },
+    );
     window.addEventListener("blur", () => this._finishDrag(false), { signal });
 
-    this._cardStack.addEventListener("click", (event) => {
-      if (!this._suppressDragClick || event.detail === 0) return;
-      this._suppressDragClick = false;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    }, { signal, capture: true });
+    this._cardStack.addEventListener(
+      "click",
+      (event) => {
+        if (!this._suppressDragClick || event.detail === 0) return;
+        this._suppressDragClick = false;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      },
+      { signal, capture: true },
+    );
   }
 
   _moveDrag(event) {

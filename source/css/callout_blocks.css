@@ -22,7 +22,7 @@
   font-size: inherit;
   font-weight: var(--font-weight-semibold);
   gap: 7px;
-  line-height: 1.3;
+  line-height: var(--type-subtitle-leading);
   padding: 0;
   list-style: none;
 }

@@ -5,15 +5,12 @@ const DEFAULT_SETTINGS = Object.freeze({
   type: "sans-serif",
   weight: "regular",
   width: "narrow",
-  spacing: "normal",
 });
 
 const SIZE_OPTIONS = Object.freeze(["small", "medium-small", "medium", "medium-large", "large"]);
 const FONT_OPTIONS = Object.freeze(["sans-serif", "serif", "mono", "handwriting"]);
 const WEIGHT_OPTIONS = Object.freeze(["light", "regular", "medium"]);
 const WIDTH_OPTIONS = Object.freeze(["narrow", "medium-narrow", "medium", "medium-wide", "wide"]);
-// 正文纵向间距档位：由 default.css 的 --prose-* tokens 统一管理。
-const SPACING_OPTIONS = Object.freeze(["compact", "normal", "relaxed"]);
 
 const CUSTOM_FONT_FAMILY_OPTIONS = Object.freeze({
   serif: "--font-serif",
@@ -24,9 +21,21 @@ const CUSTOM_FONT_FAMILY_OPTIONS = Object.freeze({
 
 const CUSTOM_FONT_IMPORT_LIMIT = 6;
 const CUSTOM_FONT_PRESETS = Object.freeze([
-  { id: "elms-sans", type: "sans-serif", name: "Elms Sans", family: '"Elms Sans", system-ui, sans-serif', css: "https://fonts.googleapis.com/css2?family=Elms+Sans:ital,wght@0,100..900;1,100..900&display=swap" },
+  {
+    id: "elms-sans",
+    type: "sans-serif",
+    name: "Elms Sans",
+    family: '"Elms Sans", system-ui, sans-serif',
+    css: "https://fonts.googleapis.com/css2?family=Elms+Sans:ital,wght@0,100..900;1,100..900&display=swap",
+  },
   { id: "geist", type: "sans-serif", name: "Geist", family: '"Geist", system-ui, sans-serif', css: "https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" },
-  { id: "geist-mono", type: "mono", name: "Geist Mono", family: '"Geist Mono", "SF Mono", Consolas, monospace', css: "https://fonts.googleapis.com/css2?family=Geist+Mono:ital,wght@0,100..900;1,100..900&display=swap" },
+  {
+    id: "geist-mono",
+    type: "mono",
+    name: "Geist Mono",
+    family: '"Geist Mono", "SF Mono", Consolas, monospace',
+    css: "https://fonts.googleapis.com/css2?family=Geist+Mono:ital,wght@0,100..900;1,100..900&display=swap",
+  },
   { id: "lekton", type: "mono", name: "Lekton", family: '"Lekton", ui-monospace, monospace', css: "https://fonts.googleapis.com/css2?family=Lekton:ital,wght@0,400;0,700;1,400;1,700&display=swap" },
   { id: "maple-mono-nf-cn", type: "mono", name: "Maple Mono NF CN", family: '"Maple Mono NF CN", ui-monospace, monospace', css: "https://fontsapi.zeoseven.com/442/main/result.css" },
   { id: "chill-kai", type: "serif", name: "ChillKai", family: '"ChillKai", serif', css: "https://fontsapi.zeoseven.com/5/main/result.css" },
@@ -42,7 +51,6 @@ function getClientArticleFontConfig() {
     fontOptions: FONT_OPTIONS,
     weightOptions: WEIGHT_OPTIONS,
     widthOptions: WIDTH_OPTIONS,
-    spacingOptions: SPACING_OPTIONS,
     customFonts: {
       familyOptions: CUSTOM_FONT_FAMILY_OPTIONS,
       importLimit: CUSTOM_FONT_IMPORT_LIMIT,
@@ -95,7 +103,6 @@ function getArticleFontInitScript() {
       type: hasOption(config.fontOptions, candidate.type) ? candidate.type : defaults.type,
       weight: hasOption(config.weightOptions, candidate.weight) ? candidate.weight : defaults.weight,
       width: hasOption(config.widthOptions, candidate.width) ? candidate.width : defaults.width,
-      spacing: hasOption(config.spacingOptions, candidate.spacing) ? candidate.spacing : defaults.spacing,
       customFonts: utils.normalizeCustomFonts
         ? utils.normalizeCustomFonts(
             candidate.customFonts,
@@ -115,7 +122,8 @@ function getArticleFontInitScript() {
     html.setAttribute("data-article-font-family", settings.type);
     html.setAttribute("data-article-font-weight", settings.weight);
     html.setAttribute("data-article-width", settings.width);
-    html.setAttribute("data-article-spacing", settings.spacing);
+    // Ignore spacing saved by older versions; prose now has one shared rhythm.
+    html.removeAttribute("data-article-spacing");
   }
 
   applySettings(readStoredSettings());
@@ -142,7 +150,6 @@ module.exports = {
   DEFAULT_SETTINGS,
   FONT_OPTIONS,
   SIZE_OPTIONS,
-  SPACING_OPTIONS,
   STORAGE_KEY,
   WEIGHT_OPTIONS,
   WIDTH_OPTIONS,

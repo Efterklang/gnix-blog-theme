@@ -1,7 +1,7 @@
 // 文章页（post/page 布局）专属交互：脚注 tooltip、图片缩放、代码块工具栏、
 // mermaid、TOC、评论弹层与满高首屏。由 scripts.jsx 仅在文章页注入，
 // 共享基础设施（激活门控、懒加载资源）从 main.js 导入
-import { handleLazyAssetError, loadScriptOnce, loadStyleOnce, prewarmLazyAssetsOnIdle, runWhenActivated } from "./main.js";
+import { handleLazyAssetError, loadScriptOnce, loadStyleOnce, runWhenActivated } from "./main.js";
 import { initScrollReveal } from "./scroll-reveal.js";
 import { initWikiLinkPreview } from "./wiki-link.js";
 
@@ -370,41 +370,67 @@ function handleImageZoomClick(event) {
 }
 // #endregion
 
-function twikoo_handler() {
-  runWhenActivated(() => {
-    const el = document.getElementById("tko");
-    if (!el) return;
-    if (el.dataset.initialized === "true" || el.dataset.initializing === "true") return;
+// Keep initialization on the stable host: Vue replaces its mount element.
+let twikooInitPromise = null;
 
-    const { envId, region, lang, jsUrl, cssUrl } = el.dataset;
+function setCommentLoadState(state) {
+  const status = document.querySelector("[data-comment-load-status]");
+  if (!status) return;
+  status.dataset.state = state;
+  status.hidden = state === "ready";
+  const message = status.querySelector("[data-comment-load-message]");
+  if (message) message.textContent = state === "error" ? status.dataset.errorLabel : status.dataset.loadingLabel;
+  const retry = status.querySelector("[data-comment-load-retry]");
+  if (retry) retry.hidden = state !== "error";
+}
 
-    if (cssUrl) loadStyleOnce(cssUrl).catch(handleLazyAssetError);
+function twikoo_handler({ fetchPriority = "auto" } = {}) {
+  const el = document.getElementById("tko");
+  if (!el || el.dataset.initialized === "true") return Promise.resolve();
+  if (twikooInitPromise) return twikooInitPromise;
 
-    const config = { envId, region, lang, el: "#tko" };
-
-    if (typeof window.twikoo?.init === "function") {
-      window.twikoo.init(config);
-      el.dataset.initialized = "true";
-      return;
+  const { envId, region, lang, jsUrl, cssUrl } = el.dataset;
+  const decode = (value) => {
+    try {
+      return JSON.parse(value);
+    } catch (_) {
+      return value;
     }
+  };
+  el.dataset.initializing = "true";
+  el.setAttribute("aria-busy", "true");
+  setCommentLoadState("loading");
 
-    if (!jsUrl) return;
-    el.dataset.initializing = "true";
-    loadScriptOnce(jsUrl)
-      .then(() => {
-        if (el.dataset.initialized === "true") {
-          delete el.dataset.initializing;
-          return;
-        }
-        window.twikoo.init(config);
-        el.dataset.initialized = "true";
-        delete el.dataset.initializing;
-      })
-      .catch((error) => {
-        delete el.dataset.initializing;
-        handleLazyAssetError(error);
-      });
-  });
+  twikooInitPromise = (async () => {
+    if (!envId) throw new Error("Missing Twikoo environment");
+    const assets = [];
+    if (cssUrl) assets.push(loadStyleOnce(cssUrl, { fetchPriority }));
+    if (typeof window.twikoo?.init !== "function") {
+      if (!jsUrl) throw new Error("Missing Twikoo script");
+      assets.push(loadScriptOnce(jsUrl, { fetchPriority }));
+    }
+    await Promise.all(assets);
+    if (typeof window.twikoo?.init !== "function") throw new Error("Twikoo did not initialize");
+
+    // Mounting starts Twikoo's own requests for config and the first comment page,
+    // including when the popover is still closed. Reopening keeps that instance.
+    await window.twikoo.init({ envId, region: decode(region), lang: decode(lang), el: "#twikoo-mount" });
+    el.dataset.initialized = "true";
+    const status = document.querySelector("[data-comment-load-status]");
+    if (status?.contains(document.activeElement)) document.querySelector("[data-comment-close]")?.focus({ preventScroll: true });
+    setCommentLoadState("ready");
+  })()
+    .catch((error) => {
+      twikooInitPromise = null;
+      setCommentLoadState("error");
+      throw error;
+    })
+    .finally(() => {
+      delete el.dataset.initializing;
+      el.setAttribute("aria-busy", "false");
+    });
+
+  return twikooInitPromise;
 }
 
 // #region markdown-exit shiki
@@ -526,6 +552,7 @@ function addHighlightTool() {
 // #region Keyboard Shortcuts
 
 function handleArticleKeyDown(e) {
+  if (document.querySelector("#article-comment-popover:popover-open")) return;
   if (activeImageZoom) {
     if (!e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
       if (e.key === "Escape") {
@@ -581,33 +608,113 @@ function handleMermaid() {
   }
 }
 
+function freezeCommentBackground(popover) {
+  const frozen = [];
+  let branch = popover;
+  while (branch.parentElement) {
+    for (const sibling of branch.parentElement.children) {
+      if (sibling !== branch && !sibling.inert) {
+        sibling.inert = true;
+        frozen.push(sibling);
+      }
+    }
+    branch = branch.parentElement;
+    if (branch === document.body) break;
+  }
+  return () =>
+    frozen.forEach((element) => {
+      element.inert = false;
+    });
+}
+
 function initArticleCommentPopover() {
   const commentPopover = document.getElementById("article-comment-popover");
+  const initializeComments = (options) => twikoo_handler(options).catch(handleLazyAssetError);
   if (!commentPopover) {
-    twikoo_handler();
+    initializeComments();
     return;
   }
-
-  const tko = document.getElementById("tko");
-  if (tko && tko.dataset.lazyPrewarmBound !== "true") {
-    const commentAssets = [tko.dataset.cssUrl ? { as: "style", url: tko.dataset.cssUrl } : null, tko.dataset.jsUrl ? { as: "script", url: tko.dataset.jsUrl } : null].filter(Boolean);
-
-    if (commentAssets.length) {
-      tko.dataset.lazyPrewarmBound = "true";
-      prewarmLazyAssetsOnIdle(commentAssets, { fetchPriority: "low", timeout: 3000 });
-    }
-  }
-
-  const initializeComments = () => twikoo_handler();
-  if (commentPopover.matches(":popover-open")) {
-    initializeComments();
-  }
-
   if (commentPopover.dataset.bound === "true") return;
   commentPopover.dataset.bound = "true";
-  commentPopover.addEventListener("toggle", (event) => {
-    if (event.newState === "open") initializeComments();
+
+  const triggers = [...document.querySelectorAll('[popovertarget="article-comment-popover"]')].filter((trigger) => trigger.getAttribute("popovertargetaction") !== "hide");
+  let returnFocus = null;
+  let restoreBackground = () => {};
+
+  for (const trigger of triggers) {
+    trigger.setAttribute("aria-haspopup", "dialog");
+    trigger.setAttribute("aria-controls", "article-comment-popover");
+    trigger.setAttribute("aria-expanded", "false");
+    trigger.addEventListener("pointerenter", () => initializeComments(), { once: true, passive: true });
+    trigger.addEventListener("focus", () => initializeComments(), { once: true });
+  }
+  commentPopover.querySelector("[data-comment-load-retry]")?.addEventListener("click", () => initializeComments());
+
+  commentPopover.addEventListener("beforetoggle", (event) => {
+    if (event.newState !== "open") return;
+    returnFocus = document.activeElement;
+    initializeComments();
   });
+  const synchronize = (open) => {
+    triggers.forEach((trigger) => trigger.setAttribute("aria-expanded", String(open)));
+    if (open) {
+      restoreBackground = freezeCommentBackground(commentPopover);
+      commentPopover.querySelector("[data-comment-close]")?.focus({ preventScroll: true });
+    } else {
+      restoreBackground();
+      restoreBackground = () => {};
+      if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
+    }
+  };
+  commentPopover.addEventListener("toggle", (event) => synchronize(event.newState === "open"));
+  commentPopover.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      commentPopover.hidePopover();
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const focusable = [...commentPopover.querySelectorAll("a[href], button, input, textarea, select, [tabindex]")].filter(
+      (element) => element.tabIndex >= 0 && !element.matches(":disabled") && element.getClientRects().length && !element.closest("[inert]"),
+    );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (!first) return;
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+
+  // After the first screen finishes loading, initialize offscreen at low priority
+  // so the component and its first comment page are ready before opening.
+  if (document.getElementById("tko") && !navigator.connection?.saveData) {
+    const schedule = () => {
+      const preload = () => {
+        if (document.visibilityState === "hidden") {
+          const whenVisible = () => {
+            if (document.visibilityState === "hidden") return;
+            document.removeEventListener("visibilitychange", whenVisible);
+            initializeComments({ fetchPriority: "low" });
+          };
+          document.addEventListener("visibilitychange", whenVisible);
+        } else initializeComments({ fetchPriority: "low" });
+      };
+      if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(preload, { timeout: 2000 });
+      else window.setTimeout(preload, 500);
+    };
+    if (document.readyState === "complete") schedule();
+    else window.addEventListener("load", schedule, { once: true });
+  }
+  if (commentPopover.matches(":popover-open")) {
+    returnFocus = triggers[0] || document.activeElement;
+    synchronize(true);
+    initializeComments();
+  }
 }
 
 // #region Article panel (navbar context · Contents)
@@ -729,22 +836,17 @@ function initTocSpy() {
   const headings = Array.from(content.querySelectorAll(":is(h1, h2, h3, h4, h5, h6)[id]")).filter((heading) => links.has(heading.id));
   if (!headings.length) return;
 
-  // 顶层条目的序号（01、02…）与节名：语境钮显示当前所在的顶层小节，读到更深的层级时不跟着跳
+  // 语境钮显示当前顶层小节的名称；百分比由正文滚动范围独立计算。
   const topList = container.querySelector(":scope > .toc");
   const topItems = topList ? [...topList.children].filter((node) => node.matches(".toc-item")) : [];
-  const total = topItems.length;
-  const contextIndex = document.querySelector(".navbar-context__index");
   const contextLabel = document.querySelector(".navbar-context__label");
   const setContext = (link) => {
-    if (!contextIndex || !contextLabel) return;
+    if (!contextLabel) return;
     const topItem = link?.closest(".toc-item") && topItems.find((item) => item.contains(link));
     if (!topItem) {
-      contextIndex.textContent = "";
       contextLabel.textContent = contextLabel.dataset.default || "Contents";
       return;
     }
-    const number = String(topItems.indexOf(topItem) + 1).padStart(2, "0");
-    contextIndex.textContent = `${number}/${String(total).padStart(2, "0")}`;
     contextLabel.textContent = topItem.querySelector(":scope > .toc-link")?.textContent.trim() || "";
   };
 
@@ -784,6 +886,62 @@ function initTocSpy() {
 }
 // #endregion
 
+let cleanupReadingProgress = () => {};
+
+function initReadingProgress() {
+  cleanupReadingProgress();
+  cleanupReadingProgress = () => {};
+  const content = document.getElementById("article-content");
+  const progress = document.querySelector(".navbar-context__progress");
+  const navbar = document.querySelector(".navbar");
+  if (!content || !progress || !navbar) return;
+
+  const locked = Boolean(content.querySelector("#encrypted-article"));
+  const controller = new AbortController();
+  let frame = 0;
+
+  const update = () => {
+    frame = 0;
+    let percent = 0;
+    if (!locked) {
+      const rect = content.getBoundingClientRect();
+      const styles = getComputedStyle(content);
+      const top = rect.top + (parseFloat(styles.paddingTop) || 0);
+      const bottom = rect.bottom - (parseFloat(styles.paddingBottom) || 0);
+      const readingLine = navbar.getBoundingClientRect().bottom;
+      const visibleHeight = Math.max(1, window.innerHeight - readingLine);
+      const height = Math.max(0, bottom - top);
+      const range = height - visibleHeight;
+      // Long articles start at 0% below the navbar and reach 100% when the
+      // final paragraph enters the viewport. Short articles finish once visible.
+      const ratio = range > 0 ? (readingLine - top) / range : height > 0 ? (window.innerHeight - top) / height : 0;
+      percent = Math.round(Math.min(1, Math.max(0, ratio)) * 100);
+    }
+    const label = `${percent}%`;
+    if (progress.textContent !== label) progress.textContent = label;
+  };
+  const schedule = () => {
+    if (!frame) frame = requestAnimationFrame(update);
+  };
+  const options = { passive: true, signal: controller.signal };
+  window.addEventListener("scroll", schedule, options);
+  window.addEventListener("resize", schedule, options);
+  window.addEventListener("pageshow", schedule, options);
+  window.addEventListener("gnix:article-font-settings-change", schedule, options);
+  content.addEventListener("load", schedule, { capture: true, signal: controller.signal });
+
+  const observer = typeof ResizeObserver === "function" ? new ResizeObserver(schedule) : null;
+  for (const element of [content, content.closest("article"), navbar]) {
+    if (element) observer?.observe(element);
+  }
+  cleanupReadingProgress = () => {
+    controller.abort();
+    observer?.disconnect();
+    if (frame) cancelAnimationFrame(frame);
+  };
+  update();
+}
+
 function initPage() {
   initArticleReveal();
   handleMermaid();
@@ -792,6 +950,7 @@ function initPage() {
   initArticlePanel();
   initScrollTop();
   initTocSpy();
+  initReadingProgress();
   initArticleCommentPopover();
 }
 

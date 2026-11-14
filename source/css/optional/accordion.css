@@ -44,7 +44,7 @@
   content: "+";
   display: inline-flex;
   flex: 0 0 16px;
-  font-size: 16px;
+  font-size: var(--type-body-size);
   font-weight: 300;
   justify-content: center;
   line-height: 1;
@@ -70,7 +70,7 @@
 
 .accordion > details.accordion-item > summary ~ * {
   color: var(--sub-text-color);
-  font-size: 14px;
+  font-size: var(--type-ui-size);
   line-height: 1.6;
   margin-left: 28px;
 }

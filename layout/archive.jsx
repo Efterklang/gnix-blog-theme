@@ -122,9 +122,10 @@ function getPostDateParts(postDate, dateXml, date) {
   };
 }
 
-function getPostTags(post) {
-  if (typeof post?.tags?.toArray === "function") return post.tags.toArray().map((tag) => tag.name).filter(Boolean);
-  return [];
+function getPostTags(post, tagUrl) {
+  return collectTags(post?.tags)
+    .filter((tag) => tag?.name)
+    .map((tag) => ({ name: tag.name, url: tagUrl(tag) }));
 }
 
 const TITLE_FIT_SCRIPT = `(function() {
@@ -188,7 +189,7 @@ const TITLE_FIT_SCRIPT = `(function() {
 })();`;
 
 // 季节组：迁移为带微小序列计数的标题风格（如 Autumn / 02）
-function renderSeasonGroup({ posts, title, yearLabel, years, marker, sectionId, formatReadTime, coverSrc, url_for, date_xml, date }) {
+function renderSeasonGroup({ posts, title, yearLabel, years, marker, sectionId, formatReadTime, coverSrc, tagUrl, url_for, date_xml, date }) {
   const countStr = String(posts.length).padStart(2, "0");
   return (
     <section id={sectionId} class={`archive-group ${marker}`} data-years={years} aria-labelledby={`${sectionId}-title`}>
@@ -213,7 +214,7 @@ function renderSeasonGroup({ posts, title, yearLabel, years, marker, sectionId, 
               dateXml={postDate.xml}
               excerpt={excerpt}
               cover={coverSrc(post.cover)}
-              tags={getPostTags(post)}
+              tags={getPostTags(post, tagUrl)}
               readTime={readMinutes ? formatReadTime(readMinutes) : null}
             />
           );
@@ -246,13 +247,7 @@ function renderTopicPicker({ tags: allTags, allPosts, topicListLabel, closeLabel
       <div class="archive-topic-picker__body">
         <header class="archive-topic-picker__head">
           <h2 class="archive-topic-picker__title archive-micro">{topicListLabel}</h2>
-          <button
-            type="button"
-            class="archive-topic-picker__close"
-            popovertarget="archive-topic-picker"
-            popovertargetaction="hide"
-            aria-label={closeLabel}
-          >
+          <button type="button" class="archive-topic-picker__close" popovertarget="archive-topic-picker" popovertargetaction="hide" aria-label={closeLabel}>
             <Icon name="x" size={18} />
           </button>
         </header>
@@ -286,15 +281,7 @@ function renderGarden({ title, count, placeholder, unlockLabel, lockLabel, error
           <span class="gate__mark" aria-hidden="true">
             ✳
           </span>
-          <input
-            class="gate__input"
-            type="password"
-            name="password"
-            placeholder={placeholder}
-            aria-label={placeholder}
-            enterkeyhint="done"
-            autocomplete="off"
-          />
+          <input class="gate__input" type="password" name="password" placeholder={placeholder} aria-label={placeholder} enterkeyhint="done" autocomplete="off" />
           <button class="gate__submit" type="submit">
             {unlockLabel}
           </button>
@@ -352,17 +339,16 @@ module.exports = class extends Component {
       return helper.image_resize_supported(src) ? withImageParams(src, { w: 900 }) : src;
     };
 
-    const gardenBlob =
-      gardenPosts.length
-        ? helper.encrypt_payload(
-            JSON.stringify(
-              gardenPosts.map((post) => {
-                const parts = getPostDateParts(post.date, date_xml, date);
-                return { title: post.title, url: url_for(post.link || post.path), date: `${parts.label}, ${post.date.year()}`, dateXml: parts.xml };
-              }),
-            ),
-          )
-        : null;
+    const gardenBlob = gardenPosts.length
+      ? helper.encrypt_payload(
+          JSON.stringify(
+            gardenPosts.map((post) => {
+              const parts = getPostDateParts(post.date, date_xml, date);
+              return { title: post.title, url: url_for(post.link || post.path), date: `${parts.label}, ${post.date.year()}`, dateXml: parts.xml };
+            }),
+          ),
+        )
+      : null;
 
     const articleList = groups.map((group) =>
       renderSeasonGroup({
@@ -374,6 +360,7 @@ module.exports = class extends Component {
         sectionId: getSectionId(group),
         formatReadTime,
         coverSrc,
+        tagUrl: (tag) => helper.localized_tag_url(tag, helper.language_key(page)),
         url_for,
         date_xml,
         date,
@@ -419,7 +406,6 @@ module.exports = class extends Component {
               </button>
             </div>
           </div>
-
         </div>
         <script dangerouslySetInnerHTML={{ __html: TITLE_FIT_SCRIPT }} />
 
@@ -454,15 +440,15 @@ module.exports = class extends Component {
         <div class="archive-body">
           <div class="archive-groups">{articleList}</div>
           <div class="archive-inspector-col">
-          <aside class="archive-inspector" aria-live="polite" data-empty>
-            <p class="archive-inspector__placeholder">Point at a writing to preview it</p>
-            <figure class="archive-inspector__cover" hidden>
-              <img class="archive-inspector__img" alt="" decoding="async" />
-            </figure>
-            <p class="archive-inspector__title"></p>
-            <div class="archive-inspector__excerpt"></div>
-            <dl class="archive-inspector__meta"></dl>
-          </aside>
+            <aside class="archive-inspector" aria-live="polite" data-empty>
+              <p class="archive-inspector__placeholder">Point at a writing to preview it</p>
+              <figure class="archive-inspector__cover" hidden>
+                <img class="archive-inspector__img" alt="" decoding="async" />
+              </figure>
+              <p class="archive-inspector__title"></p>
+              <div class="archive-inspector__excerpt"></div>
+              <dl class="archive-inspector__meta"></dl>
+            </aside>
           </div>
         </div>
       </main>

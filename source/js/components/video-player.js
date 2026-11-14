@@ -189,9 +189,15 @@ const ICONS = {
   forward: svg(
     `<g ${STROKE}><path d="M12 4.6a7.6 7.6 0 1 0 7.4 9.2"/></g><path fill="currentColor" d="M11.6 1.9l3.8 2.7-3.8 2.7z"/><text x="11.4" y="15.6" text-anchor="middle" font-size="7.4" font-weight="700" font-family="system-ui, sans-serif" fill="currentColor">${SKIP_SECONDS}</text>`,
   ),
-  volumeHigh: svg(`<path fill="currentColor" d="M4.8 9.3h2.7L11.4 6a.6.6 0 0 1 1 .46v11.08a.6.6 0 0 1-1 .46l-3.9-3.3H4.8a1 1 0 0 1-1-1V10.3a1 1 0 0 1 1-1z"/><path ${STROKE} d="M15.6 9.3a3.8 3.8 0 0 1 0 5.4M18.3 6.7a7.5 7.5 0 0 1 0 10.6"/>`),
-  volumeLow: svg(`<path fill="currentColor" d="M4.8 9.3h2.7L11.4 6a.6.6 0 0 1 1 .46v11.08a.6.6 0 0 1-1 .46l-3.9-3.3H4.8a1 1 0 0 1-1-1V10.3a1 1 0 0 1 1-1z"/><path ${STROKE} d="M15.6 9.3a3.8 3.8 0 0 1 0 5.4"/>`),
-  volumeMuted: svg(`<path fill="currentColor" d="M4.8 9.3h2.7L11.4 6a.6.6 0 0 1 1 .46v11.08a.6.6 0 0 1-1 .46l-3.9-3.3H4.8a1 1 0 0 1-1-1V10.3a1 1 0 0 1 1-1z"/><path ${STROKE} d="m15.8 9.6 4.8 4.8m0-4.8-4.8 4.8"/>`),
+  volumeHigh: svg(
+    `<path fill="currentColor" d="M4.8 9.3h2.7L11.4 6a.6.6 0 0 1 1 .46v11.08a.6.6 0 0 1-1 .46l-3.9-3.3H4.8a1 1 0 0 1-1-1V10.3a1 1 0 0 1 1-1z"/><path ${STROKE} d="M15.6 9.3a3.8 3.8 0 0 1 0 5.4M18.3 6.7a7.5 7.5 0 0 1 0 10.6"/>`,
+  ),
+  volumeLow: svg(
+    `<path fill="currentColor" d="M4.8 9.3h2.7L11.4 6a.6.6 0 0 1 1 .46v11.08a.6.6 0 0 1-1 .46l-3.9-3.3H4.8a1 1 0 0 1-1-1V10.3a1 1 0 0 1 1-1z"/><path ${STROKE} d="M15.6 9.3a3.8 3.8 0 0 1 0 5.4"/>`,
+  ),
+  volumeMuted: svg(
+    `<path fill="currentColor" d="M4.8 9.3h2.7L11.4 6a.6.6 0 0 1 1 .46v11.08a.6.6 0 0 1-1 .46l-3.9-3.3H4.8a1 1 0 0 1-1-1V10.3a1 1 0 0 1 1-1z"/><path ${STROKE} d="m15.8 9.6 4.8 4.8m0-4.8-4.8 4.8"/>`,
+  ),
   captions: svg(`<rect ${STROKE} x="3" y="5.5" width="18" height="13" rx="3.2"/><path ${STROKE} d="M10.6 10.3a2.1 2.1 0 1 0 0 3.4M16.6 10.3a2.1 2.1 0 1 0 0 3.4"/>`),
   pip: svg(`<rect ${STROKE} x="3" y="5" width="18" height="14" rx="2.6"/><rect fill="currentColor" x="12" y="11.4" width="6.6" height="5" rx="1.2"/>`),
   pipExit: svg(`<rect ${STROKE} x="3" y="5" width="18" height="14" rx="2.6"/><path ${STROKE} d="m8 9 4 4m0-3.4V13H8.6"/>`),
@@ -484,7 +490,7 @@ const STYLES = `
     padding: 6px 0 0 4px;
     overflow: hidden;
     color: rgb(255 255 255 / 0.95);
-    font-size: 15px;
+    font-size: var(--type-ui-size);
     font-weight: 500;
     text-overflow: ellipsis;
     text-shadow: 0 1px 12px rgb(0 0 0 / 0.55);
@@ -510,7 +516,7 @@ const STYLES = `
     -webkit-backdrop-filter: var(--vp-blur);
     backdrop-filter: var(--vp-blur);
     color: rgb(255 255 255 / 0.94);
-    font-size: 12.5px;
+    font-size: var(--type-caption-size);
     font-weight: 500;
     text-decoration: none;
     white-space: nowrap;
@@ -638,7 +644,7 @@ const STYLES = `
 
   .ctl--text {
     font-family: var(--font-mono, ui-monospace, monospace);
-    font-size: 12px;
+    font-size: var(--type-label-size);
     font-variant-numeric: tabular-nums;
   }
 
@@ -657,7 +663,7 @@ const STYLES = `
     margin-left: 4px;
     color: rgb(255 255 255 / 0.86);
     font-family: var(--font-mono, ui-monospace, monospace);
-    font-size: 12px;
+    font-size: var(--type-label-size);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
@@ -783,7 +789,7 @@ const STYLES = `
     backdrop-filter: var(--vp-blur-strong);
     color: #fff;
     font-family: var(--font-mono, ui-monospace, monospace);
-    font-size: 12px;
+    font-size: var(--type-label-size);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     opacity: 0;
@@ -860,7 +866,7 @@ const STYLES = `
     width: 128px;
     padding: 6px;
     border-radius: 16px;
-    font-size: 13px;
+    font-size: var(--type-caption-size);
   }
 
   .menu-item {
@@ -971,7 +977,7 @@ const STYLES = `
     z-index: 5;
     padding: 4px 8px;
     border-radius: 8px;
-    font-size: 11px;
+    font-size: var(--type-label-size);
     font-weight: 500;
     white-space: nowrap;
     pointer-events: none;
@@ -1010,7 +1016,7 @@ const STYLES = `
     backdrop-filter: var(--vp-blur-strong);
     color: #fff;
     font-family: var(--font-mono, ui-monospace, monospace);
-    font-size: 12px;
+    font-size: var(--type-label-size);
     font-variant-numeric: tabular-nums;
     transition: opacity 260ms var(--vp-ease);
   }
@@ -1051,7 +1057,7 @@ const STYLES = `
     justify-items: center;
     padding: 1rem;
     color: rgb(255 255 255 / 0.9);
-    font-size: 14px;
+    font-size: var(--type-ui-size);
     text-align: center;
     background: rgb(0 0 0 / 0.55);
   }
@@ -1249,7 +1255,6 @@ class VideoPlayer extends HTMLElement {
       if (event.target.closest?.(".pill")) return;
       this._activateEmbed(player, platform);
     });
-
   }
 
   /** 换上官方播放器；iframe 就绪后门面浮层淡出并移除，之后播放器上方不留任何自定义元素 */

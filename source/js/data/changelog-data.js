@@ -3,9 +3,30 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "11.14",
+        cn: [
+          "参考 Palermo 定义完整的 Title、Body 与 Paragraph 文字角色，统一字号、行高和字重；长文保留独立的 16px 阅读字号和 1.7 行高。文章宽度改为五档点选，设置页随所选栏宽调整，移除间距偏好设置。",
+          "归档检视面板的标签改为无下划线的链接，跳转到对应语言的标签页；顶栏使用 120px 的背景渐变遮罩。",
+          "顶栏语境使用辅助文字色，以正文阅读进度百分比代替小节序号，保留当前小节名称与目录入口。",
+          "文末重排为收尾文字、独立的 Back to archive 主入口与评论和邮件操作；偏好设置页随文章栏宽即时调整。首页站名可打开栏目菜单，归档大年份靠右显示，篇数移到刻度尺下方。",
+          "评论区增加固定标题、关闭按钮和加载重试，重新排版表单与回复；首屏加载后的空闲时段提前初始化 Twikoo 并请求评论列表，打开弹层复用已加载内容。",
+        ],
+        en: [
+          "Palermo-inspired Title, Body and Paragraph roles pair font size, line height and weight. Long-form reading keeps its own 16px default and 1.7 line height. Article width becomes five selectable options that also size the settings page; the spacing preference is removed.",
+          "Tags in the archive inspector link to their localized tag pages without underlines, and the navbar uses a 120px background fade.",
+          "The navbar context uses secondary text color and shows article reading progress as a percentage instead of a section count, while keeping the current section name and TOC access.",
+          "The article ending separates its closing note, primary Back to archive link, and comment and email actions. The settings page follows the article width preference. The home page name opens the navigation menu, the large archive year aligns to the right, and the writing count moves below the year scale.",
+          "The comment dialog gains a fixed header, close button and loading retry, with updated forms and replies. Twikoo initializes and requests the first comment page during idle time after initial page load, then reuses that content when the dialog opens.",
+        ],
+        category: "uiux",
+      },
+      {
         date: "11.08",
         cn: ["文章首屏按有无封面分为 6:6 与 8:4 两种版式，桌面端目录常驻左侧。", "去掉菜单钮，点站名打开整屏的栏目页。"],
-        en: ["The article opening now has 6:6 and 8:4 layouts for posts with and without a cover, and the desktop TOC stays docked on the left.", "The menu button is gone; clicking the site name opens a full-screen page of links."],
+        en: [
+          "The article opening now has 6:6 and 8:4 layouts for posts with and without a cover, and the desktop TOC stays docked on the left.",
+          "The menu button is gone; clicking the site name opens a full-screen page of links.",
+        ],
         category: "uiux",
       },
       {
@@ -30,12 +51,8 @@ window.__CHANGELOG_DATA__ = [
       },
       {
         date: "10.18",
-        cn: [
-          "使用 pele 绘制图表",
-        ],
-        en: [
-          "Use pele for diagram",
-        ],
+        cn: ["使用 pele 绘制图表"],
+        en: ["Use pele for diagram"],
         category: "feature",
       },
       {
@@ -60,9 +77,7 @@ window.__CHANGELOG_DATA__ = [
       },
       {
         date: "10.17",
-        cn: [
-          "归档页季节标签改为构建期生成的手写笔画 SVG，悬浮或点按逐笔书写；标签置顶吸附、滑入内容渐进模糊，不再依赖访客本地字体",
-        ],
+        cn: ["归档页季节标签改为构建期生成的手写笔画 SVG，悬浮或点按逐笔书写；标签置顶吸附、滑入内容渐进模糊，不再依赖访客本地字体"],
         en: [
           "Archive season labels become build-time handwritten stroke SVGs that draw themselves on hover or tap; the label sticks to the viewport top with a progressive blur for content sliding under, and no longer depends on visitors' local fonts",
         ],
@@ -175,7 +190,7 @@ window.__CHANGELOG_DATA__ = [
           "按钮与弹层换成 Apple Liquid Glass 设计语言：default.css 新增 .glass / .glass-button 与一套随主题明暗切换的 --glass-* token——主题 base 调出的半透明底色 + 模糊 / 提饱和 / 提亮、1px 渐变高光描边（左上迎光、右下回光）、按压提亮与弹簧回弹；导航栏动作区收进一枚玻璃胶囊、移动端 burger 与 TOC 浮钮成为玻璃圆，命令面板改为 Spotlight 式玻璃面板（身后只压淡暗色，不再全屏模糊），偏好弹窗本体成为玻璃面板（移动端为四周悬空的浮动 sheet），目录、文章信息、评论、脚注提示、Cookie 提示、Mermaid 工具按钮与图片轮播 / 群图的翻页按钮一并玻璃化；Chromium 桌面端由 glass-lens.js 空闲时按元素尺寸生成位移贴图，经 backdrop-filter: url() 补上边缘折射；玻璃材质直接挂在淡入淡出的元素自身，避开 Backdrop Root 导致的模糊延迟出现；减少透明度偏好或不支持 backdrop-filter 时在 token 层退回实色",
         ],
         en: [
-          "Add the &lt;video-player&gt; component (after loomix): self-hosted videos get full custom controls — a centered glass cluster (back 10s · play/pause · forward 10s), a bottom bar with a seek bar (buffered range, hover time preview, scrubbing), play, volume (hover slider; mute-only on iOS), time, captions, a speed menu, picture-in-picture and fullscreen, plus the title and a \"Watch on YouTube / Bilibili\" pill up top; controls hide after 2.2s of inactivity while playing, and Space/K, M, F, C, ←/→, J/L, ↑/↓ and 0–9 work from the keyboard. When the video is CORS-enabled the center buttons upgrade to WebGL2 refracting glass (video-lens.js, loaded on demand: frames uploaded straight to a texture, a squircle bevel with Snell refraction and dispersion, mipmap frosting, luminance-adaptive dimming computed in the shader, redrawn only on new video frames or button animation); otherwise they keep the CSS glass. YouTube / Bilibili use a facade: only the poster and a glass play button until activation (platform origins are preconnected on hover), then the official player takes over and every overlay is removed. The YouTube / Bilibili iframes in posts now use the component, and component scripts inside encrypted posts now run after decryption",
+          'Add the &lt;video-player&gt; component (after loomix): self-hosted videos get full custom controls — a centered glass cluster (back 10s · play/pause · forward 10s), a bottom bar with a seek bar (buffered range, hover time preview, scrubbing), play, volume (hover slider; mute-only on iOS), time, captions, a speed menu, picture-in-picture and fullscreen, plus the title and a "Watch on YouTube / Bilibili" pill up top; controls hide after 2.2s of inactivity while playing, and Space/K, M, F, C, ←/→, J/L, ↑/↓ and 0–9 work from the keyboard. When the video is CORS-enabled the center buttons upgrade to WebGL2 refracting glass (video-lens.js, loaded on demand: frames uploaded straight to a texture, a squircle bevel with Snell refraction and dispersion, mipmap frosting, luminance-adaptive dimming computed in the shader, redrawn only on new video frames or button animation); otherwise they keep the CSS glass. YouTube / Bilibili use a facade: only the poster and a glass play button until activation (platform origins are preconnected on hover), then the official player takes over and every overlay is removed. The YouTube / Bilibili iframes in posts now use the component, and component scripts inside encrypted posts now run after decryption',
           "Buttons and popups adopt Apple's Liquid Glass language: default.css gains .glass / .glass-button and a set of --glass-* tokens that follow each theme's light or dark scheme — a translucent fill mixed from the theme base with blur / saturation / brightness, a 1px gradient specular rim (lit top-left, reflected bottom-right), press illumination and a springy release. The navbar actions sit in a glass capsule, the mobile burger and TOC button become glass circles, the command palette becomes a Spotlight-style glass panel (only a faint dim behind it instead of a full-screen blur), the preferences popup itself is a glass panel (a floating inset sheet on mobile), and the TOC, article info, comments, footnote tooltips, cookie notice, Mermaid tool buttons and the image-carousel / image-group arrows follow suit. On desktop Chromium, glass-lens.js builds per-element displacement maps at idle time and adds edge refraction through backdrop-filter: url(). The glass material lives on the fading element itself to avoid the Backdrop Root delay, and reduced-transparency or no backdrop-filter support falls back to solid surfaces at the token level",
         ],
         category: "feature",
@@ -224,12 +239,8 @@ window.__CHANGELOG_DATA__ = [
       },
       {
         date: "9.10",
-        cn: [
-          "Mermaid 图改由 beautiful-mermaid 在构建期渲染为内联 SVG",
-        ],
-        en: [
-          "Mermaid diagrams are now rendered at build time into inline SVG by beautiful-mermaid",
-        ],
+        cn: ["Mermaid 图改由 beautiful-mermaid 在构建期渲染为内联 SVG"],
+        en: ["Mermaid diagrams are now rendered at build time into inline SVG by beautiful-mermaid"],
         category: "feature",
       },
       {

@@ -148,14 +148,13 @@ function injectFriendsListStyles() {
     h3.friend-name {
       font-family: var(--font-serif);
       font-style: italic;
-      font-synthesis: none;
-      font-size: 0.92rem;
-      font-weight: bolder;
+      font-size: var(--type-subtitle-size);
+      font-weight: var(--font-weight-semibold);
       color: var(--title-text-color);
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      line-height: 1.3;
+      line-height: var(--type-subtitle-leading);
       margin: 0;
     }
 
@@ -170,7 +169,7 @@ function injectFriendsListStyles() {
       transition: color 0.2s ease, border-color 0.2s ease;
       border: 1px solid var(--surface0);
       border-radius: 50%;
-      font-size: 0.75rem;
+      font-size: var(--type-caption-size);
       position: relative;
       z-index: 3;
       flex: 0 0 auto;
@@ -183,7 +182,7 @@ function injectFriendsListStyles() {
 
     .friend-url {
       font-family: var(--font-mono);
-      font-size: 0.75rem;
+      font-size: var(--type-caption-size);
       font-weight: 400;
       color: var(--sub-text-color);
       transition: color 0.2s ease;
@@ -199,7 +198,9 @@ function injectFriendsListStyles() {
 
     .friend-desc {
       font-family: var(--font-sans-serif);
-      font-size: 0.8rem;
+      font-size: var(--type-ui-size);
+      line-height: var(--type-ui-leading);
+      text-wrap: pretty;
       color: var(--sub-text-color);
       margin: 0.5rem 0 0;
       padding: 0;

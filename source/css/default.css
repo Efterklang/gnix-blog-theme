@@ -6,36 +6,68 @@
   --font-sans-serif: "Helvetica Neue", Helvetica, Arial, system-ui, var(--font-symbols), sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", var(--font-symbols), monospace;
   --font-handwritten: "Bradley Hand", XingKai SC, var(--font-symbols), cursive;
-  --article-font-size: 0.9375rem;
+  --article-font-size: 1rem;
   --article-font-family: var(--font-sans-serif);
-  /* Fluid Functionalism 的五档角色，标题比例适配博客的扉页与长文阅读。 */
+  /* Palermo 的 Title / Body / Paragraph 分工：字号、行高、字重作为完整角色。
+     界面层级固定；博客 Display 和可调阅读字号独立于产品界面。见 docs/typography.md。 */
   --font-weight-regular: 400;
-  --font-weight-semibold: 550;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
   --font-weight-bold: 700;
-  --type-display-size: clamp(calc(var(--article-font-size) * 2.5), calc(var(--article-font-size) * 2 + 2vw), calc(var(--article-font-size) * 4));
-  --type-display-leading: 1.2;
-  --type-title-size: calc(var(--article-font-size) * 1.5);
-  --type-title-leading: 1.35;
-  --type-subtitle-size: calc(var(--article-font-size) * 1.25);
-  --type-subtitle-leading: 1.4;
-  --type-body-size: var(--article-font-size);
-  --type-body-leading: 1.6;
-  --type-caption-size: calc(var(--article-font-size) * 12 / 13);
-  --type-caption-leading: calc(var(--article-font-size) * 16 / 13);
+  --type-page-size: 1.75rem;
+  --type-page-leading: calc(32 / 28);
+  --type-heading-tracking: -0.015625rem;
+  --type-editorial-size: clamp(3.25rem, 8.5vw, 8rem);
+  --type-editorial-leading: 0.95;
+  --type-editorial-tracking: -0.04em;
+  --type-hero-size: clamp(2.75rem, 1.5rem + 3.6vw, 4.75rem);
+  --type-display-size: clamp(2rem, 1.4rem + 2.6vw, 3.75rem);
+  --type-display-leading: 1.15;
+  --type-display-tracking: -0.025em;
+  --type-title-size: 1.5rem;
+  --type-title-leading: calc(32 / 24);
+  --type-title-tracking: var(--type-heading-tracking);
+  --type-subtitle-size: 1.125rem;
+  --type-subtitle-leading: calc(24 / 18);
+  --type-body-size: 0.875rem;
+  --type-body-leading: calc(20 / 14);
+  --type-body-spaced-leading: calc(24 / 14);
+  --type-ui-size: 0.8125rem;
+  --type-ui-leading: calc(18 / 13);
+  --type-ui-spaced-leading: calc(20 / 13);
+  --type-caption-size: 0.75rem;
+  --type-caption-leading: calc(16 / 12);
+  --type-label-size: 0.75rem;
+  --type-label-leading: calc(16 / 12);
+  --type-paragraph-leading: 1.7;
+  --type-paragraph-small-leading: 1.7;
+  --type-page-font: var(--font-weight-semibold) var(--type-page-size) / var(--type-page-leading) var(--font-sans-serif);
+  --type-title-font: var(--font-weight-semibold) var(--type-title-size) / var(--type-title-leading) var(--font-sans-serif);
+  --type-subtitle-font: var(--font-weight-semibold) var(--type-subtitle-size) / var(--type-subtitle-leading) var(--font-sans-serif);
+  --type-body-font: var(--font-weight-regular) var(--type-body-size) / var(--type-body-leading) var(--font-sans-serif);
+  --type-body-spaced-font: var(--font-weight-regular) var(--type-body-size) / var(--type-body-spaced-leading) var(--font-sans-serif);
+  --type-ui-font: var(--font-weight-regular) var(--type-ui-size) / var(--type-ui-leading) var(--font-sans-serif);
+  --type-ui-spaced-font: var(--font-weight-regular) var(--type-ui-size) / var(--type-ui-spaced-leading) var(--font-sans-serif);
+  --type-caption-font: var(--font-weight-regular) var(--type-caption-size) / var(--type-caption-leading) var(--font-sans-serif);
+  --type-paragraph-font: var(--article-font-weight) var(--article-font-size) / var(--type-paragraph-leading) var(--article-font-family);
+  --type-paragraph-small-font: var(--font-weight-regular) var(--type-ui-size) / var(--type-paragraph-small-leading) var(--font-sans-serif);
+  --prose-h1-size: calc(var(--article-font-size) * 2);
+  --prose-h2-size: calc(var(--article-font-size) * 1.5);
+  --prose-h3-size: calc(var(--article-font-size) * 1.25);
+  --prose-h4-size: calc(var(--article-font-size) * 1.125);
   --article-font-weight: var(--font-weight-regular);
   --article-bold-font-weight: var(--font-weight-semibold);
   /* 文章与归档的默认栏宽为最窄档；各档位显式定义，供偏好设置切换。 */
   --article-max-width: 42em;
-  /* 正文间距用 em：以 14px 字号为参考，常规段距 16px 即 16/14em。
-     间距随所在文字的字号缩放，布局栅格仍独立。 */
+  /* 统一阅读节奏：段落一档，节前两档，标题后半档；em 随文字缩放。 */
   --spacing: 0.25rem;
-  --prose-gap: calc(16em / 14);
-  --prose-heading-gap: calc(32em / 14);
-  --prose-subheading-gap: calc(24em / 14);
-  --prose-heading-after: calc(12em / 14);
-  --prose-caption-gap: calc(12em / 14);
-  --prose-list-gap: calc(8em / 14);
-  --prose-divider-gap: calc(32em / 14);
+  --prose-gap: 1em;
+  --prose-heading-gap: 2em;
+  --prose-subheading-gap: 1.5em;
+  --prose-heading-after: 0.5em;
+  --prose-caption-gap: 0.75em;
+  --prose-list-gap: 0.5em;
+  --prose-divider-gap: 2em;
   /* misc：面（弹层、菜单、卡片）用小圆角、0.5px 的浅描边与一点柔和的投影；
      --rule 是表格的行线，--rule-strong 只用在表头下 */
   --radius: 12px;
@@ -44,19 +76,17 @@
   --rule-strong: var(--title-text-color);
   --edge-color: color-mix(in oklab, var(--title-text-color) 14%, transparent);
   /* 投影两层：一道贴边的接触影 + 一道远而柔的投影，面才像搁在纸上而不是贴在纸上 */
-  --shadow-soft:
-    0 1px 2px rgb(0 0 0 / 0.04),
-    0 16px 40px -20px rgb(0 0 0 / 0.24);
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.04), 0 16px 40px -20px rgb(0 0 0 / 0.24);
   --hover-fill: color-mix(in oklab, var(--title-text-color) 6%, transparent);
   --focus-ring: 1px solid var(--title-text-color);
   --navbar-height: 3.5rem;
   /* 版心：所有页面共用一条左缘——站名、Back、工具栏、归档的大字都落在这条线上 */
   --page-margin: clamp(1.25rem, 2.5vw, 2.5rem);
-  /* 标签：全站的小标签只用一副无衬线（同正文字族）、大写、11px、中等字重、0.08em 字距；
+  /* 标签：全站的小标签只用一副无衬线、大写、12px、中等字重、0.06em 字距；
      等宽字只留给数据——日期、计数、代码、规格表的取值 */
   --font-label: var(--font-sans-serif);
-  --label-size: 0.6875rem;
-  --label-tracking: 0.08em;
+  --label-size: var(--type-label-size);
+  --label-tracking: 0.06em;
   --label-weight: 500;
   /* motion：入场/位移的全站缓动基准（easeOutQuint，与归档页动效一致）；
      纯色彩 hover 过渡仍用内置 ease */
@@ -65,19 +95,19 @@
   --scroll-reveal-distance: 8px;
 
   &[data-article-font-size="small"] {
-    --article-font-size: 0.8125rem;
-  }
-
-  &[data-article-font-size="medium-small"] {
     --article-font-size: 0.875rem;
   }
 
+  &[data-article-font-size="medium-small"] {
+    --article-font-size: 0.9375rem;
+  }
+
   &[data-article-font-size="medium-large"] {
-    --article-font-size: 1rem;
+    --article-font-size: 1.125rem;
   }
 
   &[data-article-font-size="large"] {
-    --article-font-size: 1.0625rem;
+    --article-font-size: 1.25rem;
   }
 
   &[data-article-font-family="sans-serif"] {
@@ -122,28 +152,6 @@
 
   &[data-article-width="wide"] {
     --article-max-width: 64em;
-  }
-
-  &[data-article-spacing="compact"] {
-    --spacing: 0.1875rem;
-    --prose-gap: calc(12em / 14);
-    --prose-heading-gap: calc(24em / 14);
-    --prose-subheading-gap: calc(20em / 14);
-    --prose-heading-after: calc(8em / 14);
-    --prose-caption-gap: calc(8em / 14);
-    --prose-list-gap: calc(4em / 14);
-    --prose-divider-gap: calc(24em / 14);
-  }
-
-  &[data-article-spacing="relaxed"] {
-    --spacing: 0.3125rem;
-    --prose-gap: calc(20em / 14);
-    --prose-heading-gap: calc(40em / 14);
-    --prose-subheading-gap: calc(28em / 14);
-    --prose-heading-after: calc(16em / 14);
-    --prose-caption-gap: calc(16em / 14);
-    --prose-list-gap: calc(12em / 14);
-    --prose-divider-gap: calc(40em / 14);
   }
 }
 
@@ -305,7 +313,7 @@
     --rosewater: #8c5a4d;
     --mauve: #674689;
     --red: #9a3936;
-    --peach: #E88AA0;
+    --peach: #e88aa0;
     --yellow: #8c6c1f;
     --green: #397247;
     --teal: #1f7265;
@@ -343,19 +351,90 @@
   }
 }
 
+html {
+  font-size: 100%;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
   background: var(--mantle);
   color: var(--sub-text-color);
   min-height: 100%;
-  line-height: 1.7;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-leading);
   display: flex;
   flex-direction: column;
-  font-synthesis: none;
   font-family: var(--font-sans-serif);
 }
 
 :where(h1, h2, h3, h4, h5, h6) {
   color: var(--title-text-color);
+  font-weight: var(--font-weight-semibold);
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+:where(h1) {
+  font: var(--type-page-font);
+  letter-spacing: var(--type-heading-tracking);
+}
+
+:where(h2) {
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-leading);
+  letter-spacing: var(--type-title-tracking);
+}
+
+:where(h3, h4) {
+  font-size: var(--type-subtitle-size);
+  line-height: var(--type-subtitle-leading);
+  letter-spacing: var(--type-heading-tracking);
+}
+
+:where(h5, h6) {
+  font-size: var(--type-body-size);
+  line-height: var(--type-subtitle-leading);
+}
+
+:where(button, input, select, textarea) {
+  font: inherit;
+}
+
+/* 完整文字角色不设置颜色；页面与组件按语义使用，颜色由所在层级决定。 */
+.type-page-title {
+  font: var(--type-page-font);
+  letter-spacing: var(--type-heading-tracking);
+}
+.type-title {
+  font: var(--type-title-font);
+  letter-spacing: var(--type-heading-tracking);
+}
+.type-subtitle {
+  font: var(--type-subtitle-font);
+  letter-spacing: var(--type-heading-tracking);
+}
+.type-body {
+  font: var(--type-body-font);
+}
+.type-body-spaced {
+  font: var(--type-body-spaced-font);
+}
+.type-ui {
+  font: var(--type-ui-font);
+}
+.type-ui-spaced {
+  font: var(--type-ui-spaced-font);
+}
+.type-caption {
+  font: var(--type-caption-font);
+}
+.type-paragraph {
+  font: var(--type-paragraph-font);
+}
+.type-paragraph-small {
+  font: var(--type-paragraph-small-font);
 }
 
 /* 链接是墨色加一条细下划线；悬停退一档灰。强调色不再用于文字 */
@@ -364,6 +443,7 @@ a {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.15em;
+  text-decoration-skip-ink: auto;
 
   &:hover {
     color: var(--sub-text-color);
@@ -563,7 +643,8 @@ hr {
   font-style: normal;
   font-weight: 400;
   font-display: block;
-  unicode-range: U+26A1, U+E5FF, U+E60B, U+E626, U+E628, U+E62A, U+E697, U+E69F-E6A0, U+E71E, U+E73C, U+E749, U+E74E, U+E758, U+E781, U+E7A8, U+E7BA, U+F013, U+F016, U+F023, U+F02D, U+F03D, U+F07B, U+F0B3, U+F109, U+F120, U+F13B-F13C, U+F15B, U+F1C1, U+F1C5, U+F1D3, U+F2DB, U+F308, U+F410, U+F469, U+F481, U+F489-F48A, U+F4BC, U+F4D2, U+F0150, U+F02CA, U+F035B, U+F03D6, U+F04E1, U+F09E8, U+F0A5F;
+  unicode-range:
+    U+26A1, U+E5FF, U+E60B, U+E626, U+E628, U+E62A, U+E697, U+E69F-E6A0, U+E71E, U+E73C, U+E749, U+E74E, U+E758, U+E781, U+E7A8, U+E7BA, U+F013, U+F016, U+F023, U+F02D, U+F03D, U+F07B, U+F0B3, U+F109, U+F120, U+F13B-F13C, U+F15B, U+F1C1, U+F1C5, U+F1D3, U+F2DB, U+F308, U+F410, U+F469, U+F481, U+F489-F48A, U+F4BC, U+F4D2, U+F0150, U+F02CA, U+F035B, U+F03D6, U+F04E1, U+F09E8, U+F0A5F;
 }
 
 @font-face {
@@ -1110,7 +1191,7 @@ html {
 
 /* #region Navbar */
 
-/* 顶栏（所有尺寸同一份）：站名在左、右侧一排图标钮，不画线。吸顶常驻、不让位；底色与页面同色 */
+/* 顶栏：文字浮在纸色渐变之上，向下淡出到滚动内容；不叠加背景模糊。 */
 .navbar {
   position: sticky;
   top: 0;
@@ -1121,8 +1202,35 @@ html {
   gap: 1rem;
   padding: env(safe-area-inset-top) var(--page-margin) 0;
   z-index: 100;
-  user-select: none;
-  background: var(--mantle);
+  background: transparent;
+}
+
+/* 与参考页的 120px 遮罩同样使用背景色 → 透明；顶栏在上方，淡出方向相应向下。
+   渐变只覆盖视觉，不拦截其下内容的点击，也不改变顶栏的布局高度。 */
+.navbar-material {
+  position: absolute;
+  inset: 0 1px auto;
+  height: calc(7.5rem + env(safe-area-inset-top));
+  min-height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--mantle), transparent);
+}
+
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
+  .navbar {
+    background: var(--mantle);
+  }
+
+  .navbar-material {
+    display: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .navbar {
+    border-bottom: 1px solid var(--title-text-color);
+  }
 }
 
 :where(.navbar) button {
@@ -1131,9 +1239,10 @@ html {
   cursor: pointer;
 }
 
-/* 站名：等宽大写的小字标 */
+/* 站名：无衬线大写的小字标 */
 /* 左手一组：站名常驻；文章页后面接一节语境（/ 当前位置 ⌄），占去站名与图标之间的余量，放不下就省略 */
 .navbar-lead {
+  position: relative;
   display: flex;
   flex: 1 1 auto;
   align-items: center;
@@ -1148,7 +1257,7 @@ html {
   font-size: var(--label-size);
 }
 
-/* 语境钮：等宽的小节序号（01/07）+ 节名；静息灰、悬停与展开时墨。
+/* 语境钮：等宽的阅读百分比 + 节名；静息灰、悬停与展开时墨。
    热区比字大：左右各让出 0.5rem 的内边距，再用负外边距把字拉回分隔符旁 */
 .navbar-context {
   display: inline-flex;
@@ -1163,7 +1272,7 @@ html {
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--sub-text-color);
-  font: 400 0.8125rem / 1.2 var(--font-sans-serif);
+  font: var(--label-weight) var(--type-ui-size) / var(--type-ui-leading) var(--font-sans-serif);
   cursor: pointer;
   transition: color 120ms ease;
 
@@ -1178,17 +1287,14 @@ html {
   }
 }
 
-.navbar-context__index {
+.navbar-context__progress {
   flex: none;
-  opacity: 0.6;
+  min-inline-size: 4ch;
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: var(--type-label-size);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
-
-  &:empty {
-    display: none;
-  }
+  text-align: end;
 }
 
 .navbar-context__label {
@@ -1290,6 +1396,7 @@ html {
 /* #endregion */
 
 .navbar-actions {
+  position: relative;
   display: flex;
   flex: none;
   align-items: center;
@@ -1495,14 +1602,13 @@ button.navbar-brand {
 
 /* 页尾是页面的最后一行：一行等宽大写小字分左右排开，靠上方的留白与正文分开 */
 .footer {
-  user-select: none;
   position: relative;
   margin-top: 5rem;
   padding: 1.25rem var(--page-margin) calc(2rem + env(safe-area-inset-bottom));
   color: var(--sub-text-color);
   font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: light;
+  font-size: var(--type-label-size);
+  font-weight: var(--font-weight-regular);
   text-align: start;
 }
 
@@ -1617,7 +1723,7 @@ small {
   flex: none;
   color: var(--gate-accent);
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: var(--type-caption-size);
   line-height: 1;
 }
 
@@ -1629,7 +1735,7 @@ input.gate__input {
   background: transparent;
   color: var(--title-text-color);
   font-family: var(--font-mono);
-  font-size: 0.9375rem;
+  font-size: var(--type-body-size);
   letter-spacing: 0.02em;
   outline: none;
 
@@ -1639,7 +1745,7 @@ input.gate__input {
 
   /* 触屏上 16px 起 iOS 才不会为了可读性放大整页 */
   @media (pointer: coarse), (max-width: 768px) {
-    font-size: 16px;
+    font-size: 1rem;
   }
 }
 
@@ -1651,7 +1757,7 @@ input.gate__input {
   color: var(--sub-text-color);
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: var(--type-caption-size);
   letter-spacing: 0.08em;
   transition: color 140ms var(--ease-out);
 
@@ -1665,7 +1771,7 @@ input.gate__input {
   margin: 0;
   color: var(--red);
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: var(--type-caption-size);
   line-height: 1.5;
 }
 
@@ -1681,7 +1787,7 @@ input.command-palette-input {
   color: inherit;
   background-color: transparent;
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--type-ui-size);
   border: none;
   outline: 0;
   flex-grow: 1;
@@ -1696,7 +1802,7 @@ input.command-palette-input {
 
 @media (pointer: coarse), (max-width: 768px) {
   input.command-palette-input {
-    font-size: 16px;
+    font-size: 1rem;
   }
 }
 
@@ -1704,12 +1810,12 @@ input.command-palette-input {
 .command-palette-container {
   align-items: center;
   flex-direction: column;
-  line-height: 1.25em;
+  line-height: var(--type-ui-leading);
 }
 
 /* 面板是一张纸：纸色底、一条墨线描边，不投影不模糊 */
 .command-palette-container {
-  font-size: 14px;
+  font-size: var(--type-ui-size);
   color: var(--sub-text-color);
   position: fixed;
   z-index: 101;
@@ -1761,7 +1867,7 @@ input.command-palette-input {
   background-color: transparent;
   color: var(--sub-text-color);
   font: inherit;
-  font-size: 0.78rem;
+  font-size: var(--type-caption-size);
   line-height: 1.4;
   white-space: nowrap;
   cursor: pointer;
@@ -1981,7 +2087,7 @@ input.command-palette-input {
       overflow: visible;
       text-overflow: clip;
       font-weight: 400;
-      font-size: 0.88em;
+      font-size: var(--type-caption-size);
     }
 
     &:hover,
@@ -1994,7 +2100,7 @@ input.command-palette-input {
 
 .command-palette-empty {
   padding: 1.4em 1.25em;
-  font-size: 0.85rem;
+  font-size: var(--type-ui-size);
   color: var(--sub-text-color);
   text-align: center;
 }
@@ -2008,7 +2114,7 @@ input.command-palette-input {
   box-sizing: border-box;
   padding: 0.55em 1.25em;
   border-top: 1px solid var(--rule);
-  font-size: 0.68rem;
+  font-size: var(--type-label-size);
   color: var(--sub-text-color);
   white-space: nowrap;
 
@@ -2094,9 +2200,9 @@ input.command-palette-input {
   padding: 0 0.5rem;
   border: 0;
   border-radius: calc(var(--radius-sm) - 2px);
-  color: color-mix(in oklab, var(--sub-text-color) 55%, transparent);
+  color: var(--sub-text-color);
   background: transparent;
-  font: var(--font-weight-semibold) 0.8125rem / 1.2 var(--font-sans-serif);
+  font: var(--font-weight-semibold) var(--type-ui-size) / var(--type-ui-leading) var(--font-sans-serif);
   cursor: pointer;
   transition: color 120ms ease;
 
@@ -2122,20 +2228,26 @@ input.command-palette-input {
 
 /* 格子里的文字就是内容（语言的 ZH / EN）：小一号、不大写 */
 .segmented__cell--text {
-  font-size: 0.75rem;
+  font-size: var(--type-label-size);
   text-transform: none;
 }
 
 /* 字体族的格子：「Aa」按各自的字族渲染，切换前就能看到字形（设置页的卡片把这个字样放大） */
 .font-type-preview {
   font-family: var(--font-type-preview-family, var(--font-sans-serif));
-  font-size: 0.875rem;
+  font-size: var(--type-ui-size);
   line-height: 1;
 }
 
-.font-type-btn[data-font="serif"] { --font-type-preview-family: var(--font-serif); }
-.font-type-btn[data-font="mono"] { --font-type-preview-family: var(--font-mono); }
-.font-type-btn[data-font="handwriting"] { --font-type-preview-family: var(--font-handwritten); }
+.font-type-btn[data-font="serif"] {
+  --font-type-preview-family: var(--font-serif);
+}
+.font-type-btn[data-font="mono"] {
+  --font-type-preview-family: var(--font-mono);
+}
+.font-type-btn[data-font="handwriting"] {
+  --font-type-preview-family: var(--font-handwritten);
+}
 
 /* #endregion Segmented control */
 

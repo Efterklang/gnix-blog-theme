@@ -110,17 +110,21 @@ class InfoCard extends HTMLElement {
       .x-info-name {
         font-family: var(--font-serif);
         font-style: italic;
-        font-size: 1.35rem;
-        font-weight: 700;
+        font-size: var(--type-subtitle-size);
+        font-weight: var(--font-weight-semibold);
         color: var(--title-text-color);
         margin: 0;
-        line-height: 1.2;
+        line-height: var(--type-subtitle-leading);
+        letter-spacing: var(--type-title-tracking);
+        text-wrap: balance;
       }
 
       .x-info-desc {
         font-family: var(--font-sans-serif);
-        font-size: 0.8rem;
-        font-weight: 300;
+        font-size: var(--type-ui-size);
+        font-weight: var(--font-weight-regular);
+        line-height: var(--type-ui-leading);
+        text-wrap: pretty;
         color: var(--sub-text-color);
         margin: 0.2rem 0 0;
       }
@@ -144,7 +148,7 @@ class InfoCard extends HTMLElement {
 
       .x-info-label {
         font-family: var(--font-mono);
-        font-size: 0.65rem;
+        font-size: var(--type-label-size);
         font-weight: 500;
         color: var(--sub-text-color);
         text-transform: uppercase;
@@ -153,7 +157,7 @@ class InfoCard extends HTMLElement {
 
       .x-info-value {
         font-family: var(--font-mono);
-        font-size: 0.8125rem;
+        font-size: var(--type-caption-size);
         color: var(--sub-text-color);
         text-decoration: none;
         word-break: break-word;
@@ -178,7 +182,7 @@ class InfoCard extends HTMLElement {
 
       .x-info-link {
         font-family: var(--font-mono);
-        font-size: 0.8rem;
+        font-size: var(--type-ui-size);
         color: var(--sub-text-color);
         text-decoration: none;
         transition: color 0.2s ease;

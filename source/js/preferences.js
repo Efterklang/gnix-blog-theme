@@ -36,17 +36,15 @@
 
   const articleFontConfig = window.__GNIX_ARTICLE_FONT_CONFIG__ || {};
   const ARTICLE_FONT_STORAGE_KEY = articleFontConfig.storageKey || "gnix-article-font";
-  const ARTICLE_FONT_DEFAULT_SETTINGS = articleFontConfig.defaultSettings || { size: "medium", type: "sans-serif", weight: "regular", width: "narrow", spacing: "normal" };
+  const ARTICLE_FONT_DEFAULT_SETTINGS = articleFontConfig.defaultSettings || { size: "medium", type: "sans-serif", weight: "regular", width: "narrow" };
   const ARTICLE_SIZE_LIST = articleFontConfig.sizeOptions || ["small", "medium-small", "medium", "medium-large", "large"];
   const ARTICLE_WIDTH_LIST = articleFontConfig.widthOptions || ["narrow", "medium-narrow", "medium", "medium-wide", "wide"];
-  const ARTICLE_SPACING_LIST = articleFontConfig.spacingOptions || ["compact", "normal", "relaxed"];
   const ARTICLE_SIZE_OPTIONS = new Set(ARTICLE_SIZE_LIST);
   const ARTICLE_FONT_OPTIONS = new Set(articleFontConfig.fontOptions || ["sans-serif", "serif", "mono", "handwriting"]);
   const ARTICLE_WEIGHT_OPTIONS = new Set(articleFontConfig.weightOptions || ["light", "regular", "medium"]);
   const ARTICLE_WIDTH_OPTIONS = new Set(ARTICLE_WIDTH_LIST);
-  const ARTICLE_SPACING_OPTIONS = new Set(ARTICLE_SPACING_LIST);
   // 快捷弹窗 stepper 按有序列表步进的控件，键名与 settings 字段一致
-  const ARTICLE_STEP_LISTS = { size: ARTICLE_SIZE_LIST, width: ARTICLE_WIDTH_LIST, spacing: ARTICLE_SPACING_LIST };
+  const ARTICLE_STEP_LISTS = { size: ARTICLE_SIZE_LIST, width: ARTICLE_WIDTH_LIST };
   const ARTICLE_CUSTOM_FONT_OPTIONS = articleFontConfig.customFonts?.familyOptions || {
     serif: "--font-serif",
     "sans-serif": "--font-sans-serif",
@@ -93,7 +91,9 @@
   }
 
   function normalizeStoredCustomFonts(value = {}) {
-    return ARTICLE_FONT_UTILS.normalizeCustomFonts ? ARTICLE_FONT_UTILS.normalizeCustomFonts(value, ARTICLE_CUSTOM_FONT_OPTIONS, ARTICLE_CUSTOM_FONT_IMPORT_LIMIT, articleFontConfig.customFonts?.presets) : { imports: [], families: {} };
+    return ARTICLE_FONT_UTILS.normalizeCustomFonts
+      ? ARTICLE_FONT_UTILS.normalizeCustomFonts(value, ARTICLE_CUSTOM_FONT_OPTIONS, ARTICLE_CUSTOM_FONT_IMPORT_LIMIT, articleFontConfig.customFonts?.presets)
+      : { imports: [], families: {} };
   }
 
   function normalizeCustomFontsForUI(value = {}) {
@@ -128,7 +128,6 @@
       type: ARTICLE_FONT_OPTIONS.has(candidate.type) ? candidate.type : ARTICLE_FONT_DEFAULT_SETTINGS.type,
       weight: ARTICLE_WEIGHT_OPTIONS.has(candidate.weight) ? candidate.weight : ARTICLE_FONT_DEFAULT_SETTINGS.weight,
       width: ARTICLE_WIDTH_OPTIONS.has(candidate.width) ? candidate.width : ARTICLE_FONT_DEFAULT_SETTINGS.width,
-      spacing: ARTICLE_SPACING_OPTIONS.has(candidate.spacing) ? candidate.spacing : ARTICLE_FONT_DEFAULT_SETTINGS.spacing,
       customFonts: normalizeStoredCustomFonts(candidate.customFonts),
     };
   }
@@ -161,7 +160,7 @@
     html.dataset.articleFontFamily = settings.type;
     html.dataset.articleFontWeight = settings.weight;
     html.dataset.articleWidth = settings.width;
-    html.dataset.articleSpacing = settings.spacing;
+    delete html.dataset.articleSpacing;
     window.dispatchEvent(new CustomEvent("gnix:article-font-settings-change", { detail: settings }));
   }
 
@@ -272,23 +271,10 @@
     sync();
   }
 
-  // A DOM thumb mirrors the native range so the filled track can be styled; the native range owns all input.
-  function syncSliderVisual(input) {
-    const shell = input?.closest(".preference-slider");
-    if (!shell) return;
-    const min = Number(input.min);
-    const span = Number(input.max) - min;
-    const progress = span > 0 ? Math.max(0, Math.min(1, (Number(input.value) - min) / span)) : 0;
-    shell.style.setProperty("--slider-progress", String(progress));
-    shell.classList.add("is-ready");
-  }
-
   function initArticleFontPreferences(root) {
     let settings = getArticleFontSettings();
     let suppressSyncEvent = false;
-    const widthSlider = root.querySelector(".font-width-slider");
-    const widthValue = root.querySelector(".font-width-value");
-    const widthLabels = JSON.parse(widthSlider?.dataset.widthLabels || "{}");
+    const widthButtons = root.querySelectorAll(".font-width-btn");
     const fontTypeSelects = root.querySelectorAll("[data-article-font-select]");
     const stepButtons = root.querySelectorAll("[data-article-step]");
     const customFontForm = root.querySelector(".font-custom-form");
@@ -300,7 +286,6 @@
     const allSettingsResetButtons = root.querySelectorAll("[data-preference-reset-all]");
     const customFontFamilyInputs = root.querySelectorAll(".font-custom-family-input");
     const sizeButtons = root.querySelectorAll(".font-size-btn");
-    const spacingButtons = root.querySelectorAll(".font-spacing-btn");
     const typeButtons = root.querySelectorAll(".font-type-btn");
     const weightButtons = root.querySelectorAll(".font-weight-btn");
     // 快捷弹窗没有自定义字体表单，跳过相关 UI 同步（其中的默认字体族
@@ -313,15 +298,6 @@
         btn.classList.toggle("is-active", active);
         btn.setAttribute("aria-pressed", String(active));
       });
-    }
-
-    function updateWidthUI() {
-      if (!widthSlider) return;
-      widthSlider.value = String(ARTICLE_WIDTH_LIST.indexOf(settings.width));
-      const label = widthLabels[settings.width] || settings.width;
-      widthSlider.setAttribute("aria-valuetext", label);
-      if (widthValue) widthValue.textContent = getCssVariableValue("--article-max-width", "42em");
-      syncSliderVisual(widthSlider);
     }
 
     function isStepDisabled(control, dir) {
@@ -342,8 +318,7 @@
       updateButtonStates(sizeButtons, (btn) => btn.dataset.size === settings.size);
       updateButtonStates(typeButtons, (btn) => btn.dataset.font === settings.type);
       updateButtonStates(weightButtons, (btn) => btn.dataset.weight === settings.weight);
-      updateWidthUI();
-      updateButtonStates(spacingButtons, (btn) => btn.dataset.spacing === settings.spacing);
+      updateButtonStates(widthButtons, (btn) => btn.dataset.width === settings.width);
       fontTypeSelects.forEach((select) => {
         select.value = settings.type;
       });
@@ -374,7 +349,9 @@
       return normalizeStoredCustomFonts({
         imports: customFontImportInput?.value || "",
         families,
-        presets: Array.from(customFontPresetInputs).filter((input) => input.checked).map((input) => input.dataset.fontPreset),
+        presets: Array.from(customFontPresetInputs)
+          .filter((input) => input.checked)
+          .map((input) => input.dataset.fontPreset),
       });
     }
 
@@ -412,22 +389,10 @@
       });
     });
 
-    if (widthSlider) {
-      widthSlider.max = String(ARTICLE_WIDTH_LIST.length - 1);
-      widthSlider.addEventListener("input", () => {
-        settings = { ...settings, width: ARTICLE_WIDTH_LIST[Number(widthSlider.value)] };
-        document.documentElement.dataset.articleWidth = settings.width;
-        updateWidthUI();
-      });
-      widthSlider.addEventListener("change", () => {
-        commitSettings({ ...settings, width: ARTICLE_WIDTH_LIST[Number(widthSlider.value)] });
-      });
-    }
-
-    spacingButtons.forEach((btn) => {
+    widthButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
-        if (!ARTICLE_SPACING_OPTIONS.has(btn.dataset.spacing)) return;
-        commitSettings({ ...settings, spacing: btn.dataset.spacing });
+        if (!ARTICLE_WIDTH_OPTIONS.has(btn.dataset.width)) return;
+        commitSettings({ ...settings, width: btn.dataset.width });
       });
     });
 
@@ -588,14 +553,20 @@
         suppressPointerClick = true;
         const next = position >= travel / 2;
         if (next !== (button.getAttribute("aria-checked") === "true")) button.click();
-        setTimeout(() => { suppressPointerClick = false; }, 0);
+        setTimeout(() => {
+          suppressPointerClick = false;
+        }, 0);
       });
-      button.addEventListener("click", (event) => {
-        if (suppressPointerClick && event.detail > 0) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-        }
-      }, true);
+      button.addEventListener(
+        "click",
+        (event) => {
+          if (suppressPointerClick && event.detail > 0) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        },
+        true,
+      );
       button.addEventListener("pointercancel", reset);
       button.addEventListener("lostpointercapture", reset);
       window.addEventListener("pagehide", reset);

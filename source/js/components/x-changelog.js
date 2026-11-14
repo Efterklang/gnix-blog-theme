@@ -68,7 +68,7 @@ class Changelog extends HTMLElement {
       .x-changelog-filter-group::after {
         content: '\\2193';
         font-family: var(--font-mono);
-        font-size: 0.8rem;
+        font-size: var(--type-ui-size);
         color: var(--sub-text-color);
         position: absolute;
         right: 0.8rem;
@@ -85,7 +85,7 @@ class Changelog extends HTMLElement {
         border-radius: 6px;
         background: transparent;
         color: var(--sub-text-color);
-        font-size: 0.85rem;
+        font-size: var(--type-ui-size);
         font-family: var(--font-mono);
         cursor: pointer;
         transition: border-color 0.15s ease, background-color 0.15s ease;
@@ -102,8 +102,8 @@ class Changelog extends HTMLElement {
       }
 
       .x-changelog-year {
-        font-size: 1.5rem;
-        font-weight: 700;
+        font-size: var(--type-title-size);
+        font-weight: var(--font-weight-semibold);
         margin: 3rem 0 1.5rem 0;
         color: var(--title-text-color);
         letter-spacing: -0.02em;
@@ -156,7 +156,7 @@ class Changelog extends HTMLElement {
       .x-changelog-date {
         font-family: var(--font-mono);
         color: var(--sub-text-color);
-        font-size: 0.85rem;
+        font-size: var(--type-ui-size);
         padding-top: 0;
         transition: color 0.2s ease;
       }
@@ -167,14 +167,14 @@ class Changelog extends HTMLElement {
         border-radius: 0;
         padding: 0;
         box-shadow: none;
-        line-height: 1.6;
+        line-height: var(--type-paragraph-leading);
         color: var(--sub-text-color);
-        font-size: 0.95rem;
+        font-size: var(--type-body-size);
       }
 
       .x-changelog-category-tag {
         display: inline-block;
-        font-size: 0.7rem;
+        font-size: var(--type-label-size);
         font-weight: 500;
         font-family: var(--font-mono, monospace);
         padding: 0.1rem 0.4rem;
@@ -200,7 +200,7 @@ class Changelog extends HTMLElement {
         padding-left: 0;
         list-style: none;
         color: var(--sub-text-color);
-        font-size: 0.9rem;
+        font-size: var(--type-ui-size);
         display: flex;
         align-items: flex-start;
         line-height: 1.5;
@@ -222,7 +222,7 @@ class Changelog extends HTMLElement {
         padding: 2rem 0;
         color: var(--sub-text-color);
         font-family: var(--font-mono, monospace);
-        font-size: 0.9rem;
+        font-size: var(--type-ui-size);
         border-bottom: 1px solid var(--surface1);
       }
 

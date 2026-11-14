@@ -90,7 +90,7 @@ const CHAT_STYLES = `
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: var(--type-ui-size, 0.875rem);
     font-weight: var(--font-weight-semibold, 550);
     color: var(--title-text-color, #e1e7f6);
     background: var(--surface1, #45475a);
@@ -103,7 +103,7 @@ const CHAT_STYLES = `
     gap: 8px;
     padding: 2px 4px 0;
     font-size: var(--type-caption-size, 14px);
-    line-height: 1;
+    line-height: var(--type-caption-leading, 1.5);
     min-width: 0;
   }
 
@@ -137,7 +137,7 @@ const CHAT_STYLES = `
     background: var(--surface0, #313244);
     color: inherit;
     font-size: var(--type-body-size, 16px);
-    line-height: var(--type-body-leading, 1.538462);
+    line-height: var(--type-body-leading, 1.6);
     font-weight: var(--article-font-weight, 400);
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -211,10 +211,10 @@ const CHAT_STYLES = `
   .message-bubble .chat-heading {
     display: block;
     margin: var(--prose-subheading-gap, calc(24em / 14)) 0 0;
-    font-size: var(--type-subtitle-size, 17px);
+    font-size: var(--prose-h3-size, 1.25em);
     font-weight: var(--font-weight-semibold, 550);
     letter-spacing: normal;
-    line-height: var(--type-subtitle-leading, 25px);
+    line-height: var(--type-subtitle-leading, 1.4);
   }
 
   .chat-message:not(.is-me) .chat-heading {
@@ -227,7 +227,7 @@ const CHAT_STYLES = `
   .message-bubble li > :first-child { margin-top: 0; }
 
   .message-bubble .chat-heading code {
-    font-size: 13px;
+    font-size: var(--type-caption-size, 0.8125rem);
     padding: 1px 5px;
   }
 
