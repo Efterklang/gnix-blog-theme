@@ -13,7 +13,6 @@ const ARCHIVE_SCALE_SCRIPT = `(function () {
   if (!scale) return;
   var ticks = [].slice.call(scale.querySelectorAll("[data-home-year]"));
   var figure = root.querySelector("[data-home-figure]");
-  var count = root.querySelector("[data-home-count]");
   var KEY = "gnix:home-year";
   var active = ticks[0];
 
@@ -25,11 +24,9 @@ const ARCHIVE_SCALE_SCRIPT = `(function () {
   }
   function tune(tick) {
     var year = tick.dataset.homeYear;
-    var n = tick.dataset.count;
     mark("data-tuned", tick);
     scale.style.setProperty("--needle", ticks.indexOf(tick));
     figure.textContent = year.slice(-2);
-    count.textContent = n + (n === "1" ? " writing" : " writings");
   }
   function select(tick) {
     active = tick;
@@ -105,10 +102,8 @@ module.exports = class extends Component {
     const langKey = helper.language_key(page);
 
     const posts = getLanguagePosts(site?.posts, { page, config, helper }).filter((post) => !isEncrypted(post));
-    const tagNames = new Set();
     const yearCounts = new Map();
     for (const post of posts) {
-      post.tags?.each?.((tag) => tagNames.add(tag.name));
       const year = post.date.year();
       yearCounts.set(year, (yearCounts.get(year) || 0) + 1);
     }
@@ -119,24 +114,22 @@ module.exports = class extends Component {
       <span>
         GnixAij
         <br />
-        Oag
+        <span class="home-hero__logo-last-line">
+          Oag
+          <span class="home-hero__ipa" aria-hidden="true">/nɪkˈsaɪdʒ oʊɡ/</span>
+        </span>
       </span>
     );
     const yearUrl = (year) => `${archiveUrl}${archiveUrl.includes("?") ? "&" : "?"}year=${year}`;
 
-    const specItems = [
-      ["Writings", posts.length],
-      ["Topics", tagNames.size],
-      ["Since", SITE_SINCE],
-    ];
     const email = "gjx@linux.do";
 
     const links = [
       ["Wiki", "https://wiki.vluv.space"],
       ["Gallery", "https://gallery.vluv.space"],
+      ["Travellings", "https://www.travellings.cn/go"],
       ["Changelog", "change"],
       ["Colophon", "colophon"],
-      ["Travellings", "https://www.travellings.cn/go"],
     ];
 
     let order = 0;
@@ -166,7 +159,6 @@ module.exports = class extends Component {
                   </a>
                 )}
               </h1>
-              <span class="home-hero__ipa">/nɪkˈsaɪdʒ oʊɡ/</span>
 
               <div class="home-hero__lead">
                 <p class="home-hero__intro">I was born in Qingdao, Shandong, in 2004.</p>
@@ -175,12 +167,10 @@ module.exports = class extends Component {
             </div>
 
             <dl class="home-hero__spec" style={`--i:${order++}`}>
-              {specItems.map(([label, value]) => (
-                <div key={label} class="home-hero__spec-row">
-                  <dt class="home-hero__spec-label">{label}</dt>
-                  <dd class="home-hero__spec-value">{value}</dd>
-                </div>
-              ))}
+              <div class="home-hero__spec-row">
+                <dt class="home-hero__spec-label">Since</dt>
+                <dd class="home-hero__spec-value">{SITE_SINCE}</dd>
+              </div>
               <div class="home-hero__spec-row">
                 <dt class="home-hero__spec-label">Email</dt>
                 <dd class="home-hero__spec-value">
@@ -192,17 +182,16 @@ module.exports = class extends Component {
             </dl>
           </div>
 
-          {/* 2. 中腰带区域：精致五联导航带（通栏分割线之间） */}
+          {/* 2. 中腰带区域：横向滚动导航（通栏分割线之间） */}
           <nav class="home-hero__mid" style={`--i:${order++}`} aria-label="Destinations">
             <div class="home-hero__mid-header">
-              <span class="home-hero__mid-label">Links</span>
-              <span class="home-hero__mid-count">[05]</span>
+              <span class="home-hero__mid-label">Elsewhere</span>
+              <span class="home-hero__mid-count">[{String(links.length).padStart(2, "0")}]</span>
             </div>
-            <ul class="home-hero__links">
-              {links.map(([label, href], index) => (
+            <ul class="home-hero__links" id="home-links">
+              {links.map(([label, href]) => (
                 <li key={label} class="home-hero__link-item">
                   <a class="home-hero__link" {...linkAttrs(href, helper, langKey)}>
-                    <span class="home-hero__link-index">0{index + 1}</span>
                     <span class="home-hero__link-text">{label}</span>
                     {isExternalUrl(href) && <span class="home-hero__external">↗</span>}
                   </a>
@@ -213,10 +202,6 @@ module.exports = class extends Component {
           <div class="home-hero__bottom">
             {years.length ? (
               <nav class="home-hero__caption home-archive" style={`--i:${order++}`} aria-label="Archive">
-                <a class="home-archive__label" href={archiveUrl}>
-                  Writing Collections
-                </a>
-
                 {/* 读数：只是刻度尺的回显，信息已在每个刻度链接的 aria-label 里 */}
                 <div class="home-archive__readout" aria-hidden="true">
                   <span class="home-archive__figure" data-home-figure>
@@ -234,7 +219,6 @@ module.exports = class extends Component {
                           class="home-archive__year"
                           href={yearUrl(year)}
                           data-home-year={year}
-                          data-count={count}
                           data-tuned={index === 0 ? "true" : undefined}
                           aria-current={index === 0 ? "true" : undefined}
                           aria-label={`${year}, ${writingsLabel(count)}`}
@@ -246,9 +230,6 @@ module.exports = class extends Component {
                     ))}
                   </ul>
                 </div>
-                <p class="home-archive__meta-count" data-home-count aria-hidden="true">
-                  {writingsLabel(years[0].count)}
-                </p>
               </nav>
             ) : null}
           </div>

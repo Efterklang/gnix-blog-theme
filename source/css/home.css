@@ -96,21 +96,43 @@
   }
 }
 
+.home-hero__logo-last-line {
+  position: relative;
+  display: inline-block;
+}
+
 .home-hero__ipa {
-  display: block;
-  margin-top: 0.85rem;
+  position: absolute;
+  left: calc(100% + 1rem);
+  bottom: 0.06em;
+  width: max-content;
+  opacity: 0;
+  pointer-events: none;
   color: var(--sub-text-color);
   font-family: "Times New Roman", Times, serif;
   font-size: clamp(1rem, 1.4vw, 1.35rem);
   font-style: italic;
   font-weight: 400;
   letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-transform: none;
+  transition: opacity 125ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-hero__logo:hover .home-hero__ipa {
+    opacity: 1;
+  }
+}
+
+.home-hero__logo:focus-visible .home-hero__ipa {
+  opacity: 1;
+  transition: none;
 }
 
 .home-hero__lead {
   margin-top: clamp(1.75rem, 3.5svh, 2.75rem);
   max-width: 34rem;
-  font-family: var(--article-font-family);
   font: var(--type-paragraph-font);
   text-wrap: pretty;
 }
@@ -199,7 +221,6 @@
 
 .home-hero__mid-label,
 .home-hero__mid-count {
-  font-family: var(--font-mono, monospace);
   font-size: var(--label-size);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -207,45 +228,48 @@
 }
 
 .home-hero__links {
+  display: flex;
+  gap: 1.5rem;
   margin: 0;
-  padding: 0;
+  padding: 0.375rem 0.25rem;
   list-style: none;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem 1.5rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0.25rem;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-@media (min-width: 768px) {
-  .home-hero__links {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1.5rem;
-  }
+.home-hero__link-item {
+  flex: 0 0 auto;
+  min-width: 0;
+  scroll-snap-align: start;
 }
 
 .home-hero__link {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.5rem;
+  min-height: 2.75rem;
   color: var(--title-text-color);
   text-decoration: none;
-  transition:
-    transform 160ms ease,
-    color 160ms ease;
+  transition: color 160ms ease;
 
   &:hover {
-    transform: translateY(-2px);
-    color: var(--title-text-color);
+    color: var(--sub-text-color);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
   }
 }
 
-.home-hero__link-index {
-  font-family: var(--font-mono, monospace);
-  font-size: var(--label-size);
-  color: var(--sub-text-color);
-}
-
 .home-hero__link-text {
-  font-family: var(--font-mono, monospace);
   font-size: var(--type-ui-size);
   font-weight: 500;
   letter-spacing: 0.05em;
@@ -264,7 +288,7 @@
 
 .home-hero__bottom {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   column-gap: var(--home-gutter);
   align-items: end;
 }
@@ -276,6 +300,10 @@
 }
 
 @media (min-width: 768px) {
+  .home-hero__bottom {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
   .home-hero__caption {
     grid-column: 7 / -1;
   }
@@ -287,28 +315,12 @@
   }
 }
 
-.home-archive__label {
-  display: inline-block;
-  color: var(--sub-text-color);
-  font-family: var(--font-mono, monospace);
-  font-size: var(--label-size);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  text-decoration: none;
-  transition: color 140ms ease;
-
-  &:hover {
-    color: var(--title-text-color);
-  }
-}
-
-/* 读数：两位数大年份落在右缘；篇数在刻度尺下方，跟着指针实时更新。 */
+/* 读数：两位数大年份落在右缘，跟着指针实时更新。 */
 .home-archive__readout {
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
   gap: 1rem;
-  margin-top: 0.75rem;
   padding-bottom: 1rem;
 }
 
@@ -325,17 +337,6 @@
   line-height: 0.85;
   /* 跳到归档页时，与刊头的年份（archive.css 的 .archive-year__value）接成一次共享元素过渡 */
   view-transition-name: archive-year;
-}
-
-.home-archive__meta-count {
-  margin: 0.75rem 0 0;
-  color: var(--sub-text-color);
-  font-family: var(--font-mono, monospace);
-  font-size: var(--label-size);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: var(--label-tracking);
-  line-height: var(--type-label-leading);
-  text-transform: uppercase;
 }
 
 /* 刻度尺：上下两条 Hairline 之间，每个年份占一格等分栏；年份再多也只是栏变窄，始终一行 */
@@ -459,12 +460,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .home-hero__logo {
+  .home-hero__logo,
+  .home-hero__ipa {
     transition: none;
-  }
-
-  .home-hero__link {
-    transform: none !important;
   }
 
   /* 指针与数字直接到位，不滑动 */

@@ -20,6 +20,16 @@
     padding-inline: 0;
   }
 
+  .navbar-menu__links {
+    gap: clamp(0.75rem, 2.5svh, 1.25rem);
+  }
+
+  .navbar-menu__item {
+    font-size: clamp(2.25rem, 12vw, 2.75rem);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
   .article-comment-popover,
   .article-comment-popover-body {
     width: calc(100vw - 1rem);
