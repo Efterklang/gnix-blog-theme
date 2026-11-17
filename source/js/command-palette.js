@@ -691,29 +691,41 @@ import {
       doc._lowerText = doc.text ? doc.text.toLowerCase() : "";
     }
 
-    function fetchData() {
+    async function fetchData() {
       if (dataset || isLoading) return;
       isLoading = true;
-      fetch(config.contentUrl)
-        .then((response) => response.json())
-        .then((json) => {
-          const data = { posts: json.posts || [], pages: json.pages || [], tags: json.tags || [] };
-          data.posts.forEach(prepareDocument);
-          data.pages.forEach(prepareDocument);
-          for (const tag of data.tags) {
-            tag.name = decodeHTML(tag.name);
-            tag.slug = decodeHTML(tag.slug);
-            tag._lowerName = tag.name ? tag.name.toLowerCase() : "";
-            tag._lowerSlug = tag.slug ? tag.slug.toLowerCase() : "";
+      try {
+        const response = await fetch(config.contentUrl);
+        if (!response.ok) throw new Error(`Search index returned HTTP ${response.status}`);
+        const json = await response.json();
+        const data = { posts: json.posts || [], pages: json.pages || [], tags: json.tags || [] };
+        // Budget by elapsed time rather than document count: long articles
+        // cost more to decode. Safari and older browsers retain a timer fallback.
+        let deadline = performance.now() + 8;
+        for (const documents of [data.posts, data.pages]) {
+          for (const doc of documents) {
+            prepareDocument(doc);
+            if (performance.now() >= deadline) {
+              if (typeof window.scheduler?.yield === "function") await window.scheduler.yield();
+              else await new Promise((resolve) => setTimeout(resolve, 0));
+              deadline = performance.now() + 8;
+            }
           }
-          dataset = data;
-          isLoading = false;
-          if (main.matches(":popover-open")) render();
-        })
-        .catch((error) => {
-          console.error("[gnix] Command palette: failed to load content.json", error);
-          isLoading = false;
-        });
+        }
+        for (const tag of data.tags) {
+          tag.name = decodeHTML(tag.name);
+          tag.slug = decodeHTML(tag.slug);
+          tag._lowerName = tag.name ? tag.name.toLowerCase() : "";
+          tag._lowerSlug = tag.slug ? tag.slug.toLowerCase() : "";
+        }
+        dataset = data;
+        isLoading = false;
+        if (main.matches(":popover-open")) render();
+      } catch (error) {
+        console.error("[gnix] Command palette: failed to load content.json", error);
+      } finally {
+        isLoading = false;
+      }
     }
 
     // 索引有上 MB：悬停 / 聚焦到导航条的搜索按钮就开始拉取，点开时数据多半已就绪

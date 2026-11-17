@@ -48,6 +48,12 @@ async function renderStandardImage(imageRule, tokens, idx, info, env, self, pars
   const originalContent = token.content;
   const originalChildren = token.children;
   token.content = parsedAlt.alt;
+  if (!token.attrGet("loading")) token.attrSet("loading", "lazy");
+  if (!token.attrGet("decoding")) token.attrSet("decoding", "async");
+  if (parsedAlt.width && parsedAlt.height) {
+    token.attrSet("width", String(parsedAlt.width));
+    token.attrSet("height", String(parsedAlt.height));
+  }
   // markdown-it derives the alt attribute from children, not content
   if (originalChildren?.length && originalChildren[0].type === "text") {
     const textToken = Object.assign(Object.create(Object.getPrototypeOf(originalChildren[0])), originalChildren[0]);
@@ -73,11 +79,10 @@ function buildProgressiveImageHTML(parsedAlt, src, options, originalWidth, origi
   // auto follows the actual laid-out width, including reading-width preferences.
   // Older browsers use the default article column minus its horizontal padding.
   const sizes = options.progressive.sizes ?? `auto, (max-width: 768px) min(${displayWidth}px, calc(100vw - 1.75rem)), min(${displayWidth}px, calc(100vw - 5.5rem), 39.5rem)`;
-  const figcaption = parsedAlt.alt
-    ? `<figcaption style="margin-top: 8px; text-align: center; color: #666; font-size: 0.9em;">${escapedAlt}</figcaption>`
-    : "";
+  const figcaption = parsedAlt.alt ? `<figcaption>${escapedAlt}</figcaption>` : "";
 
-  // the onload handler clears the thumbhash background on the wrapper once the real image is in
+  // The image is visible by default, including with JavaScript disabled. The
+  // optional load handler only releases a placeholder that is no longer needed.
   const mainImgAttrs = [
     `src="${escapedSrc}"`,
     `alt="${escapedAlt}"`,
@@ -87,8 +92,8 @@ function buildProgressiveImageHTML(parsedAlt, src, options, originalWidth, origi
     `height="${displayHeight}"`,
     `loading="lazy"`,
     `decoding="async"`,
-    `style="width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.6s ease-in-out; display: block;"`,
-    `onload="this.style.opacity=1; setTimeout(() => { this.parentElement.style.backgroundImage='none'; }, 600);"`,
+    `style="width: 100%; height: 100%; object-fit: cover; display: block;"`,
+    `onload="this.parentElement.style.backgroundImage='none'"`,
   ].join(" ");
 
   // 纵向间距交给 article.css 的媒体块档位（margin-block），行内只负责居中

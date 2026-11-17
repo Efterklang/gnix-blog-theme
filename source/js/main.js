@@ -166,6 +166,80 @@ function handleLazyAssetError(error) {
   console.warn("[gnix] Unable to load lazy asset", error);
 }
 
+// Optional UI loads on intent, never simply because the page became idle.
+// Keep one in-flight request and clear failed promises so the next action retries.
+let preferencesPromise;
+function loadPreferences() {
+  preferencesPromise ||= loadScriptOnce(new URL("./preferences.js", import.meta.url).href).catch((error) => {
+    preferencesPromise = null;
+    throw error;
+  });
+  return preferencesPromise;
+}
+
+let palettePromise;
+function loadCommandPalette() {
+  const configNode = document.getElementById("gnix-palette-config");
+  if (!configNode) return Promise.resolve();
+  palettePromise ||= Promise.all([loadPreferences(), import("./command-palette.js")])
+    .then(() => {
+      if (window.gnixCommandPalette) return;
+      const { config, translation } = JSON.parse(configNode.textContent);
+      window.loadCommandPalette(config, translation);
+    })
+    .catch((error) => {
+      palettePromise = null;
+      throw error;
+    });
+  return palettePromise;
+}
+
+async function openPreferences() {
+  await loadPreferences();
+  document.getElementById("preference-popup")?.togglePopover();
+}
+
+async function openCommandPalette(query) {
+  await loadCommandPalette();
+  window.gnixCommandPalette?.open(query);
+}
+
+function bindIntentLoader(selector, load, open) {
+  for (const trigger of document.querySelectorAll(selector)) {
+    trigger.addEventListener(
+      "pointerenter",
+      (event) => {
+        if (event.pointerType === "touch" || navigator.connection?.saveData) return;
+        load().catch(handleLazyAssetError);
+      },
+      { passive: true },
+    );
+    trigger.addEventListener("focus", () => load().catch(handleLazyAssetError));
+    trigger.addEventListener("click", (event) => {
+      event.preventDefault();
+      open().catch(handleLazyAssetError);
+    });
+  }
+}
+
+function initOptionalUi() {
+  window.gnixLoadPreferences = loadPreferences;
+  window.gnixLoadCommandPalette = loadCommandPalette;
+  window.gnixOpenCommandPalette = openCommandPalette;
+  bindIntentLoader('[popovertarget="preference-popup"]', loadPreferences, openPreferences);
+  document.getElementById("preference-popup")?.addEventListener("beforetoggle", (event) => {
+    if (event.newState === "open") loadPreferences().catch(handleLazyAssetError);
+  });
+  bindIntentLoader('[popovertarget="command-palette"]', loadCommandPalette, openCommandPalette);
+  if (["#command-palette", "#insight-search"].includes(location.hash.trim())) openCommandPalette().catch(handleLazyAssetError);
+}
+
+function closeTransientUi() {
+  // pagehide keeps bfcache eligibility; pageshow also settles restored popovers.
+  if (!("hidePopover" in HTMLElement.prototype)) return;
+  for (const popover of document.querySelectorAll(":popover-open")) popover.hidePopover();
+}
+
 // #region Keyboard Shortcuts
 
 // 全站快捷键；文章页专属快捷键（图片操作、Esc 关脚注/缩放、Cmd/Ctrl+T 目录）在 article.js
@@ -180,7 +254,7 @@ function handleKeyDown(e) {
   const isSettingsShortcut = !e.altKey && !e.shiftKey && (e.code === "Comma" || e.key === "," || e.key === "Comma");
   if (isSettingsShortcut) {
     e.preventDefault();
-    document.getElementById("preference-popup")?.togglePopover();
+    openPreferences().catch(handleLazyAssetError);
     return;
   }
 
@@ -188,7 +262,7 @@ function handleKeyDown(e) {
   if (e.code === "KeyK") {
     e.preventDefault();
     if (window.gnixCommandPalette) window.gnixCommandPalette.open();
-    else if (window.gnixOpenCommandPalette) window.gnixOpenCommandPalette();
+    else if (window.gnixOpenCommandPalette) window.gnixOpenCommandPalette().catch(handleLazyAssetError);
     else document.getElementById("command-palette")?.showPopover();
   }
 }
@@ -217,6 +291,12 @@ runWhenActivated(() => {
     passive: false, // 允许调用 preventDefault
   });
   initNavbarMenu();
+  initOptionalUi();
+});
+
+window.addEventListener("pagehide", closeTransientUi);
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) closeTransientUi();
 });
 
 // #endregion

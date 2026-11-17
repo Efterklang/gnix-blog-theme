@@ -10,6 +10,7 @@ class Goatcounter extends Component {
         function start() {
           var script = document.createElement("script");
           script.async = true;
+          script.fetchPriority = "low";
           script.src = "//gc.zgo.at/count.js";
           script.dataset.goatcounter = ${JSON.stringify(url)};
           document.head.appendChild(script);

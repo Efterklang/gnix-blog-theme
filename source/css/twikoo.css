@@ -149,29 +149,33 @@
   font-size: var(--type-ui-size);
   display: inline-block;
   width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: var(--overlay0) var(--base);
 }
 
-.el-input::-webkit-scrollbar {
-  z-index: 11;
-  width: 6px;
-}
+@supports not (scrollbar-color: auto) {
+  .el-input::-webkit-scrollbar {
+    z-index: 11;
+    width: 6px;
+  }
 
-.el-input::-webkit-scrollbar:horizontal {
-  height: 6px;
-}
+  .el-input::-webkit-scrollbar:horizontal {
+    height: 6px;
+  }
 
-.el-input::-webkit-scrollbar-thumb {
-  border-radius: 5px;
-  width: 6px;
-  background: var(--overlay0);
-}
+  .el-input::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    width: 6px;
+    background: var(--overlay0);
+  }
 
-.el-input::-webkit-scrollbar-corner {
-  background: var(--base);
-}
+  .el-input::-webkit-scrollbar-corner {
+    background: var(--base);
+  }
 
-.el-input::-webkit-scrollbar-track {
-  background: var(--base);
+  .el-input::-webkit-scrollbar-track {
+    background: var(--base);
+  }
 }
 
 .el-input::-webkit-scrollbar-track-piece {
@@ -555,7 +559,7 @@
   padding: 0 1rem;
 }
 
-.tk-meta-input .el-input input:invalid {
+.tk-meta-input .el-input input:user-invalid {
   border: 1px solid var(--red);
   box-shadow: none;
 }
@@ -1154,6 +1158,8 @@
 }
 
 .tk-admin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--overlay0) transparent;
   position: absolute;
   width: 100%;
   height: 100%;
@@ -1163,17 +1169,19 @@
   visibility: hidden;
 }
 
-.tk-admin::-webkit-scrollbar {
-  width: 5px;
-  background-color: transparent;
-}
+@supports not (scrollbar-color: auto) {
+  .tk-admin::-webkit-scrollbar {
+    width: 5px;
+    background-color: transparent;
+  }
 
-.tk-admin::-webkit-scrollbar-track {
-  background-color: transparent;
-}
+  .tk-admin::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
 
-.tk-admin::-webkit-scrollbar-thumb {
-  background-color: var(--overlay0);
+  .tk-admin::-webkit-scrollbar-thumb {
+    background-color: var(--overlay0);
+  }
 }
 
 .tk-admin.__show {

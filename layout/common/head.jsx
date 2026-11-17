@@ -8,6 +8,7 @@ const { getThemeInitScript } = require("../../include/util/theme");
 const { getDefaultLanguageKey, getLanguage, getPageLanguageKey, getPageLocale, isI18nEnabled, normalizeLocale } = require("../../include/util/i18n");
 const fs = require("node:fs");
 const path = require("node:path");
+const { getPageAssets } = require("../../include/util/page_assets");
 
 function getPageTitle(page, siteTitle, helper) {
   let title = page.title;
@@ -235,18 +236,13 @@ function getHreflangLinks(_site, page, config, helper) {
 module.exports = class extends Component {
   render() {
     const { site, config, helper, page } = this.props;
-    const { url_for, is_post, is_page, is_archive, is_tag } = helper;
+    const { url_for, is_post } = helper;
     const { url, head = {}, article } = config;
     const { meta = [], open_graph = {}, structured_data = {}, canonical_url: headCanonicalUrl = page.permalink, favicon } = head;
     const markdownSourceUrl = page.markdown_path ? url_for(page.markdown_path) : null;
     const markdownSourceType = "text/markdown; charset=utf-8";
 
-    const isArticleLike = is_post() || is_page();
-    const isArchiveLike = is_archive() || is_tag();
-    const isStatusPage = page.status === true;
-    const isPreferencesPage = page.preferences === true;
-    const isHomePage = page.home === true;
-    const isGraphPage = page.graph === true;
+    const assets = getPageAssets(page, helper);
 
     const language = getPageLocale(page, config) || page.lang || page.language || config.language;
     const canonicalUrl = toAbsoluteUrl(page.canonical_url || page.canonical || page.i18n?.canonical || headCanonicalUrl, helper, config);
@@ -348,20 +344,12 @@ module.exports = class extends Component {
         {speculationRulesScript ? <script type="speculationrules" dangerouslySetInnerHTML={{ __html: speculationRulesScript }}></script> : null}
         {is_post(page) && markdownSourceUrl ? <link rel="alternate" type={markdownSourceType} title={helper.__("article.markdown_source")} href={markdownSourceUrl} /> : null}
         <link rel="icon" href={url_for(favicon || "/img/favicon.svg")} />
-        <link rel="stylesheet" href={url_for("/css/default.css")} />
-        {isArticleLike && <link rel="stylesheet" href={url_for("/css/article.css")} />}
-        {isArticleLike && <link rel="stylesheet" href={url_for("/css/callout_blocks.css")} media="print" onload="this.media='all'" />}
-        {/* mermaid 图的 SVG 已在构建期内联进正文，样式需随首屏到位，不能等 article.js 懒加载 */}
-        {isArticleLike && page.content?.includes('class="mermaid-container"') && <link rel="stylesheet" href={url_for("/css/optional/mermaid.css")} />}
-        {isArchiveLike && <link rel="stylesheet" href={url_for("/css/archive.css")} />}
-        {isStatusPage && <link rel="stylesheet" href={url_for("/css/status.css")} />}
-        {isPreferencesPage && <link rel="stylesheet" href={url_for("/css/preferences.css")} />}
-        {isHomePage && <link rel="stylesheet" href={url_for("/css/home.css")} />}
-        {isGraphPage && <link rel="stylesheet" href={url_for("/css/graph.css")} />}
-        <link rel="stylesheet" href={url_for("/css/responsive.css")} />
-        {/* 字体服务的 preconnect 不再对所有人写死，改由启用了字体预设的读者按需建立（article-font-utils.js） */}
-        {isArticleLike && <link rel="preload" as="style" href={url_for("/css/shiki/shiki.css")} onload="this.onload=null;this.rel='stylesheet'" />}
-        {page.encrypt ? <link rel="stylesheet" href={url_for("/css/encrypt.css")} /> : null}
+        {assets.styles.map((href) => (
+          <link rel="stylesheet" href={url_for(href)} />
+        ))}
+        {assets.modulepreloads.map((href) => (
+          <link rel="modulepreload" href={url_for(href)} />
+        ))}
         <Plugins site={site} config={config} helper={helper} page={page} head={true} />
       </head>
     );

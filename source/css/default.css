@@ -1,4 +1,7 @@
 :root {
+  scrollbar-width: thin;
+  scrollbar-color: var(--overlay0) var(--base);
+  scrollbar-gutter: stable;
   /* font */
   --font-symbols: "Symbols Nerd Font Mono";
   --font-serif: var(--font-symbols), serif;
@@ -1652,8 +1655,34 @@ button.navbar-brand {
 
 /* #endregion Footer */
 
-::-webkit-scrollbar {
-  display: none;
+.skip-link {
+  position: fixed;
+  inset-block-start: 0.75rem;
+  inset-inline-start: var(--page-margin);
+  z-index: 1000;
+  padding: 0.75rem 1rem;
+  color: var(--title-text-color);
+  background: var(--base);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-sm);
+  transform: translateY(calc(-100% - 1rem));
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--overlay0);
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--base);
+  }
 }
 
 article,

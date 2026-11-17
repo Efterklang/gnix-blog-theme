@@ -104,7 +104,7 @@ class Navbar extends Component {
         {/* 栏目页：整屏的一张纸。顶上一行与顶栏同高——左边站名全称、右边关闭钮；下面是大字栏目名，不编号，
             一律墨色、悬停变灰；外链带一枚斜箭头 */}
         {names.length ? (
-          <div class="navbar-menu" id="navbar-menu" popover="auto" role="dialog" aria-modal="true" aria-label={menuTitle}>
+          <div class="navbar-menu" id="navbar-menu" popover="auto" role="dialog" aria-label={menuTitle}>
             <div class="navbar-menu__bar">
               <a class="navbar-menu__brand" href={brandUrl}>
                 {brand}

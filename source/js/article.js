@@ -384,7 +384,7 @@ function setCommentLoadState(state) {
   if (retry) retry.hidden = state !== "error";
 }
 
-function twikoo_handler({ fetchPriority = "auto" } = {}) {
+function twikoo_handler({ fetchPriority } = {}) {
   const el = document.getElementById("tko");
   if (!el || el.dataset.initialized === "true") return Promise.resolve();
   if (twikooInitPromise) return twikooInitPromise;
@@ -477,7 +477,7 @@ function addHighlightTool() {
           const code = figure.querySelector(SELECTORS.code);
 
           navigator.clipboard
-            .writeText(code.innerText)
+            .writeText(code.textContent)
             .then(() => {
               clearTimeout(copyNoticeTimer);
               notice.textContent = getLocalizedUiText("copied");
@@ -690,26 +690,6 @@ function initArticleCommentPopover() {
     }
   });
 
-  // After the first screen finishes loading, initialize offscreen at low priority
-  // so the component and its first comment page are ready before opening.
-  if (document.getElementById("tko") && !navigator.connection?.saveData) {
-    const schedule = () => {
-      const preload = () => {
-        if (document.visibilityState === "hidden") {
-          const whenVisible = () => {
-            if (document.visibilityState === "hidden") return;
-            document.removeEventListener("visibilitychange", whenVisible);
-            initializeComments({ fetchPriority: "low" });
-          };
-          document.addEventListener("visibilitychange", whenVisible);
-        } else initializeComments({ fetchPriority: "low" });
-      };
-      if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(preload, { timeout: 2000 });
-      else window.setTimeout(preload, 500);
-    };
-    if (document.readyState === "complete") schedule();
-    else window.addEventListener("load", schedule, { once: true });
-  }
   if (commentPopover.matches(":popover-open")) {
     returnFocus = triggers[0] || document.activeElement;
     synchronize(true);

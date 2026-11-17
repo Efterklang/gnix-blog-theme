@@ -78,7 +78,7 @@ module.exports = (hexo) => {
     <p class="gate__message">${__("encrypt.message")}</p>
     <div class="gate__field">
       <span class="gate__mark" aria-hidden="true">✳</span>
-      <input class="gate__input" type="password" id="encrypt-pass" placeholder="${escapeAttribute(__("encrypt.placeholder"))}" aria-label="${escapeAttribute(__("encrypt.placeholder"))}" enterkeyhint="done" autocomplete="off" />
+      <input class="gate__input" type="password" id="encrypt-pass" name="password" placeholder="${escapeAttribute(__("encrypt.placeholder"))}" aria-label="${escapeAttribute(__("encrypt.placeholder"))}" enterkeyhint="done" autocomplete="current-password" required />
       <button class="gate__submit" type="submit">${__("encrypt.unlock")}</button>
     </div>
   </form>

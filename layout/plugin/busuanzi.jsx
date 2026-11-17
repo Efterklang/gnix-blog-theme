@@ -13,6 +13,7 @@ class Busuanzi extends Component {
               function loadBusuanzi() {
                 var script = document.createElement("script");
                 script.defer = true;
+                script.fetchPriority = "low";
                 script.src = scriptUrl;
                 document.head.appendChild(script);
               }

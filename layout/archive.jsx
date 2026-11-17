@@ -281,7 +281,7 @@ function renderGarden({ title, count, placeholder, unlockLabel, lockLabel, error
           <span class="gate__mark" aria-hidden="true">
             ✳
           </span>
-          <input class="gate__input" type="password" name="password" placeholder={placeholder} aria-label={placeholder} enterkeyhint="done" autocomplete="off" />
+          <input class="gate__input" type="password" name="password" placeholder={placeholder} aria-label={placeholder} enterkeyhint="done" autocomplete="current-password" required />
           <button class="gate__submit" type="submit">
             {unlockLabel}
           </button>

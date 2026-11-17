@@ -25,8 +25,11 @@ module.exports = class extends Component {
       >
         <Head site={site} config={config} helper={helper} page={page} />
         <body>
+          <a class="skip-link" href="#main-content">
+            {String(language).toLowerCase().startsWith("zh") ? "跳到主要内容" : "Skip to content"}
+          </a>
           <Navbar site={site} config={config} helper={helper} page={page} menuOnly={isHome} />
-          <div class="main-content" dangerouslySetInnerHTML={{ __html: body }}></div>
+          <div class="main-content" id="main-content" tabindex="-1" dangerouslySetInnerHTML={{ __html: body }}></div>
           <Footer site={site} config={config} helper={helper} page={page} />
           <PreferencesPopup site={site} config={config} helper={helper} page={page} />
           <Scripts site={site} config={config} helper={helper} page={page} />
