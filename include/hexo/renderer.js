@@ -4,6 +4,7 @@ const ratex = require("./mdit/ratex");
 const code = require("./mdit/shiki");
 const obsidianCallouts = require("./mdit/obsidian-callouts");
 const s3Image = require("./mdit/image");
+const imageGroup = require("./mdit/image-group");
 const table = require("./mdit/table");
 const getImageMetadata = require("./image");
 const anchor = require("markdown-it-anchor");
@@ -64,6 +65,7 @@ class MarkdownRenderer {
         .use(ratex, this.config.ratex_options)
         .use(obsidianCallouts, this.config.callout_options)
         .use(s3Image, this.config.image_options, getImageMetadata(this.hexo))
+        .use(imageGroup)
         .use(table)
         .use(resolveDefault(anchor), {
           permalink: resolveDefault(anchor).permalink.headerLink(),

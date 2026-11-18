@@ -331,7 +331,6 @@
       x-chat,
       x-info-card,
       image-group,
-      image-carousel,
       video-player,
       .table-wrapper,
       .callout,
@@ -764,35 +763,137 @@ tbody tr:last-child td {
   border-bottom: none;
 }
 
-blockquote {
-  position: relative;
-  margin: var(--flow-media, calc(16em / 14)) 0 0;
-  padding: 0 0 0 2rem;
-  color: var(--sub-text-color);
-  font-family: inherit;
-  font-size: 0.8em;
-  font-style: normal;
+/* Image groups reserve the same row heights before their module loads. */
+image-group {
+  display: block;
+  min-width: 0;
+  container-type: inline-size;
+}
 
-  &::before {
-    content: "\201C";
+html:has(.image-zoom[open]) { overflow: hidden; }
+
+.content:has(image-group[layout="rail"]) { overflow: visible; }
+
+image-group .image-group-fallback {
+  --image-group-frame-height: var(--image-group-height, clamp(140px, calc(32vw / var(--image-group-rows, 1)), 320px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--image-group-gap, 0.75rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  direction: ltr;
+  padding-block: 0.25rem 0.65rem;
+
+  .image-group-row { display: flex; flex: none; align-items: flex-start; width: max-content; gap: var(--image-group-gap, 0.75rem); }
+
+  .image-group-item {
+    flex: none;
+    position: relative;
+    width: min(calc(var(--image-group-frame-height) * var(--image-group-ratio, 1.333333)), 88vw);
+    height: var(--image-group-frame-height);
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  .image-group-item > figure {
+    min-width: 0;
+    max-width: none !important;
+    width: 100%;
+    height: 100%;
+    margin: 0 !important;
+  }
+
+  .img-wrapper,
+  .image-group-item > figure > img {
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: auto !important;
+    border-radius: 6px;
+    background-size: contain !important;
+    background-position: center;
+    background-color: transparent;
+  }
+
+  img { width: 100% !important; height: 100% !important; object-fit: contain !important; }
+
+  figcaption {
     position: absolute;
-    top: -0.12em;
-    left: -0.05em;
-    color: color-mix(in oklab, var(--sub-text-color) 40%, transparent);
-    font-family: var(--article-font-family);
-    font-size: 2.6em;
-    font-weight: 700;
-    line-height: 1;
+    inset-inline: 0;
+    bottom: 0;
+    box-sizing: border-box;
+    max-height: 100%;
+    margin: 0;
+    padding: 2.25rem 0.75rem 0.55rem;
+    border-radius: 0 0 6px 6px;
+    background: linear-gradient(transparent, rgb(0 0 0 / 0.64));
+    color: #fff;
+    font-family: var(--font-serif, serif);
+    font-style: italic;
+    font-size: var(--type-caption-size, 0.875rem);
+    line-height: 1.5;
+    text-align: center;
+    overflow: auto;
+    overflow-wrap: anywhere;
+    opacity: 0;
     pointer-events: none;
   }
 
-  blockquote {
-    padding-left: 1.25rem;
-    font-size: 1em;
+  .image-group-item:focus-within figcaption { opacity: 1; }
+}
 
-    &::before {
-      content: none;
-    }
+image-group[layout="grid"] .image-group-fallback {
+  display: grid;
+  grid-auto-flow: row;
+  grid-auto-columns: auto;
+  grid-template-rows: none;
+  grid-template-columns: repeat(var(--image-group-columns, 2), minmax(0, 1fr));
+  padding: 0;
+  overflow: visible;
+
+  .image-group-item { width: auto; height: var(--image-group-grid-height, auto); aspect-ratio: 4 / 3; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  image-group .image-group-fallback .image-group-item:hover figcaption { opacity: 1; }
+}
+
+/* With no preview module, touch readers can still read the captions. */
+@media (hover: none), (pointer: coarse) {
+  image-group .image-group-fallback figcaption { opacity: 1; }
+}
+
+@container (max-width: 480px) {
+  image-group .image-group-fallback {
+    --image-group-frame-height: var(--image-group-mobile-height, clamp(120px, calc(52vw / var(--image-group-mobile-rows, 1)), 240px));
+  }
+  image-group[layout="rail"]:not([mobile-rows]) .image-group-fallback,
+  image-group[layout="rail"][mobile-rows="1"] .image-group-fallback { flex-direction: row; }
+  image-group[layout="rail"]:not([mobile-rows]) .image-group-row,
+  image-group[layout="rail"][mobile-rows="1"] .image-group-row { display: contents; }
+  image-group[layout="grid"] .image-group-fallback { grid-template-rows: none; grid-template-columns: repeat(var(--image-group-mobile-columns, 1), minmax(0, 1fr)); }
+}
+
+blockquote {
+  margin-block: var(--flow, calc(16em / 14)) 0;
+  margin-inline: 0;
+  padding-block: 0.5em;
+  padding-inline: clamp(0.875rem, 3vw, 1.25rem);
+  border-inline-start: 2px solid color-mix(in oklab, var(--sub-text-color) 28%, transparent);
+  color: var(--sub-text-color);
+  font-family: inherit;
+  font-size: 0.95em;
+  font-style: normal;
+
+  &::before {
+    content: none;
+  }
+
+  blockquote {
+    font-size: 1em;
   }
 
   > :first-child {
@@ -887,7 +988,7 @@ img[data-zoomable="true"] {
 
   &[open] {
     display: grid;
-    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr) auto auto;
     gap: 1rem;
   }
 
@@ -898,11 +999,31 @@ img[data-zoomable="true"] {
   }
 }
 
+.image-zoom:has(.image-zoom-caption:empty)[open] { grid-template-rows: minmax(0, 1fr) auto; }
+
+.image-zoom-caption {
+  justify-self: center;
+  width: fit-content;
+  max-width: min(70ch, 100%);
+  max-height: min(20svh, 7em);
+  margin: 0;
+  color: var(--title-text-color);
+  font-family: var(--font-sans-serif, sans-serif);
+  font-size: var(--type-caption-size, 0.875rem);
+  line-height: 1.5;
+  text-align: center;
+  overflow: auto;
+  overflow-wrap: anywhere;
+}
+
+.image-zoom-caption:empty { display: none; }
+
 .image-zoom-stage {
   display: grid;
   place-items: center;
   min-width: 0;
   min-height: 0;
+  touch-action: pan-y pinch-zoom;
 }
 
 .image-zoom-image {
@@ -1452,17 +1573,6 @@ a strong {
   }
 }
 
-.article-panel__label {
-  flex: none;
-  padding: 0.75rem 0.875rem 0.625rem;
-  color: var(--title-text-color);
-  font-family: var(--font-label);
-  font-size: var(--label-size);
-  font-weight: var(--label-weight);
-  letter-spacing: var(--label-tracking);
-  text-transform: uppercase;
-}
-
 /* 内容长了在自己里面滚动，不带出页面 */
 .article-panel__page {
   flex: 1 1 auto;
@@ -1508,10 +1618,6 @@ a strong {
     display: none;
   }
 
-  .article-panel__label {
-    padding: 0 0.875rem 0.75rem;
-    color: color-mix(in oklab, var(--sub-text-color) 75%, transparent);
-  }
 }
 
 /* 目录：不编号，层级只靠缩进——每深一层，节名向右缩一档，字小一号。

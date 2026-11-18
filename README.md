@@ -27,6 +27,49 @@ Support multiple light and dark themes:
 
 ## Components
 
+### Image groups
+
+Use an `image-group` fence for a horizontal photo sheet. `rows` fixes the
+number of rows, while each row packs photographs by their natural widths.
+Rows scroll together horizontally without aligning columns or adding gaps
+to compensate for narrower images.
+Images and captions render at build time, including responsive sources and
+placeholders, so the sheet also works without JavaScript.
+
+````markdown
+```image-group rows=2 mobile-rows=1 gap=0.75rem label="旅行照片"
+![山间步道](https://example.com/trail.jpg)
+![湖边](https://example.com/lake.jpg)
+![远山](https://example.com/mountains.jpg)
+![树林](https://example.com/forest.jpg)
+![日落](https://example.com/sunset.jpg)
+![夜色](https://example.com/night.jpg)
+```
+````
+
+| Option | Behavior |
+| --- | --- |
+| `rows` | Visible rows; defaults to 1. Each row packs images left to right; rows follow source order and share one scroller. Rows take precedence over columns. |
+| `mobile-rows` | Rows when the group is 480px wide or narrower; defaults to 1. |
+| `columns` (or `cols`) | Opt into a fixed-column grid when `rows` is omitted. |
+| `mobile-columns` | Narrow-screen columns for an explicit grid; defaults to 1. |
+| `height` | Image height on wide screens, e.g. `240px`; otherwise it adapts to the row count. Narrow screens use a bounded height. |
+| `gap` | Space between images, e.g. `12px` or `0.75rem`. |
+| `label` | Accessible name; quote labels containing spaces. |
+
+Only Markdown images, blank lines, and image reference definitions are accepted
+inside the fence. Counts must be integers from 1 to 100; fewer images use fewer
+rows to avoid empty space. Invalid content or options produce a build error
+with the source path. Images retain their full composition and transparent
+empty space. No custom HTML or explicit script tag is needed in articles.
+
+Captions appear inside the photograph near its bottom on hover or keyboard
+focus, over a gradient, matching the original Image Group treatment. Escape
+dismisses a caption. Touch readers can tap an image and read its caption in
+the fullscreen preview. Left/Right and Home/End scroll a focused sheet; arrow
+keys and touch swipes navigate the preview. Escape closes the preview and
+restores focus. Image groups have no footer, navigation controls or autoplay.
+
 ### Mermaid diagrams
 
 Mermaid fences render at build time as inline SVG using

@@ -122,7 +122,6 @@ module.exports = class extends Component {
           {/* 目录：<1280 是顶栏语境钮弹出的卡片；≥1280 常驻在左手 index 栏 */}
           {isPost && hasToc && (
             <aside id="article-panel" popover="auto" class="article-panel popup-card" aria-label="Table of contents">
-              <span class="article-panel__label">Contents</span>
               <div class="article-panel__page">
                 <Toc content={tocContent} encrypt={page.encrypt} />
               </div>

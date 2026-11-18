@@ -3,6 +3,24 @@ window.__CHANGELOG_DATA__ = [
     year: 2026,
     items: [
       {
+        date: "11.19",
+        cn: ["图片组默认按 rows 固定行数，每行按图片自然宽度紧密排列并一起横向滚动，行之间不对齐列；手机端默认一行，显式 columns 可选固定列网格；文章配置改用行数。恢复图片内部底部的悬停说明与渐变遮罩，键盘聚焦也可显示，手机端在放大预览中阅读说明。"],
+        en: ["Image groups use independent rows packed by natural image widths, scrolling together without aligned columns, with one row on narrow screens; explicit columns opts into a grid. Article options now use rows. Restore captions over a gradient inside the photograph's bottom on hover or keyboard focus, with captions available in the fullscreen preview on touch devices."],
+        category: "uiux",
+      },
+      {
+        date: "11.18",
+        cn: [
+          "新增 image-group Markdown 围栏，支持 columns、rows、mobile-columns、height、gap 和 label；网格按正文实际宽度调整，构建时输出图片与说明，关闭 JavaScript 仍可浏览。",
+          "图片展示统一为 image-group，移除重复的 image-carousel 组件与图片组 footer；保留网格和原生横向滚动，复用原图的响应式来源与占位图。原生 dialog 放大预览支持触摸切图、键盘导航与焦点恢复，打开时锁定背景滚动，遵循减少动态效果的偏好。",
+        ],
+        en: [
+          "Add image-group Markdown fences with columns, rows, mobile-columns, height, gap and label. The grid follows the article's actual width and renders images and captions at build time, including without JavaScript.",
+          "Unify photo galleries under image-group, remove the duplicate image-carousel component and group footer, and retain grids and native horizontal scrolling with responsive image sources and placeholders. A native dialog preview supports touch swipes, keyboard navigation, focus restoration and reduced motion, with background scrolling locked.",
+        ],
+        category: "uiux",
+      },
+      {
         date: "11.14",
         cn: [
           "参考 Palermo 定义完整的 Title、Body 与 Paragraph 文字角色，统一字号、行高和字重；长文保留独立的 16px 阅读字号和 1.7 行高。文章宽度改为五档点选，设置页随所选栏宽调整，移除间距偏好设置。",

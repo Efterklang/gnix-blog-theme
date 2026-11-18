@@ -189,12 +189,20 @@ const IMAGE_ZOOM_DURATION_MS = 300;
 let activeImageZoom = null;
 
 function markImageZoomable(img) {
-  if (img.dataset.zoomable === "false" || img.closest("a, button")) return;
+  const button = img.closest("button[data-image-preview]");
+  if (img.dataset.zoomable === "false" || img.closest("a") || (img.closest("button") && !button)) return;
   img.dataset.zoomable = "true";
-  img.tabIndex = 0;
+  const label = `${getLocalizedUiText("imagePreview")}${img.alt ? `: ${img.alt}` : ""}`;
+  if (button) {
+    button.disabled = false;
+    button.setAttribute("aria-haspopup", "dialog");
+    button.setAttribute("aria-label", label);
+    return;
+  }
+  img.tabIndex = img.closest('[aria-hidden="true"]') ? -1 : 0;
   img.setAttribute("role", "button");
   img.setAttribute("aria-haspopup", "dialog");
-  img.setAttribute("aria-label", `${getLocalizedUiText("imagePreview")}${img.alt ? `: ${img.alt}` : ""}`);
+  img.setAttribute("aria-label", label);
 }
 
 function imageZoomButton(label, path, action) {
@@ -230,6 +238,7 @@ function showZoomImage(zoom, index) {
   zoom.animation?.cancel();
   zoom.img = zoom.images[index];
   zoom.index = index;
+  zoom.caption.textContent = zoom.img.alt;
   zoom.visibility = zoom.img.style.visibility;
   zoom.img.style.visibility = "hidden";
 
@@ -263,9 +272,12 @@ function openImageZoom(img) {
   if (activeImageZoom) return;
   const rect = img.getBoundingClientRect();
   if (!rect.width || !rect.height) return;
-  const scope = img.closest(".content") || document;
+  const root = img.getRootNode();
+  const scope = root instanceof ShadowRoot ? root : img.closest(".content") || document;
   const images = Array.from(scope.querySelectorAll('img[data-zoomable="true"]')).filter((image) => {
-    if (image.closest("a, button, [hidden], [inert]") || getComputedStyle(image).visibility === "hidden") return false;
+    const button = image.closest("button");
+    if (image.closest("a, [hidden]") || (button && !button.hasAttribute("data-image-preview")) || getComputedStyle(image).visibility === "hidden") return false;
+    if (image.closest("[inert]")) return false;
     const bounds = image.getBoundingClientRect();
     return bounds.width > 0 && bounds.height > 0;
   });
@@ -276,6 +288,9 @@ function openImageZoom(img) {
   dialog.setAttribute("aria-label", getLocalizedUiText("imagePreview"));
   const stage = document.createElement("div");
   stage.className = "image-zoom-stage";
+  const caption = document.createElement("p");
+  caption.className = "image-zoom-caption";
+  caption.dir = "auto";
   const toolbar = document.createElement("div");
   toolbar.className = "image-zoom-toolbar surface";
   toolbar.setAttribute("role", "group");
@@ -290,21 +305,40 @@ function openImageZoom(img) {
   counter.setAttribute("role", "status");
   counter.setAttribute("aria-atomic", "true");
   toolbar.append(previous, counter, next, close);
-  dialog.append(stage, toolbar);
+  dialog.append(stage, caption, toolbar);
   dialog.addEventListener("cancel", (event) => {
     event.preventDefault();
-    closeImageZoom();
+    closeImageZoom(event);
   });
   dialog.addEventListener("click", (event) => {
-    if (!toolbar.contains(event.target)) closeImageZoom();
+    if (!toolbar.contains(event.target) && !caption.contains(event.target)) closeImageZoom();
   });
+  let gesture;
+  stage.addEventListener("pointerdown", (event) => {
+    if (!event.isPrimary) { gesture = null; return; }
+    if (event.pointerType !== "touch") return;
+    gesture = { x: event.clientX, y: event.clientY, id: event.pointerId };
+  }, { passive: true });
+  stage.addEventListener("pointerup", (event) => {
+    if (!gesture || gesture.id !== event.pointerId) return;
+    const dx = event.clientX - gesture.x;
+    const dy = event.clientY - gesture.y;
+    gesture = null;
+    if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    stepImageZoom(dx < 0 ? 1 : -1);
+    // A swipe must not also trigger the tap-to-close handler.
+    const suppress = (click) => { click.preventDefault(); click.stopPropagation(); };
+    stage.addEventListener("click", suppress, { once: true, capture: true });
+    setTimeout(() => stage.removeEventListener("click", suppress, true), 400);
+  }, { passive: true });
+  stage.addEventListener("pointercancel", () => { gesture = null; }, { passive: true });
   document.body.append(dialog);
-  const zoom = { dialog, stage, previous, next, counter, images, trigger: img, closing: false };
+  const zoom = { dialog, stage, caption, previous, next, counter, images, trigger: img.closest("button[data-image-preview]") || img, closing: false };
   activeImageZoom = zoom;
   dialog.showModal();
   showZoomImage(zoom, images.indexOf(img));
 
-  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && !zoom.trigger.matches(":focus-visible")) {
     const target = zoom.clone.getBoundingClientRect();
     if (target.width && target.height) {
       zoom.animation = zoom.clone.animate([{ transform: imageZoomTransform(rect, target) }, { transform: "none" }], {
@@ -317,7 +351,7 @@ function openImageZoom(img) {
   window.addEventListener("resize", layoutImageZoom, { passive: true });
 }
 
-function closeImageZoom() {
+function closeImageZoom(event) {
   const zoom = activeImageZoom;
   if (!zoom || zoom.closing) return;
   zoom.closing = true;
@@ -329,7 +363,7 @@ function closeImageZoom() {
   const base = zoom.clone.getBoundingClientRect();
   const target = zoom.img.getBoundingClientRect();
   const canReturn = target.width > 0 && target.height > 0 && target.top >= 0 && target.bottom <= window.innerHeight && target.left >= 0 && target.right <= document.documentElement.clientWidth;
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches || event?.type === "keydown" || event?.type === "cancel" || (event?.type === "click" && event.detail === 0);
   zoom.dialog.classList.add("is-closing");
 
   let cleaned = false;
@@ -364,8 +398,9 @@ function handleImageZoomClick(event) {
 
   if (activeImageZoom) return;
 
-  const img = event.target.closest?.('img[data-zoomable="true"]');
-  if (!img || img.closest("a, button")) return;
+  const path = event.composedPath();
+  const img = path.find((node) => node.matches?.('img[data-zoomable="true"]')) || path.find((node) => node.matches?.("button[data-image-preview]"))?.querySelector('img[data-zoomable="true"]');
+  if (!img || img.closest("a") || (img.closest("button") && !img.closest("button[data-image-preview]"))) return;
   openImageZoom(img);
 }
 // #endregion
@@ -557,7 +592,7 @@ function handleArticleKeyDown(e) {
     if (!e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
       if (e.key === "Escape") {
         e.preventDefault();
-        closeImageZoom();
+        closeImageZoom(e);
       } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
         e.preventDefault();
         stepImageZoom(e.key === "ArrowLeft" ? -1 : 1);
@@ -566,7 +601,7 @@ function handleArticleKeyDown(e) {
     return;
   }
 
-  const image = e.target.closest?.('img[data-zoomable="true"]');
+  const image = e.composedPath().find((node) => node.matches?.('img[data-zoomable="true"]'));
   if (image && !image.closest("a, button") && (e.key === "Enter" || e.key === " ") && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
     e.preventDefault();
     openImageZoom(image);
@@ -923,10 +958,12 @@ function initReadingProgress() {
 }
 
 function initPage() {
+  if (document.querySelector("image-group")) import("./components/image-group.js").catch(handleLazyAssetError);
   initArticleReveal();
   handleMermaid();
   addHighlightTool();
   document.querySelectorAll(".content img").forEach(markImageZoomable);
+  document.querySelectorAll("image-group").forEach((gallery) => gallery.shadowRoot?.querySelectorAll("img").forEach(markImageZoomable));
   initArticlePanel();
   initScrollTop();
   initTocSpy();
@@ -965,4 +1002,7 @@ window.matchMedia(FOOTNOTE_HOVER_TOOLTIP_MEDIA).addEventListener("change", () =>
 // 图片缩放走事件委托：不依赖逐图绑定时机，Swup 导航/解密内容/延迟渲染的
 // 自定义元素只需打上 data-zoomable 标记即可
 document.addEventListener("click", handleImageZoomClick);
+document.addEventListener("gnix:image-gallery-ready", (event) => {
+  event.target.shadowRoot?.querySelectorAll("img").forEach(markImageZoomable);
+});
 // #endregion
