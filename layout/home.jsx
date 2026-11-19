@@ -1,5 +1,5 @@
 const { Component } = require("../include/util/common");
-const { filterByLanguage, isExternalUrl } = require("../include/util/i18n");
+const { filterByLanguage } = require("../include/util/i18n");
 const { isEncrypted } = require("../include/hexo/encrypt");
 
 // 固定指针的年份刻度尺：触摸与触控板使用原生滚动、惯性和吸附；鼠标补充拖动。
@@ -11,6 +11,7 @@ const ARCHIVE_SCALE_SCRIPT = `(function () {
   var ticks = [].slice.call(viewport.querySelectorAll("[data-home-year]"));
   var figure = root.querySelector("[data-home-figure]");
   var readout = root.querySelector("[data-home-readout]");
+  var count = root.querySelector("[data-home-count]");
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   var KEY = "gnix:home-year";
   var active = null;
@@ -39,6 +40,12 @@ const ARCHIVE_SCALE_SCRIPT = `(function () {
     figure.textContent = tick.dataset.homeYear + "↗";
     readout.href = tick.href;
     readout.setAttribute("aria-label", tick.getAttribute("aria-label"));
+    if (count) {
+      var writings = Number(tick.dataset.homeYearCount || 0);
+      count.textContent = writings + (writings === 1 ? " writing" : " writings");
+      count.href = tick.href;
+      count.setAttribute("aria-label", tick.getAttribute("aria-label"));
+    }
     try { sessionStorage.setItem(KEY, tick.dataset.homeYear); } catch (e) {}
   }
   function align(tick, smooth) {
@@ -151,8 +158,8 @@ function getLanguagePosts(sitePosts, { page, config, helper }) {
 
 function linkAttrs(href, helper, langKey) {
   const target = String(href);
-  const attrs = { href: helper.localized_url_for(target, langKey) };
-  if (isExternalUrl(target)) {
+  const attrs = { href: /^(?:mailto|tel):/i.test(target) ? target : helper.localized_url_for(target, langKey) };
+  if (/^(?:https?:)?\/\//i.test(target)) {
     attrs.target = "_blank";
     attrs.rel = "noopener noreferrer";
   }
@@ -188,9 +195,10 @@ module.exports = class extends Component {
     const email = "gjx@linux.do";
 
     const links = [
-      ["Wiki", "https://wiki.vluv.space"],
-      ["Gallery", "https://gallery.vluv.space"],
-      ["Travellings", "https://www.travellings.cn/go"],
+      ["Email ↗", `mailto:${email}`],
+      ["Wiki ↗", "https://wiki.vluv.space"],
+      ["Gallery ↗", "https://gallery.vluv.space"],
+      ["Travellings ↗", "https://www.travellings.cn/go"],
       ["Changelog", "change"],
       ["Colophon", "colophon"],
     ];
@@ -199,7 +207,7 @@ module.exports = class extends Component {
     return (
       <main class="home-page">
         <section class="home-hero">
-          {/* 1. 顶部区域：左上巨字 + 右上数据表 */}
+          {/* 身份与简介各成一栏，联系入口与其它链接一起排列。 */}
           <div class="home-hero__top">
             <div class="home-hero__brand" style={`--i:${order++}`}>
               <h1 class="home-hero__title">
@@ -222,29 +230,14 @@ module.exports = class extends Component {
                   </a>
                 )}
               </h1>
+            </div>
 
+            <div class="home-hero__about" style={`--i:${order++}`}>
               <div class="home-hero__lead">
                 <p class="home-hero__intro">I was born in Qingdao, Shandong, in 2004.</p>
                 <p class="home-hero__intro home-hero__intro--muted">This space archives my essays and technical notes.</p>
               </div>
             </div>
-
-            <dl class="home-hero__spec" style={`--i:${order++}`}>
-              <div class="home-hero__spec-row">
-                <dt class="home-hero__spec-label">Writings</dt>
-                <dd class="home-hero__spec-value">
-                  <a class="home-intro__link" href={archiveUrl}>{posts.length}</a>
-                </dd>
-              </div>
-              <div class="home-hero__spec-row">
-                <dt class="home-hero__spec-label">Email</dt>
-                <dd class="home-hero__spec-value">
-                  <a class="home-intro__link" href={`mailto:${email}`}>
-                    {email}
-                  </a>
-                </dd>
-              </div>
-            </dl>
           </div>
 
           {/* 2. 中腰带区域：横向滚动导航（通栏分割线之间） */}
@@ -256,22 +249,28 @@ module.exports = class extends Component {
             <ul class="home-hero__links" id="home-links">
               {links.map(([label, href]) => (
                 <li key={label} class="home-hero__link-item">
-                  <a class="home-hero__link" {...linkAttrs(href, helper, langKey)}>
+                  <a class={`home-hero__link${href.startsWith("mailto:") ? " home-hero__link--email" : ""}`} title={href.startsWith("mailto:") ? email : null} {...linkAttrs(href, helper, langKey)}>
                     <span class="home-hero__link-text">{label}</span>
-                    {isExternalUrl(href) && <span class="home-hero__external">↗</span>}
                   </a>
                 </li>
               ))}
             </ul>
           </nav>
           <div class="home-hero__bottom">
-            {years.length ? (
-              <nav class="home-hero__caption home-archive" style={`--i:${order++}`} aria-label="Archive">
-                <a class="home-archive__readout" data-home-readout href={yearUrl(years[0].year)} aria-label={`${years[0].year}, ${writingsLabel(years[0].count)}`}>
-                  <span class="home-archive__figure" data-home-figure="">{`${years[0].year}↗`}</span>
+            <nav class="home-hero__caption home-archive" style={`--i:${order++}`} aria-label="Archive">
+              <div class="home-archive__heading">
+                <a class="home-archive__count" data-home-count="" href={years.length ? yearUrl(years[0].year) : archiveUrl} aria-label={years.length ? `${years[0].year}, ${writingsLabel(years[0].count)}` : null}>
+                  {writingsLabel(years[0]?.count || 0)}
                 </a>
+                {years.length ? (
+                  <a class="home-archive__readout" data-home-readout href={yearUrl(years[0].year)} aria-label={`${years[0].year}, ${writingsLabel(years[0].count)}`}>
+                    <span class="home-archive__figure" data-home-figure="">{`${years[0].year}↗`}</span>
+                  </a>
+                ) : null}
+              </div>
 
-                {/* 指针固定在第一格；原生滚动让刻度与年份一起经过它。 */}
+              {/* 指针固定在第一格；原生滚动让刻度与年份一起经过它。 */}
+              {years.length ? (
                 <div class="home-archive__scale">
                   <span class="home-archive__needle" aria-hidden="true"></span>
                   <div class="home-archive__viewport" tabindex="0" role="group" aria-label="Scroll to choose a year. Use the arrow keys, then open the year above.">
@@ -282,6 +281,7 @@ module.exports = class extends Component {
                             class="home-archive__year"
                             href={yearUrl(year)}
                             data-home-year={year}
+                            data-home-year-count={count}
                             data-tuned={index === 0 ? "true" : undefined}
                             aria-current={index === 0 ? "true" : undefined}
                             aria-label={`${year}, ${writingsLabel(count)}`}
@@ -299,8 +299,8 @@ module.exports = class extends Component {
                     </ul>
                   </div>
                 </div>
-              </nav>
-            ) : null}
+              ) : null}
+            </nav>
           </div>
         </section>
 

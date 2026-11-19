@@ -1194,6 +1194,11 @@ html {
 
 /* #region Navbar */
 
+/* logo 与栏目菜单用文字颜色提示焦点，鼠标和 Tab 都不画外框。 */
+:is([data-navbar-menu-trigger], .navbar-menu a, .navbar-menu button):focus {
+  outline: none;
+}
+
 /* 顶栏：文字浮在纸色渐变之上，向下淡出到滚动内容；不叠加背景模糊。 */
 .navbar {
   position: sticky;
@@ -1318,7 +1323,8 @@ html {
   text-decoration: none;
   white-space: nowrap;
 
-  &:hover {
+  &:hover,
+  &:focus-visible {
     color: var(--sub-text-color);
   }
 }
@@ -1455,27 +1461,20 @@ button.navbar-brand {
 /* 栏目页：点站名弹出的整屏一张纸（与页面同底色，不透出底下的内容）。
    顶上一行与顶栏同高同边距：左边站名全称（回首页），右边关闭钮；下面是大字栏目名，从上往下靠左排成一列、不编号。
    栏目名一律墨色，悬停变灰。打开时整页淡入，栏目名依次上浮 */
-.navbar-menu {
-  opacity: 0;
-  transition:
-    opacity 200ms ease,
-    display 200ms allow-discrete,
-    overlay 200ms allow-discrete;
-}
-
+.navbar-menu,
 .navbar-menu:popover-open {
-  display: flex;
   flex-direction: column;
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100dvh;
   box-sizing: border-box;
+  margin: 0;
+  border: none;
   padding: env(safe-area-inset-top) var(--page-margin) calc(env(safe-area-inset-bottom) + clamp(2rem, 8svh, 4rem));
   overflow-y: auto;
   overscroll-behavior: contain;
   background: var(--base);
-  opacity: 1;
 
   &::before {
     content: none;
@@ -1484,6 +1483,21 @@ button.navbar-brand {
   &::backdrop {
     background: transparent;
   }
+}
+
+/* 退出时仍在 top layer：尺寸、排版与底色必须保持到淡出结束。 */
+.navbar-menu {
+  display: none;
+  opacity: 0;
+  transition:
+    opacity 160ms var(--ease-out),
+    display 160ms allow-discrete,
+    overlay 160ms allow-discrete;
+}
+
+.navbar-menu:popover-open {
+  display: flex;
+  opacity: 1;
 }
 
 @starting-style {
@@ -1511,13 +1525,20 @@ button.navbar-brand {
   text-decoration: none;
   white-space: nowrap;
 
-  &:hover {
+  &:hover,
+  &:focus-visible {
     color: var(--sub-text-color);
   }
 }
 
 .navbar-menu__close {
   margin-right: -0.5rem;
+
+  &:focus-visible {
+    color: var(--title-text-color);
+    background-color: var(--hover-fill);
+    transition: none;
+  }
 }
 
 .navbar-menu__links {
@@ -1556,9 +1577,8 @@ button.navbar-brand {
   }
 
   &:focus-visible {
-    border-radius: 2px;
-    outline: var(--focus-ring);
-    outline-offset: 4px;
+    color: var(--sub-text-color);
+    transition: none;
   }
 }
 

@@ -273,15 +273,19 @@ function handleKeyDown(e) {
 // main.js 以 <script type="module"> 加载，具备 defer 语义：执行到这里时 DOM 必已解析完毕，
 // 无需 DOMContentLoaded 门控；prerender 页面经 runWhenActivated 推迟到激活后初始化
 // 栏目页（点站名弹出的整屏 #navbar-menu）：popovertarget 不维护 aria-expanded，这里跟随开合同步；
-// 打开时焦点落在当前栏目（没有就第一项），关上后回到站名钮
+// 键盘打开时焦点落在当前栏目；鼠标打开时保留触发钮的焦点，避免出现选中框。
 function initNavbarMenu() {
   const menu = document.getElementById("navbar-menu");
   const trigger = document.querySelector('[data-navbar-menu-trigger][popovertarget="navbar-menu"]');
   if (!menu || !trigger) return;
+  let openedWithKeyboard = false;
+  trigger.addEventListener("click", (event) => {
+    openedWithKeyboard = event.detail === 0;
+  });
   menu.addEventListener("toggle", (event) => {
     const open = event.newState === "open";
     trigger.setAttribute("aria-expanded", String(open));
-    if (open) (menu.querySelector(".navbar-menu__item.is-active") || menu.querySelector(".navbar-menu__item"))?.focus({ preventScroll: true });
+    if (open && openedWithKeyboard) (menu.querySelector(".navbar-menu__item.is-active") || menu.querySelector(".navbar-menu__item"))?.focus({ preventScroll: true });
   });
 }
 
