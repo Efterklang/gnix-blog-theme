@@ -96,7 +96,7 @@ module.exports = class extends Component {
       .join(" ");
 
     const mailto = `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent(`Re: ${page.title || ""}`)}`;
-    const archiveUrl = helper.localized_url_for(config.archive_generator?.path || "archive", helper.language_key(page));
+    const archiveUrl = helper.localized_url_for(config.archive_generator?.path || "archives", helper.language_key(page));
 
     return (
       <Fragment>

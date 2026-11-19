@@ -2,70 +2,133 @@ const { Component } = require("../include/util/common");
 const { filterByLanguage, isExternalUrl } = require("../include/util/i18n");
 const { isEncrypted } = require("../include/hexo/encrypt");
 
-const SITE_SINCE = "2022";
-
-// 年份刻度尺：悬停／聚焦到哪一格，读数与指针就跟到哪一年（不必点击）；离开刻度区回到选中的年份。
-// 点击把那一年记为选中（sessionStorage，后退回来仍在）再跳转；触屏上分两下：先选中，再点一次进入。
-// 脚本紧跟标记内联执行，首帧前就位。
+// 固定指针的年份刻度尺：触摸与触控板使用原生滚动、惯性和吸附；鼠标补充拖动。
+// 大年份是当前刻度的入口，选择保存在 sessionStorage，后退时仍在原来的年份。
 const ARCHIVE_SCALE_SCRIPT = `(function () {
   var root = document.querySelector(".home-archive");
-  var scale = root && root.querySelector(".home-archive__scale");
-  if (!scale) return;
-  var ticks = [].slice.call(scale.querySelectorAll("[data-home-year]"));
+  var viewport = root && root.querySelector(".home-archive__viewport");
+  if (!viewport) return;
+  var ticks = [].slice.call(viewport.querySelectorAll("[data-home-year]"));
   var figure = root.querySelector("[data-home-figure]");
+  var readout = root.querySelector("[data-home-readout]");
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   var KEY = "gnix:home-year";
-  var active = ticks[0];
+  var active = null;
+  var drag = null;
+  var dragged = false;
+  var wheelTimer = 0;
 
-  function mark(attr, tick) {
-    ticks.forEach(function (t) {
-      if (t === tick) t.setAttribute(attr, "true");
-      else t.removeAttribute(attr);
-    });
-  }
-  function tune(tick) {
-    var year = tick.dataset.homeYear;
-    mark("data-tuned", tick);
-    scale.style.setProperty("--needle", ticks.indexOf(tick));
-    figure.textContent = year.slice(-2);
+  function position(tick) { return tick.parentElement.offsetLeft; }
+  function nearest() {
+    return ticks.reduce(function (best, tick) {
+      return Math.abs(position(tick) - viewport.scrollLeft) < Math.abs(position(best) - viewport.scrollLeft) ? tick : best;
+    }, ticks[0]);
   }
   function select(tick) {
+    if (!tick || tick === active) return;
     active = tick;
-    mark("aria-current", tick);
-    tune(tick);
+    ticks.forEach(function (t) {
+      if (t === tick) {
+        t.setAttribute("data-tuned", "true");
+        t.setAttribute("aria-current", "true");
+      } else {
+        t.removeAttribute("data-tuned");
+        t.removeAttribute("aria-current");
+      }
+    });
+    figure.textContent = tick.dataset.homeYear + "↗";
+    readout.href = tick.href;
+    readout.setAttribute("aria-label", tick.getAttribute("aria-label"));
     try { sessionStorage.setItem(KEY, tick.dataset.homeYear); } catch (e) {}
   }
-  function tickOf(event) {
-    return event.target.closest("[data-home-year]");
+  function align(tick, smooth) {
+    viewport.scrollTo({ left: position(tick), behavior: smooth && !reduced.matches ? "smooth" : "instant" });
+    select(tick);
+  }
+  function settle() {
+    var tick = nearest();
+    viewport.classList.remove("is-scrubbing");
+    align(tick, true);
   }
 
+  var restored = ticks[0];
   try {
     var saved = sessionStorage.getItem(KEY);
-    var restored = ticks.filter(function (t) { return t.dataset.homeYear === saved; })[0];
-    if (restored) select(restored);
+    restored = ticks.filter(function (t) { return t.dataset.homeYear === saved; })[0] || restored;
   } catch (e) {}
+  align(restored, false);
 
-  scale.addEventListener("pointerover", function (event) {
-    var tick = tickOf(event);
-    if (tick) tune(tick);
+  viewport.addEventListener("scroll", function () { select(nearest()); }, { passive: true });
+  // 键盘聚焦时直接定位，Tab 与方向键都能抵达最后一年。
+  viewport.addEventListener("focusin", function (event) {
+    var tick = event.target.closest("[data-home-year]");
+    if (tick && tick.matches(":focus-visible")) align(tick, false);
   });
-  scale.addEventListener("pointerleave", function () { tune(active); });
-  scale.addEventListener("focusin", function (event) {
-    var tick = tickOf(event);
-    if (tick) tune(tick);
+  viewport.addEventListener("keydown", function (event) {
+    var index = ticks.indexOf(active);
+    if (event.key === "ArrowRight") index = Math.min(index + 1, ticks.length - 1);
+    else if (event.key === "ArrowLeft") index = Math.max(index - 1, 0);
+    else if (event.key === "Home") index = 0;
+    else if (event.key === "End") index = ticks.length - 1;
+    else return;
+    event.preventDefault();
+    align(ticks[index], false);
+    if (event.target.closest("[data-home-year]")) ticks[index].focus({ preventScroll: true });
   });
-  scale.addEventListener("focusout", function (event) {
-    if (!scale.contains(event.relatedTarget)) tune(active);
+
+  viewport.addEventListener("pointerdown", function (event) {
+    dragged = false;
+    if (event.pointerType !== "mouse" || event.button !== 0) return;
+    clearTimeout(wheelTimer);
+    viewport.classList.remove("is-scrubbing");
+    drag = { id: event.pointerId, x: event.clientX, left: viewport.scrollLeft };
   });
-  // 触屏没有悬停：第一下只选中（读数换到那一年），再点一下已选中的那一格才跳转。
-  // 按这一次按下的指针类型判断，触屏笔记本上用鼠标仍是一次直达；键盘回车没有 pointerdown（detail 为 0），也直达
-  var touch = false;
-  scale.addEventListener("pointerdown", function (event) { touch = event.pointerType === "touch"; });
-  scale.addEventListener("click", function (event) {
-    var tick = tickOf(event);
-    if (!tick) return;
-    if (touch && event.detail !== 0 && tick !== active) event.preventDefault();
-    select(tick);
+  viewport.addEventListener("pointermove", function (event) {
+    if (!drag || event.pointerId !== drag.id) return;
+    var dx = event.clientX - drag.x;
+    if (!dragged && Math.abs(dx) < 8) return;
+    if (!dragged) {
+      dragged = true;
+      viewport.classList.add("is-scrubbing");
+      viewport.setPointerCapture(event.pointerId);
+    }
+    viewport.scrollLeft = drag.left - dx;
   });
+  function release(event) {
+    if (!drag || event.pointerId !== drag.id) return;
+    drag = null;
+    if (dragged) settle();
+  }
+  viewport.addEventListener("pointerup", release);
+  viewport.addEventListener("pointercancel", release);
+  viewport.addEventListener("lostpointercapture", release);
+  viewport.addEventListener("pointerleave", function () { if (!dragged) drag = null; });
+  viewport.addEventListener("dragstart", function (event) { event.preventDefault(); });
+  viewport.addEventListener("click", function (event) {
+    if (dragged && event.detail !== 0) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    var tick = event.target.closest("[data-home-year]");
+    if (tick) select(tick);
+  }, true);
+
+  // 鼠标滚轮也能拨尺；横向触控板输入交给浏览器，在边缘继续允许页面纵向滚动。
+  viewport.addEventListener("wheel", function (event) {
+    if (event.ctrlKey || event.deltaX || !event.deltaY || ticks.length < 2) return;
+    var max = viewport.scrollWidth - viewport.clientWidth;
+    if ((event.deltaY < 0 && viewport.scrollLeft <= 0) || (event.deltaY > 0 && viewport.scrollLeft >= max - 1)) return;
+    event.preventDefault();
+    clearTimeout(wheelTimer);
+    viewport.classList.add("is-scrubbing");
+    var unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? viewport.clientWidth : 1;
+    viewport.scrollLeft += event.deltaY * unit;
+    wheelTimer = setTimeout(function () { wheelTimer = 0; settle(); }, 120);
+  }, { passive: false });
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(function () { if (!drag && !wheelTimer) align(active, false); }).observe(viewport);
+  }
 })();`;
 
 const writingsLabel = (count) => `${count} ${count === 1 ? "writing" : "writings"}`;
@@ -108,7 +171,7 @@ module.exports = class extends Component {
       yearCounts.set(year, (yearCounts.get(year) || 0) + 1);
     }
     const years = [...yearCounts].map(([year, count]) => ({ year, count })).sort((a, b) => b.year - a.year);
-    const archiveUrl = helper.localized_url_for(config.archive_generator?.path || "archive");
+    const archiveUrl = helper.localized_url_for(config.archive_generator?.path || "archives");
     const hasMenu = Object.keys(config.navbar?.menu || {}).length > 0;
     const brand = (
       <span>
@@ -168,8 +231,10 @@ module.exports = class extends Component {
 
             <dl class="home-hero__spec" style={`--i:${order++}`}>
               <div class="home-hero__spec-row">
-                <dt class="home-hero__spec-label">Since</dt>
-                <dd class="home-hero__spec-value">{SITE_SINCE}</dd>
+                <dt class="home-hero__spec-label">Writings</dt>
+                <dd class="home-hero__spec-value">
+                  <a class="home-intro__link" href={archiveUrl}>{posts.length}</a>
+                </dd>
               </div>
               <div class="home-hero__spec-row">
                 <dt class="home-hero__spec-label">Email</dt>
@@ -202,33 +267,37 @@ module.exports = class extends Component {
           <div class="home-hero__bottom">
             {years.length ? (
               <nav class="home-hero__caption home-archive" style={`--i:${order++}`} aria-label="Archive">
-                {/* 读数：只是刻度尺的回显，信息已在每个刻度链接的 aria-label 里 */}
-                <div class="home-archive__readout" aria-hidden="true">
-                  <span class="home-archive__figure" data-home-figure>
-                    {String(years[0].year).slice(-2)}
-                  </span>
-                </div>
+                <a class="home-archive__readout" data-home-readout href={yearUrl(years[0].year)} aria-label={`${years[0].year}, ${writingsLabel(years[0].count)}`}>
+                  <span class="home-archive__figure" data-home-figure="">{`${years[0].year}↗`}</span>
+                </a>
 
-                {/* 刻度尺：--ticks 等分栏数，--needle 指针所在的格（由脚本随悬停更新） */}
-                <div class="home-archive__scale" style={`--ticks:${years.length};--needle:0`}>
+                {/* 指针固定在第一格；原生滚动让刻度与年份一起经过它。 */}
+                <div class="home-archive__scale">
                   <span class="home-archive__needle" aria-hidden="true"></span>
-                  <ul class="home-archive__years">
-                    {years.map(({ year, count }, index) => (
-                      <li key={year}>
-                        <a
-                          class="home-archive__year"
-                          href={yearUrl(year)}
-                          data-home-year={year}
-                          data-tuned={index === 0 ? "true" : undefined}
-                          aria-current={index === 0 ? "true" : undefined}
-                          aria-label={`${year}, ${writingsLabel(count)}`}
-                        >
-                          <span class="home-archive__tick"></span>
-                          <span class="home-archive__year-value">{String(year).slice(-2)}</span>
-                        </a>
+                  <div class="home-archive__viewport" tabindex="0" role="group" aria-label="Scroll to choose a year. Use the arrow keys, then open the year above.">
+                    <ul class="home-archive__years">
+                      {years.map(({ year, count }, index) => (
+                        <li key={year}>
+                          <a
+                            class="home-archive__year"
+                            href={yearUrl(year)}
+                            data-home-year={year}
+                            data-tuned={index === 0 ? "true" : undefined}
+                            aria-current={index === 0 ? "true" : undefined}
+                            aria-label={`${year}, ${writingsLabel(count)}`}
+                          >
+                            <span class="home-archive__tick"></span>
+                            <span class="home-archive__year-value">{String(year).slice(-2)}</span>
+                          </a>
+                        </li>
+                      ))}
+                      {/* 一屏减一格的尾段，保证最早一年也能停在指针下，不伪造更多年份。 */}
+                      <li class="home-archive__origin" aria-hidden="true">
+                        <span class="home-archive__origin-mark">✳</span>
+                        <span>Every archive<br />begins somewhere.</span>
                       </li>
-                    ))}
-                  </ul>
+                    </ul>
+                  </div>
                 </div>
               </nav>
             ) : null}

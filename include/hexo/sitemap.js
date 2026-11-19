@@ -4,6 +4,7 @@
 const { extname } = require("node:path");
 const { encodeURL, url_for } = require("hexo-util");
 const { isEncrypted } = require("./encrypt");
+const { filterByLanguage, getLanguageKeys, getLocalizedTagPath, isI18nEnabled } = require("../util/i18n");
 
 const DEFAULT_CONFIG = {
   path: ["sitemap.xml", "sitemap.txt"],
@@ -150,9 +151,21 @@ module.exports = (hexo) => {
       return;
     }
 
+    const fullConfig = Object.assign({}, this.config, this.config.theme_config, hexo.theme.config);
+    const languageKeys = isI18nEnabled(fullConfig) ? getLanguageKeys(fullConfig) : [null];
+    const tags = config.tags
+      ? locals.tags.toArray().flatMap((tag) =>
+          languageKeys
+            .filter((key) => !key || filterByLanguage(tag.posts, key, fullConfig).length)
+            .map((key) => ({
+              permalink: new URL(key ? getLocalizedTagPath(tag, key, fullConfig) : `${tag.path}index.html`, this.config.url).href,
+            })),
+        )
+      : [];
+
     const context = {
       posts,
-      tags: config.tags ? locals.tags.toArray() : [],
+      tags,
       categories: config.categories ? locals.categories.toArray() : [],
       siteUrl: this.config.url,
       now: new Date(),

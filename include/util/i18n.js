@@ -212,8 +212,8 @@ function localizePath(value, key, config = {}) {
   const route = trimSlashes(stripLanguagePrefix(pathname, config));
   const base = trimSlashes(getLanguageBasePath(config, key || getDefaultLanguageKey(config)));
   const joined = [base, route].filter(Boolean).join("/");
-  const hasFileExtension = /\.[^/]+$/.test(route);
-  const localized = `/${joined}${joined && !hasFileExtension ? "/" : ""}`;
+  // 静态托管只为无尾斜线的页面路径补 index.html；语言首页保留目录入口。
+  const localized = `/${joined}${base && !route ? "/" : ""}`;
   return `${localized}${query ? `?${query}` : ""}${hash ? `#${hash}` : ""}`;
 }
 
@@ -227,7 +227,8 @@ function getLocalizedTagPath(tag, key, config = {}) {
     slug = slug.slice(tagDirPrefix.length);
   }
 
-  return joinRoute(getLanguageBasePath(config, key), tagDir, slug);
+  // 多层标签目录不一定有自动索引，链接和生成器共用实际文件路径。
+  return `${joinRoute(getLanguageBasePath(config, key), tagDir, slug)}index.html`;
 }
 
 // ─── 集合按语言筛选 ────────────────────────────────────────────────

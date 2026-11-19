@@ -48,21 +48,6 @@ function getArticleSection(page) {
   return undefined;
 }
 
-function normalizeTrailingSlash(url, config) {
-  if (!url || typeof url !== "string") return url;
-  if (config.pretty_urls && config.pretty_urls.trailing_index === false) return url;
-
-  const match = url.match(/^([a-z][a-z0-9+\-.]*:\/\/[^/?#]+)?([^?#]*)(\?[^#]*)?(#.*)?$/i);
-  if (!match) return url;
-  const [, origin = "", path = "", query = "", hash = ""] = match;
-  if (!path || path.endsWith("/")) return url;
-
-  const lastSegment = path.slice(path.lastIndexOf("/") + 1);
-  if (/\.[a-z0-9]+$/i.test(lastSegment)) return url;
-
-  return `${origin}${path}/${query}${hash}`;
-}
-
 function toAbsoluteUrl(href, helper, config) {
   if (!href || typeof href !== "string") return null;
   if (/^https?:\/\//i.test(href)) return href;
@@ -80,7 +65,7 @@ function toAbsoluteUrl(href, helper, config) {
       absolute = `${siteUrl}${path}`;
     }
   }
-  return normalizeTrailingSlash(absolute, config);
+  return absolute;
 }
 
 function addAlternateLink(links, hreflang, href, helper, config) {

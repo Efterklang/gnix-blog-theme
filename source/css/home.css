@@ -147,55 +147,51 @@
   color: var(--sub-text-color);
 }
 
-/* 规格表：增加细腻的底部分隔线，使其与标题更紧凑整齐 */
+/* 两行轻量信息：标签与内容对齐，以留白分隔。 */
 .home-hero__spec {
   margin: 0;
   padding: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+  width: fit-content;
+  max-width: 100%;
+  display: grid;
+  row-gap: 0.625rem;
 }
 
 .home-hero__spec-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  column-gap: 1.5rem;
   align-items: baseline;
   line-height: var(--type-ui-leading);
-  padding-block: 0.25rem;
-  border-bottom: 1px solid color-mix(in oklab, var(--home-hairline) 60%, transparent);
-}
-
-.home-hero__spec-row:last-child {
-  border-bottom: none;
 }
 
 .home-hero__spec-label {
   color: var(--sub-text-color);
-  font-family: var(--font-mono, monospace);
-  font-size: var(--label-size);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: var(--type-ui-size);
 }
 
 .home-hero__spec-value {
   margin: 0;
   color: var(--title-text-color);
-  font-family: var(--font-mono, monospace);
   font-size: var(--type-ui-size);
-  font-weight: 500;
   font-variant-numeric: tabular-nums;
+  text-align: right;
+  overflow-wrap: anywhere;
 }
 
 .home-intro__link {
   color: var(--title-text-color);
-  text-decoration: underline;
+  text-decoration: none;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
-  text-decoration-color: color-mix(in oklab, var(--title-text-color) 40%, transparent);
-  transition: text-decoration-color 150ms ease;
 
   &:hover {
-    text-decoration-color: var(--title-text-color);
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 1.5px solid currentColor;
+    outline-offset: 3px;
   }
 }
 
@@ -315,54 +311,84 @@
   }
 }
 
-/* 读数：两位数大年份落在右缘，跟着指针实时更新。 */
+/* 读数也是入口：完整年份与 ↗ 共用同一个点击范围。 */
 .home-archive__readout {
   display: flex;
-  align-items: flex-end;
   justify-content: flex-end;
-  gap: 1rem;
-  padding-bottom: 1rem;
+  width: fit-content;
+  margin-inline-start: auto;
+  padding-block: 0.5rem 1.25rem;
+  color: var(--title-text-color);
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 1.5px solid currentColor;
+    outline-offset: 6px;
+  }
 }
 
 .home-archive__figure {
   display: block;
-  margin-inline-end: -0.04em;
-  color: var(--title-text-color);
   font-family: var(--article-font-family);
-  font-size: clamp(3.5rem, 7vw, 6rem);
+  font-size: inherit;
   font-weight: 900;
-  /* 等宽数字：扫过刻度时数字换而不抖 */
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.04em;
   line-height: 0.85;
-  /* 跳到归档页时，与刊头的年份（archive.css 的 .archive-year__value）接成一次共享元素过渡 */
-  view-transition-name: archive-year;
+  white-space: nowrap;
 }
 
-/* 刻度尺：上下两条 Hairline 之间，每个年份占一格等分栏；年份再多也只是栏变窄，始终一行 */
+/* 四个等宽窗口位置；数据更多时保持刻度间距，只有一年时也保持相同尺度。 */
 .home-archive__scale {
+  --year-step: max(4.5rem, 25%);
   --scale-tick-top: 1.75rem;
   position: relative;
   border-block: 1px solid var(--home-hairline);
 }
 
+.home-archive__viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  cursor: grab;
+
+  &::-webkit-scrollbar { display: none; }
+
+  &.is-scrubbing {
+    scroll-snap-type: none;
+    cursor: grabbing;
+    user-select: none;
+  }
+
+  &:focus-visible {
+    outline: 1.5px solid var(--title-text-color);
+    outline-offset: 3px;
+  }
+}
+
 .home-archive__years {
+  position: relative;
   display: flex;
+  width: 100%;
   margin: 0;
   padding: 0;
   list-style: none;
 
   & > li {
-    flex: 1 1 0;
+    flex: 0 0 var(--year-step);
     min-width: 0;
+    scroll-snap-align: start;
   }
 }
 
-/* 整格都是链接：悬停、点击都不必对准那根细线 */
 .home-archive__year {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-height: 4.5rem;
   padding-block: var(--scale-tick-top) 1rem;
   color: var(--sub-text-color);
   font-family: var(--font-mono, monospace);
@@ -371,19 +397,21 @@
   letter-spacing: 0.04em;
   line-height: 1;
   text-decoration: none;
+  -webkit-user-drag: none;
   transition: color 160ms ease;
 
-  /* 选中但指针暂时不在的那一格：墨色稍重，提示「松手会回到这里」 */
-  &[aria-current] {
-    color: var(--sub-text-color);
+  /* 每年之间的小刻度随年份一起移动，不改变选中项的高度。 */
+  &::before {
+    position: absolute;
+    inset: var(--scale-tick-top) 0 auto;
+    height: 0.4rem;
+    background: repeating-linear-gradient(to right, transparent 0 calc(20% - 1px), var(--home-hairline) calc(20% - 1px) 20%);
+    content: "";
+    pointer-events: none;
   }
 
-  &:hover,
   &[data-tuned] {
     color: var(--title-text-color);
-  }
-
-  &[data-tuned] {
     font-weight: 700;
   }
 
@@ -401,23 +429,16 @@
 
 .home-archive__year-value {
   margin-top: 0.75rem;
-  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1);
 }
 
-/* 指针那一格的刻度更长，数字跟着让出一点 */
-.home-archive__year[data-tuned] > .home-archive__year-value {
-  transform: translateY(0.375rem);
-}
-
-/* 指针：一格宽的覆盖层，内含 ▼ 与加粗刻度；translateX 的百分比相对自身宽度，恰好一格一格地滑 */
+/* 固定在第一格中心，刻度尺从它下面经过。 */
 .home-archive__needle {
   position: absolute;
+  z-index: 1;
   inset-block: 0;
   left: 0;
-  width: calc(100% / var(--ticks, 1));
+  width: var(--year-step);
   pointer-events: none;
-  transform: translateX(calc(var(--needle, 0) * 100%));
-  transition: transform 260ms cubic-bezier(0.2, 0, 0, 1);
 
   &::before,
   &::after {
@@ -443,11 +464,31 @@
   }
 }
 
+/* 尾段恰好填满最早一年右侧的视口：有一个收尾，也有足够的滑动余量。 */
+.home-archive__years > .home-archive__origin {
+  display: flex;
+  flex: 0 0 calc(100% - var(--year-step));
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding-inline: 1rem;
+  box-sizing: border-box;
+  color: var(--sub-text-color);
+  font-size: var(--type-caption-size);
+  line-height: 1.5;
+  scroll-snap-align: none;
+}
+
+.home-archive__origin-mark {
+  color: var(--title-text-color);
+  font-size: 1.5rem;
+}
+
 /* ==========================================================================
    入场动画
    ========================================================================== */
 
-:root.gnix-revealed .home-page :is(.home-hero__brand, .home-hero__spec, .home-hero__mid, .home-hero__bottom-marker, .home-hero__caption) {
+:root.gnix-revealed .home-page :is(.home-hero__brand, .home-hero__spec, .home-hero__mid, .home-hero__bottom-marker) {
   animation: home-enter var(--home-enter-duration) cubic-bezier(0.16, 1, 0.3, 1) backwards;
   animation-delay: calc(min(var(--i, 0), 12) * 60ms);
 }
@@ -462,12 +503,6 @@
 @media (prefers-reduced-motion: reduce) {
   .home-hero__logo,
   .home-hero__ipa {
-    transition: none;
-  }
-
-  /* 指针与数字直接到位，不滑动 */
-  .home-archive__needle,
-  .home-archive__year-value {
     transition: none;
   }
 }

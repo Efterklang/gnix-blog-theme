@@ -1,7 +1,7 @@
 const { getDefaultLanguageKey, getLanguage, getLanguageBasePath, getLanguageKeys, isI18nEnabled } = require("../../util/i18n");
 
 // 站点首页：每种语言在各自前缀下生成一份（默认语言落在站点根路径）。
-// 页面内容由主题配置的 home 段与站点标签统计驱动；归档列表由 archive 生成器另行生成在 archive/
+// 页面内容由主题配置的 home 段与站点标签统计驱动；归档列表由 archive 生成器另行生成在 archives/
 module.exports = (hexo) => {
   hexo.extend.generator.register("home", function (_locals) {
     const { config } = this;

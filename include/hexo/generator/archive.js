@@ -6,8 +6,8 @@ module.exports = (hexo) => {
     const fullConfig = Object.assign({}, config, config.theme_config, hexo.theme.config);
     const themeConfig = hexo.theme.config.archive_generator || {};
     const orderBy = themeConfig.order_by || "-date";
-    // 归档目录（默认 archive/）挂在各语言前缀下；站点根路径由 home 生成器负责
-    const archiveDir = `${trimSlashes(themeConfig.path || "archive") || "archive"}/`;
+    // 归档目录挂在各语言前缀下；站点根路径由 home 生成器负责。
+    const archiveDir = `${trimSlashes(themeConfig.path || "archives") || "archives"}/`;
     const result = [];
 
     function buildArchive(path, langKey = null) {

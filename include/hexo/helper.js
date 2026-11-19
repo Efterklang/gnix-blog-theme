@@ -24,7 +24,8 @@ module.exports = (hexo) => {
   hexo.extend.helper.register("localized_tag_url", function (tag, langKey = null) {
     const urlFor = hexo.extend.helper.get("url_for").bind(this);
     if (!isI18nEnabled(this.config)) {
-      return urlFor(typeof tag === "string" ? tag : tag.path);
+      const route = typeof tag === "string" ? tag : tag.path;
+      return urlFor(`${route.replace(/\/+$/, "")}/index.html`);
     }
     const route = getLocalizedTagPath(tag, langKey || getPageLanguageKey(this.page, this.config), this.config);
     return urlFor(`/${route}`);

@@ -414,7 +414,7 @@ module.exports = class extends Component {
           allPosts: {
             name: helper.__("archive.all_posts"),
             count: publicPostCount,
-            url: helper.localized_url_for(config.archive_generator?.path || "archive"),
+            url: helper.localized_url_for(config.archive_generator?.path || "archives"),
             current: !isTagPage,
           },
           topicListLabel: helper._p("common.tag", Infinity),
